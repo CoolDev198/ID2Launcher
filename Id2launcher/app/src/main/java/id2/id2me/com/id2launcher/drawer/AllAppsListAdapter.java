@@ -18,7 +18,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import id2.id2me.com.id2launcher.AllAppsGridAdapter;
 import id2.id2me.com.id2launcher.Launcher;
@@ -31,101 +34,75 @@ import id2.id2me.com.id2launcher.general.AppGridView;
  * Created by bliss76 on 21/06/16.
  */
 public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
-    public static HashMap<String, ArrayList<AppInfo>> sortedMap, backUpMap;
-    public static List<Object> symbols;
-    public static List<Object> backupSymbols;
     private static LayoutInflater inflater = null;
-    private  LauncherApplication launcherApplication;
-    int i = 0;
-    ArrayList<AppInfo> listDigitAppInfo;
+    private LauncherApplication launcherApplication;
+    ArrayList<AppInfo> list;
+    ArrayList<ArrayList<AppInfo>> groupList;
     ArrayList<View> items = null;
     DrawerLayout drawerLayout;
     int NO_OF_APPS_IN_ROW = 3;
-    String mSectionName;
-    String mFirstSpell;
     private Activity activity;
-    private SideBar indexBar;
-
+    HashMap<String, Integer> mapIndex;
+    String[] sections;
     public AllAppsListAdapter(Activity activity,
-                              HashMap<String, ArrayList<AppInfo>> sortedMap,
-                              ArrayList<AppInfo> listDigitAppInfo, DrawerLayout drawerLayout) {
+                              ArrayList<AppInfo> list, DrawerLayout drawerLayout) {
         try {
             this.activity = activity;
-            launcherApplication= (LauncherApplication)activity.getApplication();
-            this.listDigitAppInfo = listDigitAppInfo;
+            launcherApplication = (LauncherApplication) activity.getApplication();
             inflater = (LayoutInflater) activity
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            this.sortedMap = sortedMap;
-
-            backUpMap = new HashMap<String, ArrayList<AppInfo>>();
-            backUpMap = (HashMap<String, ArrayList<AppInfo>>) sortedMap.clone();
-
-            this.symbols = Arrays.asList(sortedMap.keySet().toArray());
-
             this.drawerLayout = drawerLayout;
-
-            sortKeys();
-
-            backupSymbols = new ArrayList<Object>();
-
-            if (listDigitAppInfo.size() != 0) {
-                backupSymbols.add("#");
-            }
-            for (int i = 0; i < symbols.size(); i++) {
-                backupSymbols.add(symbols.get(i));
-            }
-
             items = new ArrayList<View>();
+            this.list = list;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+            makeGroups();
 
-    public void refresh() {
-        try {
-            this.sortedMap = launcherApplication.sortedMap;
+            mapIndex = new LinkedHashMap<String, Integer>();
 
-            backUpMap = new HashMap<String, ArrayList<AppInfo>>();
-            backUpMap = (HashMap<String, ArrayList<AppInfo>>) launcherApplication.sortedMap.clone();
+            for (int x = 0; x < groupList.size(); x++) {
+                try {
+                    for(int i=0;i<groupList.get(x).size();i++){
+                        String fruit = ((ArrayList<AppInfo>)groupList.get(x)).get(0).getAppname();
+                        String ch = fruit.substring(0, 1);
+                        ch = ch.toUpperCase(Locale.US);
+                        mapIndex.put(ch, x);
+                    }
 
-            this.symbols = Arrays.asList(launcherApplication.sortedMap.keySet().toArray());
-
-            sortKeys();
-
-            backupSymbols = new ArrayList<Object>();
-
-            if (listDigitAppInfo.size() != 0) {
-                backupSymbols.add("#");
-            }
-            for (int i = 0; i < symbols.size(); i++) {
-                backupSymbols.add(symbols.get(i));
-            }
-
-            items = new ArrayList<View>();
-
-            //  SideBar.mLetter.clear();
-
-            indexBar.setSideBarLetters(backupSymbols);
-
-            indexBar.invalidate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    void sortKeys() {
-        try {
-            Collections.sort(symbols, new Comparator<Object>() {
-                public int compare(Object o1, Object o2) {
-                    return o1.toString().compareTo(o2.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
+            }
+
+            Set<String> sectionLetters = mapIndex.keySet();
+
+            // create a list from the set to sort
+            ArrayList<String> sectionList = new ArrayList<String>(sectionLetters);
+
+            Log.v("sectionList", sectionList.toString());
+            Collections.sort(sectionList);
+
+            sections = new String[sectionList.size()];
+
+            sectionList.toArray(sections);
+
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void makeGroups() {
+        ArrayList<AppInfo> arrayList = new ArrayList<>();
+        groupList=new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            arrayList.add(list.get(i));
+            if (arrayList.size()% 3 == 0) {
+                groupList.add(arrayList);
+                arrayList = new ArrayList<>();
+            }
+        }
+        if(arrayList.size()>0){
+            groupList.add(arrayList);
         }
     }
 
@@ -141,54 +118,19 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
 
         View vi = convertView;
         ViewHolder holder;
-        String symbol = "";
-        int noOfApps = 0;
-        ArrayList<AppInfo> appInfos;
 
         try {
             if (convertView == null) {
                 vi = inflater.inflate(R.layout.adapter_viewitem, null);
                 items.add(vi);
                 holder = new ViewHolder();
-                holder.symbol = (TextView) vi.findViewById(R.id.txt_symbol);
                 holder.gridView = (AppGridView) vi.findViewById(R.id.grid);
                 vi.setTag(holder);
-
-                if (position == 0) {
-
-                    indexBar.setSideBarLetters(backupSymbols);
-                }
-
             } else {
-                holder = (ViewHolder) vi.getTag();
+                holder = (ViewHolder)  vi.getTag();
             }
-
-            symbol = backupSymbols.get(position).toString();
-
-            if (position == 0) {
-
-                if (listDigitAppInfo.size() != 0) {
-                    noOfApps = listDigitAppInfo.size();
-                    appInfos = listDigitAppInfo;
-                } else {
-                    noOfApps = sortedMap.get(symbol).size();
-                    appInfos = sortedMap.get(symbol);
-                }
-
-
-                mSectionName = appInfos.get(0).getAppname();
-
-            } else {
-                noOfApps = sortedMap.get(symbol).size();
-                appInfos = sortedMap.get(symbol);
-                mSectionName = appInfos.get(0).getAppname();
-            }
-
-            holder.symbol.setText(symbol);
-            setColumnWidth(holder.gridView);
-            setGridViewTotalHeight(noOfApps, holder.gridView);
             setNoOfColumnsOfGrid(holder.gridView);
-            AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, appInfos, drawerLayout);
+            AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList.get(position), drawerLayout);
             holder.gridView.setAdapter(adapter);
 
         } catch (Exception e) {
@@ -199,33 +141,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
 
     @Override
     public int getCount() {
-        return backupSymbols.size();
-    }
-
-    void setGridViewTotalHeight(int noOfApps, GridView gridView) {
-        try {
-            int noOfRows = 0;
-            if (noOfApps % 3 == 0) {
-                noOfRows = noOfApps / 3;
-            } else {
-                noOfRows = (noOfApps / 3) + 1;
-            }
-            Log.v("rows", noOfRows + " " + noOfApps);
-            int totalHeight = (noOfRows)
-                    * (int) activity.getResources().getDimension(
-                    R.dimen.cell_height);
-            ViewGroup.LayoutParams params = gridView.getLayoutParams();
-            params.height = totalHeight;
-            gridView.setLayoutParams(params);
-        } catch (Resources.NotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    void setColumnWidth(GridView gridView) {
-        int width = (int) (gridView.getWidth() / NO_OF_APPS_IN_ROW) - 30;
-        Log.v("Width", "" + gridView.getWidth());
-        gridView.setColumnWidth(width);
+        return groupList.size();
     }
 
     void setNoOfColumnsOfGrid(GridView gridView) {
@@ -233,47 +149,21 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     public int getPositionForSection(int section) {
-        try {
-            for (int i = 0; i < Launcher.mNames.size(); i++) {
-                mSectionName = Launcher.mNames.get(i);
-                new ConverterToFirstSpellThread().run();
-                final char firstChar = mFirstSpell.toUpperCase().charAt(0);
-                if (firstChar == section) {
-                    return i;
-
-                }
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return -1;
+        Log.d("section", "" + section);
+        return mapIndex.get(sections[section]);
     }
 
     public int getSectionForPosition(int position) {
+        Log.d("position", "" + position);
         return 0;
     }
 
     public Object[] getSections() {
-        return null;
-    }
-
-    public void setSideBar(SideBar indexBar) {
-        // TODO Auto-generated method stub
-        this.indexBar = indexBar;
+        return sections;
     }
 
     public static class ViewHolder {
-        public TextView symbol;
         public AppGridView gridView;
-    }
-
-    class ConverterToFirstSpellThread implements Runnable {
-
-        public void run() {
-            mFirstSpell = SpellUtil.converterToFirstSpell(mSectionName);
-        }
-
     }
 
 

@@ -2,6 +2,7 @@ package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +80,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
                 setupViewPagerAsInnerFragment(viewPager);
                 TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
                 tabLayout.setupWithViewPager(viewPager);
+                changeTabsFont(tabLayout);
 
                 ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
 
@@ -102,6 +105,21 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         return application.desktopFragmentView;
     }
 
+    private void changeTabsFont(TabLayout tabLayout) {
+
+        ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
+        int tabsCount = vg.getChildCount();
+        for (int j = 0; j < tabsCount; j++) {
+            ViewGroup vgTab = (ViewGroup) vg.getChildAt(j);
+            int tabChildsCount = vgTab.getChildCount();
+            for (int i = 0; i < tabChildsCount; i++) {
+                View tabViewChild = vgTab.getChildAt(i);
+                if (tabViewChild instanceof TextView) {
+                    ((TextView) tabViewChild).setTypeface(application.getTypeFace());
+                }
+            }
+        }
+    }
 
     private void setupViewPagerAsInnerFragment(ViewPager viewPager) {
         if (viewPager.getChildCount() == 0) {
@@ -173,7 +191,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         try {
             RelativeLayout leftDrawer = (RelativeLayout) fragmentView.findViewById(R.id.left_drawer_layout);
             ViewGroup.LayoutParams params = leftDrawer.getLayoutParams();
-            params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth() - 80;
+            params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth();
             leftDrawer.setLayoutParams(params);
         } catch (Exception e) {
             e.printStackTrace();
