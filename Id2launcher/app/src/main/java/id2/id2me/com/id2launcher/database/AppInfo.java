@@ -2,6 +2,8 @@ package id2.id2me.com.id2launcher.database;
 
 import android.graphics.drawable.Drawable;
 
+import java.util.ArrayList;
+
 /**
  * Created by bliss76 on 27/05/16.
  */

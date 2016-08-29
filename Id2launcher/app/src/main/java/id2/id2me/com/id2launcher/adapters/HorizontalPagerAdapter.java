@@ -1,38 +1,44 @@
 package id2.id2me.com.id2launcher.adapters;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.FirstFragment;
-import id2.id2me.com.id2launcher.MyFragment;
-import id2.id2me.com.id2launcher.folder.FolderFragmentInterface;
-import id2.id2me.com.id2launcher.drawer.DrawerHandler;
+import id2.id2me.com.id2launcher.FolderFragment;
+import id2.id2me.com.id2launcher.FolderGridAdapter;
 import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.general.NonSwipeViewPager;
 
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class HorizontalPagerAdapter extends FragmentPagerAdapter implements FolderFragmentInterface
-{
-    private List<String>fragmentNames;
+
+public class HorizontalPagerAdapter extends FragmentPagerAdapter {
     private List<Fragment> fragments;
-    Context context;
-    DrawerLayout drawerLayout;
-    DrawerHandler drawerHandler;
+    NonSwipeViewPager nonSwipeViewPager;
 
-
-    public HorizontalPagerAdapter(FragmentManager fm, List<Fragment> fragments, List<String> fragmentNames) {
+    public HorizontalPagerAdapter(FragmentManager fm, List<Fragment> fragments, NonSwipeViewPager pager) {
         super(fm);
-        this.context = context;
+        this.nonSwipeViewPager = pager;
         this.fragments = fragments;
-        this.fragmentNames = fragmentNames;
-        FirstFragment.setListner(this);
+    }
+
+    public void addNewFolderFragment(){
+       fragments.add(FolderFragment.newInstance());
+        this.notifyDataSetChanged();
+
+    }
+    public void updateFragments(int position , ArrayList<AppInfo> appInfos){
+        if(position!=0) {
+            FolderFragment fragment = (FolderFragment) fragments.get(position);
+            FolderGridAdapter folderGridAdapter=   ((FolderGridAdapter) fragment.getAdapter());
+            folderGridAdapter.setAppInfos(appInfos);
+
+        }
     }
 
 
@@ -46,19 +52,6 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter implements Fold
     public int getCount() {
         return this.fragments.size();
     }
-
-    @Override
-    public void addOrUpdateFolder(String name, ArrayList<AppInfo> appInfos) {
-
-        if(!fragmentNames.contains(name)){
-            fragmentNames.add(name);
-            fragments.add(MyFragment.newInstance(appInfos));
-            this.notifyDataSetChanged();
-
-        }
-    }
-
-
 
 
 

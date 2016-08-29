@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/page_widget"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:layout_weight="1"
+    android:gravity="left|top"
+    android:orientation="vertical"
+   >
+
+    <!-- The preview of the widget or shortcut. -->
+    <ImageView
+        android:id="@+id/widget_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingTop="@dimen/app_widget_preview_padding_top"
+        android:paddingLeft="@dimen/app_widget_preview_padding_left"
+        android:paddingRight="@dimen/app_widget_preview_padding_right"
+        android:scaleType="matrix"
+        android:background="@drawable/widget_container_holo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/app_widget_preview_label_margin_top"
+        android:layout_marginLeft="@dimen/app_widget_preview_label_margin_left"
+        android:layout_marginRight="@dimen/app_widget_preview_label_margin_right"
+        android:orientation="horizontal">
+        <!-- The name of the widget. -->
+        <TextView
+            android:id="@+id/widget_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:textColor="#FFFFFFFF"
+            android:textSize="13sp" />
+
+        <!-- The original dimensions of the widget (can't be the same text as above due to different
+             style. -->
+        <TextView
+            android:id="@+id/widget_dims"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="0"
+            android:gravity="left"
+            android:textColor="#FF555555"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+
+</LinearLayout>

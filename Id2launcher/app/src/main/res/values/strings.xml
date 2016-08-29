@@ -3,4 +3,36 @@
     <string name="drawerheader">ALL APPS</string>
     <string name="uninstallHeader">Uninstall</string>
     <string name="appNotFound">No App Found</string>
+    <!-- Label for trash icon on workspace. Meant to communicate the idea of removing the
+        icon/widget from the home screen, but not permanently. [CHAR_LIMIT=30] -->
+    <string name="remove_zone_label">Remove</string>
+    <!-- Label for trash icon  will become completely unavailable on the
+         device. [CHAR_LIMIT=30]-->
+    <string name="uninstall_zone_label">Uninstall</string>
+
+    <!-- The format string for the dimensions of a widget in the drawer -->
+    <string name="widget_dims_format" translatable="false">%1$d x %2$d</string>
+
+    <!-- Permissions: -->
+    <!-- Permission short label -->
+    <string name="permlab_install_shortcut">install shortcuts</string>
+    <!-- Permission description -->
+    <string name="permdesc_install_shortcut">Allows an app to add
+        shortcuts without user intervention.</string>
+    <!-- Permission short label -->
+    <string name="permlab_uninstall_shortcut">uninstall shortcuts</string>
+    <!-- Permission description -->
+    <string name="permdesc_uninstall_shortcut">Allows the app to remove
+        shortcuts without user intervention.</string>
+    <!-- Permission short label -->
+    <string name="permlab_read_settings">read Home settings and shortcuts</string>
+    <!-- Permission description -->
+    <string name="permdesc_read_settings">Allows the app to read the settings and
+        shortcuts in Home.</string>
+    <!-- Permission short label -->
+    <string name="permlab_write_settings">write Home settings and shortcuts</string>
+    <!-- Permission description -->
+    <string name="permdesc_write_settings">Allows the app to change the settings and
+        shortcuts in Home.</string>
+
 </resources>

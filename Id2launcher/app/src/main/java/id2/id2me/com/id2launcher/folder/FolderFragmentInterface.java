@@ -9,6 +9,14 @@ import id2.id2me.com.id2launcher.database.AppInfo;
  */
 public interface FolderFragmentInterface {
 
-    public void addOrUpdateFolder(String name,ArrayList<AppInfo> appInfos);
+    void addFolder(int target, AppInfo draggedAppInfo, AppInfo targetAppInfo);
 
+    void updateFolder(int target, AppInfo
+             draggedAppInfo);
+
+    void updateFolderGridAdapter(int pos);
+
+    void ChangeFolderToApp(int pos,AppInfo appInfo);
+
+    void removeFolder(int target);
 }

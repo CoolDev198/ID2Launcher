@@ -4,9 +4,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="id2.id2me.com.id2launcher.HomeActivity">
+    android:background="@android:color/white"
+    tools:context="id2.id2me.com.id2launcher.Launcher">
 
-    <android.support.v4.view.ViewPager
+    <id2.id2me.com.id2launcher.general.NonSwipeViewPager
         android:id="@+id/viewpager"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />

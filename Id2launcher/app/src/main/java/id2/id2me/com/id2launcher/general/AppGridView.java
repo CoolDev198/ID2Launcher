@@ -24,4 +24,7 @@ public class AppGridView extends GridView
     public AppGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
+
+
+
 }

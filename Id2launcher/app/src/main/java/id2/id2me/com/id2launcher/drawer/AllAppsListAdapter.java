@@ -1,6 +1,5 @@
 package id2.id2me.com.id2launcher.drawer;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -21,44 +20,43 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.general.AppGridView;
-import id2.id2me.com.id2launcher.HomeActivity;
+import id2.id2me.com.id2launcher.AllAppsGridAdapter;
+import id2.id2me.com.id2launcher.Launcher;
+import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.general.Utility;
 import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.general.AppGridView;
 
 /**
  * Created by bliss76 on 21/06/16.
  */
-public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
-{
-    private Activity activity;
-    private static LayoutInflater inflater = null;
-    int i = 0;
+public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     public static HashMap<String, ArrayList<AppInfo>> sortedMap, backUpMap;
-    ArrayList<AppInfo> listDigitAppInfo;
     public static List<Object> symbols;
     public static List<Object> backupSymbols;
+    private static LayoutInflater inflater = null;
+    private  LauncherApplication launcherApplication;
+    int i = 0;
+    ArrayList<AppInfo> listDigitAppInfo;
     ArrayList<View> items = null;
-    final int NO_OF_APPS_IN_ROW = 3;
     DrawerLayout drawerLayout;
-    AppGridView appGridView;
-    ArrayList arrayList_collection;
-    // To differentiate between arrange app and home activity click events.
-    boolean appClickEvent = true;
+    int NO_OF_APPS_IN_ROW = 3;
+    String mSectionName;
+    String mFirstSpell;
+    private Activity activity;
+    private SideBar indexBar;
 
-    public DrawerListAdapter(Activity activity,
-                       HashMap<String, ArrayList<AppInfo>> sortedMap,
-                       ArrayList<AppInfo> listDigitAppInfo, AppGridView appGridView,DrawerLayout drawerLayout, ArrayList arrayList_collection) {
+    public AllAppsListAdapter(Activity activity,
+                              HashMap<String, ArrayList<AppInfo>> sortedMap,
+                              ArrayList<AppInfo> listDigitAppInfo, DrawerLayout drawerLayout) {
         try {
             this.activity = activity;
+            launcherApplication= (LauncherApplication)activity.getApplication();
             this.listDigitAppInfo = listDigitAppInfo;
             inflater = (LayoutInflater) activity
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             this.sortedMap = sortedMap;
-            this.appGridView=appGridView;
-            this.arrayList_collection=arrayList_collection;
 
             backUpMap = new HashMap<String, ArrayList<AppInfo>>();
             backUpMap = (HashMap<String, ArrayList<AppInfo>>) sortedMap.clone();
@@ -85,14 +83,14 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
         }
     }
 
-    public void refresh(){
+    public void refresh() {
         try {
-            this.sortedMap = Utility.sortedMap;
+            this.sortedMap = launcherApplication.sortedMap;
 
             backUpMap = new HashMap<String, ArrayList<AppInfo>>();
-            backUpMap = (HashMap<String, ArrayList<AppInfo>>) Utility.sortedMap.clone();
+            backUpMap = (HashMap<String, ArrayList<AppInfo>>) launcherApplication.sortedMap.clone();
 
-            this.symbols = Arrays.asList(Utility.sortedMap.keySet().toArray());
+            this.symbols = Arrays.asList(launcherApplication.sortedMap.keySet().toArray());
 
             sortKeys();
 
@@ -107,7 +105,7 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
 
             items = new ArrayList<View>();
 
-          //  SideBar.mLetter.clear();
+            //  SideBar.mLetter.clear();
 
             indexBar.setSideBarLetters(backupSymbols);
 
@@ -139,12 +137,6 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
         return position;
     }
 
-    public static class ViewHolder {
-        public TextView symbol;
-        public AppGridView gridView;
-    }
-
-    @SuppressLint("InflateParams")
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View vi = convertView;
@@ -156,7 +148,6 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
         try {
             if (convertView == null) {
                 vi = inflater.inflate(R.layout.adapter_viewitem, null);
-                //vi.setBackgroundColor(activity.getResources().getColor(R.color.yellow));
                 items.add(vi);
                 holder = new ViewHolder();
                 holder.symbol = (TextView) vi.findViewById(R.id.txt_symbol);
@@ -195,9 +186,9 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
 
             holder.symbol.setText(symbol);
             setColumnWidth(holder.gridView);
-            setNoOfColumnsOfGrid(holder.gridView);
             setGridViewTotalHeight(noOfApps, holder.gridView);
-            DrawerGridAdapter adapter = new DrawerGridAdapter(activity, appInfos, drawerLayout, appClickEvent,appGridView);
+            setNoOfColumnsOfGrid(holder.gridView);
+            AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, appInfos, drawerLayout);
             holder.gridView.setAdapter(adapter);
 
         } catch (Exception e) {
@@ -222,7 +213,7 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
             Log.v("rows", noOfRows + " " + noOfApps);
             int totalHeight = (noOfRows)
                     * (int) activity.getResources().getDimension(
-                    R.dimen.gridview_height);
+                    R.dimen.cell_height);
             ViewGroup.LayoutParams params = gridView.getLayoutParams();
             params.height = totalHeight;
             gridView.setLayoutParams(params);
@@ -233,23 +224,18 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
 
     void setColumnWidth(GridView gridView) {
         int width = (int) (gridView.getWidth() / NO_OF_APPS_IN_ROW) - 30;
-        Log.v("Width",""+gridView.getWidth());
-       gridView.setColumnWidth(width);
+        Log.v("Width", "" + gridView.getWidth());
+        gridView.setColumnWidth(width);
     }
 
     void setNoOfColumnsOfGrid(GridView gridView) {
         gridView.setNumColumns(NO_OF_APPS_IN_ROW);
     }
 
-    String mSectionName;
-
-    String mFirstSpell;
-    private SideBar indexBar;
-
     public int getPositionForSection(int section) {
         try {
-            for (int i = 0; i < HomeActivity.mNames.size(); i++) {
-                mSectionName = HomeActivity.mNames.get(i);
+            for (int i = 0; i < Launcher.mNames.size(); i++) {
+                mSectionName = Launcher.mNames.get(i);
                 new ConverterToFirstSpellThread().run();
                 final char firstChar = mFirstSpell.toUpperCase().charAt(0);
                 if (firstChar == section) {
@@ -259,17 +245,9 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
-             e.printStackTrace();
+            e.printStackTrace();
         }
         return -1;
-    }
-
-    class ConverterToFirstSpellThread implements Runnable {
-
-        public void run() {
-            mFirstSpell = SpellUtil.converterToFirstSpell(mSectionName);
-        }
-
     }
 
     public int getSectionForPosition(int position) {
@@ -283,6 +261,19 @@ public class DrawerListAdapter extends BaseAdapter implements SectionIndexer
     public void setSideBar(SideBar indexBar) {
         // TODO Auto-generated method stub
         this.indexBar = indexBar;
+    }
+
+    public static class ViewHolder {
+        public TextView symbol;
+        public AppGridView gridView;
+    }
+
+    class ConverterToFirstSpellThread implements Runnable {
+
+        public void run() {
+            mFirstSpell = SpellUtil.converterToFirstSpell(mSectionName);
+        }
+
     }
 
 

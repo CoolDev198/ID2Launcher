@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
     <color name="pink">#FF9999</color>
     <color name="yellow">#CCFFCC</color>
     <color name="purple">#996699</color>
@@ -16,5 +13,11 @@
     <color name="color_black">#000000</color>
     <color name="symbol_circle_color">#303030</color>
     <color name="status_bar_color">#7c000000</color>
-
+    <color name="delete_target_hover_tint">#DAFF0000</color>
+    <color name="colorPrimary">#125688</color>
+    <color name="colorPrimaryDark">#125688</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent">#c8e8ff</color>
 </resources>

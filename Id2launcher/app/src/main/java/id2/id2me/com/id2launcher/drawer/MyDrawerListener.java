@@ -1,43 +1,37 @@
 package id2.id2me.com.id2launcher.drawer;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.support.v4.widget.DrawerLayout;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import id2.id2me.com.id2launcher.LauncherApplication;
 
 /**
  * Created by bliss76 on 22/06/16.
  */
 public class MyDrawerListener implements DrawerLayout.DrawerListener {
- public static   DrawerHandler handler;
-  public static  DrawerLayout drawerLayout;
-    Activity activity;
+    public static DrawerHandler handler;
+    Context context;
+    DrawerLayout drawerLayout;
 
-
-
-    public MyDrawerListener(DrawerHandler handler, Activity activity, DrawerLayout drawerLayout) {
+    public MyDrawerListener(DrawerHandler handler, Context context,DrawerLayout drawer) {
+        this.drawerLayout=drawer;
         this.handler = handler;
-        this.drawerLayout = drawerLayout;
-        this.activity = activity;
+        this.context = context;
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public void onDrawerClosed(View arg0) {
-
-            drawerLayout.closeDrawer(Gravity.LEFT);
-           // Utility.isDrawerOpen = false;
-           // Utility.isDrawerDragged = false;
-
-
-        hideKeyBoard();
+        Log.v("drawer close","");
+        handler.drawerClose();
+       // hideKeyBoard();
 
     }
+
+
 
     private void hideKeyBoard() {
 
@@ -45,10 +39,10 @@ public class MyDrawerListener implements DrawerLayout.DrawerListener {
             View v = null;
             InputMethodManager imm = null;
 
-            if (activity != null) {
-                v = activity.getCurrentFocus();
-                imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                activity.getCurrentFocus().setPadding(0, 0, 0, 0);
+            if (context != null) {
+                v = ((Activity)context).getCurrentFocus();
+                imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                ((Activity)context).getCurrentFocus().setPadding(0, 0, 0, 0);
             }
 
             if (v != null) {
@@ -60,52 +54,24 @@ public class MyDrawerListener implements DrawerLayout.DrawerListener {
     }
 
     @Override
-    public  void onDrawerOpened(View arg0) {
-       // Utility.isDrawerOpen = true;
-      //  handler.drawerOpen();
-        /*if (activity != null) {
-            Utility.isDrawerOpen = true;
-            handler.drawerOpen();
-        }*/
-        // if (Utility.isIdle) {
+    public void onDrawerOpened(View arg0) {
+        handler.drawerOpen();
 
-           // }
-
+        Log.v("drawer opened","");
     }
 
     @Override
-    public void onDrawerSlide(View arg0, float arg1)
-    {
-
+    public void onDrawerSlide(View arg0, float arg1) {
+        Log.v("drawer slide","");
     }
 
-    @SuppressLint("RtlHardcoded")
     @Override
-    public  void onDrawerStateChanged(int state) {
-        try {
-           /* if(state==DrawerLayout.STATE_DRAGGING) {
-               // handler.drawerOpen();
-               // drawerLayout.closeDrawer(Gravity.LEFT);
-            }*/
-
-           /* if (state == DrawerLayout.STATE_DRAGGING
-                    || state == DrawerLayout.STATE_SETTLING) {
-
-                if (Utility.isFolder) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
-                }
-            }*/
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void onDrawerStateChanged(int state) {
+        Log.v("drawer opened","");
+        if(state==DrawerLayout.STATE_DRAGGING)
+        ((LauncherApplication) ((Activity)context).getApplication()).isDrawerOpen=true;
 
     }
-
-
-
 
 
 }

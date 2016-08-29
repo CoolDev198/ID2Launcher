@@ -203,9 +203,7 @@ public class SideBar extends View
                         sectionIndexter = (SectionIndexer) list.getAdapter();
                     }
 
-                    position = idx;//sectionIndexter.getPositionForSection(mLetter
-                    //.get(idx));
-                    //  position=3;
+                    position = idx;
                     try {
                         updateOverlayTextViewToWindow(0, (y - getResources()
                                 .getDimension(R.dimen.indicator_y_diff)));
@@ -231,6 +229,7 @@ public class SideBar extends View
                     if (drawer != null) {
                         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     }
+                    if(mDialogText!=null)
                     mDialogText.setVisibility(INVISIBLE);
                 } catch (Exception e) {
 

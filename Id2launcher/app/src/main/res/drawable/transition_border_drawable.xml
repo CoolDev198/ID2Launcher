@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transition xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/round_transperant_border"/>
+    <item android:drawable="@drawable/round_white_border"/>
+</transition>
