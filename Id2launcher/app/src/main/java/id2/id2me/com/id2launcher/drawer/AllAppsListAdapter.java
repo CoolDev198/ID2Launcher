@@ -44,6 +44,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     private Activity activity;
     HashMap<String, Integer> mapIndex;
     String[] sections;
+
     public AllAppsListAdapter(Activity activity,
                               ArrayList<AppInfo> list, DrawerLayout drawerLayout) {
         try {
@@ -53,55 +54,70 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             this.drawerLayout = drawerLayout;
-            items = new ArrayList<View>();
             this.list = list;
 
-            makeGroups();
-
+            items = new ArrayList<View>();
             mapIndex = new LinkedHashMap<String, Integer>();
 
-            for (int x = 0; x < groupList.size(); x++) {
-                try {
-                    for(int i=0;i<groupList.get(x).size();i++){
-                        String fruit = ((ArrayList<AppInfo>)groupList.get(x)).get(0).getAppname();
-                        String ch = fruit.substring(0, 1);
-                        ch = ch.toUpperCase(Locale.US);
-                        mapIndex.put(ch, x);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            Set<String> sectionLetters = mapIndex.keySet();
-
-            // create a list from the set to sort
-            ArrayList<String> sectionList = new ArrayList<String>(sectionLetters);
-
-            Log.v("sectionList", sectionList.toString());
-            Collections.sort(sectionList);
-
-            sections = new String[sectionList.size()];
-
-            sectionList.toArray(sections);
+            makeGroups();
+            makeSections();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void makeSections() {
+        for (int x = 0; x < groupList.size(); x++) {
+            try {
+                String modifyChar;
+                for (int i = 0; i < groupList.get(x).size(); i++) {
+                    char ch = ((ArrayList<AppInfo>) groupList.get(x)).get(i).getAppname().charAt(0);
+                    if (ch >= 'A' && ch <= 'Z') {
+                        modifyChar = Character.toString(ch).toUpperCase();
+
+                    } else {
+                        if (ch >= 'a' && ch <= 'z') {
+                            modifyChar = Character.toString(ch).toUpperCase();
+                        } else {
+                            modifyChar = "#";
+                        }
+                    }
+
+                    if (!mapIndex.containsKey(modifyChar)) {
+                        mapIndex.put(modifyChar, x);
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Set<String> sectionLetters = mapIndex.keySet();
+
+        // create a list from the set to sort
+        ArrayList<String> sectionList = new ArrayList<String>(sectionLetters);
+
+        Log.v("sectionList", sectionList.toString());
+        Collections.sort(sectionList);
+
+        sections = new String[sectionList.size()];
+
+        sectionList.toArray(sections);
+    }
+
     private void makeGroups() {
         ArrayList<AppInfo> arrayList = new ArrayList<>();
-        groupList=new ArrayList<>();
+        groupList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             arrayList.add(list.get(i));
-            if (arrayList.size()% 3 == 0) {
+            if (arrayList.size() % 3 == 0) {
                 groupList.add(arrayList);
                 arrayList = new ArrayList<>();
             }
         }
-        if(arrayList.size()>0){
+        if (arrayList.size() > 0) {
             groupList.add(arrayList);
         }
     }
@@ -127,7 +143,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
                 holder.gridView = (AppGridView) vi.findViewById(R.id.grid);
                 vi.setTag(holder);
             } else {
-                holder = (ViewHolder)  vi.getTag();
+                holder = (ViewHolder) vi.getTag();
             }
             setNoOfColumnsOfGrid(holder.gridView);
             AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList.get(position), drawerLayout);

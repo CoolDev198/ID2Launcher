@@ -35,8 +35,8 @@ public class AppsListingFragment extends Fragment {
 
 
     public static AppsListingFragment newInstance(DrawerLayout drawerLayout, ArrayList<AppInfo> appInfo) {
-        drawer=drawerLayout;
-        appInfos=appInfo;
+        drawer = drawerLayout;
+        appInfos = appInfo;
         AppsListingFragment f = new AppsListingFragment();
         return f;
     }
@@ -52,47 +52,65 @@ public class AppsListingFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.context=context;
+        this.context = context;
     }
 
     public void drawerAppsListing() {
         try {
-            setListAdapter(appInfos);
+            setListAdapter();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void getSortedAllAppModeHaspMap(ArrayList<AppInfo> list) {
+    private void seperateCharNumApps() {
         try {
-            Collections.sort(list, new Comparator<AppInfo>() {
-                public int compare(AppInfo o1, AppInfo o2) {
-                    return o1.getAppname().toString().trim().toUpperCase().compareTo(o2.getAppname().toString().trim().toUpperCase());
+
+            ArrayList<AppInfo> listDigitAppInfo = new ArrayList<>();
+            ArrayList<AppInfo> listAppInfo = new ArrayList<>();
+            for (int i = 0; i < appInfos.size(); i++) {
+                char ch = appInfos.get(i).getAppname().toString().charAt(0);
+                if (ch >= 'A' && ch <= 'Z') {
+                    listAppInfo.add(appInfos.get(i));
+                } else {
+                    if (ch >= 'a' && ch <= 'z') {
+                        listAppInfo.add(appInfos.get(i));
+                    } else {
+                        listDigitAppInfo.add(appInfos.get(i));
+                    }
+
                 }
-            });
+            }
 
+            appInfos.clear();
+
+            for (int i = 0; i < listDigitAppInfo.size(); i++) {
+                appInfos.add(listDigitAppInfo.get(i));
+            }
+
+            for (int i = 0; i < listAppInfo.size(); i++) {
+                appInfos.add(listAppInfo.get(i));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    private void setListAdapter(ArrayList<AppInfo> list) {
+
+    private void setListAdapter() {
         try {
+            seperateCharNumApps();
             navList = (ListView) fragmentView.findViewById(R.id.list);
             navList.setClickable(false);
-            adapter = new AllAppsListAdapter(getActivity(), list,drawer);
+            adapter = new AllAppsListAdapter(getActivity(), appInfos, drawer);
             navList.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-
-
-
 
 
 }
