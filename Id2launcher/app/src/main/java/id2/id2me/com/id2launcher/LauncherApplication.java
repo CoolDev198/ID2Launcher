@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -44,6 +45,10 @@ public class LauncherApplication extends Application {
 
     }
 
+    public Typeface getTypeFace(){
+      Typeface  typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
+      return typeface;
+    }
     public void associateRecToEachCell() {
         for (int x = 0; x < getCellCountX(); x++) {
             for (int y = 0; y < getCellCountY(); y++) {

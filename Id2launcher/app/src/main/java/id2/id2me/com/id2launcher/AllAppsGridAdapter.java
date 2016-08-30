@@ -77,6 +77,11 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                 holder = new ViewHolder();
                 grid.setTag(holder);
                 holder.itemText = (TextView) grid.findViewById(R.id.drawer_grid_text);
+                try {
+                    holder.itemText.setTypeface(launcherApplication.getTypeFace());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 holder.itemImage = (ImageView) grid.findViewById(R.id.drawer_grid_image);
                 grid.setOnClickListener(this);
                 grid.setOnLongClickListener(this);

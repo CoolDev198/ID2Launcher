@@ -38,7 +38,7 @@
             android:singleLine="true"
             android:ellipsize="marquee"
             android:fadingEdge="horizontal"
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/app_drawer_text_color"
             android:textSize="13sp" />
 
         <!-- The original dimensions of the widget (can't be the same text as above due to different
@@ -51,7 +51,6 @@
             android:layout_marginLeft="5dp"
             android:layout_weight="0"
             android:gravity="left"
-            android:textColor="#FF555555"
             android:textSize="12sp" />
     </LinearLayout>
 

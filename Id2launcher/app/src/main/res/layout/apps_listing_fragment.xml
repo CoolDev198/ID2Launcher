@@ -4,74 +4,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_below="@+id/top_header_drawer"
     android:layout_marginBottom="0dp"
-    android:background="@color/list_bg_color"
     android:baselineAligned="false"
     android:orientation="horizontal">
 
     <ListView
         android:id="@+id/list"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="start"
-        android:layout_weight="1"
         android:divider="@null"
-        android:dividerHeight="15dp"
-        android:listSelector="@android:color/white"
-        android:scrollbars="none"></ListView>
-
-    <id2.id2me.com.id2launcher.drawer.SideBar
-        android:id="@+id/side_index"
-        android:layout_width="60dp"
-        android:layout_height="fill_parent"
-        android:gravity="center_horizontal" />
+        android:scrollbarStyle="outsideOverlay"
+        android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="true"
+        android:scrollbars="vertical">
+    </ListView>
 </LinearLayout>
-
-    <!--<LinearLayout-->
-    <!--android:id="@+id/top_header_drawer"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="50dp"-->
-    <!--android:background="@color/drawer_header_color"-->
-    <!--android:orientation="vertical"-->
-    <!--android:visibility="gone">-->
-
-    <!--<LinearLayout-->
-    <!--android:id="@+id/remove_header_layout"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="50dp"-->
-    <!--android:background="@android:color/transparent"-->
-    <!--android:gravity="center"-->
-    <!--android:orientation="horizontal"-->
-    <!--android:visibility="visible">-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:gravity="center"-->
-    <!--android:paddingRight="12dp"-->
-    <!--android:src="@mipmap/ic_actioncancel"></ImageView>-->
-
-    <!--<TextView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="@string/uninstallHeader"-->
-    <!--android:textColor="@android:color/white"-->
-    <!--android:textSize="18sp" />-->
-    <!--</LinearLayout>-->
-
-
-    <!--<TextView-->
-    <!--android:id="@+id/all_apps_header"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginLeft="15dp"-->
-    <!--android:layout_marginTop="10dp"-->
-    <!--android:text="@string/drawerheader"-->
-    <!--android:textColor="@color/white"-->
-    <!--android:textSize="21sp"-->
-    <!--android:visibility="gone" />-->
-    <!--</LinearLayout>-->
 
 
 

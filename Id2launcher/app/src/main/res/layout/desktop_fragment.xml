@@ -65,6 +65,10 @@
                     android:id="@+id/tabs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/tab_background_color"
+                    app:tabTextColor="@color/tab_text_color"
+                    app:tabSelectedTextColor="@color/tab_text_color"
+                    app:tabIndicatorColor="@color/tab_text_color"
                     app:tabGravity="fill"
                     app:tabMode="fixed" />
             </android.support.design.widget.AppBarLayout>
@@ -73,6 +77,7 @@
                 android:id="@+id/viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/app_drawer_color"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         </android.support.design.widget.CoordinatorLayout>
 
