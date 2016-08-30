@@ -28,6 +28,7 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
     }
 
     public void addNewFolderFragment(){
+        int count = fragments.size();
        fragments.add(FolderFragment.newInstance());
         this.notifyDataSetChanged();
 

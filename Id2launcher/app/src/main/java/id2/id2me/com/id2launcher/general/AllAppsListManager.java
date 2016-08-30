@@ -20,8 +20,8 @@ public class AllAppsListManager
 {
 
     public ArrayList<AppInfo> getVisibleInstalledApps(Context context) {
-        PackageManager pm = ((Activity) context).getPackageManager();
 
+        PackageManager pm = ((Activity) context).getPackageManager();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
@@ -32,7 +32,6 @@ public class AllAppsListManager
             for (ResolveInfo rInfo : list) {
 
                 AppInfo appInfo = new AppInfo();
-
                 appInfo.setAppname(rInfo.activityInfo.loadLabel(pm)
                         .toString().trim());
                 appInfo.setIcon(rInfo.activityInfo.loadIcon(pm));

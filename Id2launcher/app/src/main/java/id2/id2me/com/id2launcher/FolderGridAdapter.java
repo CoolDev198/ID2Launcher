@@ -66,7 +66,6 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
                 holder = new ViewHolder();
                 grid = inflater.inflate(layout, null);
                 grid.setTag(holder);
-                holder.itemText = (TextView) grid.findViewById(R.id.grid_text);
                 holder.itemImage = (ImageView) grid.findViewById(R.id.grid_image);
 
             } else {
@@ -75,7 +74,6 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
 
             holder.itemImage.setTag(position);
             holder.pName = appInfos.get(position).getPname();
-            holder.itemText.setText(appInfos.get(position).getAppname());
             holder.itemImage.setImageDrawable(appInfos.get(position).getIcon());
 
 
@@ -111,7 +109,6 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
 
 
     private static class ViewHolder {
-        public TextView itemText;
         public ImageView itemImage;
         public String pName;
     }
