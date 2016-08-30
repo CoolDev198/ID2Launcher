@@ -144,7 +144,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             dragInfo.setSpanX(1);
             dragInfo.setSpanY(1);
             ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(view, View.VISIBLE);
+            launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image), View.VISIBLE);
             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {
             e.printStackTrace();

@@ -56,7 +56,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     boolean isItemCanPlaced, isLoaderStarted, isRequiredCellsCalculated, isAvailableCellsGreater, isShiftingDone;
     int spanX = 1, spanY = 1, X, Y;
     private ArrayList<Integer> nearCellsObj;
-    private int compareDistance;
     TransitionDrawable trans;
     private Point p;
 
@@ -73,7 +72,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     void init() {
         Resources res = context.getResources();
         trans = (TransitionDrawable) res.getDrawable(R.drawable.transition_border_drawable);
-        compareDistance = (int) context.getResources().getDimension(R.dimen.distance_between_points) / launcherApplication.getScreenDensity();
         isRequiredCellsCalculated = false;
         isAvailableCellsGreater = false;
         isLoaderStarted = false;
@@ -127,12 +125,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 break;
         }
         return true;
-    }
-
-    public static Point getTouchPositionFromDragEvent(View item, DragEvent event) {
-        Rect rItem = new Rect();
-        item.getGlobalVisibleRect(rItem);
-        return new Point(rItem.left + Math.round(event.getX()), rItem.top + Math.round(event.getY()));
     }
 
     private void copyPageLayoutChildrenToCache() {
@@ -245,8 +237,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         dragInfo = launcherApplication.dragInfo;
         if (nearCellsObj.size() > 0) {
             Log.v(TAG, "matrix pos :: x  :: y " + nearCellsObj.get(0) + "  " + nearCellsObj.get(1));
-            //  if (!nearestCell.equals(nearCellsObj)) {
-
+            if (!nearestCell.equals(nearCellsObj)) {
 
             nearestCell = nearCellsObj;
 
@@ -263,7 +254,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 isItemCanPlaced = false;
             }
         }
-        //  }
+          }
 
     }
 
@@ -273,7 +264,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             isContinue = calTempCellMatrix();
         } else {
             Log.v(TAG, "removed");
-           // pageLayout.removeView(drag_view); //To Do unmark cells in launcher cell matrix
+            pageLayout.removeView(drag_view); //To Do unmark cells in launcher cell matrix
             unMarkCellsInOriginalMatrix();
             isContinue = calTempCellMatrix();
         }
@@ -413,7 +404,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     void revertActions() {
 
 
-        cellToBePlaced = null;
 
         for (int i = 0; i < cacheOriginalChildPos.size(); i++) {
             View child = (View) cacheOriginalChildPos.get(i);
@@ -663,7 +653,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 + y * y);
         Log.v(TAG, "centerX  ::  centerY  :: x ::  y " + centerX  + "   " + centerY + "   " + X + "   " +Y + "  " + distance) ;
 
-        if (distance < 100) {
+        if (distance < 150) {
             return true;
         } else {
             return false;
@@ -732,7 +722,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         AppWidgetProviderInfo appWidgetInfo = launcherApplication.getLauncher().mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
         hostView.setForegroundGravity(Gravity.TOP);
-        hostView.setBackgroundColor(context.getResources().getColor(R.color.colorPrimary));
+       // hostView.setBackgroundColor(context.getResources().getColor(R.color.colorPrimary));
         pageLayout.addView(hostView, layoutParams);
         createOrUpdateCellInfo(3, null, null, dragInfo.getWidgetInfo(), hostView);
     }
@@ -756,8 +746,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 .layout.grid_item, null, true);
         ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
         imageView.setImageDrawable(dragInfo.getAppInfo().getIcon());
-        TextView textView = (TextView) view.findViewById(R.id.grid_text);
-        textView.setText(dragInfo.getAppInfo().getAppname());
         view.setOnClickListener(this);
         view.setOnLongClickListener(this);
 
@@ -798,8 +786,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         child.setTag(cellToBePlaced);
         ImageView imageView = (ImageView) child.findViewById(R.id.grid_image);
         imageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.folder_icon));
-        TextView textView = (TextView) child.findViewById(R.id.grid_text);
-        textView.setText("");
         child.setOnClickListener(this);
         child.setOnLongClickListener(this);
 
@@ -895,12 +881,12 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         LayoutInflater inflater = ((Activity) context).getLayoutInflater();
         View v = inflater.inflate(R
                 .layout.popup_view, null);
-        v.setLayoutParams(params);
+        //v.setLayoutParams(params);
         pageLayout.addView(v);
         launcherApplication.folderView = v;
 
         AppGridView appGridView = (AppGridView) v.findViewById(R.id.mygridview);
-        appGridView.setNumColumns(2);
+        appGridView.setNumColumns(3);
         FolderGridAdapter adapter = new FolderGridAdapter(appInfos, context, R.layout.grid_item, appGridView);
         appGridView.setAdapter(adapter);
     }
