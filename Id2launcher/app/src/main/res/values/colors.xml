@@ -3,7 +3,7 @@
 
     <color name="tab_background_color">#282828</color>
     <color name="tab_text_color">#dec296</color>
-    <color name="home_screen_color">#dec296</color>
+    <color name="home_screen_color">#fbfaf5</color>
     <color name="app_drawer_color">#f8f6f1</color>
     <color name="app_drawer_text_color">#41403f</color>
     <color name="light_grey">#fafafa</color>

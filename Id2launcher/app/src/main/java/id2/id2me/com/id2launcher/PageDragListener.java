@@ -138,7 +138,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         drag_view = (View) event.getLocalState();
         X = (int) event.getX();
         Y = (int) event.getY();
-        Log.v(TAG, " pos::  X :: Y :: " + X + "  " + Y);
         checkSpaceAvail();
     }
 
@@ -225,7 +224,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
             for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
                 launcherApplication.setCellsMatrix(new int[]{x, y}, tempCellsMatrix[x][y]);
-                Log.v(TAG, "x :: y :: " + x + "  " + y + " val :: " + launcherApplication.getCellMatrixVal(new int[]{x, y}));
+            //    Log.v(TAG, "x :: y :: " + x + "  " + y + " val :: " + launcherApplication.getCellMatrixVal(new int[]{x, y}));
             }
         }
     }
@@ -263,7 +262,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         if (dragInfo.getDropExternal()) {
             isContinue = calTempCellMatrix();
         } else {
-            Log.v(TAG, "removed");
+       //     Log.v(TAG, "removed");
             pageLayout.removeView(drag_view); //To Do unmark cells in launcher cell matrix
             unMarkCellsInOriginalMatrix();
             isContinue = calTempCellMatrix();
@@ -386,7 +385,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     shiftAndAddToNewPos();
                     isItemCanPlaced = true;
                 } else {
-                    Log.v(TAG, "no green signal ");
+             //       Log.v(TAG, "no green signal ");
                     isItemCanPlaced = true;
                 }
 
@@ -651,7 +650,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
         int distance = (int) Math.sqrt(x * x
                 + y * y);
-        Log.v(TAG, "centerX  ::  centerY  :: x ::  y " + centerX  + "   " + centerY + "   " + X + "   " +Y + "  " + distance) ;
+     //   Log.v(TAG, "centerX  ::  centerY  :: x ::  y " + centerX  + "   " + centerY + "   " + X + "   " +Y + "  " + distance) ;
 
         if (distance < 150) {
             return true;
