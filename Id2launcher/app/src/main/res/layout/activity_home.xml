@@ -4,7 +4,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_screen_color"
     tools:context="id2.id2me.com.id2launcher.Launcher">
 
     <id2.id2me.com.id2launcher.general.NonSwipeViewPager

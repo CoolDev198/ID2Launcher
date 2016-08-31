@@ -1,8 +1,12 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -16,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,7 +37,7 @@ import id2.id2me.com.id2launcher.general.AllAppsListManager;
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements DrawerHandler {
+public class DesktopFragment extends Fragment implements DrawerHandler, View.OnLongClickListener {
     private ArrayList<AppInfo> appInfos;
     private DrawerLayout drawer;
     private View fragmentView = null;
@@ -42,6 +47,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
 
     private LauncherApplication application;
     private FrameLayout parentLayout;
+    private ImageView wallpaperImg;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -88,7 +94,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
                     @Override
                     public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
 
-                        View view = scrollView.findViewById(R.id.imageView);
+                        View view = scrollView.findViewById(R.id.wallpaper_img);
 
                         if (view != null) {
                             view.setTranslationY(scrollView.getScrollY() / 2);
@@ -130,6 +136,25 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         }
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+        if(v.getId()==R.id.wallpaper_img){
+            startWallpaperChooserActivity();
+
+        }
+        return true;
+    }
+
+    public void setWallpaper() {
+        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            wallpaperImg.setImageDrawable(wallpaperDrawable);
+        }
+    }
+
+
+
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
 
@@ -163,16 +188,17 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
 
 
     private void initViews() {
-
+        wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
+        wallpaperImg.setOnLongClickListener(this);
         drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
         if (drawer != null) {
             drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
         }
-          parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
+        parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
 
 
-        PageDragListener pageDragListener =  new PageDragListener(context, parentLayout);
-        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(),application.getScreenHeight()));
+        PageDragListener pageDragListener = new PageDragListener(context, parentLayout);
+        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
 
         parentLayout.setOnClickListener(new View.OnClickListener() {
@@ -218,7 +244,16 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         drawer.closeDrawer(Gravity.LEFT);
     }
 
-
+    private void startWallpaperChooserActivity() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SET_WALLPAPER);
+        intent.setClassName("com.android.wallpaperchooser", "com.android.wallpaperchooser.WallpaperPickerActivity");
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

@@ -1,12 +1,14 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">true</item>
         <item name="android:fastScrollOverlayPosition">atThumb</item>
         <item name="android:fastScrollThumbDrawable">@mipmap/thumb</item>
-\        <item name="android:fastScrollTextColor">@color/tab_text_color</item>
+        <item name="android:fastScrollTextColor">@color/tab_text_color</item>
         <item name="android:fastScrollPreviewBackgroundLeft">@mipmap/indicator</item>
         <item name="android:fastScrollPreviewBackgroundRight">@mipmap/indicator</item>
         <item name="android:windowActionBar">false</item>
