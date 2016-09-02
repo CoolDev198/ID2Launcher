@@ -201,7 +201,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
 
-        parentLayout.setOnClickListener(new View.OnClickListener() {
+       /* parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (application.folderView != null) {
@@ -209,9 +209,11 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
                     application.folderView = null;
                 }
             }
-        });
+        });*/
         parentLayout.setOnDragListener(application.getPageDragListener());
+
     }
+
 
     private void setDrawerWidth() {
         try {
