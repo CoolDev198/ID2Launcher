@@ -41,31 +41,12 @@ public class LauncherApplication extends Application {
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();
         cellsMatrix = new boolean[cellCountX][cellCountY];
-        associateRecToEachCell();
 
     }
 
     public Typeface getTypeFace(){
       Typeface  typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
       return typeface;
-    }
-    public void associateRecToEachCell() {
-        for (int x = 0; x < getCellCountX(); x++) {
-            for (int y = 0; y < getCellCountY(); y++) {
-
-                int left = x * getCellWidth() + getMaxGapLR() * (x + 1);
-                int right = (x + 1) * getCellWidth() + getMaxGapLR() * (x + 1);
-                int top = y * getCellHeight() + getMaxGapTB() * (y + 1);
-                int bottom = (y + 1) * getCellHeight() + getMaxGapTB() * (y + 1);
-
-                Rect tempRec = new Rect(left, top, right, bottom);
-                ArrayList arrayList = new ArrayList<Integer>();
-                arrayList.add(x);
-                arrayList.add(y);
-                mapMatrixPosToRec.put(arrayList, tempRec);
-            }
-        }
-
     }
 
     public void dragAnimation(View view, int visibility) {
@@ -77,10 +58,10 @@ public class LauncherApplication extends Application {
                 mimeTypes, item);
         View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
                 view);
-        shadowBuilder.onProvideShadowMetrics(
-                new Point(view.getWidth(), view.getHeight()),
-                new Point((int) view.getX() / 2, (int) view
-                        .getY() / 2));
+//        shadowBuilder.onProvideShadowMetrics(
+//                new Point(view.getWidth(), view.getHeight()),
+//                new Point((int) view.getX(), (int) view
+//                        .getY()));
         view.startDrag(data, // data to be dragged
                 shadowBuilder, // drag shadow
                 view, // local data about the drag and drop

@@ -53,9 +53,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private CellInfo cellToBePlaced;
     boolean isItemCanPlaced, isLoaderStarted, isRequiredCellsCalculated, isAvailableCellsGreater, isShiftingDone;
     int spanX = 1, spanY = 1, X, Y;
-    private ArrayList<Integer> nearCellsObj, affectedChilds;
+    private ArrayList<Integer> affectedChilds;
     TransitionDrawable trans;
     private Point p;
+    int ticks = 0;
 
     PageDragListener(Context mContext, FrameLayout pageLayout) {
         this.pageLayout = pageLayout;
@@ -77,15 +78,17 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         nearestCell = new ArrayList<>();
     }
 
+    int px = 0, py = 0;
+
     @Override
     public boolean onDrag(View v, DragEvent event) {
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
-                //  Log.v(TAG, "Drag Started");
+                //   Log.v(TAG, "Drag Started");
                 return true;
 
             case DragEvent.ACTION_DRAG_ENTERED:
-                //   Log.v(TAG, "Drag Entered");
+                //  Log.v(TAG, "Drag Entered");
                 break;
 
             case DragEvent.ACTION_DRAG_EXITED:
@@ -128,15 +131,25 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     private void checkSpaceAvail() {
 
-        nearCellsObj = findNearestCells();
+        ArrayList<Integer> nearCellsObj = findNearestCells();
 
         dragInfo = launcherApplication.dragInfo;
 
-        if (nearCellsObj.size() > 0) {
 
+        if (nearestCell.equals(nearCellsObj)) {
+            ticks++;
+        } else {
+            nearestCell = nearCellsObj;
+            ticks = 0;
+        }
+
+        if (ticks > 5) {
             nearestCell = nearCellsObj;
 
-            //  Log.v(TAG, "matrixpos :: X :: Y :: x  :: y " + X + " " + Y + "  " + nearestCell.get(0) + "  " + nearestCell.get(1));
+            int distance = findDistanceFromEachCell(nearestCell.get(0), nearestCell.get(1));
+
+
+            Log.v(TAG, "matrixpos :: X :: Y :: x  :: y " + X + " " + Y + "  " + nearestCell.get(0) + "  " + nearestCell.get(1));
 
             if (!isRequiredCellsCalculated) {
                 isAvailableCellsGreater = calculateReqCells();
@@ -147,8 +160,9 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             } else {
                 isItemCanPlaced = false;
             }
-
         }
+
+
     }
 
 
@@ -205,7 +219,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         }
 
         if (!isAnyCellAffected) {
-            if(dragInfo.getDragMatrices()!=null) {
+            if (dragInfo.getDragMatrices() != null) {
                 unMarkCells(dragInfo.getDragMatrices());
             }
             dragInfo.setDragMatrices(tempAllCellInfo);
@@ -260,7 +274,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         for (int i = 0; i < pageLayout.getChildCount(); i++) {
             View child = (View) pageLayout.getChildAt(i);
             CellInfo cellInfo = (CellInfo) child.getTag();
-            if(cellInfo.getDragMatrices()!=null && !cellInfo.getDragMatrices().equals(cellInfo.getMatrixCells())) {
+            if (cellInfo.getDragMatrices() != null && !cellInfo.getDragMatrices().equals(cellInfo.getMatrixCells())) {
                 ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
                 copyArray(tempCellInfo, cellInfo.getDragMatrices());
                 cellInfo.setMatrixCells(tempCellInfo);
@@ -271,7 +285,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private void markCells(ArrayList<ArrayList<Integer>> allCellsInfo) {
         for (int i = 0; i < allCellsInfo.size(); i++) {
             ArrayList<Integer> cells = allCellsInfo.get(i);
-            Log.v(TAG, "cells marked :: " + cells.get(0) + "  " + cells.get(1));
+            //    Log.v(TAG, "cells marked :: " + cells.get(0) + "  " + cells.get(1));
             launcherApplication.setCellsMatrix(new int[]{cells.get(0), cells.get(1)}, true);
         }
     }
@@ -298,7 +312,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         //Make this places free after remove
         for (int i = 0; i < allCellsInfo.size(); i++) {
             ArrayList<Integer> arrayList = allCellsInfo.get(i);
-            Log.v(TAG, "cells unmarked :: " + arrayList.get(0) + "  " + arrayList.get(1));
+            //     Log.v(TAG, "cells unmarked :: " + arrayList.get(0) + "  " + arrayList.get(1));
             launcherApplication.setCellsMatrix(new int[]{arrayList.get(0), arrayList.get(1)}, false);
         }
     }
@@ -348,105 +362,101 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 int height = cellHeight * cellInfo.getSpanY();
                 layoutParams = new FrameLayout.LayoutParams(width, height);
 
-                if (cellInfo.getMatrixCells().contains(affectedChilds) && dragInfo.getIsAppOrWidget()){
-                    if((findDistanceFromEachCell(nearestCell.get(0),nearestCell.get(1))<100)){
-                        cellToBePlaced = new CellInfo();
-                        copyCellInfo(cellInfo, cellToBePlaced);
+                cellToBePlaced = null;
+                if (cellInfo.getMatrixCells().contains(affectedChilds) && dragInfo.getIsAppOrWidget() && (findDistanceFromEachCell(nearestCell.get(0), nearestCell.get(1)) < 100)) {
+                    cellToBePlaced = new CellInfo();
+                    copyCellInfo(cellInfo, cellToBePlaced);
 
-                        if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
-                            cellInfo.setAddToExitingFolder(true);
-                            //Add To Existing Folder for Temp
-                        } else {
-                            //Create Folder For Temp
-                            cellToBePlaced.setFolderInfo(new FolderInfo(dragInfo.getAppInfo(), cellInfo.getAppInfo()));
-                            cellToBePlaced.setAppInfo(null);
+                    if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
+                        cellInfo.setAddToExitingFolder(true);
+                        //Add To Existing Folder for Temp
+                    } else {
+                        //Create Folder For Temp
+                        cellToBePlaced.setFolderInfo(new FolderInfo(dragInfo.getAppInfo(), cellInfo.getAppInfo()));
+                        cellToBePlaced.setAppInfo(null);
+                    }
+                } else {
+                    if (cellInfo.getDragMatrices() != null && !cellInfo.getDragMatrices().equals(cellInfo.getMatrixCells())) {
+                        if (!cellInfo.getDragMatrices().contains(affectedChilds)) {
+                            if (cellInfo.getMatrixCells().contains(affectedChilds)) {
+                                if (isScalable(affectedChilds.get(0), affectedChilds.get(1), cellInfo.getSpanX(), cellInfo.getSpanY()) != null) {
+
+                                    unMarkCells(cellInfo.getDragMatrices());
+                                    markCells(cellInfo.getMatrixCells());
+
+                                    ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
+                                    copyArray(tempCellInfo, cellInfo.getMatrixCells());
+                                    cellInfo.setDragMatrices(tempCellInfo);
+
+                                    ArrayList<Integer> firstPos = tempCellInfo.get(0);
+                                    int leftMargin = firstPos.get(0) * cellWidth + (launcherApplication.getMaxGapLR() * (firstPos.get(0) + 1));
+                                    int topMargin = firstPos.get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (firstPos.get(1) + 1));
+
+                                    layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+
+                                    pageLayout.removeView(child);
+                                    pageLayout.addView(child, layoutParams);
+
+                                }
+                            } else if (!val) {
+                                if (isScalable(cellInfo.getMatrixCells().get(0).get(0), cellInfo.getMatrixCells().get(0).get(1), cellInfo.getSpanX(), cellInfo.getSpanY()) != null) {
+
+                                    unMarkCells(cellInfo.getDragMatrices());
+                                    markCells(cellInfo.getMatrixCells());
+
+                                    ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
+                                    copyArray(tempCellInfo, cellInfo.getMatrixCells());
+                                    cellInfo.setDragMatrices(tempCellInfo);
+
+                                    ArrayList<Integer> firstPos = tempCellInfo.get(0);
+                                    int leftMargin = firstPos.get(0) * cellWidth + (launcherApplication.getMaxGapLR() * (firstPos.get(0) + 1));
+                                    int topMargin = firstPos.get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (firstPos.get(1) + 1));
+
+                                    layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+
+                                    pageLayout.removeView(child);
+                                    pageLayout.addView(child, layoutParams);
+
+                                }
+                            }
                         }
+                    } else if (cellInfo.getMatrixCells().contains(affectedChilds) && val) {
+
+
+                        ArrayList<ArrayList<Integer>> bestCell = findBestCell(affectedChilds, cellInfo.getSpanX(), cellInfo.getSpanY());
+
+                        if (bestCell != null) {
+
+                            if (dragInfo.getDragMatrices() != null) {
+                                unMarkCells(dragInfo.getDragMatrices());
+                            }
+
+                            cellInfo.setDragMatrices(bestCell);
+                            ArrayList<Integer> firstPos = bestCell.get(0);
+                            int leftMargin = firstPos.get(0) * cellWidth + (launcherApplication.getMaxGapLR() * (firstPos.get(0) + 1));
+                            int topMargin = firstPos.get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (firstPos.get(1) + 1));
+
+                            layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+
+
+                            markCells(bestCell);
+                            cellInfo.setDragMatrices(bestCell);
+
+                            ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
+                            tempCellInfo.add(affectedChilds);
+
+                            dragInfo.setDragMatrices(tempCellInfo);
+                            markCells(dragInfo.getDragMatrices());
+                            pageLayout.removeView(child);
+
+                            pageLayout.addView(child, layoutParams);
+                        }
+
+
                     }
                 }
-
-                if (cellInfo.getDragMatrices() != null && !cellInfo.getDragMatrices().equals(cellInfo.getMatrixCells())) {
-                    if (!cellInfo.getDragMatrices().contains(affectedChilds)) {
-                        if (cellInfo.getMatrixCells().contains(affectedChilds)) {
-                            if (isScalable(affectedChilds.get(0), affectedChilds.get(1), cellInfo.getSpanX(), cellInfo.getSpanY()) != null) {
-
-                                unMarkCells(cellInfo.getDragMatrices());
-                                markCells(cellInfo.getMatrixCells());
-
-                                ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
-                                copyArray(tempCellInfo, cellInfo.getMatrixCells());
-                                cellInfo.setDragMatrices(tempCellInfo);
-
-                                ArrayList<Integer> firstPos = tempCellInfo.get(0);
-                                int leftMargin = firstPos.get(0) * cellWidth + (launcherApplication.getMaxGapLR() * (firstPos.get(0) + 1));
-                                int topMargin = firstPos.get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (firstPos.get(1) + 1));
-
-                                layoutParams.setMargins(leftMargin, topMargin, 0, 0);
-
-                                pageLayout.removeView(child);
-                                pageLayout.addView(child, layoutParams);
-
-                            }
-                        } else if (!val) {
-                            if (isScalable(cellInfo.getMatrixCells().get(0).get(0), cellInfo.getMatrixCells().get(0).get(1), cellInfo.getSpanX(), cellInfo.getSpanY()) != null) {
-
-                                unMarkCells(cellInfo.getDragMatrices());
-                                markCells(cellInfo.getMatrixCells());
-
-                                ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
-                                copyArray(tempCellInfo, cellInfo.getMatrixCells());
-                                cellInfo.setDragMatrices(tempCellInfo);
-
-                                ArrayList<Integer> firstPos = tempCellInfo.get(0);
-                                int leftMargin = firstPos.get(0) * cellWidth + (launcherApplication.getMaxGapLR() * (firstPos.get(0) + 1));
-                                int topMargin = firstPos.get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (firstPos.get(1) + 1));
-
-                                layoutParams.setMargins(leftMargin, topMargin, 0, 0);
-
-                                pageLayout.removeView(child);
-                                pageLayout.addView(child, layoutParams);
-
-                            }
-                        }
-                    }
-                } else if (cellInfo.getMatrixCells().contains(affectedChilds) && val) {
-
-
-
-                    ArrayList<ArrayList<Integer>> bestCell = findBestCell(affectedChilds, cellInfo.getSpanX(), cellInfo.getSpanY());
-
-                    if (bestCell != null) {
-
-                        if(dragInfo.getDragMatrices()!=null) {
-                            unMarkCells(dragInfo.getDragMatrices());
-                        }
-
-                        cellInfo.setDragMatrices(bestCell);
-                        ArrayList<Integer> firstPos = bestCell.get(0);
-                        int leftMargin = firstPos.get(0) * cellWidth + (launcherApplication.getMaxGapLR() * (firstPos.get(0) + 1));
-                        int topMargin = firstPos.get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (firstPos.get(1) + 1));
-
-                        layoutParams.setMargins(leftMargin, topMargin, 0, 0);
-
-
-
-                        markCells(bestCell);
-                        cellInfo.setDragMatrices(bestCell);
-
-                        ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
-                        tempCellInfo.add(affectedChilds);
-
-                        dragInfo.setDragMatrices(tempCellInfo);
-                        markCells(dragInfo.getDragMatrices());
-                        pageLayout.removeView(child);
-
-                        pageLayout.addView(child, layoutParams);
-                    }
-
-
-                }
-
-
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -533,6 +543,20 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return arrayList;
     }
 
+    void copyCellInfo(CellInfo fromCellInfo, CellInfo toCellInfo) {
+        toCellInfo.setDragLayoutParams(fromCellInfo.getDragLayoutParams());
+        toCellInfo.setSpanY(fromCellInfo.getSpanY());
+        toCellInfo.setDragMatrices(fromCellInfo.getDragMatrices());
+        toCellInfo.setAppInfo(fromCellInfo.getAppInfo());
+        toCellInfo.setFolderInfo(fromCellInfo.getFolderInfo());
+        toCellInfo.setSpanX(fromCellInfo.getSpanX());
+        toCellInfo.setLayoutParams(fromCellInfo.getLayoutParams());
+        toCellInfo.setWidgetInfo(fromCellInfo.getWidgetInfo());
+        toCellInfo.setView(fromCellInfo.getView());
+        toCellInfo.setIsAppOrFolderOrWidget(fromCellInfo.getIsAppOrFolderOrWidget());
+        toCellInfo.setMatrixCells(fromCellInfo.getMatrixCells());
+    }
+
     public void getTouchPositionFromDragEvent(View item, DragEvent event) {
         Rect rItem = new Rect();
         item.getGlobalVisibleRect(rItem);
@@ -542,15 +566,15 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private int findDistanceFromEachCell(int x, int y) {
 
 
-        int centerX = x * cellWidth +
-                (1 * cellWidth) / 2;
-        int centerY = y * cellHeight +
+        int centerX = x * (cellWidth) +
+                (1 * (cellWidth)) / 2;
+        int centerY = y * (cellHeight) +
                 (1 * cellHeight) / 2;
 
 
         int distance = (int) Math.sqrt(Math.pow(X - centerX, 2) +
                 Math.pow(Y - centerY, 2));
-        //  Log.v(TAG, "centerX  ::  centerY  :: x ::  y  " +  nearestCell.get(0) + "  " +  nearestCell.get(1) +"  " +centerX + "   " + centerY + "   " + X + "   " + Y + "  " + distance);
+        Log.v(TAG, "centerX  ::  centerY  :: x ::  y  " + x + "  " + y + "  " + centerX + "   " + centerY + "   " + X + "   " + Y + "  " + distance);
 
 //        if (distance < 75) {
 //            // Log.v(TAG, distance + "   stay");
