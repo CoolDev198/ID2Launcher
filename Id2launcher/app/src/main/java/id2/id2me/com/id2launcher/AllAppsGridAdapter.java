@@ -139,8 +139,9 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             DragInfo dragInfo = new DragInfo();
             dragInfo.setAppInfo(gridList.get(Integer.parseInt(view
                     .findViewById(R.id.drawer_grid_image).getTag().toString())));
-            dragInfo.setIsAppOrWidget(true);
+            dragInfo.setIsAppOrFolderOrWidget(1);
             dragInfo.setDropExternal(true);
+            dragInfo.setIsItemCanPlaced(true);
             dragInfo.setSpanX(1);
             dragInfo.setSpanY(1);
             ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = dragInfo;

@@ -15,6 +15,7 @@
             android:orientation="vertical">
 
             <RelativeLayout
+                android:id="@+id/wallpaper_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -22,7 +23,7 @@
                     android:id="@+id/wallpaper_img"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
-                    android:background="@android:color/transparent"
+                    android:background="@mipmap/wallpaper"
                     android:scaleType="centerCrop" />
 
                 <View
@@ -69,7 +70,8 @@
                 android:id="@+id/relative_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/home_screen_color"></id2.id2me.com.id2launcher.DragLayer>
+                android:background="@color/home_screen_color">
+            </id2.id2me.com.id2launcher.DragLayer>
         </LinearLayout>
 
     </id2.id2me.com.id2launcher.ObservableScrollView>

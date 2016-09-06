@@ -7,6 +7,7 @@ import android.content.ClipDescription;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -28,10 +29,9 @@ public class LauncherApplication extends Application {
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     public boolean cellsMatrix[][];
     private Launcher launcher;
-    public HashMap<String, ArrayList<AppInfo>> sortedMap;
-    public View desktopFragmentView;
 
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
+    public View desktopFragment;
 
     @Override
     public void onCreate() {

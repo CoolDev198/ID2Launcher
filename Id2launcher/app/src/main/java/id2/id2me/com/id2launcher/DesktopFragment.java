@@ -37,7 +37,7 @@ import id2.id2me.com.id2launcher.general.AllAppsListManager;
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements DrawerHandler, View.OnLongClickListener {
+public class DesktopFragment extends Fragment implements DrawerHandler {
     private ArrayList<AppInfo> appInfos;
     private DrawerLayout drawer;
     private View fragmentView = null;
@@ -48,6 +48,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
     private LauncherApplication application;
     private FrameLayout parentLayout;
     private ImageView wallpaperImg;
+    private RelativeLayout wallpaperLayout;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -69,14 +70,13 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         try {
-            application = (LauncherApplication) ((Activity) context).getApplication();
-            if (application.desktopFragmentView == null) {
 
+            application = (LauncherApplication) ((Activity) context).getApplication();
+            if(application.desktopFragment == null) {
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
 
                 loadApps();
-                application.desktopFragmentView = fragmentView;
                 initViews();
                 updateObjectsFromDatabase();
                 setDrawerWidth();
@@ -102,13 +102,17 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
 
                     }
                 });
+
+                application.desktopFragment=fragmentView;
             }
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return application.desktopFragmentView;
+        return application.desktopFragment;
+
     }
 
     private void changeTabsFont(TabLayout tabLayout) {
@@ -136,14 +140,14 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
         }
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        if(v.getId()==R.id.wallpaper_img){
-            startWallpaperChooserActivity();
-
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onLongClick(View v) {
+//        if (v.getId() == R.id.wallpaper_img) {
+//            startWallpaperChooserActivity();
+//
+//        }
+//        return true;
+//    }
 
     public void setWallpaper() {
         WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
@@ -152,7 +156,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
             wallpaperImg.setImageDrawable(wallpaperDrawable);
         }
     }
-
 
 
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
@@ -189,7 +192,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
 
     private void initViews() {
         wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-        wallpaperImg.setOnLongClickListener(this);
         drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
         if (drawer != null) {
             drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
@@ -200,6 +202,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, View.OnL
         PageDragListener pageDragListener = new PageDragListener(context, parentLayout);
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
+        wallpaperLayout = (RelativeLayout)fragmentView.findViewById(R.id.wallpaper_layout);
+        wallpaperLayout.setOnDragListener(new WallpaperDragListener(pageDragListener));
 
        /* parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override

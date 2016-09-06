@@ -34,7 +34,8 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
         try {
             DragInfo dragInfo = new DragInfo();
             dragInfo.setDropExternal(true);
-            dragInfo.setIsAppOrWidget(false);
+            dragInfo.setIsAppOrFolderOrWidget(3);
+            dragInfo.setIsItemCanPlaced(true);
             MyViewHolder holder = (MyViewHolder) recycleView.getChildViewHolder(v);
             dragInfo.setWidgetInfo(holder.widgetInfo);
             ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = dragInfo;
