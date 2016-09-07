@@ -1,8 +1,12 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -16,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -42,6 +47,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
 
     private LauncherApplication application;
     private FrameLayout parentLayout;
+    private ImageView wallpaperImg;
+    private RelativeLayout wallpaperLayout;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -63,14 +70,13 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         try {
-            application = (LauncherApplication) ((Activity) context).getApplication();
-            if (application.desktopFragmentView == null) {
 
+            application = (LauncherApplication) ((Activity) context).getApplication();
+            if(application.desktopFragment == null) {
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
 
                 loadApps();
-                application.desktopFragmentView = fragmentView;
                 initViews();
                 updateObjectsFromDatabase();
                 setDrawerWidth();
@@ -88,7 +94,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
                     @Override
                     public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
 
-                        View view = scrollView.findViewById(R.id.imageView);
+                        View view = scrollView.findViewById(R.id.wallpaper_img);
 
                         if (view != null) {
                             view.setTranslationY(scrollView.getScrollY() / 2);
@@ -96,13 +102,17 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
 
                     }
                 });
+
+                application.desktopFragment=fragmentView;
             }
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return application.desktopFragmentView;
+        return application.desktopFragment;
+
     }
 
     private void changeTabsFont(TabLayout tabLayout) {
@@ -129,6 +139,24 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
             viewPager.setAdapter(adapter);
         }
     }
+
+//    @Override
+//    public boolean onLongClick(View v) {
+//        if (v.getId() == R.id.wallpaper_img) {
+//            startWallpaperChooserActivity();
+//
+//        }
+//        return true;
+//    }
+
+    public void setWallpaper() {
+        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            wallpaperImg.setImageDrawable(wallpaperDrawable);
+        }
+    }
+
 
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -163,19 +191,21 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
 
 
     private void initViews() {
-
+        wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
         if (drawer != null) {
             drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
         }
-          parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
+        parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
 
 
-        PageDragListener pageDragListener =  new PageDragListener(context, parentLayout);
-        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(),application.getScreenHeight()));
+        PageDragListener pageDragListener = new PageDragListener(context, parentLayout);
+        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
+        wallpaperLayout = (RelativeLayout)fragmentView.findViewById(R.id.wallpaper_layout);
+        wallpaperLayout.setOnDragListener(new WallpaperDragListener(pageDragListener));
 
-        parentLayout.setOnClickListener(new View.OnClickListener() {
+       /* parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (application.folderView != null) {
@@ -183,9 +213,11 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
                     application.folderView = null;
                 }
             }
-        });
+        });*/
         parentLayout.setOnDragListener(application.getPageDragListener());
+
     }
+
 
     private void setDrawerWidth() {
         try {
@@ -218,7 +250,16 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         drawer.closeDrawer(Gravity.LEFT);
     }
 
-
+    private void startWallpaperChooserActivity() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SET_WALLPAPER);
+        intent.setClassName("com.android.wallpaperchooser", "com.android.wallpaperchooser.WallpaperPickerActivity");
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

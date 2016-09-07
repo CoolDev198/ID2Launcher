@@ -45,7 +45,6 @@ public class Launcher extends AppCompatActivity {
             launcherApplication.setLauncher(this);
             getSupportActionBar().hide();
             init();
-           //setWallpaper();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,40 +112,27 @@ public class Launcher extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_BIND_APPWIDGET) {
-                ((LauncherApplication) getApplication()).getPageDragListener()
-                        .askToConfigure(data);
+            if (resultCode == RESULT_OK) {
+                if (requestCode == REQUEST_BIND_APPWIDGET) {
+                    ((LauncherApplication) getApplication()).getPageDragListener()
+                            .askToConfigure(data);
+                }
+
+                if (requestCode == REQUEST_PICK_APPWIDGET) {
+                    ((LauncherApplication) getApplication()).getPageDragListener()
+                            .askToConfigure(data);
+                } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
+                    ((LauncherApplication) getApplication()).getPageDragListener().addWidgetImpl(data);
+                }
+            } else if (resultCode == RESULT_CANCELED && data != null) {
             }
 
-            if (requestCode == REQUEST_PICK_APPWIDGET) {
-                ((LauncherApplication) getApplication()).getPageDragListener()
-                        .askToConfigure(data);
-            } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
-                ((LauncherApplication) getApplication()).getPageDragListener().addWidgetImpl(data);
-            }
-        } else if (resultCode == RESULT_CANCELED && data != null) {
-//            int appWidgetId = data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-//            if (appWidgetId != -1) {
-//                mAppWidgetHost.deleteAppWidgetId(appWidgetId);
-//            }
-        }
     }
 
     @Override
     public void onBackPressed() {
-    //    ((DrawerHandler) desktopFragment).drawerClose();
+        //    ((DrawerHandler) desktopFragment).drawerClose();
     }
-
-    private void setWallpaper() {
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-        RelativeLayout main = (RelativeLayout) findViewById(R.id.main);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            main.setBackground(wallpaperDrawable);
-        }
-    }
-
 
     private List<Fragment> getFragments() {
         List<Fragment> fList = null;

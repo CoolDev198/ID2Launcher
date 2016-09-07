@@ -24,6 +24,9 @@ public class DragInfo {
     private  boolean dropExternal;
     ArrayList<ArrayList<Integer>>  matrixCells;
     private int spanY,spanX;
+    private ArrayList<ArrayList<Integer>> dragMatrices;
+    private boolean isItemCanPlaced;
+    private int isAppOrFolderOrWidget;
 
     public boolean getIsAppOrWidget() {
         return isAppOrWidget;
@@ -97,5 +100,30 @@ public class DragInfo {
 
     public void setSpanY(int spanY) {
         this.spanY = spanY;
+    }
+
+    public void setDragMatrices(ArrayList<ArrayList<Integer>> dragMatrices) {
+        this.dragMatrices = dragMatrices;
+    }
+
+    public ArrayList<ArrayList<Integer>> getDragMatrices() {
+        return dragMatrices;
+    }
+
+
+    public boolean getIsItemCanPlaced() {
+        return isItemCanPlaced;
+    }
+
+    public void setIsItemCanPlaced(boolean isItemCanPlaced) {
+        this.isItemCanPlaced = isItemCanPlaced;
+    }
+
+    public int getIsAppOrFolderOrWidget() {
+        return isAppOrFolderOrWidget;
+    }
+
+    public void setIsAppOrFolderOrWidget(int isAppOrFolderOrWidget) {
+        this.isAppOrFolderOrWidget = isAppOrFolderOrWidget;
     }
 }

@@ -10,7 +10,8 @@
     <id2.id2me.com.id2launcher.general.AppGridView
         android:id="@+id/mygridview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></id2.id2me.com.id2launcher.general.AppGridView>
+        android:layout_height="wrap_content">
+    </id2.id2me.com.id2launcher.general.AppGridView>
 
 
 </RelativeLayout>

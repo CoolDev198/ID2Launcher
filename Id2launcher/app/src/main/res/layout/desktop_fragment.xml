@@ -8,40 +8,70 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
+
+            <RelativeLayout
+                android:id="@+id/wallpaper_layout"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/wallpaper"
-                android:id="@+id/imageView"/>
-            <View
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/wallpaper_img"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@mipmap/wallpaper"
+                    android:scaleType="centerCrop" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="20dp"
+                    android:background="#D9000000"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@mipmap/ic_launcher_clear_active_holo" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@mipmap/ic_launcher_trashcan_active_holo" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+            <id2.id2me.com.id2launcher.DragLayer
+                android:id="@+id/relative_view"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:paddingBottom="20dp"
-                android:textColor="@color/white"
-                android:textSize="18dp"
-                android:id="@+id/name"/>
-
-        </RelativeLayout>
-
-        <FrameLayout
-            android:id="@+id/relative_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </FrameLayout>
+                android:layout_height="match_parent"
+                android:background="@color/home_screen_color">
+            </id2.id2me.com.id2launcher.DragLayer>
         </LinearLayout>
 
     </id2.id2me.com.id2launcher.ObservableScrollView>
@@ -66,11 +96,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/tab_background_color"
-                    app:tabTextColor="@color/tab_text_color"
-                    app:tabSelectedTextColor="@color/tab_text_color"
-                    app:tabIndicatorColor="@color/tab_text_color"
                     app:tabGravity="fill"
-                    app:tabMode="fixed" />
+                    app:tabIndicatorColor="@color/tab_text_color"
+                    app:tabMode="fixed"
+                    app:tabSelectedTextColor="@color/tab_text_color"
+                    app:tabTextColor="@color/tab_text_color" />
             </android.support.design.widget.AppBarLayout>
 
             <android.support.v4.view.ViewPager
