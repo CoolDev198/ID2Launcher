@@ -39,7 +39,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
             MyViewHolder holder = (MyViewHolder) recycleView.getChildViewHolder(v);
             dragInfo.setWidgetInfo(holder.widgetInfo);
             ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview), View.VISIBLE);
+            launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {
             e.printStackTrace();

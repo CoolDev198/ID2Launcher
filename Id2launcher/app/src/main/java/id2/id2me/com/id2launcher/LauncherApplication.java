@@ -44,31 +44,26 @@ public class LauncherApplication extends Application {
 
     }
 
-    public Typeface getTypeFace(){
-      Typeface  typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
-      return typeface;
+    public Typeface getTypeFace() {
+        Typeface typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
+        return typeface;
     }
 
-    public void dragAnimation(View view, int visibility) {
-        ClipData.Item item = new ClipData.Item(
-                (CharSequence) (""));
+    public void dragAnimation(View view) {
+        try {
+            ClipData.Item item = new ClipData.Item(
+                    (CharSequence) (""));
 
-        String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-        ClipData data = new ClipData("",
-                mimeTypes, item);
-        View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
-                view);
-//        shadowBuilder.onProvideShadowMetrics(
-//                new Point(view.getWidth(), view.getHeight()),
-//                new Point((int) view.getX(), (int) view
-//                        .getY()));
-        view.startDrag(data, // data to be dragged
-                shadowBuilder, // drag shadow
-                view, // local data about the drag and drop
-                // operation
-                0 // no needed flags
-        );
-        view.setVisibility(visibility);
+            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+            ClipData data = new ClipData("",
+                    mimeTypes, item);
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
+                    view);
+            view.startDrag(data, shadowBuilder, view, 0);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

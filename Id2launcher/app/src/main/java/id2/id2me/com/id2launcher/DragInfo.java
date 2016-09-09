@@ -27,14 +27,9 @@ public class DragInfo {
     private ArrayList<ArrayList<Integer>> dragMatrices;
     private boolean isItemCanPlaced;
     private int isAppOrFolderOrWidget;
+    private View originalView;
+    private View dragView;
 
-    public boolean getIsAppOrWidget() {
-        return isAppOrWidget;
-    }
-
-    public void setIsAppOrWidget(boolean val) {
-        this.isAppOrWidget = val;
-    }
 
     public WidgetInfo getWidgetInfo() {
         return widgetInfo;
@@ -125,5 +120,21 @@ public class DragInfo {
 
     public void setIsAppOrFolderOrWidget(int isAppOrFolderOrWidget) {
         this.isAppOrFolderOrWidget = isAppOrFolderOrWidget;
+    }
+
+    public void setOriginalView(View originalView) {
+        this.originalView = originalView;
+    }
+
+    public View getOriginalView() {
+        return originalView;
+    }
+
+    public void setDragView(View dragView) {
+        this.dragView = dragView;
+    }
+
+    public View getDragView() {
+        return dragView;
     }
 }

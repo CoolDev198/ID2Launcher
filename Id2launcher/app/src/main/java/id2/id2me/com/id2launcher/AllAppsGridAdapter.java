@@ -144,14 +144,16 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             dragInfo.setIsItemCanPlaced(true);
             dragInfo.setSpanX(1);
             dragInfo.setSpanY(1);
+
             ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image), View.VISIBLE);
+            launcherApplication.dragAnimation(view);
             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
+
 
 
     private static class ViewHolder {

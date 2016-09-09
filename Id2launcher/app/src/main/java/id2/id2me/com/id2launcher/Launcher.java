@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import id2.id2me.com.id2launcher.database.DataBaseHandler;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.general.NonSwipeViewPager;
 
-public class Launcher extends AppCompatActivity {
+public class Launcher extends AppCompatActivity implements View.OnLongClickListener{
     private static final int REQUEST_PICK_APPWIDGET = 6;
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_BIND_APPWIDGET = 11;
@@ -51,6 +52,8 @@ public class Launcher extends AppCompatActivity {
         }
 
     }
+
+
 
     public void startActivityForBindingWidget(int appWidgetId, ComponentName componentName) {
         Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);
@@ -149,5 +152,10 @@ public class Launcher extends AppCompatActivity {
 
     public void addNewFolderFragment() {
         pageAdapter.addNewFolderFragment();
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
     }
 }

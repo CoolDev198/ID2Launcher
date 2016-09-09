@@ -31,6 +31,8 @@
                     android:layout_height="300dp" />
 
                 <LinearLayout
+                    android:visibility="invisible"
+                    android:id="@+id/drop_target_layout"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginTop="20dp"
@@ -39,6 +41,7 @@
                     android:weightSum="2">
 
                     <RelativeLayout
+                        android:id="@+id/layout_remove"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1">
@@ -51,6 +54,7 @@
                     </RelativeLayout>
 
                     <RelativeLayout
+                        android:id="@+id/layout_uninstall"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1">

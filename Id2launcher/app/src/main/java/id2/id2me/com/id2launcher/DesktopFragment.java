@@ -199,11 +199,12 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
 
 
-        PageDragListener pageDragListener = new PageDragListener(context, parentLayout);
+        PageDragListener pageDragListener = new PageDragListener(context, parentLayout,fragmentView.findViewById(R.id.drop_target_layout));
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
         wallpaperLayout = (RelativeLayout)fragmentView.findViewById(R.id.wallpaper_layout);
-        wallpaperLayout.setOnDragListener(new WallpaperDragListener(pageDragListener));
+
+        wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(),pageDragListener ,fragmentView.findViewById(R.id.layout_remove),fragmentView.findViewById(R.id.layout_uninstall)));
 
        /* parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,6 +215,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
                 }
             }
         });*/
+
         parentLayout.setOnDragListener(application.getPageDragListener());
 
     }
