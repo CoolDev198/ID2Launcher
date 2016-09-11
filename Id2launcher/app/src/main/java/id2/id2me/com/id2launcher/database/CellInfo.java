@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class CellInfo {
     int isAppOrFolderOrWidget;//1 ,2, 3
     FolderInfo folderInfo;
-    AppInfo appInfo;
+    ApplicationInfo appInfo;
     WidgetInfo widgetInfo;
     View view;
     int spanX,spanY;
@@ -26,7 +26,7 @@ public class CellInfo {
         return folderInfo;
     }
 
-    public AppInfo getAppInfo() {
+    public ApplicationInfo getAppInfo() {
         return appInfo;
     }
 
@@ -34,7 +34,7 @@ public class CellInfo {
         this.folderInfo = folderInfo;
     }
 
-    public void setAppInfo(AppInfo appInfo) {
+    public void setAppInfo(ApplicationInfo appInfo) {
         this.appInfo = appInfo;
     }
 

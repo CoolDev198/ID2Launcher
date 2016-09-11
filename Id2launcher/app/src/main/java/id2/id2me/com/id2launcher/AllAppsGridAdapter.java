@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.general.AppGridView;
 
 /**
@@ -26,12 +26,12 @@ import id2.id2me.com.id2launcher.general.AppGridView;
 public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener {
     private final LauncherApplication launcherApplication;
     LayoutInflater inflater;
-    ArrayList<AppInfo> gridList;
+    ArrayList<ApplicationInfo> gridList;
     DrawerLayout drawerLayout;
     AppGridView appGridView;
     private Context mContext;
 
-    public AllAppsGridAdapter(Context c, ArrayList<AppInfo> gridList, DrawerLayout drawerLayout) {
+    public AllAppsGridAdapter(Context c, ArrayList<ApplicationInfo> gridList, DrawerLayout drawerLayout) {
         this.drawerLayout = drawerLayout;
         mContext = c;
         launcherApplication= (LauncherApplication)((Activity)mContext).getApplication();
@@ -101,7 +101,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         return grid;
     }
 
-    public void launchApp(AppInfo appInfo) {
+    public void launchApp(ApplicationInfo appInfo) {
         try {
             Intent intent = null;
             String pckName = appInfo.getPname();
@@ -146,7 +146,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             dragInfo.setSpanY(1);
 
             ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(view);
+            launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image));
             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,7 +160,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         public TextView itemText;
         public ImageView itemImage;
         public String pName;
-        public AppInfo appInfo;
+        public ApplicationInfo appInfo;
     }
 
 }

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,17 +26,18 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
+import id2.id2me.com.id2launcher.database.CellInfo;
+import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
-import id2.id2me.com.id2launcher.folder.FolderFragmentInterface;
-import id2.id2me.com.id2launcher.general.AllAppsListManager;
+import id2.id2me.com.id2launcher.general.AllAppsList;
 
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements DrawerHandler {
-    private ArrayList<AppInfo> appInfos;
+public class DesktopFragment extends Fragment implements DrawerHandler, LauncherModel.Callbacks {
+    private ArrayList<ApplicationInfo> appInfos;
     private DrawerLayout drawer;
     private View fragmentView = null;
     private Context context;
@@ -49,6 +48,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
     private FrameLayout parentLayout;
     private ImageView wallpaperImg;
     private RelativeLayout wallpaperLayout;
+    private AppsListingFragment appsListingFragment;
+    private LauncherModel mModel;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -72,11 +73,11 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         try {
 
             application = (LauncherApplication) ((Activity) context).getApplication();
-            if(application.desktopFragment == null) {
+            if (application.desktopFragment == null) {
+                mModel = application.setLauncher(this);
+
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
-
-                loadApps();
                 initViews();
                 updateObjectsFromDatabase();
                 setDrawerWidth();
@@ -103,7 +104,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
                     }
                 });
 
-                application.desktopFragment=fragmentView;
+                application.desktopFragment = fragmentView;
             }
 
 
@@ -134,7 +135,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
     private void setupViewPagerAsInnerFragment(ViewPager viewPager) {
         if (viewPager.getChildCount() == 0) {
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager()); // Nested Fragment
-            adapter.addFragment(AppsListingFragment.newInstance(drawer, appInfos), "Apps");
+            appsListingFragment = AppsListingFragment.newInstance(drawer);
+            adapter.addFragment(appsListingFragment, "Apps");
             adapter.addFragment(WidgetsListingFragment.newInstance(drawer), "Widgets");
             viewPager.setAdapter(adapter);
         }
@@ -154,6 +156,48 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         Drawable wallpaperDrawable = wallpaperManager.getDrawable();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             wallpaperImg.setImageDrawable(wallpaperDrawable);
+        }
+    }
+
+    @Override
+    public void bindAppsAdded() {
+        appsListingFragment.setListAdapter();
+
+    }
+
+    @Override
+    public void bindAppsUpdated() {
+        appsListingFragment.setListAdapter();
+    }
+
+    @Override
+    public void bindAppsRemoved(ArrayList<String> packageNames) {
+        appsListingFragment.setListAdapter();
+        for (int k = 0; k < packageNames.size(); k++) {
+            for (int i = 0; i < parentLayout.getChildCount(); i++) {
+
+                View child = parentLayout.getChildAt(i);
+                CellInfo cellInfo = (CellInfo) child.getTag();
+                if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
+
+                    if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
+                        parentLayout.removeView(child);
+                        application.getPageDragListener().unMarkCells(cellInfo.getMatrixCells());
+                        break;
+                    }
+
+                } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
+                    FolderInfo folderInfo = cellInfo.getFolderInfo();
+                    ArrayList<ApplicationInfo> applicationInfos = folderInfo.getAppInfos();
+                    for (int j = 0; j < applicationInfos.size(); i++) {
+                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
+                            folderInfo.deleteAppInfo(applicationInfos.get(j));
+                            break;
+                        }
+
+                    }
+                }
+            }
         }
     }
 
@@ -199,12 +243,12 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
         parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
 
 
-        PageDragListener pageDragListener = new PageDragListener(context, parentLayout,fragmentView.findViewById(R.id.drop_target_layout));
+        PageDragListener pageDragListener = new PageDragListener(context, parentLayout, fragmentView.findViewById(R.id.drop_target_layout));
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
-        wallpaperLayout = (RelativeLayout)fragmentView.findViewById(R.id.wallpaper_layout);
+        wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
 
-        wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(),pageDragListener ,fragmentView.findViewById(R.id.layout_remove),fragmentView.findViewById(R.id.layout_uninstall)));
+        wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
 
        /* parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -227,14 +271,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
             ViewGroup.LayoutParams params = leftDrawer.getLayoutParams();
             params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth();
             leftDrawer.setLayoutParams(params);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadApps() {
-        try {
-            this.appInfos = new AllAppsListManager().getVisibleInstalledApps(context);
         } catch (Exception e) {
             e.printStackTrace();
         }

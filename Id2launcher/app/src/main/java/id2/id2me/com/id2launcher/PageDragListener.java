@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.database.CellInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.database.WidgetInfo;
@@ -684,7 +684,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     }
 
 
-    private void createOrUpdateCellInfo(int isAppOrFolderOrWidget, AppInfo appInfo, FolderInfo folderInfo, WidgetInfo widgetInfo, View view) {
+    private void createOrUpdateCellInfo(int isAppOrFolderOrWidget, ApplicationInfo appInfo, FolderInfo folderInfo, WidgetInfo widgetInfo, View view) {
         CellInfo cellInfo = new CellInfo();
         cellInfo.setAppInfo(appInfo);
         cellInfo.setFolderInfo(folderInfo);
@@ -822,7 +822,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return false;
     }
 
-    void getPopUp(ArrayList<AppInfo> appInfos, View view) {
+    void getPopUp(ArrayList<ApplicationInfo> appInfos, View view) {
         try {
             int x = (int) view.getLeft();
             int y = (int) view.getTop();

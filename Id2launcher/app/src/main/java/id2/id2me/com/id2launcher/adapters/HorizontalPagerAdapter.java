@@ -3,14 +3,13 @@ package id2.id2me.com.id2launcher.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.FolderFragment;
 import id2.id2me.com.id2launcher.FolderGridAdapter;
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.general.NonSwipeViewPager;
 
 /**
@@ -33,7 +32,7 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
         this.notifyDataSetChanged();
 
     }
-    public void updateFragments(int position , ArrayList<AppInfo> appInfos){
+    public void updateFragments(int position , ArrayList<ApplicationInfo> appInfos){
         if(position!=0) {
             FolderFragment fragment = (FolderFragment) fragments.get(position);
             FolderGridAdapter folderGridAdapter=   ((FolderGridAdapter) fragment.getAdapter());

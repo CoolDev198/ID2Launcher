@@ -69,7 +69,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     }
 
     // Adding new App Info
-    void addAppSettings(AppInfo appInfo) {
+    void addAppSettings(ApplicationInfo appInfo) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -112,8 +112,8 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     }
 
     // Getting All AppSettings
-    public List<AppInfo> getAllAppSettings() {
-        List<AppInfo> contactList = new ArrayList<AppInfo>();
+    public List<ApplicationInfo> getAllAppSettings() {
+        List<ApplicationInfo> contactList = new ArrayList<ApplicationInfo>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_APP_SETTINGS;
 
@@ -123,7 +123,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                AppInfo appInfo = new AppInfo();
+                ApplicationInfo appInfo = new ApplicationInfo();
                 appInfo.setPname(cursor.getString(0));
                 appInfo.setAppname(cursor.getString(1));
                 appInfo.setFolderId(Integer.parseInt(cursor.getString(2)));

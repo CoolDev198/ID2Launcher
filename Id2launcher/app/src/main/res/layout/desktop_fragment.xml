@@ -36,7 +36,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginTop="20dp"
-                    android:background="#D9000000"
+                    android:background="#7C000000"
                     android:orientation="horizontal"
                     android:weightSum="2">
 
@@ -50,7 +50,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
-                            android:src="@mipmap/ic_launcher_clear_active_holo" />
+                            android:src="@mipmap/ic_launcher_clear_normal_holo" />
                     </RelativeLayout>
 
                     <RelativeLayout
@@ -63,7 +63,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
-                            android:src="@mipmap/ic_launcher_trashcan_active_holo" />
+                            android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
                     </RelativeLayout>
                 </LinearLayout>
 

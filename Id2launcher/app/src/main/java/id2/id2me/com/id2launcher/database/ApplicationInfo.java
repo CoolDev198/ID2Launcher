@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Created by bliss76 on 27/05/16.
  */
-public class AppInfo {
+public class ApplicationInfo {
     private String appname = "";
     private String pname = "";
     private Drawable icon;
@@ -15,6 +15,10 @@ public class AppInfo {
     private int pageId;
     private int folderId;
 
+
+    public ApplicationInfo() {
+
+    }
     public String getAppname() {
         return appname;
     }

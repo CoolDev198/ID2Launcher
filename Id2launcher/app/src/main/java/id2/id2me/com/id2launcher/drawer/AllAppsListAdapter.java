@@ -2,7 +2,6 @@ package id2.id2me.com.id2launcher.drawer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,23 +10,17 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.SectionIndexer;
-import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import id2.id2me.com.id2launcher.AllAppsGridAdapter;
-import id2.id2me.com.id2launcher.Launcher;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.general.AppGridView;
 
 /**
@@ -36,8 +29,8 @@ import id2.id2me.com.id2launcher.general.AppGridView;
 public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     private static LayoutInflater inflater = null;
     private LauncherApplication launcherApplication;
-    ArrayList<AppInfo> list;
-    ArrayList<ArrayList<AppInfo>> groupList;
+    ArrayList<ApplicationInfo> list;
+    ArrayList<ArrayList<ApplicationInfo>> groupList;
     ArrayList<View> items = null;
     DrawerLayout drawerLayout;
     int NO_OF_APPS_IN_ROW = 3;
@@ -45,8 +38,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     HashMap<String, Integer> mapIndex;
     String[] sections;
 
-    public AllAppsListAdapter(Activity activity,
-                              ArrayList<AppInfo> list, DrawerLayout drawerLayout) {
+    public AllAppsListAdapter(Activity activity, DrawerLayout drawerLayout) {
         try {
             this.activity = activity;
             launcherApplication = (LauncherApplication) activity.getApplication();
@@ -54,11 +46,10 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             this.drawerLayout = drawerLayout;
-            this.list = list;
-
             items = new ArrayList<View>();
-            mapIndex = new LinkedHashMap<String, Integer>();
 
+
+            this.list = launcherApplication.mModel.mBgAllAppsList.data;
             makeGroups();
             makeSections();
 
@@ -67,12 +58,15 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
         }
     }
 
+
+
     private void makeSections() {
+        mapIndex = new LinkedHashMap<String, Integer>();
         for (int x = 0; x < groupList.size(); x++) {
             try {
                 String modifyChar;
                 for (int i = 0; i < groupList.get(x).size(); i++) {
-                    char ch = ((ArrayList<AppInfo>) groupList.get(x)).get(i).getAppname().charAt(0);
+                    char ch = ((ArrayList<ApplicationInfo>) groupList.get(x)).get(i).getAppname().charAt(0);
                     if (ch >= 'A' && ch <= 'Z') {
                         modifyChar = Character.toString(ch).toUpperCase();
 
@@ -108,7 +102,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     private void makeGroups() {
-        ArrayList<AppInfo> arrayList = new ArrayList<>();
+        ArrayList<ApplicationInfo> arrayList = new ArrayList<>();
         groupList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             arrayList.add(list.get(i));

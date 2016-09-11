@@ -10,9 +10,9 @@ public class FolderInfo {
     private int folderId;
     private String folderName = "";
     private int pageId;
-    private ArrayList<AppInfo> appInfos;
+    private ArrayList<ApplicationInfo> appInfos;
 
-    public FolderInfo(AppInfo dragPosApp, AppInfo targetPosApp) {
+    public FolderInfo(ApplicationInfo dragPosApp, ApplicationInfo targetPosApp) {
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
@@ -22,17 +22,17 @@ public class FolderInfo {
     public FolderInfo(){
 
     }
-    public void addNewAppInfo(AppInfo dragPosApp){
+    public void addNewAppInfo(ApplicationInfo dragPosApp){
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
         appInfos.add(dragPosApp);
     }
 
-    public ArrayList<AppInfo> getAppInfos(){
+    public ArrayList<ApplicationInfo> getAppInfos(){
         return appInfos;
     }
-    public void setAppInfos(ArrayList<AppInfo> appInfos){
+    public void setAppInfos(ArrayList<ApplicationInfo> appInfos){
         this.appInfos=appInfos;
     }
     public String getFolderName() {
@@ -55,7 +55,7 @@ public class FolderInfo {
         this.pageId = pageId;
     }
 
-    public void  deleteAppInfo(AppInfo appInfo) {
+    public void  deleteAppInfo(ApplicationInfo appInfo) {
         appInfos.remove(appInfo);
     }
 }

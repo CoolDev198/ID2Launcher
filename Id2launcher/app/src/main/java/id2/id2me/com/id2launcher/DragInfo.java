@@ -1,12 +1,10 @@
 package id2.id2me.com.id2launcher;
 
-import android.appwidget.AppWidgetProviderInfo;
-import android.content.ComponentName;
 import android.view.View;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.database.WidgetInfo;
 
@@ -17,7 +15,7 @@ public class DragInfo {
 
     //true - App and false - Widget
     private boolean isAppOrWidget;
-    private AppInfo appInfo;
+    private ApplicationInfo appInfo;
     private WidgetInfo widgetInfo;
     private FolderInfo folderInfo;
     private View widgetView;
@@ -47,11 +45,11 @@ public class DragInfo {
         this.widgetView = widgetView;
     }
 
-    public AppInfo getAppInfo() {
+    public ApplicationInfo getAppInfo() {
         return appInfo;
     }
 
-    public void setAppInfo(AppInfo appInfo) {
+    public void setAppInfo(ApplicationInfo appInfo) {
         this.appInfo = appInfo;
     }
 

@@ -43,7 +43,6 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         try {
             setContentView(R.layout.activity_home);
             launcherApplication = ((LauncherApplication) getApplication());
-            launcherApplication.setLauncher(this);
             getSupportActionBar().hide();
             init();
 

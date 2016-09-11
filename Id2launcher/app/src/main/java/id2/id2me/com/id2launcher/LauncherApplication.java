@@ -1,19 +1,17 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Application;
-import android.appwidget.AppWidgetHost;
 import android.content.ClipData;
 import android.content.ClipDescription;
-import android.graphics.Point;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.support.v4.app.Fragment;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 
 /**
@@ -29,19 +27,47 @@ public class LauncherApplication extends Application {
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     public boolean cellsMatrix[][];
     private Launcher launcher;
-
+    public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         setCellCountX();
         setCellCountY();
+
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();
         cellsMatrix = new boolean[cellCountX][cellCountY];
 
+        mModel = new LauncherModel(this);
+
+
+       addBroadCastReceiver();
+
+    }
+
+    private void addBroadCastReceiver() {
+        // Register intent receivers
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addDataScheme("package");
+        registerReceiver(mModel, filter);
+        filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
+        filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
+        filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+        filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+        registerReceiver(mModel, filter);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        unregisterReceiver(mModel);
     }
 
     public Typeface getTypeFace() {
@@ -71,8 +97,9 @@ public class LauncherApplication extends Application {
         return launcher;
     }
 
-    public void setLauncher(Launcher launcher) {
-        this.launcher = launcher;
+    public LauncherModel setLauncher(DesktopFragment launcher) {
+        mModel.initialize(launcher);
+        return null;
     }
 
     public void setPageDragListener(PageDragListener pageDragListener) {

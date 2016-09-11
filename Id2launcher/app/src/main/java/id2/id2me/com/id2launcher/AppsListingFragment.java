@@ -9,34 +9,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
+import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.drawer.AllAppsListAdapter;
 
 /**
  * Created by sunita on 8/2/16.
  */
 public class AppsListingFragment extends Fragment {
-    private static ArrayList<AppInfo> appInfos;
     private ListView navList;
     private AllAppsListAdapter adapter;
     private static DrawerLayout drawer;
-    private ArrayList<String> mNames;
     private View fragmentView;
 
 
     Context context;
+    private LauncherApplication launcherApplication;
 
 
-    public static AppsListingFragment newInstance(DrawerLayout drawerLayout, ArrayList<AppInfo> appInfo) {
+    public static AppsListingFragment newInstance(DrawerLayout drawerLayout) {
         drawer = drawerLayout;
-        appInfos = appInfo;
+
         AppsListingFragment f = new AppsListingFragment();
         return f;
     }
@@ -44,6 +39,7 @@ public class AppsListingFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        launcherApplication = (LauncherApplication) getActivity().getApplication();
         fragmentView = inflater.inflate(R.layout.apps_listing_fragment, container, false);
         drawerAppsListing();
         return fragmentView;
@@ -66,9 +62,10 @@ public class AppsListingFragment extends Fragment {
 
     private void seperateCharNumApps() {
         try {
+            ArrayList<ApplicationInfo> appInfos = launcherApplication.mModel.mBgAllAppsList.data;
 
-            ArrayList<AppInfo> listDigitAppInfo = new ArrayList<>();
-            ArrayList<AppInfo> listAppInfo = new ArrayList<>();
+            ArrayList<ApplicationInfo> listDigitAppInfo = new ArrayList<>();
+            ArrayList<ApplicationInfo> listAppInfo = new ArrayList<>();
             for (int i = 0; i < appInfos.size(); i++) {
                 char ch = appInfos.get(i).getAppname().toString().charAt(0);
                 if (ch >= 'A' && ch <= 'Z') {
@@ -99,12 +96,12 @@ public class AppsListingFragment extends Fragment {
     }
 
 
-    private void setListAdapter() {
+    public void setListAdapter() {
         try {
             seperateCharNumApps();
             navList = (ListView) fragmentView.findViewById(R.id.list);
             navList.setClickable(false);
-            adapter = new AllAppsListAdapter(getActivity(), appInfos, drawer);
+            adapter = new AllAppsListAdapter(getActivity(), drawer);
             navList.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
