@@ -1,6 +1,7 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +59,16 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private RelativeLayout wallpaperLayout;
     private AppsListingFragment appsListingFragment;
     private LauncherModel mModel;
+
+
+    //context menu ids
+    Dialog customDialog;
+    final int CONTEXT_MENU_CAMERA = 1;
+    final int CONTEXT_MENU_GALLERY = 2;
+    private static final int PICK_FROM_CAMERA = 1;
+    private static final int PICK_FROM_GALLERY = 2;
+
+    private CropImageView mCropView;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
