@@ -23,6 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.isseiaoki.simplecropview.CropImageView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -264,6 +266,18 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
     }
 
+
+    private void bindViews() {
+        //View view = getLayoutInflater();
+
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.listview_context_menu, null);
+        mCropView = (CropImageView) view.findViewById(R.id.cropImageView);
+        //mCropView.setHandleShowMode(CropImageView.ShowMode.NOT_SHOW);
+        //mCropView.setGuideShowMode(CropImageView.ShowMode.SHOW_ON_TOUCH);
+
+    }
 
     private void setDrawerWidth() {
         try {
