@@ -5,9 +5,13 @@ import android.app.Dialog;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -268,6 +272,17 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
 
         wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
+        wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+
+                //registerForContextMenu(wallpaperLayout);
+                //openContextMenu();
+                openGallery();
+                //openContextMenu(wallpaperLayout);
+                return false;
+            }
+        });
 
        /* parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,6 +296,50 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
         parentLayout.setOnDragListener(application.getPageDragListener());
 
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        /*if (requestCode == PICK_FROM_CAMERA) {
+            Bundle extras = data.getExtras();
+            if (extras != null) {
+                Bitmap photo = extras.getParcelable("data");
+                //imageView.setImageBitmap(photo);
+
+            }
+        }
+
+        if (requestCode == PICK_FROM_GALLERY) {
+            Bundle extras2 = data.getExtras();
+            if (extras2 != null) {
+                Bitmap photo = extras2.getParcelable("data");
+                wallpaperImg.setImageBitmap(photo);
+
+            }
+        }*/
+
+        if (requestCode == PICK_FROM_GALLERY  && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = context.getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            /*mCropView.startLoad(data.getData(), mLoadCallback);
+
+            ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+
+            //final Uri uri = getIntent().getData();
+            mExecutor.submit(new LoadScaledImageTask(context, selectedImage, wallpaperImg, calcImageSize()));*/
+
+            wallpaperImg.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+
+            //Intent intent = new Intent(context, MainActivity.)
+
+        }
     }
 
 
@@ -362,6 +421,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             e.printStackTrace();
         }
     }
+
+
 }
 
 

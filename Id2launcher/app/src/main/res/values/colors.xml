@@ -19,4 +19,7 @@
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#c8e8ff</color>
+
+    <color name="windowBackground">#1C1C1C</color>
+    <color name="overlay">#AA1C1C1C</color>
 </resources>
