@@ -267,6 +267,39 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     }
 
 
+
+    //open Gallery
+    public void openGallery() {
+
+        try {
+            /*Intent intent = new Intent();
+            // call android default gallery
+            intent.setType("image*//*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            try {
+
+                intent.putExtra("return-data", true);
+                startActivityForResult(Intent.createChooser(intent,
+                        "Complete action using"), PICK_FROM_GALLERY);
+
+            } catch (ActivityNotFoundException e) {
+                e.printStackTrace();
+            }*/
+            bindViews();
+            Intent i = new Intent(
+                    Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            startActivityForResult(i, PICK_FROM_GALLERY);
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void bindViews() {
         //View view = getLayoutInflater();
 
