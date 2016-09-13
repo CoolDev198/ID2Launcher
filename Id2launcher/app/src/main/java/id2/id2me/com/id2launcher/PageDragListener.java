@@ -85,7 +85,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                         dropTargetLayout.setVisibility(View.VISIBLE);
                     }
                     isRequiredCellsCalculated = true;
-                    drag_view = dragInfo.getOriginalView();
+                    drag_view = (View) event.getLocalState();
                     dragInfo.setDragMatrices(new ArrayList<ArrayList<Integer>>());
 
                 } catch (Exception e) {
@@ -864,6 +864,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             dragInfo.setMatrixCells(cellInfo.getMatrixCells());
             launcherApplication.dragInfo = dragInfo;
             launcherApplication.dragAnimation(launcherAppWidgetHostView);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

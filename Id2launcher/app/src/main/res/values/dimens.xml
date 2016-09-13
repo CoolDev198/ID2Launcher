@@ -24,4 +24,9 @@
     <dimen name="app_widget_preview_label_margin_top">4dp</dimen>
     <dimen name="app_widget_preview_label_margin_left">2dp</dimen>
     <dimen name="app_widget_preview_label_margin_right">2dp</dimen>
+
+
+    <dimen name="text_size_m">20sp</dimen>
+    <dimen name="text_size_s">16sp</dimen>
+    <dimen name="button_height">48dp</dimen>
 </resources>

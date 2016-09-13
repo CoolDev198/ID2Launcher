@@ -113,6 +113,14 @@ public class WallpaperDragListener implements View.OnDragListener {
     private void checkToRemoveUninstall(int x, int y, View view) {
         try {
 
+
+            removeLayout.setBackgroundColor(Color.TRANSPARENT);
+            ((ImageView) removeLayout.getChildAt(0)).setImageResource(R.mipmap.ic_launcher_clear_normal_holo);
+
+
+            uninstallLayout.setBackgroundColor(Color.TRANSPARENT);
+            ((ImageView) uninstallLayout.getChildAt(0)).setImageResource(R.mipmap.ic_launcher_trashcan_normal_holo);
+
             if (removeRect.contains(x, y) && !launcherApplication.dragInfo.getDropExternal()) {
                 Log.v(TAG, "remove");
                 pageDragListener.removeViewFromDesktop();

@@ -44,6 +44,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
             setContentView(R.layout.activity_home);
             launcherApplication = ((LauncherApplication) getApplication());
             getSupportActionBar().hide();
+            launcherApplication.setLauncher(this);
             init();
 
         } catch (Exception e) {
@@ -90,7 +91,11 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        mAppWidgetHost.startListening();
+        try {
+            mAppWidgetHost.startListening();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

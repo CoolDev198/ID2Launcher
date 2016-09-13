@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import id2.id2me.com.id2launcher.database.FolderInfo;
  * Created by sunita on 7/27/16.
  */
 public class LauncherApplication extends Application {
+    public static ImageView wallpaperImg;
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<FolderInfo> folderFragmentsInfo;
@@ -97,8 +99,12 @@ public class LauncherApplication extends Application {
         return launcher;
     }
 
-    public LauncherModel setLauncher(DesktopFragment launcher) {
-        mModel.initialize(launcher);
+    public void setLauncher(Launcher launcher) {
+        this.launcher= launcher;
+    }
+
+    public LauncherModel setDeskTopFragment(DesktopFragment fragment) {
+        mModel.initialize(fragment);
         return null;
     }
 

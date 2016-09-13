@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Id2launcher.iml" filepath="$PROJECT_DIR$/Id2launcher.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/simplecropview/simplecropview.iml" filepath="$PROJECT_DIR$/simplecropview/simplecropview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/simplecropview-sample/simplecropview-sample.iml" filepath="$PROJECT_DIR$/simplecropview-sample/simplecropview-sample.iml" />
     </modules>
   </component>
 </project>

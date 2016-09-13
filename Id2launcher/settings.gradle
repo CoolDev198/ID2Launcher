@@ -1,1 +1,1 @@
-include ':app', ':simplecropview'
+include ':app', ':simplecropview', ':simplecropview-sample'

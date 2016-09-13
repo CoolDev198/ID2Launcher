@@ -6,7 +6,6 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -33,18 +32,12 @@ import com.isseiaoki.simplecropview.CropImageView;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.isseiaoki.simplecropview.CropImageView;
-import com.isseiaoki.simplecropview.callback.CropCallback;
-import com.isseiaoki.simplecropview.callback.LoadCallback;
-import com.isseiaoki.simplecropview.callback.SaveCallback;
-import com.isseiaoki.simplecropview.util.Utils;
-
 import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.database.CellInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
-import id2.id2me.com.id2launcher.general.AllAppsList;
+import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 
 /**
  * Created by bliss76 on 26/05/16.
@@ -97,7 +90,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
             application = (LauncherApplication) ((Activity) context).getApplication();
             if (application.desktopFragment == null) {
-                mModel = application.setLauncher(this);
+                mModel = application.setDeskTopFragment(this);
 
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
@@ -271,6 +264,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         application.setPageDragListener(pageDragListener);
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
 
+        LauncherApplication.wallpaperImg = (ImageView)fragmentView.findViewById(R.id.wallpaper_img);
         wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -278,7 +272,11 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
                 //registerForContextMenu(wallpaperLayout);
                 //openContextMenu();
-                openGallery();
+             //   wallpaperImg.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+
+                Intent  intent = new Intent(getActivity(),MainActivity.class);
+                startActivity(intent);
+
                 //openContextMenu(wallpaperLayout);
                 return false;
             }
@@ -335,7 +333,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             //final Uri uri = getIntent().getData();
             mExecutor.submit(new LoadScaledImageTask(context, selectedImage, wallpaperImg, calcImageSize()));*/
 
-            wallpaperImg.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+
 
             //Intent intent = new Intent(context, MainActivity.)
 
