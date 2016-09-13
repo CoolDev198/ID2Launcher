@@ -34,8 +34,8 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-      >
+        android:supportsRtl="true">
+
         <activity android:name=".Launcher"
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true"
@@ -62,6 +62,16 @@
         <activity
             android:name=".wallpaperEditor.ResultActivity">
         </activity>
+
+        <service android:name=".notificationWidget.NotificationService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+
+        </service>
+
 
     </application>
 

@@ -43,4 +43,38 @@
     <string name="permission_denied">Permission was denied. Please consider granting it in order to use all features.</string>
     <string name="permission_denied_never_ask_again">Permission was denied with never ask again.</string>
 
+
+    <string-array name="noti_app_id">
+        <item>com.facebook.katana</item>
+        <item>com.google.android.apps.messaging</item>
+        <item>com.snapchat.android</item>
+        <item>com.android.dialer</item>
+        <item>com.instagram.android</item>
+        <item>com.whatsapp</item>
+        <item>com.twitter.android</item>
+    </string-array>
+
+    <string-array name="noti_app_name">
+        <item>Facebook</item>
+        <item>Text message</item>
+        <item>Snapchat</item>
+        <item>Dialer</item>
+        <item>Instagram</item>
+        <item>WhatsApp</item>
+        <item>Twitter</item>
+    </string-array>
+
+
+
+    <string-array name="noti_app_image">
+        <item>ic_facebook</item>
+        <item>ic_sms</item>
+        <item>ic_snapchat</item>
+        <item>ic_dialer</item>
+        <item>ic_instagram</item>
+        <item>ic_whatsapp</item>
+        <item>ic_twitter</item>
+    </string-array>
+
+
 </resources>

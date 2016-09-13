@@ -12,14 +12,17 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import id2.id2me.com.id2launcher.database.FolderInfo;
+import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetModel;
 
 /**
  * Created by sunita on 7/27/16.
  */
 public class LauncherApplication extends Application {
     public static ImageView wallpaperImg;
+    public static List<NotificationWidgetModel> notificationWidgetModels;
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<FolderInfo> folderFragmentsInfo;

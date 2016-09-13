@@ -22,6 +22,7 @@ import id2.id2me.com.id2launcher.adapters.HorizontalPagerAdapter;
 import id2.id2me.com.id2launcher.database.DataBaseHandler;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.general.NonSwipeViewPager;
+import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
 public class Launcher extends AppCompatActivity implements View.OnLongClickListener{
     private static final int REQUEST_PICK_APPWIDGET = 6;
@@ -36,16 +37,20 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     private DesktopFragment desktopFragment;
     static final String TAG = "Launcher";
     LauncherApplication launcherApplication;
-
+    private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
+
+            DatabaseHandler db =  DatabaseHandler.getInstance(this);
             setContentView(R.layout.activity_home);
             launcherApplication = ((LauncherApplication) getApplication());
             getSupportActionBar().hide();
             launcherApplication.setLauncher(this);
+
             init();
+            openNotificationAccess();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,6 +59,10 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
 
+    private void openNotificationAccess() {
+        if(!NotificationService.isNotificationAccessEnabled)
+        startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
+    }
 
     public void startActivityForBindingWidget(int appWidgetId, ComponentName componentName) {
         Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_BIND);

@@ -3,8 +3,10 @@ package id2.id2me.com.id2launcher;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.WallpaperManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -15,8 +17,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +42,8 @@ import id2.id2me.com.id2launcher.database.CellInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
+import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
+import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetModel;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 
 /**
@@ -66,9 +73,12 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private static final int PICK_FROM_GALLERY = 2;
 
     private CropImageView mCropView;
+    private DatabaseHandler db;
+    private NotificationWidgetAdapter notificationWidgetAdapter;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
+
         return f;
     }
 
@@ -76,6 +86,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
     }
 
     @Override
@@ -87,9 +98,14 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         try {
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
 
             application = (LauncherApplication) ((Activity) context).getApplication();
             if (application.desktopFragment == null) {
+
+                  /* communicator between notification service and activity*/
+
+                db =  DatabaseHandler.getInstance(context);
                 mModel = application.setDeskTopFragment(this);
 
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
@@ -132,6 +148,20 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
     }
 
+    private BroadcastReceiver onNotice = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            notifyDataInNotificationWidget();
+        }
+    };
+
+    // Refresh notification widget
+    public void notifyDataInNotificationWidget() {
+        db.getNotificationData();
+        notificationWidgetAdapter.notifyDataSetChanged();
+    }
+
     private void changeTabsFont(TabLayout tabLayout) {
 
         ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
@@ -157,15 +187,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             viewPager.setAdapter(adapter);
         }
     }
-
-//    @Override
-//    public boolean onLongClick(View v) {
-//        if (v.getId() == R.id.wallpaper_img) {
-//            startWallpaperChooserActivity();
-//
-//        }
-//        return true;
-//    }
 
     public void setWallpaper() {
         WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
@@ -251,69 +272,45 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
 
     private void initViews() {
+
+
         wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
         if (drawer != null) {
             drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
         }
+        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        notificationRecyclerView.setLayoutManager(linearLayoutManager);
         parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
 
+        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
+        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
+        notifyDataInNotificationWidget();
 
         PageDragListener pageDragListener = new PageDragListener(context, parentLayout, fragmentView.findViewById(R.id.drop_target_layout));
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         application.setPageDragListener(pageDragListener);
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
 
-        LauncherApplication.wallpaperImg = (ImageView)fragmentView.findViewById(R.id.wallpaper_img);
+        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
 
-                //registerForContextMenu(wallpaperLayout);
-                //openContextMenu();
-             //   wallpaperImg.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-
-                Intent  intent = new Intent(getActivity(),MainActivity.class);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
 
-                //openContextMenu(wallpaperLayout);
                 return false;
             }
         });
-
-       /* parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (application.folderView != null) {
-                    parentLayout.removeView(application.folderView);
-                    application.folderView = null;
-                }
-            }
-        });*/
 
         parentLayout.setOnDragListener(application.getPageDragListener());
 
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /*if (requestCode == PICK_FROM_CAMERA) {
-            Bundle extras = data.getExtras();
-            if (extras != null) {
-                Bitmap photo = extras.getParcelable("data");
-                //imageView.setImageBitmap(photo);
-
-            }
-        }
-
-        if (requestCode == PICK_FROM_GALLERY) {
-            Bundle extras2 = data.getExtras();
-            if (extras2 != null) {
-                Bitmap photo = extras2.getParcelable("data");
-                wallpaperImg.setImageBitmap(photo);
-
-            }
-        }*/
+    /*public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PICK_FROM_GALLERY  && null != data) {
             Uri selectedImage = data.getData();
@@ -326,29 +323,19 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            /*mCropView.startLoad(data.getData(), mLoadCallback);
-
-            ExecutorService mExecutor = Executors.newSingleThreadExecutor();
-
-            //final Uri uri = getIntent().getData();
-            mExecutor.submit(new LoadScaledImageTask(context, selectedImage, wallpaperImg, calcImageSize()));*/
-
-
-
-            //Intent intent = new Intent(context, MainActivity.)
 
         }
-    }
+    }*/
 
 
 
-    //open Gallery
+   /* //open Gallery
     public void openGallery() {
 
         try {
-            /*Intent intent = new Intent();
+            *//*Intent intent = new Intent();
             // call android default gallery
-            intent.setType("image*//*");
+            intent.setType("image*//**//*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             try {
 
@@ -358,7 +345,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
             } catch (ActivityNotFoundException e) {
                 e.printStackTrace();
-            }*/
+            }*//*
             bindViews();
             Intent i = new Intent(
                     Intent.ACTION_PICK,
@@ -371,20 +358,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-
-    private void bindViews() {
-        //View view = getLayoutInflater();
-
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.listview_context_menu, null);
-        mCropView = (CropImageView) view.findViewById(R.id.cropImageView);
-        //mCropView.setHandleShowMode(CropImageView.ShowMode.NOT_SHOW);
-        //mCropView.setGuideShowMode(CropImageView.ShowMode.SHOW_ON_TOUCH);
-
-    }
 
     private void setDrawerWidth() {
         try {
@@ -409,18 +384,11 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         drawer.closeDrawer(Gravity.LEFT);
     }
 
-    private void startWallpaperChooserActivity() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SET_WALLPAPER);
-        intent.setClassName("com.android.wallpaperchooser", "com.android.wallpaperchooser.WallpaperPickerActivity");
-        try {
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onDestroyView() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(onNotice);
+        super.onDestroyView();
     }
-
-
 }
 
 

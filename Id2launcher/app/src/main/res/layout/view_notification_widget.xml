@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/noti_widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:onClick="onClick">
+
+        <ImageView
+            android:id="@+id/noti_widget_icon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_dialer" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignBottom="@id/noti_widget_icon"
+            android:layout_alignRight="@id/noti_widget_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="-10dp">
+
+            <TextView
+                android:id="@+id/notification_count"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="0"
+                android:textColor="#fff"
+                android:gravity="center"
+                android:background="@drawable/notification_count_drawable"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="2.8dp"
+                android:paddingBottom="2.8dp"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
+</LinearLayout>

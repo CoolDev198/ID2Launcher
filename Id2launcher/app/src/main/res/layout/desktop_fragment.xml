@@ -64,9 +64,21 @@
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
+
+
                     </RelativeLayout>
                 </LinearLayout>
 
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/noti_widget"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:background="@android:color/transparent"
+                    android:scrollbars="none"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="20dp"
+                    android:visibility="visible" />
 
             </RelativeLayout>
 
