@@ -1,26 +1,19 @@
 package id2.id2me.com.id2launcher;
 
-import android.app.WallpaperManager;
-import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.adapters.HorizontalPagerAdapter;
-import id2.id2me.com.id2launcher.database.DataBaseHandler;
-import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.general.NonSwipeViewPager;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
@@ -80,7 +73,6 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     void init() {
-        DataBaseHandler.dataBaseHandler = new DataBaseHandler(this);
         List<Fragment> fragments = getFragments();
         NonSwipeViewPager pager = (NonSwipeViewPager) findViewById(R.id.viewpager);
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
