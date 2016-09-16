@@ -7,12 +7,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -38,12 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.database.CellInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
-import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetModel;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 
 /**
@@ -214,7 +209,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             for (int i = 0; i < parentLayout.getChildCount(); i++) {
 
                 View child = parentLayout.getChildAt(i);
-                CellInfo cellInfo = (CellInfo) child.getTag();
+                ItemInfo cellInfo = (ItemInfo) child.getTag();
                 if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
 
                     if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
