@@ -181,18 +181,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void addOrMoveItemInfo(ItemInfo itemInfo) {
         if (itemInfo.getId() == ItemInfo.NO_ID) {
-            addItemInfo(itemInfo);
+            addItemInfoToDataBase(itemInfo);
         } else {
             moveItemInfo(itemInfo);
         }
     }
 
     public void moveItemInfo(ItemInfo itemInfo) {
+
     }
 
-    public void addItemInfo(ItemInfo itemInfo) {
+    public void modifyItemInfo(ItemInfo itemInfo) {
+
+    }
+
+    public void addItemInfoToDataBase(ItemInfo itemInfo) {
         initializeMaxId();
         itemInfo.setId(maxID++);
+
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
         try {

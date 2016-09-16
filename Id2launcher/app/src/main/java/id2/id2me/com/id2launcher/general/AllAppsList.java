@@ -6,11 +6,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.database.ApplicationInfo;
 
 /*
@@ -24,23 +33,70 @@ public class AllAppsList
     public ArrayList<ApplicationInfo> data =
             new ArrayList<ApplicationInfo>();
 
-//    /** The list of apps that have been added since the last notify() call. */
-//    public ArrayList<ApplicationInfo> added =
-//            new ArrayList<ApplicationInfo>();
-//    /** The list of apps that have been removed since the last notify() call. */
-//    public ArrayList<ApplicationInfo> removed = new ArrayList<ApplicationInfo>();
-//    /** The list of apps that have been modified since the last notify() call. */
-//    public ArrayList<ApplicationInfo> modified = new ArrayList<ApplicationInfo>();
+    private static final Canvas sCanvas = new Canvas();
 
-   // private IconCache mIconCache;
-
+    static {
+        sCanvas.setDrawFilter(new PaintFlagsDrawFilter(Paint.DITHER_FLAG,
+                Paint.FILTER_BITMAP_FLAG));
+    }
 
     public void clear() {
         data.clear();
         // TODO: do we clear these too?
-////        added.clear();
-////        removed.clear();
-//        modified.clear();
+    }
+
+
+    /**
+     * Returns a bitmap suitable for the all apps view.
+     */
+  public   static Bitmap createIconBitmap(Drawable icon, Context context) {
+        synchronized (sCanvas) { // we share the statics :-(
+//            if (sIconWidth == -1) {
+//                initStatics(context);
+//            }
+
+            int width = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
+            int height = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+
+
+            int sourceWidth = icon.getIntrinsicWidth();
+            int sourceHeight = icon.getIntrinsicHeight();
+            if (sourceWidth > 0 && sourceHeight > 0) {
+                // There are intrinsic sizes.
+                if (width < sourceWidth || height < sourceHeight) {
+                    // It's too big, scale it down.
+                    final float ratio = (float) sourceWidth / sourceHeight;
+                    if (sourceWidth > sourceHeight) {
+                        height = (int) (width / ratio);
+                    } else if (sourceHeight > sourceWidth) {
+                        width = (int) (height * ratio);
+                    }
+                } else if (sourceWidth < width && sourceHeight < height) {
+                    // Don't scale up the icon
+                    width = sourceWidth;
+                    height = sourceHeight;
+                }
+            }
+
+            // no intrinsic size --> use default size
+            int textureWidth = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+            int textureHeight = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+
+            final Bitmap bitmap = Bitmap.createBitmap(textureWidth, textureHeight,
+                    Bitmap.Config.ARGB_8888);
+            final Canvas canvas = sCanvas;
+            canvas.setBitmap(bitmap);
+
+            final int left = (textureWidth-width) / 2;
+            final int top = (textureHeight-height) / 2;
+
+            @SuppressWarnings("all") // suppress dead code warning
+            final boolean debug = false;
+                  icon.setBounds(left, top, left+width, top+height);
+            icon.draw(canvas);
+            canvas.setBitmap(null);
+            return bitmap;
+        }
     }
 
 
