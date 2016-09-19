@@ -6,6 +6,7 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,7 @@ import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
+import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by bliss76 on 26/05/16.
@@ -57,7 +60,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private AppsListingFragment appsListingFragment;
     private LauncherModel mModel;
 
-
+     String TAG="DesktopFragment";
     //context menu ids
     Dialog customDialog;
     final int CONTEXT_MENU_CAMERA = 1;
@@ -66,6 +69,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private static final int PICK_FROM_GALLERY = 2;
 
     private CropImageView mCropView;
+    private ObservableScrollView scrollView;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -105,20 +109,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                 tabLayout.setupWithViewPager(viewPager);
                 changeTabsFont(tabLayout);
 
-                ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
 
-                scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
-                    @Override
-                    public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
-
-                        View view = scrollView.findViewById(R.id.wallpaper_img);
-
-                        if (view != null) {
-                            view.setTranslationY(scrollView.getScrollY() / 2);
-                        }
-
-                    }
-                });
 
                 application.desktopFragment = fragmentView;
             }
@@ -272,9 +263,9 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
                 //registerForContextMenu(wallpaperLayout);
                 //openContextMenu();
-             //   wallpaperImg.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                //   wallpaperImg.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 
-                Intent  intent = new Intent(getActivity(),MainActivity.class);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
 
                 //openContextMenu(wallpaperLayout);
@@ -282,17 +273,45 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             }
         });
 
-       /* parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (application.folderView != null) {
-                    parentLayout.removeView(application.folderView);
-                    application.folderView = null;
-                }
-            }
-        });*/
 
         parentLayout.setOnDragListener(application.getPageDragListener());
+
+        scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+
+        scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
+            @Override
+            public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
+
+                View view = scrollView.findViewById(R.id.wallpaper_img);
+
+                if (view != null) {
+                    view.setTranslationY(scrollView.getScrollY() / 2);
+                }
+
+            }
+        });
+
+
+
+        parentLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Log.v(TAG, "cliked");
+                RelativeLayout blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
+                blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
+
+                blur_relative.setVisibility(View.VISIBLE);
+                scrollView.setVisibility(View.GONE);
+                Blurry.with(context)
+                        .radius(25)
+                        .sampling(1)
+                        .color(Color.argb(66, 255, 255, 255))
+                        .async()
+                        .capture(scrollView)
+                        .into(blur_relative);
+            }
+        });
 
     }
 
