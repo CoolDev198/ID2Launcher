@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.drawable.TransitionDrawable;
 import android.util.Log;
 import android.view.DragEvent;
@@ -325,9 +326,20 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             iteminfo.setSpanX(dragInfo.getSpanX());
             iteminfo.setSpanY(dragInfo.getSpanY());
+            iteminfo.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(dragInfo.getAppInfo().getIcon(),context)));
             iteminfo.setCellX(dragInfo.getDragMatrices().get(0).get(0));
             iteminfo.setCellY(dragInfo.getDragMatrices().get(0).get(1));
+            iteminfo.setPname(dragInfo.getAppInfo().getPname());
+
+
+            if(cellToBePlaced!=null){
+                iteminfo.setContainer(DatabaseHandler.CONTAINER_FOLDER);
+            }else{
+                iteminfo.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
+            }
+
             view.setTag(iteminfo);
+
             db.addOrMoveItemInfo(iteminfo);
         } else {
             ItemInfo cellInfo = (ItemInfo) view.getTag();
@@ -710,6 +722,23 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     }
 
+    public void addAppToPage(Bitmap icon , ItemInfo itemInfo,FrameLayout.LayoutParams layoutParams) {
+
+        try {
+            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+            View view = inflater.inflate(R
+                    .layout.grid_item, null, true);
+            ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
+            imageView.setImageBitmap(icon);
+            view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
+            pageLayout.addView(view, layoutParams);
+            view.setTag(itemInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
 

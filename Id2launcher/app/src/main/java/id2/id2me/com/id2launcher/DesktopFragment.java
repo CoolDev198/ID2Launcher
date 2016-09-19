@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,31 +46,34 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
  * Created by bliss76 on 26/05/16.
  */
 public class DesktopFragment extends Fragment implements DrawerHandler, LauncherModel.Callbacks {
+    private static final int PICK_FROM_CAMERA = 1;
+    private static final int PICK_FROM_GALLERY = 2;
+    final int CONTEXT_MENU_CAMERA = 1;
+    final int CONTEXT_MENU_GALLERY = 2;
+    private final List<Fragment> mFragmentList = new ArrayList<>();
+    private final List<String> mFragmentTitleList = new ArrayList<>();
+    //context menu ids
+    Dialog customDialog;
     private ArrayList<ApplicationInfo> appInfos;
     private DrawerLayout drawer;
     private View fragmentView = null;
     private Context context;
-    private final List<Fragment> mFragmentList = new ArrayList<>();
-    private final List<String> mFragmentTitleList = new ArrayList<>();
-
     private LauncherApplication application;
     private FrameLayout parentLayout;
     private ImageView wallpaperImg;
     private RelativeLayout wallpaperLayout;
     private AppsListingFragment appsListingFragment;
     private LauncherModel mModel;
-
-
-    //context menu ids
-    Dialog customDialog;
-    final int CONTEXT_MENU_CAMERA = 1;
-    final int CONTEXT_MENU_GALLERY = 2;
-    private static final int PICK_FROM_CAMERA = 1;
-    private static final int PICK_FROM_GALLERY = 2;
-
     private CropImageView mCropView;
     private DatabaseHandler db;
     private NotificationWidgetAdapter notificationWidgetAdapter;
+    private BroadcastReceiver onNotice = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            notifyDataInNotificationWidget();
+        }
+    };
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -100,7 +104,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
                   /* communicator between notification service and activity*/
 
-                db =  DatabaseHandler.getInstance(context);
+                db = DatabaseHandler.getInstance(context);
                 mModel = application.setDeskTopFragment(this);
 
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
@@ -142,14 +146,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         return application.desktopFragment;
 
     }
-
-    private BroadcastReceiver onNotice = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            notifyDataInNotificationWidget();
-        }
-    };
 
     // Refresh notification widget
     public void notifyDataInNotificationWidget() {
@@ -233,38 +229,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         }
     }
 
-
-    class ViewPagerAdapter extends FragmentStatePagerAdapter {
-
-
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-    }
-
     private void updateObjectsFromDatabase() {
     }
-
 
     private void initViews() {
 
@@ -290,6 +256,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
         LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
+
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -303,7 +270,53 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
         parentLayout.setOnDragListener(application.getPageDragListener());
 
+        if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
+            populateDesktop();
+        }
     }
+
+    private void populateDesktop() {
+        for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
+            ItemInfo itemInfo = DatabaseHandler.itemInfosList.get(i);
+            int type = itemInfo.getItemType();
+
+            int width = application.getCellWidth() * itemInfo.getSpanX();
+            int height = application.getCellHeight() * itemInfo.getSpanY();
+
+
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+            int leftMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
+            int topMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
+            layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+
+
+            switch (type) {
+
+                case DatabaseHandler.ITEM_TYPE_APP:
+                     application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context),itemInfo ,layoutParams);
+                    break;
+
+                case DatabaseHandler.ITEM_TYPE_FOLDER:
+                    break;
+
+                case DatabaseHandler.ITEM_TYPE_APPWIDGET:
+
+                    break;
+            }
+        }
+    }
+
+    private void setDrawerWidth() {
+        try {
+            RelativeLayout leftDrawer = (RelativeLayout) fragmentView.findViewById(R.id.left_drawer_layout);
+            ViewGroup.LayoutParams params = leftDrawer.getLayoutParams();
+            params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth();
+            leftDrawer.setLayoutParams(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /*public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -355,18 +368,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         }
     }*/
 
-
-    private void setDrawerWidth() {
-        try {
-            RelativeLayout leftDrawer = (RelativeLayout) fragmentView.findViewById(R.id.left_drawer_layout);
-            ViewGroup.LayoutParams params = leftDrawer.getLayoutParams();
-            params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth();
-            leftDrawer.setLayoutParams(params);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void drawerOpen() {
         application.isDrawerOpen = true;
@@ -383,6 +384,34 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     public void onDestroyView() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(onNotice);
         super.onDestroyView();
+    }
+
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 }
 

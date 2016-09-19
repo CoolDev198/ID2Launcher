@@ -20,6 +20,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final int ITEM_TYPE_APPWIDGET = 3;
     public static final String COLUMN_ICON = "icon";
     static final int CONTAINER_DESKTOP = -100;
+    static final int CONTAINER_FOLDER = -101;
     static final int ITEM_TYPE_WIDGET_CLOCK = 1000;
     static final int ITEM_TYPE_WIDGET_SEARCH = 1001;
     static final int ITEM_TYPE_WIDGET_PHOTO_FRAME = 1002;
@@ -46,7 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     static int maxID = -1;
     static DatabaseHandler sInstance;
     Context context;
-
+    public static  ArrayList<ItemInfo> itemInfosList;
     private DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
@@ -54,6 +55,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public static synchronized DatabaseHandler getInstance(Context context) {
         if (sInstance == null) {
+            itemInfosList = new ArrayList<>();
             sInstance = new DatabaseHandler(context);
         }
         return sInstance;
@@ -69,7 +71,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_TITLE + " TEXT," + COLUMN_INTENT + " TEXT," + COLUMN_CONTAINER + " INTEGER," +
                 COLUMN_CELLX + " INTEGER," + COLUMN_CELLY + " INTEGER," + COLUMN_SPANX + " INTEGER," + COLUMN_SPANY + " INTEGER,"
                 + COLUMN_ITEM_TYPE + " INTEGER," + COLUMN_APPWIDGET_ID + " INTEGER NOT NULL DEFAULT -1," + COLUMN_ICON_TYPE + " INTEGER,"
-                + COLUMN_PNAME + " TEXT," + COLUMN_ICON + " BLOB," + ")";
+                + COLUMN_PNAME + " TEXT," + COLUMN_ICON + " BLOB " + ")";
 
         db.execSQL(CREATE_NOTIFICATION_WIDGET_TABLE);
         db.execSQL(CREATE_ITEMS_TABLE);
@@ -195,6 +197,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
+    public ArrayList<ItemInfo>getItemsInfo(){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = null;
+        try {
+
+            res = db.rawQuery("select * from " + TABLE_ITEMS, null);
+            res.moveToFirst();
+
+            while (res.isAfterLast() == false) {
+
+                ItemInfo itemInfo = new ItemInfo();
+                itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
+                itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
+                itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
+                itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
+                itemInfo.setContainer(res.getInt(res.getColumnIndex(COLUMN_CONTAINER)));
+                itemInfosList.add(itemInfo);
+                res.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            res.close();
+        }
+
+        return itemInfosList;
+    }
     public void addItemInfoToDataBase(ItemInfo itemInfo) {
         initializeMaxId();
         itemInfo.setId(maxID++);
@@ -216,7 +246,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
             values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
             values.put(COLUMN_PNAME, itemInfo.getPname());
-            db.insert(TABLE_NOTI_WIDGET, null, values);
+            db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
@@ -231,8 +261,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void updateItemInfo() {
     }
 
-    public void getItemInfo() {
-    }
+
 
     public void getNotificationData() {
         ArrayList<NotificationWidgetModel> notificationWidgetModels = null;

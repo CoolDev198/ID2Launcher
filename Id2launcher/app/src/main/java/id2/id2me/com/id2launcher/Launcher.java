@@ -31,12 +31,13 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     static final String TAG = "Launcher";
     LauncherApplication launcherApplication;
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+    DatabaseHandler db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
 
-            DatabaseHandler db =  DatabaseHandler.getInstance(this);
+            db =  DatabaseHandler.getInstance(this);
             setContentView(R.layout.activity_home);
             launcherApplication = ((LauncherApplication) getApplication());
             getSupportActionBar().hide();
@@ -44,11 +45,16 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
             init();
             openNotificationAccess();
+            loadDesktop();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void loadDesktop() {
+       db.getItemsInfo();
     }
 
 

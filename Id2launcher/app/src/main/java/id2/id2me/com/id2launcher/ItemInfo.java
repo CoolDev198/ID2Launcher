@@ -2,6 +2,7 @@ package id2.id2me.com.id2launcher;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.database.WidgetInfo;
+import id2.id2me.com.id2launcher.general.AllAppsList;
 
 public class ItemInfo {
 
@@ -132,7 +134,28 @@ public class ItemInfo {
 
 
 
-     static byte[] flattenBitmap(Bitmap bitmap) {
+    public  static Bitmap createIconBitmap(Bitmap icon, Context context) {
+        int textureWidth = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+        int textureHeight = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+        int sourceWidth = icon.getWidth();
+        int sourceHeight = icon.getHeight();
+        if (sourceWidth > textureWidth && sourceHeight > textureHeight) {
+            // Icon is bigger than it should be; clip it (solves the GB->ICS migration case)
+            return Bitmap.createBitmap(icon,
+                    (sourceWidth - textureWidth) / 2,
+                    (sourceHeight - textureHeight) / 2,
+                    textureWidth, textureHeight);
+        } else if (sourceWidth == textureWidth && sourceHeight == textureHeight) {
+            // Icon is the right size, no need to change it
+            return icon;
+        } else {
+            // Icon is too small, render to a larger bitmap
+            final Resources resources = context.getResources();
+            return AllAppsList.createIconBitmap(new BitmapDrawable(resources, icon), context);
+        }
+    }
+
+    static byte[] flattenBitmap(Bitmap bitmap) {
         int size = bitmap.getWidth() * bitmap.getHeight() * 4;
         ByteArrayOutputStream out = new ByteArrayOutputStream(size);
         try {
@@ -146,11 +169,12 @@ public class ItemInfo {
         }
     }
 
-    static void writeBitmap(ContentValues values, Bitmap bitmap) {
+    static byte[]  writeBitmap(Bitmap bitmap) {
+        byte[] data=null;
         if (bitmap != null) {
-            byte[] data = flattenBitmap(bitmap);
-            values.put(DatabaseHandler.COLUMN_ICON, data);
+          data = flattenBitmap(bitmap);
         }
+        return data;
     }
 
 
@@ -224,5 +248,13 @@ public class ItemInfo {
 
     public void setAddToExitingFolder(boolean addToExitingFolder) {
         this.addToExitingFolder = addToExitingFolder;
+    }
+
+    public void setContainer(int container) {
+        this.container = container;
+    }
+
+    public void setPname(String pname) {
+        this.pname = pname;
     }
 }
