@@ -39,7 +39,9 @@ public class Blur {
     view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
     Bitmap cache = view.getDrawingCache();
     Bitmap bitmap = of(view.getContext(), cache, factor);
-    cache.recycle();
+    if (cache != null && !cache.isRecycled()) {
+    //  cache.recycle();
+    }
     return bitmap;
   }
 
@@ -60,7 +62,11 @@ public class Blur {
     PorterDuffColorFilter filter =
         new PorterDuffColorFilter(factor.color, PorterDuff.Mode.SRC_ATOP);
     paint.setColorFilter(filter);
-    canvas.drawBitmap(source, 0, 0, paint);
+    try {
+      canvas.drawBitmap(source, 0, 0, paint);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
       try {
@@ -76,7 +82,9 @@ public class Blur {
       return bitmap;
     } else {
       Bitmap scaled = Bitmap.createScaledBitmap(bitmap, factor.width, factor.height, true);
-      bitmap.recycle();
+      if (bitmap != null && !bitmap.isRecycled()) {
+      //  bitmap.recycle();
+      }
       return scaled;
     }
   }

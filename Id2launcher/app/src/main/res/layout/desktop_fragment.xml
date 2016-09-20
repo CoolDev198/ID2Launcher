@@ -5,13 +5,13 @@
     android:layout_height="match_parent">
 
 
-    <RelativeLayout
+    <include
         android:id="@+id/blur_relative"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        layout="@layout/popup_view"
+        />
 
-    </RelativeLayout>
 
     <id2.id2me.com.id2launcher.ObservableScrollView
         android:id="@+id/scrollView"
@@ -23,6 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
 
             <RelativeLayout
                 android:id="@+id/wallpaper_layout"

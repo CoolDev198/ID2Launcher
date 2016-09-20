@@ -3,7 +3,7 @@
     package="jp.wasabeef.blurry.test" >
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="21"
         android:targetSdkVersion="23" />
 
     <instrumentation
