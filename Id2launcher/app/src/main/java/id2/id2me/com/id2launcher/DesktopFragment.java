@@ -8,9 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,6 +24,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -30,10 +33,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.isseiaoki.simplecropview.CropImageView;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
@@ -41,6 +44,8 @@ import id2.id2me.com.id2launcher.drawer.DrawerHandler;
 import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
+import jp.wasabeef.blurry.Blurry;
+
 
 /**
  * Created by bliss76 on 26/05/16.
@@ -50,10 +55,14 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private static final int PICK_FROM_GALLERY = 2;
     final int CONTEXT_MENU_CAMERA = 1;
     final int CONTEXT_MENU_GALLERY = 2;
+    final Handler handler = new Handler();
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
+    String TAG = "DesktopFragment";
     //context menu ids
     Dialog customDialog;
+    Timer timer;
+    TimerTask timerTask;
     private ArrayList<ApplicationInfo> appInfos;
     private DrawerLayout drawer;
     private View fragmentView = null;
@@ -63,8 +72,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private ImageView wallpaperImg;
     private RelativeLayout wallpaperLayout;
     private AppsListingFragment appsListingFragment;
-    private LauncherModel mModel;
-    private CropImageView mCropView;
+
     private DatabaseHandler db;
     private NotificationWidgetAdapter notificationWidgetAdapter;
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -74,6 +82,9 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             notifyDataInNotificationWidget();
         }
     };
+    private ObservableScrollView scrollView;
+    private View blur_relative;
+    private LauncherModel mModel;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -113,27 +124,13 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                 updateObjectsFromDatabase();
                 setDrawerWidth();
 
-
+                startTimer();
                 ViewPager viewPager = (ViewPager) fragmentView.findViewById(R.id.viewpager);
                 setupViewPagerAsInnerFragment(viewPager);
                 TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
                 tabLayout.setupWithViewPager(viewPager);
                 changeTabsFont(tabLayout);
 
-                ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
-
-                scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
-                    @Override
-                    public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
-
-                        View view = scrollView.findViewById(R.id.wallpaper_img);
-
-                        if (view != null) {
-                            view.setTranslationY(scrollView.getScrollY() / 2);
-                        }
-
-                    }
-                });
 
                 application.desktopFragment = fragmentView;
             }
@@ -147,10 +144,23 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
     }
 
+
     // Refresh notification widget
     public void notifyDataInNotificationWidget() {
         db.getNotificationData();
         notificationWidgetAdapter.notifyDataSetChanged();
+
+    }
+
+    public void startTimer() {
+        //set a new Timer
+        timer = new Timer();
+
+        //initialize the TimerTask's job
+        initializeTimerTask();
+
+        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        timer.schedule(timerTask, 5000, 500); //
     }
 
     private void changeTabsFont(TabLayout tabLayout) {
@@ -176,14 +186,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             adapter.addFragment(appsListingFragment, "Apps");
             adapter.addFragment(WidgetsListingFragment.newInstance(drawer), "Widgets");
             viewPager.setAdapter(adapter);
-        }
-    }
-
-    public void setWallpaper() {
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            wallpaperImg.setImageDrawable(wallpaperDrawable);
         }
     }
 
@@ -234,7 +236,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
     private void initViews() {
 
-
         wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
         if (drawer != null) {
@@ -249,10 +250,13 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         notificationRecyclerView.setAdapter(notificationWidgetAdapter);
         notifyDataInNotificationWidget();
 
-        PageDragListener pageDragListener = new PageDragListener(context, parentLayout, fragmentView.findViewById(R.id.drop_target_layout));
+        PageDragListener pageDragListener = new PageDragListener(context, parentLayout, fragmentView);
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
+        parentLayout.setOnDragListener(pageDragListener);
         application.setPageDragListener(pageDragListener);
+
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
+
 
         LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
@@ -260,15 +264,36 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
-
                 return false;
             }
         });
 
-        parentLayout.setOnDragListener(application.getPageDragListener());
+
+        blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
+
+        blur_relative.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                scrollView.setVisibility(View.VISIBLE);
+                return true;
+            }
+        });
+
+        scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+
+        scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
+            @Override
+            public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
+
+                View view = scrollView.findViewById(R.id.wallpaper_img);
+                if (view != null) {
+                    view.setTranslationY(scrollView.getScrollY() / 2);
+                }
+
+            }
+        });
 
         if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
             populateDesktop();
@@ -293,7 +318,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             switch (type) {
 
                 case DatabaseHandler.ITEM_TYPE_APP:
-                     application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context),itemInfo ,layoutParams);
+                    application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
                     break;
 
                 case DatabaseHandler.ITEM_TYPE_FOLDER:
@@ -306,6 +331,30 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         }
     }
 
+
+    public void initializeTimerTask() {
+
+        timerTask = new TimerTask() {
+            public void run() {
+
+                //use a handler to run a toast that shows the current timestamp
+                handler.post(new Runnable() {
+                    public void run() {
+                        //get the current timeStamp
+                        Blurry.with(context)
+                                .radius(25)
+                                .sampling(1)
+                                .color(Color.argb(66, 255, 255, 255))
+                                .async()
+                                .capture(scrollView)
+                                .into(blur_relative);
+                    }
+                });
+            }
+        };
+    }
+
+
     private void setDrawerWidth() {
         try {
             RelativeLayout leftDrawer = (RelativeLayout) fragmentView.findViewById(R.id.left_drawer_layout);
@@ -316,57 +365,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             e.printStackTrace();
         }
     }
-
-
-    /*public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == PICK_FROM_GALLERY  && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = context.getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-        }
-    }*/
-
-
-
-   /* //open Gallery
-    public void openGallery() {
-
-        try {
-            *//*Intent intent = new Intent();
-            // call android default gallery
-            intent.setType("image*//**//*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            try {
-
-                intent.putExtra("return-data", true);
-                startActivityForResult(Intent.createChooser(intent,
-                        "Complete action using"), PICK_FROM_GALLERY);
-
-            } catch (ActivityNotFoundException e) {
-                e.printStackTrace();
-            }*//*
-            bindViews();
-            Intent i = new Intent(
-                    Intent.ACTION_PICK,
-                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-            startActivityForResult(i, PICK_FROM_GALLERY);
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 
     @Override
     public void drawerOpen() {
@@ -408,11 +406,13 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             mFragmentTitleList.add(title);
         }
 
+
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
     }
+
 }
 
 

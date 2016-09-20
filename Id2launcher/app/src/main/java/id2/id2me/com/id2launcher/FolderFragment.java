@@ -42,7 +42,7 @@ public class FolderFragment extends Fragment {
         try {
             fragmentView = inflater.inflate(R.layout.folder_fragment, container, false);
             AppGridView appGridView = (AppGridView) fragmentView.findViewById(R.id.mygridview);
-            adapter = new FolderGridAdapter(null, getActivity(), R.layout.grid_item, appGridView);
+            adapter = new FolderGridAdapter(null, getActivity(), R.layout.folder_grid, appGridView);
             setColumnWidth(appGridView);
             setNoOfColumnsOfGrid(appGridView);
             appGridView.setAdapter(adapter);

@@ -51,6 +51,8 @@
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorPrimary">@android:color/transparent</item>
         <item name="android:textSize">@dimen/text_size_s</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
     </style>

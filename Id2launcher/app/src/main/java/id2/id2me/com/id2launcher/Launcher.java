@@ -4,11 +4,16 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +29,6 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     public AppWidgetManager mAppWidgetManager;
     private LauncherAppWidgetHost mAppWidgetHost;
-    public static ArrayList<String> mNames;
     HorizontalPagerAdapter pageAdapter;
     static final int APPWIDGET_HOST_ID = 1024;
     private DesktopFragment desktopFragment;
@@ -39,6 +43,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
             db =  DatabaseHandler.getInstance(this);
             setContentView(R.layout.activity_home);
+            setTranslucentStatus(true);
             launcherApplication = ((LauncherApplication) getApplication());
             getSupportActionBar().hide();
             launcherApplication.setLauncher(this);
@@ -46,7 +51,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
             init();
             openNotificationAccess();
             loadDesktop();
-
+            setStatusBarStyle();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,6 +61,27 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     private void loadDesktop() {
        db.getItemsInfo();
     }
+
+    private void setStatusBarStyle() {
+        // create our manager instance after the content view is set
+        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        // enable status bar tint
+        tintManager.setStatusBarTintEnabled(true);
+        tintManager.setStatusBarTintResource(Color.TRANSPARENT);
+    }
+
+    private void setTranslucentStatus(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
+    }
+
 
 
     private void openNotificationAccess() {

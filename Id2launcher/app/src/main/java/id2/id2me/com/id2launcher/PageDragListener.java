@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
@@ -26,6 +27,7 @@ import id2.id2me.com.id2launcher.database.FolderInfo;
 import id2.id2me.com.id2launcher.database.WidgetInfo;
 import id2.id2me.com.id2launcher.general.AllAppsList;
 import id2.id2me.com.id2launcher.general.AppGridView;
+import jp.wasabeef.blurry.Blurry;
 
 
 /**
@@ -46,23 +48,25 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     int spanX = 1, spanY = 1, X, Y;
     TransitionDrawable trans;
     int ticks = 0;
-    View dropTargetLayout;
     private FrameLayout.LayoutParams layoutParams;
     private DragInfo dragInfo;
     private ArrayList<Integer> nearestCell;
     private ItemInfo cellToBePlaced;
     private boolean isDragStarted = false;
-
     DatabaseHandler db;
-    PageDragListener(Context mContext, FrameLayout pageLayout, View dropTargetLayout) {
+    View dropTargetLayout, scrollView, blur_relative;
+
+    PageDragListener(Context mContext, FrameLayout pageLayout, View desktopFragment) {
         this.pageLayout = pageLayout;
         launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
         cellWidth = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellWidth();
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
         this.context = mContext;
-        this.dropTargetLayout = dropTargetLayout;
-       db = DatabaseHandler.getInstance(context);
+        db = DatabaseHandler.getInstance(context);
 
+        dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
+        blur_relative = desktopFragment.findViewById(R.id.blur_relative);
+        scrollView = desktopFragment.findViewById(R.id.scrollView);
         init();
     }
 
@@ -285,6 +289,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private void actionAfterDrop() {
         try {
             isDragStarted = false;
+
             if (dragInfo.getIsItemCanPlaced() && dragInfo.getDragMatrices().size() > 0) {
 
 
@@ -320,7 +325,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             iteminfo.setIsAppOrFolderOrWidget(dragInfo.getIsAppOrFolderOrWidget());
             iteminfo.setView(dragInfo.getDragView());
             iteminfo.setWidgetInfo(dragInfo.getWidgetInfo());
-
+            iteminfo.setView(view);
             iteminfo.setLayoutParams(layoutParams);
             iteminfo.setMatrixCells(copyArray(new ArrayList<ArrayList<Integer>>(), dragInfo.getDragMatrices()));
 
@@ -414,7 +419,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                         cellToBePlaced = new ItemInfo();
                         copyCellInfo(cellInfo, cellToBePlaced);
 
-                        if (dragInfo.getIsAppOrFolderOrWidget() == 2) {
+                        if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
                             cellInfo.setAddToExitingFolder(true);
                             //Add To Existing Folder for Temp``
                         } else {
@@ -813,8 +818,8 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             int topMargin = ((ArrayList<Integer>) dragInfo.getDragMatrices().get(0)).get(1) * cellHeight + (launcherApplication.getMaxGapTB() * (((ArrayList<Integer>) dragInfo.getDragMatrices().get(0)).get(1) + 1));
             layoutParams.setMargins(leftMargin, topMargin, 0, 0);
 
-            if (dragInfo.getIsAppOrFolderOrWidget() != 3) {
-                if (dragInfo.getIsAppOrFolderOrWidget() == 2) {
+            if (dragInfo.getIsAppOrFolderOrWidget() != DatabaseHandler.ITEM_TYPE_APPWIDGET) {
+                if (dragInfo.getIsAppOrFolderOrWidget() == DatabaseHandler.ITEM_TYPE_FOLDER) {
                     ItemInfo cellInfo = (ItemInfo) drag_view.getTag();
                     cellInfo.setMatrixCells(copyArray(new ArrayList<ArrayList<Integer>>(), dragInfo.getDragMatrices()));
                     pageLayout.addView(drag_view, layoutParams);
@@ -833,11 +838,11 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     @Override
     public void onClick(View v) {
         ItemInfo cellInfo = (ItemInfo) v.getTag();
-        if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
+        if (cellInfo.getIsAppOrFolderOrWidget() == DatabaseHandler.ITEM_TYPE_FOLDER) {
             if (launcherApplication.folderView != null) {
                 pageLayout.removeView(launcherApplication.folderView);
             }
-            getPopUp(cellInfo.getFolderInfo().getAppInfos(), v);
+            getPopUp(cellInfo.getFolderInfo().getAppInfos());
         }
 
     }
@@ -864,24 +869,17 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return false;
     }
 
-    void getPopUp(ArrayList<ApplicationInfo> appInfos, View view) {
+    void getPopUp(ArrayList<ApplicationInfo> appInfos) {
         try {
-            int x = (int) view.getLeft();
-            int y = (int) view.getTop();
 
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(x, y, 0, 0);
+            blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
 
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            View v = inflater.inflate(R
-                    .layout.popup_view, null);
-            //v.setLayoutParams(params);
-            pageLayout.addView(v);
-            launcherApplication.folderView = v;
+           scrollView.setVisibility(View.GONE);
 
-            AppGridView appGridView = (AppGridView) v.findViewById(R.id.mygridview);
+
+            AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_grid);
             appGridView.setNumColumns(3);
-            FolderGridAdapter adapter = new FolderGridAdapter(appInfos, context, R.layout.grid_item, appGridView);
+            FolderGridAdapter adapter = new FolderGridAdapter(appInfos, context, R.layout.pop_up_grid, appGridView);
             appGridView.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();

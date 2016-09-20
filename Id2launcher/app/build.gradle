@@ -8,13 +8,12 @@ buildscript {
 
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
-
     }
 }
 
 
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
+apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion 23
@@ -25,6 +24,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        // Enabling multidex support.
+        multiDexEnabled true
 
     }
     buildTypes {
@@ -46,7 +47,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     compile project(':simplecropview')
+    compile project(':blurry')
     compile "com.github.hotchemi:permissionsdispatcher:${permissionsDispatcherVersion}"
     apt "com.github.hotchemi:permissionsdispatcher-processor:${permissionsDispatcherVersion}"
+
 }

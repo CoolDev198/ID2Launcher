@@ -1,0 +1,10 @@
+-classpath '/Users/sunita/Library/Android/sdk/platforms/android-23/android.jar'
+-d '/Users/sunita/Documents/AndroidStudioProjects/ID2Launcher/Id2launcher/blurry/build/docs/javadoc'
+-doctitle 'blurry API'
+-quiet 
+-windowtitle 'blurry API'
+'/Users/sunita/Documents/AndroidStudioProjects/ID2Launcher/Id2launcher/blurry/src/main/java/jp/wasabeef/blurry/Blurry.java'
+'/Users/sunita/Documents/AndroidStudioProjects/ID2Launcher/Id2launcher/blurry/src/main/java/jp/wasabeef/blurry/internal/Blur.java'
+'/Users/sunita/Documents/AndroidStudioProjects/ID2Launcher/Id2launcher/blurry/src/main/java/jp/wasabeef/blurry/internal/BlurFactor.java'
+'/Users/sunita/Documents/AndroidStudioProjects/ID2Launcher/Id2launcher/blurry/src/main/java/jp/wasabeef/blurry/internal/BlurTask.java'
+'/Users/sunita/Documents/AndroidStudioProjects/ID2Launcher/Id2launcher/blurry/src/main/java/jp/wasabeef/blurry/internal/Helper.java'
