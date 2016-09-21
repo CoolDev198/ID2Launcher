@@ -2,6 +2,8 @@ package id2.id2me.com.id2launcher.database;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.ItemInfo;
+
 /**
  * Created by bliss105 on 14/07/16.
  */
@@ -10,9 +12,9 @@ public class FolderInfo {
     private int folderId;
     private String folderName = "";
     private int pageId;
-    private ArrayList<ApplicationInfo> appInfos;
+    private ArrayList<ItemInfo> appInfos;
 
-    public FolderInfo(ApplicationInfo dragPosApp, ApplicationInfo targetPosApp) {
+    public FolderInfo(ItemInfo dragPosApp, ItemInfo targetPosApp) {
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
@@ -22,17 +24,17 @@ public class FolderInfo {
     public FolderInfo(){
 
     }
-    public void addNewAppInfo(ApplicationInfo dragPosApp){
+    public void addNewItemInfo(ItemInfo dragPosApp){
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
         appInfos.add(dragPosApp);
     }
 
-    public ArrayList<ApplicationInfo> getAppInfos(){
+    public ArrayList<ItemInfo> getAppInfos(){
         return appInfos;
     }
-    public void setAppInfos(ArrayList<ApplicationInfo> appInfos){
+    public void setAppInfos(ArrayList<ItemInfo> appInfos){
         this.appInfos=appInfos;
     }
     public String getFolderName() {
@@ -57,5 +59,10 @@ public class FolderInfo {
 
     public void  deleteAppInfo(ApplicationInfo appInfo) {
         appInfos.remove(appInfo);
+    }
+
+
+    public void setFolderId(int folderId) {
+        this.folderId = folderId;
     }
 }

@@ -2,15 +2,12 @@ package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
@@ -34,6 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -121,7 +119,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
                 initViews();
-                updateObjectsFromDatabase();
                 setDrawerWidth();
 
                 startTimer();
@@ -218,61 +215,37 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
                 } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
                     FolderInfo folderInfo = cellInfo.getFolderInfo();
-                    ArrayList<ApplicationInfo> applicationInfos = folderInfo.getAppInfos();
-                    for (int j = 0; j < applicationInfos.size(); i++) {
-                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
-                            folderInfo.deleteAppInfo(applicationInfos.get(j));
-                            break;
-                        }
-
-                    }
+//                    ArrayList<ApplicationInfo> applicationInfos = folderInfo.getAppInfos();
+//                    for (int j = 0; j < applicationInfos.size(); i++) {
+//                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
+//                            folderInfo.deleteAppInfo(applicationInfos.get(j));
+//                            break;
+//                        }
+//
+//                    }
                 }
             }
         }
     }
 
-    private void updateObjectsFromDatabase() {
-    }
 
     private void initViews() {
 
         wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
+
         if (drawer != null) {
             drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
         }
-        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        notificationRecyclerView.setLayoutManager(linearLayoutManager);
-        parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
 
-        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
-        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
-        notifyDataInNotificationWidget();
+        addDragListener();
 
-        PageDragListener pageDragListener = new PageDragListener(context, parentLayout, fragmentView);
-        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
-        parentLayout.setOnDragListener(pageDragListener);
-        application.setPageDragListener(pageDragListener);
+        addNotifyWidget();
 
-        wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
-
-
-        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-        wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), pageDragListener, fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
-
-        wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
-                return false;
-            }
-        });
+        addWallpaperCropper();
 
 
         blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
-
         blur_relative.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -282,7 +255,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         });
 
         scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
-
         scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
             @Override
             public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
@@ -295,12 +267,47 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             }
         });
 
+
         if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
             populateDesktop();
         }
     }
 
+    private void addWallpaperCropper() {
+        wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
+        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
+        wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), application.getPageDragListener(), fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
+        wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+    }
+
+    private void addDragListener() {
+        PageDragListener pageDragListener = new PageDragListener(context, fragmentView);
+        parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
+        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
+        parentLayout.setOnDragListener(pageDragListener);
+        application.setPageDragListener(pageDragListener);
+
+    }
+
+    private void addNotifyWidget() {
+        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        notificationRecyclerView.setLayoutManager(linearLayoutManager);
+        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
+        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
+        notifyDataInNotificationWidget();
+    }
+
     private void populateDesktop() {
+
         for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
             ItemInfo itemInfo = DatabaseHandler.itemInfosList.get(i);
             int type = itemInfo.getItemType();
@@ -314,18 +321,40 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             int topMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
             layoutParams.setMargins(leftMargin, topMargin, 0, 0);
 
+            HashMap<Integer, FolderInfo> folderInfoHashMap = new HashMap<>();
 
             switch (type) {
 
                 case DatabaseHandler.ITEM_TYPE_APP:
-                    application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+                    switch (itemInfo.getContainer()) {
+                        case DatabaseHandler.CONTAINER_DESKTOP:
+                            application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+                            break;
+                        default:
+                            if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
+                                FolderInfo folderInfo = new FolderInfo();
+                                folderInfo.setFolderId(itemInfo.getContainer());
+                                folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
+                                folderInfo.addNewItemInfo(itemInfo);
+                            } else {
+                                FolderInfo folderInfo = folderInfoHashMap.get(itemInfo.getContainer());
+                                folderInfo.addNewItemInfo(itemInfo);
+                            }
+                            break;
+                    }
                     break;
-
                 case DatabaseHandler.ITEM_TYPE_FOLDER:
+
+                     application.getPageDragListener().addFolderToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+
+                    if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
+                        FolderInfo folderInfo = new FolderInfo();
+                        folderInfo.setFolderId((int) itemInfo.getId());
+                        folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
+                    }
+
                     break;
-
                 case DatabaseHandler.ITEM_TYPE_APPWIDGET:
-
                     break;
             }
         }

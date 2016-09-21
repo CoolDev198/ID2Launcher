@@ -27,6 +27,7 @@ public class DragInfo {
     private int isAppOrFolderOrWidget;
     private View originalView;
     private View dragView;
+    private ItemInfo itemInfo;
 
 
     public WidgetInfo getWidgetInfo() {
@@ -134,5 +135,9 @@ public class DragInfo {
 
     public View getDragView() {
         return dragView;
+    }
+
+    public ItemInfo getItemInfo() {
+        return itemInfo;
     }
 }

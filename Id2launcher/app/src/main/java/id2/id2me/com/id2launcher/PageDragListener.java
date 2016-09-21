@@ -24,10 +24,8 @@ import java.util.HashMap;
 
 import id2.id2me.com.id2launcher.database.ApplicationInfo;
 import id2.id2me.com.id2launcher.database.FolderInfo;
-import id2.id2me.com.id2launcher.database.WidgetInfo;
 import id2.id2me.com.id2launcher.general.AllAppsList;
 import id2.id2me.com.id2launcher.general.AppGridView;
-import jp.wasabeef.blurry.Blurry;
 
 
 /**
@@ -56,8 +54,8 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     DatabaseHandler db;
     View dropTargetLayout, scrollView, blur_relative;
 
-    PageDragListener(Context mContext, FrameLayout pageLayout, View desktopFragment) {
-        this.pageLayout = pageLayout;
+    PageDragListener(Context mContext, View desktopFragment) {
+        this.pageLayout = (FrameLayout) desktopFragment.findViewById(R.id.relative_view);
         launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
         cellWidth = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellWidth();
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
@@ -424,7 +422,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                             //Add To Existing Folder for Temp``
                         } else {
                             //Create Folder For Temp
-                            cellToBePlaced.setFolderInfo(new FolderInfo(dragInfo.getAppInfo(), cellInfo.getAppInfo()));
+                            cellToBePlaced.setFolderInfo(new FolderInfo(dragInfo.getItemInfo(), cellInfo));
                             cellToBePlaced.setAppInfo(null);
                         }
 
@@ -693,12 +691,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
         hostView.setForegroundGravity(Gravity.TOP);
         pageLayout.addView(hostView, layoutParams);
-      ///  createOrUpdateCellInfo(3, null, null, dragInfo.getWidgetInfo(), hostView);
     }
 
     void addWidgetOnInternalDragAndDrop() {
         pageLayout.addView(drag_view, layoutParams);
-       // createOrUpdateCellInfo(3, null, null, dragInfo.getWidgetInfo(), drag_view);
     }
 
     private boolean isWidgetConfigRequired(AppWidgetProviderInfo appWidgetProviderInfo) {
@@ -739,6 +735,30 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             view.setOnLongClickListener(this);
             pageLayout.addView(view, layoutParams);
             view.setTag(itemInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void addFolderToPage(Bitmap icon , ItemInfo itemInfo,FrameLayout.LayoutParams layoutParams) {
+
+        try {
+            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+            View view = inflater.inflate(R
+                    .layout.grid_item, null, true);
+            ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
+            imageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.folder_icon));
+            view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
+            pageLayout.addView(view, layoutParams);
+            view.setTag(itemInfo);
+
+            view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
+
+            updateFoldersList();
+            addFragmentToHorizontalPagerAdapter();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -797,7 +817,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     private void addToExistingFolder() {
         try {
-            cellToBePlaced.getFolderInfo().addNewAppInfo(dragInfo.getAppInfo());
+       //     cellToBePlaced.getFolderInfo().addNewItemInfo(dragInfo.getAppInfo());
             View child = cellToBePlaced.getView();
             child.setTag(cellToBePlaced);
             updateFoldersList();
@@ -869,7 +889,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return false;
     }
 
-    void getPopUp(ArrayList<ApplicationInfo> appInfos) {
+    void getPopUp(ArrayList<ItemInfo> appInfos) {
         try {
 
             blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));

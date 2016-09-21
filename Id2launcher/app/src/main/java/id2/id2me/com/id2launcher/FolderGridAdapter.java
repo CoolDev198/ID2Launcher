@@ -18,13 +18,13 @@ import id2.id2me.com.id2launcher.general.AppGridView;
  * Created by bliss76 on 15/06/16.
  */
 public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItemClickListener {
-    ArrayList<ApplicationInfo> appInfos;
+    ArrayList<ItemInfo> appInfos;
     LayoutInflater inflater;
     View grid;
     int layout;
     Context context;
 
-    public FolderGridAdapter(ArrayList<ApplicationInfo> appInfos, Context context, int layout, AppGridView appGridView) {
+    public FolderGridAdapter(ArrayList<ItemInfo> appInfos, Context context, int layout, AppGridView appGridView) {
         this.layout = layout;
         this.context = context;
         if(appInfos==null){
@@ -73,7 +73,7 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
 
             holder.itemImage.setTag(position);
             holder.pName = appInfos.get(position).getPname();
-            holder.itemImage.setImageDrawable(appInfos.get(position).getIcon());
+         //   holder.itemImage.setImageDrawable(appInfos.get(position).getIcon());
 
 
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
     }
 
     public void setAppInfos(ArrayList<ApplicationInfo> appInfos) {
-        this.appInfos = appInfos;
+      //  this.appInfos = appInfos;
         this.notifyDataSetChanged();
     }
 
