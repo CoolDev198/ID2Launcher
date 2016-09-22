@@ -1,7 +1,8 @@
-package id2.id2me.com.id2launcher.database;
+package id2.id2me.com.id2launcher;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.ApplicationInfo;
 import id2.id2me.com.id2launcher.ItemInfo;
 
 /**

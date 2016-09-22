@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.drawer;
+package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,12 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
-
-import id2.id2me.com.id2launcher.AllAppsGridAdapter;
-import id2.id2me.com.id2launcher.LauncherApplication;
-import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.general.AppGridView;
 
 /**
  * Created by bliss76 on 21/06/16.

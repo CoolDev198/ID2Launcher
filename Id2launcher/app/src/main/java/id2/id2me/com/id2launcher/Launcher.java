@@ -18,8 +18,6 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.adapters.HorizontalPagerAdapter;
-import id2.id2me.com.id2launcher.general.NonSwipeViewPager;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
 public class Launcher extends AppCompatActivity implements View.OnLongClickListener{

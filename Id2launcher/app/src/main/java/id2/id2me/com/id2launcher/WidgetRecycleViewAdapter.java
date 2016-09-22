@@ -14,9 +14,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import id2.id2me.com.id2launcher.database.WidgetInfo;
-import id2.id2me.com.id2launcher.general.WidgetsListManager;
-
 /**
  * Created by sunita on 8/9/16.
  */

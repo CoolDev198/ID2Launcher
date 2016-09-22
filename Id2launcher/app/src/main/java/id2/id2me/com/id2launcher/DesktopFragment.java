@@ -36,10 +36,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.database.FolderInfo;
-import id2.id2me.com.id2launcher.drawer.DrawerHandler;
-import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 import jp.wasabeef.blurry.Blurry;

@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.drawer;
+package id2.id2me.com.id2launcher;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;

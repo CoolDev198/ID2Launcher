@@ -13,8 +13,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.WidgetInfo;
-
 
 /**
  * Created by sunita on 8/2/16.

@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.general;
+package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetHostView;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.LauncherApplication;
-import id2.id2me.com.id2launcher.database.WidgetInfo;
+import id2.id2me.com.id2launcher.WidgetInfo;
 
 /**
  * Created by sunita on 8/2/16.

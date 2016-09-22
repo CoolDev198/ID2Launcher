@@ -9,7 +9,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,11 +20,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.database.FolderInfo;
-import id2.id2me.com.id2launcher.general.AllAppsList;
-import id2.id2me.com.id2launcher.general.AppGridView;
 
 
 /**
@@ -46,13 +40,13 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     int spanX = 1, spanY = 1, X, Y;
     TransitionDrawable trans;
     int ticks = 0;
-    private FrameLayout.LayoutParams layoutParams;
-    private DragInfo dragInfo;
-    private ArrayList<Integer> nearestCell;
-    private ItemInfo cellToBePlaced;
-    private boolean isDragStarted = false;
     DatabaseHandler db;
     View dropTargetLayout, scrollView, blur_relative;
+    private FrameLayout.LayoutParams layoutParams;
+    private DragInfo dragInfo;
+    private int[]nearestCell;
+    private ItemInfo cellToBePlaced;
+    private boolean isDragStarted = false;
 
     PageDragListener(Context mContext, View desktopFragment) {
         this.pageLayout = (FrameLayout) desktopFragment.findViewById(R.id.relative_view);
@@ -76,7 +70,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         isAvailableCellsGreater = false;
         isLoaderStarted = false;
         isItemCanPlaced = false;
-        nearestCell = new ArrayList<>();
+        nearestCell = new int[2];
     }
 
     @Override
@@ -149,7 +143,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             } else {
                 //Tun mark cells in launcher cell matrix
                 pageLayout.removeView(drag_view);
-                unMarkCells(((ItemInfo) drag_view.getTag()).getMatrixCells());
+                unMarkCells(((ItemInfo) drag_view.getTag()));
                 findAvalCells();
             }
         } catch (Exception e) {
@@ -190,10 +184,11 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             if (noOfAvailCells >= noOfReqCells) {
                 isRequiredCellsCalculated = true;
 
-                ArrayList<Integer> nearCellsObj = findNearestCells();
+               int[] nearCellsObj = findNearestCells();
                 //   Log.v(TAG, "matrixpos :: " + "  " + nearCellsObj.get(0) + "  " + nearCellsObj.get(1));
 
-                findDistanceFromEachCell(nearCellsObj.get(0), nearCellsObj.get(1));
+                findDistanceFromEachCell(nearCellsObj[0], nearCellsObj[1]);
+
                 if (nearestCell.equals(nearCellsObj)) {
                     ticks++;
                 } else {
@@ -221,48 +216,36 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private void calDragInfoCells() {
 
         try {
-            ArrayList<ArrayList<Integer>> tempAllCellInfo = new ArrayList<>();
+            int[] cells = new int[2];
 
             int actualSpanX = spanX - 1;
             int actualSpanY = spanY - 1;
 
-            int scaleXEndPos = nearestCell.get(0) + actualSpanX;
-            int scaleYEndPos = nearestCell.get(1) + actualSpanY;
+            int scaleXEndPos = nearestCell[0] + actualSpanX;
+            int scaleYEndPos = nearestCell[1]+ actualSpanY;
 
             if (scaleXEndPos > launcherApplication.getCellCountX() - 1) {
-                int startPos = nearestCell.get(0) - actualSpanX;
+                int startPos = nearestCell[0] - actualSpanX;
                 if (startPos < 0) {
                     startPos = 0;
                 }
-                nearestCell.set(0, startPos);
-                scaleXEndPos = nearestCell.get(0) + actualSpanX;
+                nearestCell[0]= startPos;
+                scaleXEndPos = nearestCell[0] + actualSpanX;
             }
 
             if (scaleYEndPos > launcherApplication.getCellCountY() - 1) {
-                int startPos = nearestCell.get(1) - actualSpanY;
+                int startPos = nearestCell[1] - actualSpanY;
                 if (startPos < 0) {
                     startPos = 0;
                 }
-                nearestCell.set(1, startPos);
-                scaleYEndPos = nearestCell.get(1) + actualSpanY;
+                nearestCell[1]= startPos;
+                scaleYEndPos = nearestCell[1] + actualSpanY;
             }
 
-            Log.v(TAG, " new cell structure :: ");
-            for (int x = nearestCell.get(0); x <= scaleXEndPos; x++) {
-                for (int y = nearestCell.get(1); y <= scaleYEndPos; y++) {
 
-                    ArrayList<Integer> matrix = new ArrayList<>();
-                    matrix.add(x);
-                    matrix.add(y);
-                    Log.v(TAG, "x  :: y :: " + x + "  " + y);
-                    tempAllCellInfo.add(matrix);
-                }
 
-            }
-
-            unMarkCells(dragInfo.getDragMatrices());
-            dragInfo.setDragMatrices(tempAllCellInfo);
-            markCells(tempAllCellInfo);
+            unMarkCells(dragInfo);
+            markCells(dragInfo);
 
             shiftAndAddToNewPos();
         } catch (Exception e) {
@@ -329,15 +312,15 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             iteminfo.setSpanX(dragInfo.getSpanX());
             iteminfo.setSpanY(dragInfo.getSpanY());
-            iteminfo.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(dragInfo.getAppInfo().getIcon(),context)));
+            iteminfo.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(dragInfo.getAppInfo().getIcon(), context)));
             iteminfo.setCellX(dragInfo.getDragMatrices().get(0).get(0));
             iteminfo.setCellY(dragInfo.getDragMatrices().get(0).get(1));
             iteminfo.setPname(dragInfo.getAppInfo().getPname());
 
 
-            if(cellToBePlaced!=null){
+            if (cellToBePlaced != null) {
                 iteminfo.setContainer(DatabaseHandler.CONTAINER_FOLDER);
-            }else{
+            } else {
                 iteminfo.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
             }
 
@@ -356,7 +339,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 ItemInfo cellInfo = (ItemInfo) child.getTag();
 
 
-
                 if (cellInfo.getDragMatrices() != null) {
                     ArrayList<ArrayList<Integer>> tempCellInfo = new ArrayList<>();
                     copyArray(tempCellInfo, cellInfo.getDragMatrices());
@@ -373,24 +355,37 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         }
     }
 
-    private void markCells(ArrayList<ArrayList<Integer>> allCellsInfo) {
+    private void markCells(ItemInfo itemInfo) {
         //  mark++;
         //Log.v(TAG, "cells marked :: " + mark);
-        for (int i = 0; i < allCellsInfo.size(); i++) {
-            ArrayList<Integer> cells = allCellsInfo.get(i);
-            launcherApplication.setCellsMatrix(new int[]{cells.get(0), cells.get(1)}, true);
+        int xStart = itemInfo.getCellX();
+        int yStart = itemInfo.getCellY();
+        int xEnd = (itemInfo.getCellX() + itemInfo.getSpanX() - 1);
+        int yEnd = (itemInfo.getCellY() + itemInfo.getSpanY() - 1);
+
+        for (int x = xStart; x < xEnd; x++) {
+            for (int y = yStart; y < yEnd; y++) {
+                //Log.v(TAG, "cells unmarked :: " + x + "  " + y);
+                launcherApplication.setCellsMatrix(new int[]{x, y}, true);
+            }
+
         }
     }
 
 
-    void unMarkCells(ArrayList<ArrayList<Integer>> allCellsInfo) {
-        //Make this places free after remove
-        //unmark++;
-        // Log.v(TAG, "cells un marked :: " + unmark);
-        for (int i = 0; i < allCellsInfo.size(); i++) {
-            ArrayList<Integer> arrayList = allCellsInfo.get(i);
-            //Log.v(TAG, "cells unmarked :: " + arrayList.get(0) + "  " + arrayList.get(1));
-            launcherApplication.setCellsMatrix(new int[]{arrayList.get(0), arrayList.get(1)}, false);
+    void unMarkCells(ItemInfo itemInfo) {
+
+        int xStart = itemInfo.getCellX();
+        int yStart = itemInfo.getCellY();
+        int xEnd = (itemInfo.getCellX() + itemInfo.getSpanX() - 1);
+        int yEnd = (itemInfo.getCellY() + itemInfo.getSpanY() - 1);
+
+        for (int x = xStart; x < xEnd; x++) {
+            for (int y = yStart; y < yEnd; y++) {
+                //Log.v(TAG, "cells unmarked :: " + x + "  " + y);
+                launcherApplication.setCellsMatrix(new int[]{x, y}, false);
+            }
+
         }
 
     }
@@ -566,19 +561,17 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return scalableList;
     }
 
-    private ArrayList<Integer> findNearestCells() {
-        ArrayList arrayList = new ArrayList<Integer>();
+    private int[] findNearestCells() {
 
-        HashMap<Integer, ArrayList<Integer>> arrayListHashMap = new HashMap<>();
+        HashMap<Integer, int[] > arrayListHashMap = new HashMap<>();
         ArrayList<Integer> distances = new ArrayList<>();
 
         for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
             for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
-                ArrayList<Integer> listArrayList = new ArrayList<>();
-                listArrayList.add(x);
-                listArrayList.add(y);
+                int[] matrix = new int []{x,y};
+
                 int distance = findDistanceFromEachCell(x, y);
-                arrayListHashMap.put(distance, listArrayList);
+                arrayListHashMap.put(distance, matrix);
 
                 distances.add(distance);
             }
@@ -588,11 +581,8 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         if (distances.size() > 0) {
             Collections.sort(distances);
         }
-        arrayList.add(arrayListHashMap.get(distances.get(0)).get(0));
-        arrayList.add(arrayListHashMap.get(distances.get(0)).get(1));
 
-
-        return arrayList;
+        return  arrayListHashMap.get(distances.get(0));
     }
 
     void copyCellInfo(ItemInfo fromCellInfo, ItemInfo toCellInfo) {
@@ -723,7 +713,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     }
 
-    public void addAppToPage(Bitmap icon , ItemInfo itemInfo,FrameLayout.LayoutParams layoutParams) {
+    public void addAppToPage(Bitmap icon, ItemInfo itemInfo, FrameLayout.LayoutParams layoutParams) {
 
         try {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -741,7 +731,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     }
 
-    public void addFolderToPage(Bitmap icon , ItemInfo itemInfo,FrameLayout.LayoutParams layoutParams) {
+    public void addFolderToPage(Bitmap icon, ItemInfo itemInfo, FrameLayout.LayoutParams layoutParams) {
 
         try {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -764,7 +754,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         }
 
     }
-
 
 
     ArrayList<ArrayList<Integer>> copyArray(ArrayList<ArrayList<Integer>> copyInto, ArrayList<ArrayList<Integer>> copyFrom) {
@@ -817,7 +806,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     private void addToExistingFolder() {
         try {
-       //     cellToBePlaced.getFolderInfo().addNewItemInfo(dragInfo.getAppInfo());
+            //     cellToBePlaced.getFolderInfo().addNewItemInfo(dragInfo.getAppInfo());
             View child = cellToBePlaced.getView();
             child.setTag(cellToBePlaced);
             updateFoldersList();
@@ -894,7 +883,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
 
-           scrollView.setVisibility(View.GONE);
+            scrollView.setVisibility(View.GONE);
 
 
             AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_grid);

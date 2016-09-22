@@ -3,18 +3,11 @@ package id2.id2me.com.id2launcher;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.general.AllAppsList;
 
 /**
  * Created by bliss76 on 23/06/16.

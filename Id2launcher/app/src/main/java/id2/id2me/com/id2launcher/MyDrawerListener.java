@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.drawer;
+package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,8 +6,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
-import id2.id2me.com.id2launcher.LauncherApplication;
 
 /**
  * Created by bliss76 on 22/06/16.

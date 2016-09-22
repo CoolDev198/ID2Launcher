@@ -12,9 +12,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.drawer.AllAppsListAdapter;
-
 /**
  * Created by sunita on 8/2/16.
  */

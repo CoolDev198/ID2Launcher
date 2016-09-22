@@ -1,7 +1,5 @@
-package id2.id2me.com.id2launcher.general;
+package id2.id2me.com.id2launcher;
 
-import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,17 +8,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PaintDrawable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
+import id2.id2me.com.id2launcher.ApplicationInfo;
 
 /*
  * Created by Sunita on 27/05/16.

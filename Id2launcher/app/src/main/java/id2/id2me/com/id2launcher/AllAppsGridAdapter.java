@@ -17,9 +17,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.general.AppGridView;
-
 /**
  * Created by bliss76 on 21/06/16.
  */

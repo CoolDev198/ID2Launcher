@@ -4,14 +4,10 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.ApplicationInfo;
-import id2.id2me.com.id2launcher.database.FolderInfo;
-import id2.id2me.com.id2launcher.database.WidgetInfo;
-
 /**
  * Created by sunita on 8/9/16.
  */
-public class DragInfo {
+public class DragInfo extends ItemInfo {
 
     //true - App and false - Widget
     private boolean isAppOrWidget;

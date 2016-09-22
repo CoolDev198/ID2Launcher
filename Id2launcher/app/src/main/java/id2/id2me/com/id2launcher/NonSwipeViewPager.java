@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.general;
+package id2.id2me.com.id2launcher;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
@@ -6,8 +6,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import id2.id2me.com.id2launcher.LauncherApplication;
-import id2.id2me.com.id2launcher.adapters.HorizontalPagerAdapter;
-import id2.id2me.com.id2launcher.drawer.DrawerHandler;
+import id2.id2me.com.id2launcher.HorizontalPagerAdapter;
+import id2.id2me.com.id2launcher.DrawerHandler;
 
 /**
  * Created by bliss105 on 15/07/16.

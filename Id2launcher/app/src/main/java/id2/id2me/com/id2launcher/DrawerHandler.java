@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.drawer;
+package id2.id2me.com.id2launcher;
 
 /**
  * Created by bliss76 on 22/06/16.

@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.adapters;
+package id2.id2me.com.id2launcher;
 
 
 import android.content.Context;

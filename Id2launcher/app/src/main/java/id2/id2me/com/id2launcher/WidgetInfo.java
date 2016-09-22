@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.database;
+package id2.id2me.com.id2launcher;
 
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
