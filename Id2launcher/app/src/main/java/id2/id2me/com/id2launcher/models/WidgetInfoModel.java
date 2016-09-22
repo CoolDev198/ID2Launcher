@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable;
 /**
  * Created by sunita on 8/3/16.
  */
-public class WidgetInfo {
+public class WidgetInfoModel {
     private String widgetName = "";
     private String pname = "";
     private int preview;

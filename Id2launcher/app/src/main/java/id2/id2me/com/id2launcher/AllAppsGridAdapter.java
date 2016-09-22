@@ -17,18 +17,21 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.DragInfoModel;
+
 /**
  * Created by bliss76 on 21/06/16.
  */
 public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener {
     private final LauncherApplication launcherApplication;
     LayoutInflater inflater;
-    ArrayList<ApplicationInfo> gridList;
+    ArrayList<AppInfoModel> gridList;
     DrawerLayout drawerLayout;
     AppGridView appGridView;
     private Context mContext;
 
-    public AllAppsGridAdapter(Context c, ArrayList<ApplicationInfo> gridList, DrawerLayout drawerLayout) {
+    public AllAppsGridAdapter(Context c, ArrayList<AppInfoModel> gridList, DrawerLayout drawerLayout) {
         this.drawerLayout = drawerLayout;
         mContext = c;
         launcherApplication= (LauncherApplication)((Activity)mContext).getApplication();
@@ -98,7 +101,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         return grid;
     }
 
-    public void launchApp(ApplicationInfo appInfo) {
+    public void launchApp(AppInfoModel appInfo) {
         try {
             Intent intent = null;
             String pckName = appInfo.getPname();
@@ -133,7 +136,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
     private void dragAnimation(View view) {
 
         try {
-            DragInfo dragInfo = new DragInfo();
+            DragInfoModel dragInfo = new DragInfoModel();
             dragInfo.setAppInfo(gridList.get(Integer.parseInt(view
                     .findViewById(R.id.drawer_grid_image).getTag().toString())));
             dragInfo.setIsAppOrFolderOrWidget(1);
@@ -157,7 +160,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         public TextView itemText;
         public ImageView itemImage;
         public String pName;
-        public ApplicationInfo appInfo;
+        public AppInfoModel appInfo;
     }
 
 }

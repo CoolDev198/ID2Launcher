@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.ApplicationInfo;
+import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 /*
  * Created by Sunita on 27/05/16.
@@ -25,8 +24,8 @@ public class AllAppsList
 {
 
     /** The list off all apps. */
-    public ArrayList<ApplicationInfo> data =
-            new ArrayList<ApplicationInfo>();
+    public ArrayList<AppInfoModel> data =
+            new ArrayList<AppInfoModel>();
 
     private static final Canvas sCanvas = new Canvas();
 
@@ -109,7 +108,7 @@ public class AllAppsList
 
             for (ResolveInfo rInfo : list) {
 
-                ApplicationInfo appInfo = new ApplicationInfo();
+                AppInfoModel appInfo = new AppInfoModel();
                 appInfo.setAppname(rInfo.activityInfo.loadLabel(pm)
                         .toString().trim());
                 appInfo.setIcon(rInfo.activityInfo.loadIcon(pm));
@@ -133,18 +132,18 @@ public class AllAppsList
 //
 //        if (matches.size() > 0) {
 //            for (ResolveInfo info : matches) {
-//                add(new ApplicationInfo(context.getPackageManager(), info, mIconCache, null));
+//                add(new AppInfoModel(context.getPackageManager(), info, mIconCache, null));
 //            }
 //        }
 //    }
 //
 //    /**
-//     * Add the supplied ApplicationInfo objects to the list, and enqueue it into the
+//     * Add the supplied AppInfoModel objects to the list, and enqueue it into the
 //     * list to broadcast when notify() is called.
 //     *
 //     * If the app is already in the list, doesn't add it.
 //     */
-//    public void add(ApplicationInfo info) {
+//    public void add(AppInfoModel info) {
 //        if (findActivity(data, info.componentName)) {
 //            return;
 //        }
@@ -172,9 +171,9 @@ public class AllAppsList
 //     * Remove the apps for the given apk identified by packageName.
 //     */
 //    public void removePackage(String packageName) {
-//        final List<android.content.pm.ApplicationInfo> data = this.data;
+//        final List<android.content.pm.AppInfoModel> data = this.data;
 //        for (int i = data.size() - 1; i >= 0; i--) {
-//            android.content.pm.ApplicationInfo info = data.get(i);
+//            android.content.pm.AppInfoModel info = data.get(i);
 //            final ComponentName component = info.intent.getComponent();
 //            if (packageName.equals(component.getPackageName())) {
 //                removed.add(info);
@@ -194,7 +193,7 @@ public class AllAppsList
 //            // Find disabled/removed activities and remove them from data and add them
 //            // to the removed list.
 //            for (int i = data.size() - 1; i >= 0; i--) {
-//                final android.content.pm.ApplicationInfo applicationInfo = data.get(i);
+//                final android.content.pm.AppInfoModel applicationInfo = data.get(i);
 //                final ComponentName component = applicationInfo.intent.getComponent();
 //                if (packageName.equals(component.getPackageName())) {
 //                    if (!findActivity(matches, component)) {
@@ -210,11 +209,11 @@ public class AllAppsList
 //            int count = matches.size();
 //            for (int i = 0; i < count; i++) {
 //                final ResolveInfo info = matches.get(i);
-//                android.content.pm.ApplicationInfo applicationInfo = findApplicationInfoLocked(
+//                android.content.pm.AppInfoModel applicationInfo = findApplicationInfoLocked(
 //                        info.activityInfo.applicationInfo.packageName,
 //                        info.activityInfo.name);
 //                if (applicationInfo == null) {
-//                    add(new android.content.pm.ApplicationInfo(context.getPackageManager(), info, mIconCache, null));
+//                    add(new android.content.pm.AppInfoModel(context.getPackageManager(), info, mIconCache, null));
 //                } else {
 ////                    mIconCache.remove(applicationInfo.componentName);
 ////                    mIconCache.getTitleAndIcon(applicationInfo, info, null);
@@ -224,7 +223,7 @@ public class AllAppsList
 //        } else {
 //            // Remove all data for this package.
 //            for (int i = data.size() - 1; i >= 0; i--) {
-//                final android.content.pm.ApplicationInfo applicationInfo = data.get(i);
+//                final android.content.pm.AppInfoModel applicationInfo = data.get(i);
 //                final ComponentName component = applicationInfo.intent.getComponent();
 //                if (packageName.equals(component.getPackageName())) {
 //                    removed.add(applicationInfo);
@@ -238,10 +237,10 @@ public class AllAppsList
 //    /**
 //     * Returns whether <em>apps</em> contains <em>component</em>.
 //     */
-//    private static boolean findActivity(ArrayList<ApplicationInfo> apps, ComponentName component) {
+//    private static boolean findActivity(ArrayList<AppInfoModel> apps, ComponentName component) {
 //        final int N = apps.size();
 //        for (int i=0; i<N; i++) {
-//            final ApplicationInfo info = apps.get(i);
+//            final AppInfoModel info = apps.get(i);
 //            if (info.getPname().equals(component)) {
 //                return true;
 //            }
@@ -250,10 +249,10 @@ public class AllAppsList
 //    }
 //
 //    /**
-//     * Find an ApplicationInfo object for the given packageName and className.
+//     * Find an AppInfoModel object for the given packageName and className.
 //     */
-//    private ApplicationInfo findApplicationInfoLocked(String packageName, String className) {
-//        for (ApplicationInfo info: data) {
+//    private AppInfoModel findApplicationInfoLocked(String packageName, String className) {
+//        for (AppInfoModel info: data) {
 //            final ComponentName component = info.intent.getComponent();
 //            if (packageName.equals(component.getPackageName())
 //                    && className.equals(component.getClassName())) {

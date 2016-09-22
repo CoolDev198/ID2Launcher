@@ -18,8 +18,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.LauncherApplication;
-import id2.id2me.com.id2launcher.WidgetInfo;
+import id2.id2me.com.id2launcher.models.WidgetInfoModel;
 
 /**
  * Created by sunita on 8/2/16.
@@ -34,9 +33,9 @@ public class WidgetsListManager {
         getInstalledWidgets();
     }
 
-    public ArrayList<WidgetInfo> getInstalledWidgets() {
+    public ArrayList<WidgetInfoModel> getInstalledWidgets() {
 
-        ArrayList<WidgetInfo> widgetInfos = null;
+        ArrayList<WidgetInfoModel> widgetInfos = null;
         try {
             widgetInfos = new ArrayList<>();
             PackageManager mPackageManager = context.getPackageManager();
@@ -55,7 +54,7 @@ public class WidgetsListManager {
 
                     if (minSpanX <= ((LauncherApplication) ((Activity) context).getApplication()).getCellCountX() &&
                             minSpanY <=  ((LauncherApplication) ((Activity) context).getApplication()).getCellCountY()) {
-                        WidgetInfo widgetInfo = new WidgetInfo();
+                        WidgetInfoModel widgetInfo = new WidgetInfoModel();
                         widgetInfo.setPname(widget.provider.getPackageName());
                         widgetInfo.setSpanX(spanXY[0]);
                         widgetInfo.setSpanY(spanXY[1]);

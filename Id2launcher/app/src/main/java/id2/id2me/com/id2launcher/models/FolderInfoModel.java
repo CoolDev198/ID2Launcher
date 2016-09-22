@@ -1,41 +1,38 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import java.util.ArrayList;
-
-import id2.id2me.com.id2launcher.ApplicationInfo;
-import id2.id2me.com.id2launcher.ItemInfo;
 
 /**
  * Created by bliss105 on 14/07/16.
  */
-public class FolderInfo {
+public class FolderInfoModel {
 
     private int folderId;
     private String folderName = "";
     private int pageId;
-    private ArrayList<ItemInfo> appInfos;
+    private ArrayList<ItemInfoModel> appInfos;
 
-    public FolderInfo(ItemInfo dragPosApp, ItemInfo targetPosApp) {
+    public FolderInfoModel(ItemInfoModel dragPosApp, ItemInfoModel targetPosApp) {
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
         appInfos.add(dragPosApp);
         appInfos.add(targetPosApp);
     }
-    public FolderInfo(){
+    public FolderInfoModel(){
 
     }
-    public void addNewItemInfo(ItemInfo dragPosApp){
+    public void addNewItemInfo(ItemInfoModel dragPosApp){
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
         appInfos.add(dragPosApp);
     }
 
-    public ArrayList<ItemInfo> getAppInfos(){
+    public ArrayList<ItemInfoModel> getAppInfos(){
         return appInfos;
     }
-    public void setAppInfos(ArrayList<ItemInfo> appInfos){
+    public void setAppInfos(ArrayList<ItemInfoModel> appInfos){
         this.appInfos=appInfos;
     }
     public String getFolderName() {
@@ -58,7 +55,7 @@ public class FolderInfo {
         this.pageId = pageId;
     }
 
-    public void  deleteAppInfo(ApplicationInfo appInfo) {
+    public void  deleteAppInfo(AppInfoModel appInfo) {
         appInfos.remove(appInfo);
     }
 

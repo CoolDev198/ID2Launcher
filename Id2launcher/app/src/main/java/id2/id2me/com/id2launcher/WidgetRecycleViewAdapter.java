@@ -14,22 +14,25 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import id2.id2me.com.id2launcher.models.DragInfoModel;
+import id2.id2me.com.id2launcher.models.WidgetInfoModel;
+
 /**
  * Created by sunita on 8/9/16.
  */
 public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycleViewAdapter.MyViewHolder> implements View.OnLongClickListener {
 
     private final DrawerLayout drawerLayout;
-    private List<WidgetInfo> widgetInfoList;
+    private List<WidgetInfoModel> widgetInfoList;
     Context context;
     RecyclerView recycleView;
     private WidgetsListManager widgetsListManager;
-    private WidgetInfo widgetInfo;
+    private WidgetInfoModel widgetInfo;
     LauncherApplication launcherApplication;
     @Override
     public boolean onLongClick(View v) {
         try {
-            DragInfo dragInfo = new DragInfo();
+            DragInfoModel dragInfo = new DragInfoModel();
             dragInfo.setDropExternal(true);
             dragInfo.setIsAppOrFolderOrWidget(3);
             dragInfo.setIsItemCanPlaced(true);
@@ -47,7 +50,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView widget_name, widget_dim;
         ImageView widget_preview_img;
-        WidgetInfo widgetInfo;
+        WidgetInfoModel widgetInfo;
 
         private MyViewHolder(View view) {
             super(view);

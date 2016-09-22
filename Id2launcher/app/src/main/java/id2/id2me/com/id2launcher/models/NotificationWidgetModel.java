@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher.notificationWidget;
+package id2.id2me.com.id2launcher.models;
 
 /**
  * Created by apple on 23/02/16.

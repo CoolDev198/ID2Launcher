@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -9,7 +9,11 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class ItemInfo {
+import id2.id2me.com.id2launcher.AllAppsList;
+import id2.id2me.com.id2launcher.DatabaseHandler;
+import id2.id2me.com.id2launcher.R;
+
+public class ItemInfoModel {
 
     static final int NO_ID = -1; /*The id in the settings database for this item */
     long id = NO_ID;

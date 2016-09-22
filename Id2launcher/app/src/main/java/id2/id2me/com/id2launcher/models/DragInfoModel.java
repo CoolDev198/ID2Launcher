@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import android.view.View;
 
@@ -7,13 +7,13 @@ import java.util.ArrayList;
 /**
  * Created by sunita on 8/9/16.
  */
-public class DragInfo extends ItemInfo {
+public class DragInfoModel extends ItemInfoModel {
 
     //true - App and false - Widget
     private boolean isAppOrWidget;
-    private ApplicationInfo appInfo;
-    private WidgetInfo widgetInfo;
-    private FolderInfo folderInfo;
+    private AppInfoModel appInfo;
+    private WidgetInfoModel widgetInfo;
+    private FolderInfoModel folderInfo;
     private View widgetView;
     private  boolean dropExternal;
     ArrayList<ArrayList<Integer>>  matrixCells;
@@ -23,14 +23,14 @@ public class DragInfo extends ItemInfo {
     private int isAppOrFolderOrWidget;
     private View originalView;
     private View dragView;
-    private ItemInfo itemInfo;
+    private ItemInfoModel itemInfo;
 
 
-    public WidgetInfo getWidgetInfo() {
+    public WidgetInfoModel getWidgetInfo() {
         return widgetInfo;
     }
 
-    public void setWidgetInfo(WidgetInfo widgetInfo) {
+    public void setWidgetInfo(WidgetInfoModel widgetInfo) {
         this.widgetInfo = widgetInfo;
     }
 
@@ -42,11 +42,11 @@ public class DragInfo extends ItemInfo {
         this.widgetView = widgetView;
     }
 
-    public ApplicationInfo getAppInfo() {
+    public AppInfoModel getAppInfo() {
         return appInfo;
     }
 
-    public void setAppInfo(ApplicationInfo appInfo) {
+    public void setAppInfo(AppInfoModel appInfo) {
         this.appInfo = appInfo;
     }
 
@@ -60,11 +60,11 @@ public class DragInfo extends ItemInfo {
     }
 
 
-    public void setFolderInfo(FolderInfo folderInfo) {
+    public void setFolderInfo(FolderInfoModel folderInfo) {
         this.folderInfo = folderInfo;
     }
 
-    public FolderInfo getFolderInfo() {
+    public FolderInfoModel getFolderInfo() {
         return folderInfo;
     }
 
@@ -133,7 +133,7 @@ public class DragInfo extends ItemInfo {
         return dragView;
     }
 
-    public ItemInfo getItemInfo() {
+    public ItemInfoModel getItemInfo() {
         return itemInfo;
     }
 }

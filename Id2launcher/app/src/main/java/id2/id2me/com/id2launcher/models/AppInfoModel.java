@@ -1,13 +1,11 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import android.graphics.drawable.Drawable;
-
-import java.util.ArrayList;
 
 /**
  * Created by bliss76 on 27/05/16.
  */
-public class ApplicationInfo {
+public class AppInfoModel {
     private String appname = "";
     private String pname = "";
     private Drawable icon;
@@ -16,7 +14,7 @@ public class ApplicationInfo {
     private int folderId;
 
 
-    public ApplicationInfo() {
+    public AppInfoModel() {
 
     }
     public String getAppname() {

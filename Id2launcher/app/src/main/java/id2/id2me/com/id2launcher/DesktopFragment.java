@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.FolderInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 import jp.wasabeef.blurry.Blurry;
@@ -57,7 +60,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     Dialog customDialog;
     Timer timer;
     TimerTask timerTask;
-    private ArrayList<ApplicationInfo> appInfos;
+    private ArrayList<AppInfoModel> appInfos;
     private DrawerLayout drawer;
     private View fragmentView = null;
     private Context context;
@@ -200,7 +203,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             for (int i = 0; i < parentLayout.getChildCount(); i++) {
 
                 View child = parentLayout.getChildAt(i);
-                ItemInfo cellInfo = (ItemInfo) child.getTag();
+                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
                 if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
 
                     if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
@@ -210,8 +213,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                     }
 
                 } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
-                    FolderInfo folderInfo = cellInfo.getFolderInfo();
-//                    ArrayList<ApplicationInfo> applicationInfos = folderInfo.getAppInfos();
+                    FolderInfoModel folderInfo = cellInfo.getFolderInfo();
+//                    ArrayList<AppInfoModel> applicationInfos = folderInfo.getAppInfos();
 //                    for (int j = 0; j < applicationInfos.size(); i++) {
 //                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
 //                            folderInfo.deleteAppInfo(applicationInfos.get(j));
@@ -305,7 +308,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private void populateDesktop() {
 
         for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
-            ItemInfo itemInfo = DatabaseHandler.itemInfosList.get(i);
+            ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
             int type = itemInfo.getItemType();
 
             int width = application.getCellWidth() * itemInfo.getSpanX();
@@ -317,23 +320,23 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             int topMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
             layoutParams.setMargins(leftMargin, topMargin, 0, 0);
 
-            HashMap<Integer, FolderInfo> folderInfoHashMap = new HashMap<>();
+            HashMap<Integer, FolderInfoModel> folderInfoHashMap = new HashMap<>();
 
             switch (type) {
 
                 case DatabaseHandler.ITEM_TYPE_APP:
                     switch (itemInfo.getContainer()) {
                         case DatabaseHandler.CONTAINER_DESKTOP:
-                            application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+                            application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
                             break;
                         default:
                             if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
-                                FolderInfo folderInfo = new FolderInfo();
+                                FolderInfoModel folderInfo = new FolderInfoModel();
                                 folderInfo.setFolderId(itemInfo.getContainer());
                                 folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
                                 folderInfo.addNewItemInfo(itemInfo);
                             } else {
-                                FolderInfo folderInfo = folderInfoHashMap.get(itemInfo.getContainer());
+                                FolderInfoModel folderInfo = folderInfoHashMap.get(itemInfo.getContainer());
                                 folderInfo.addNewItemInfo(itemInfo);
                             }
                             break;
@@ -341,10 +344,10 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                     break;
                 case DatabaseHandler.ITEM_TYPE_FOLDER:
 
-                     application.getPageDragListener().addFolderToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+                     application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
 
                     if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
-                        FolderInfo folderInfo = new FolderInfo();
+                        FolderInfoModel folderInfo = new FolderInfoModel();
                         folderInfo.setFolderId((int) itemInfo.getId());
                         folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
                     }

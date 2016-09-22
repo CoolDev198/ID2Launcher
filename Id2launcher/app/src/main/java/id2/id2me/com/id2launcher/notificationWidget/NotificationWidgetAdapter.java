@@ -11,11 +11,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.List;
-
 import id2.id2me.com.id2launcher.DatabaseHandler;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 
 /**
  * Created by apple on 23/02/16.

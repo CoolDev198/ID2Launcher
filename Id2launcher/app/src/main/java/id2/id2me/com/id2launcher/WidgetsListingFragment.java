@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.models.WidgetInfoModel;
+
 
 /**
  * Created by sunita on 8/2/16.
@@ -22,7 +24,7 @@ public class WidgetsListingFragment extends Fragment {
     View fragmentView;
     Context context;
     final String TAG = "WidgetsListingFragment";
-    ArrayList<WidgetInfo> widgetInfos;
+    ArrayList<WidgetInfoModel> widgetInfos;
     static DrawerLayout drawerLayout;
 
     public static WidgetsListingFragment newInstance(DrawerLayout drawer) {

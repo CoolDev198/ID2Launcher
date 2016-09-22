@@ -12,6 +12,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+
 /**
  * Created by sunita on 8/2/16.
  */
@@ -59,10 +61,10 @@ public class AppsListingFragment extends Fragment {
 
     private void seperateCharNumApps() {
         try {
-            ArrayList<ApplicationInfo> appInfos = launcherApplication.mModel.mBgAllAppsList.data;
+            ArrayList<AppInfoModel> appInfos = launcherApplication.mModel.mBgAllAppsList.data;
 
-            ArrayList<ApplicationInfo> listDigitAppInfo = new ArrayList<>();
-            ArrayList<ApplicationInfo> listAppInfo = new ArrayList<>();
+            ArrayList<AppInfoModel> listDigitAppInfo = new ArrayList<>();
+            ArrayList<AppInfoModel> listAppInfo = new ArrayList<>();
             for (int i = 0; i < appInfos.size(); i++) {
                 char ch = appInfos.get(i).getAppname().toString().charAt(0);
                 if (ch >= 'A' && ch <= 'Z') {

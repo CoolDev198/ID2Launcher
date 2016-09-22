@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetModel;
+import id2.id2me.com.id2launcher.models.DragInfoModel;
+import id2.id2me.com.id2launcher.models.FolderInfoModel;
+import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 
 /**
  * Created by sunita on 7/27/16.
@@ -24,8 +26,8 @@ public class LauncherApplication extends Application {
     public static List<NotificationWidgetModel> notificationWidgetModels;
     public View folderView;
     public boolean isDrawerOpen = false;
-    public ArrayList<FolderInfo> folderFragmentsInfo;
-    public DragInfo dragInfo;
+    public ArrayList<FolderInfoModel> folderFragmentsInfo;
+    public DragInfoModel dragInfo;
     private PageDragListener pageDragListener;
     public LauncherAppWidgetHost mAppWidgetHost;
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;

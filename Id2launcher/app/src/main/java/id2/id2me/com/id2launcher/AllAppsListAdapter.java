@@ -17,14 +17,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+
 /**
  * Created by bliss76 on 21/06/16.
  */
 public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     private static LayoutInflater inflater = null;
     private LauncherApplication launcherApplication;
-    ArrayList<ApplicationInfo> list;
-    ArrayList<ArrayList<ApplicationInfo>> groupList;
+    ArrayList<AppInfoModel> list;
+    ArrayList<ArrayList<AppInfoModel>> groupList;
     ArrayList<View> items = null;
     DrawerLayout drawerLayout;
     int NO_OF_APPS_IN_ROW = 3;
@@ -60,7 +62,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
             try {
                 String modifyChar;
                 for (int i = 0; i < groupList.get(x).size(); i++) {
-                    char ch = ((ArrayList<ApplicationInfo>) groupList.get(x)).get(i).getAppname().charAt(0);
+                    char ch = ((ArrayList<AppInfoModel>) groupList.get(x)).get(i).getAppname().charAt(0);
                     if (ch >= 'A' && ch <= 'Z') {
                         modifyChar = Character.toString(ch).toUpperCase();
 
@@ -96,7 +98,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     private void makeGroups() {
-        ArrayList<ApplicationInfo> arrayList = new ArrayList<>();
+        ArrayList<AppInfoModel> arrayList = new ArrayList<>();
         groupList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             arrayList.add(list.get(i));

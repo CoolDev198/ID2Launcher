@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import id2.id2me.com.id2launcher.models.DragInfoModel;
+import id2.id2me.com.id2launcher.models.FolderInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
+
 
 /**
  * Created by sunita on 8/9/16.
@@ -43,9 +47,9 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     DatabaseHandler db;
     View dropTargetLayout, scrollView, blur_relative;
     private FrameLayout.LayoutParams layoutParams;
-    private DragInfo dragInfo;
+    private DragInfoModel dragInfo;
     private int[]nearestCell;
-    private ItemInfo cellToBePlaced;
+    private ItemInfoModel cellToBePlaced;
     private boolean isDragStarted = false;
 
     PageDragListener(Context mContext, View desktopFragment) {
@@ -143,7 +147,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             } else {
                 //Tun mark cells in launcher cell matrix
                 pageLayout.removeView(drag_view);
-                unMarkCells(((ItemInfo) drag_view.getTag()));
+                unMarkCells(((ItemInfoModel) drag_view.getTag()));
                 findAvalCells();
             }
         } catch (Exception e) {
@@ -300,7 +304,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private void createOrUpdateItemInfo(View view) {
 
         if (dragInfo.getDropExternal()) {
-            ItemInfo iteminfo = new ItemInfo();
+            ItemInfoModel iteminfo = new ItemInfoModel();
             iteminfo.setAppInfo(dragInfo.getAppInfo());
             iteminfo.setFolderInfo(dragInfo.getFolderInfo());
             iteminfo.setIsAppOrFolderOrWidget(dragInfo.getIsAppOrFolderOrWidget());
@@ -312,7 +316,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             iteminfo.setSpanX(dragInfo.getSpanX());
             iteminfo.setSpanY(dragInfo.getSpanY());
-            iteminfo.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(dragInfo.getAppInfo().getIcon(), context)));
+            iteminfo.setIcon(ItemInfoModel.writeBitmap(AllAppsList.createIconBitmap(dragInfo.getAppInfo().getIcon(), context)));
             iteminfo.setCellX(dragInfo.getDragMatrices().get(0).get(0));
             iteminfo.setCellY(dragInfo.getDragMatrices().get(0).get(1));
             iteminfo.setPname(dragInfo.getAppInfo().getPname());
@@ -328,7 +332,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             db.addOrMoveItemInfo(iteminfo);
         } else {
-            ItemInfo cellInfo = (ItemInfo) view.getTag();
+            ItemInfoModel cellInfo = (ItemInfoModel) view.getTag();
         }
     }
 
@@ -336,7 +340,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         try {
             for (int i = 0; i < pageLayout.getChildCount(); i++) {
                 View child = (View) pageLayout.getChildAt(i);
-                ItemInfo cellInfo = (ItemInfo) child.getTag();
+                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
 
 
                 if (cellInfo.getDragMatrices() != null) {
@@ -355,7 +359,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         }
     }
 
-    private void markCells(ItemInfo itemInfo) {
+    private void markCells(ItemInfoModel itemInfo) {
         //  mark++;
         //Log.v(TAG, "cells marked :: " + mark);
         int xStart = itemInfo.getCellX();
@@ -373,7 +377,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     }
 
 
-    void unMarkCells(ItemInfo itemInfo) {
+    void unMarkCells(ItemInfoModel itemInfo) {
 
         int xStart = itemInfo.getCellX();
         int yStart = itemInfo.getCellY();
@@ -397,7 +401,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             try {
                 View child = (View) pageLayout.getChildAt(i);
 
-                ItemInfo cellInfo = (ItemInfo) child.getTag();
+                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
 
                 int width = cellWidth * cellInfo.getSpanX();
                 int height = cellHeight * cellInfo.getSpanY();
@@ -409,7 +413,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
                     if (dragInfo.getIsAppOrFolderOrWidget() == 1 && cellInfo.getIsAppOrFolderOrWidget() != 3 && cellInfo.getDragMatrices().equals(cellInfo.getMatrixCells()) && findDistanceFromEachCell(nearestCell.get(0), nearestCell.get(1)) < 75) {
 
-                        cellToBePlaced = new ItemInfo();
+                        cellToBePlaced = new ItemInfoModel();
                         copyCellInfo(cellInfo, cellToBePlaced);
 
                         if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
@@ -417,7 +421,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                             //Add To Existing Folder for Temp``
                         } else {
                             //Create Folder For Temp
-                            cellToBePlaced.setFolderInfo(new FolderInfo(dragInfo.getItemInfo(), cellInfo));
+                            cellToBePlaced.setFolderInfo(new FolderInfoModel(dragInfo.getItemInfo(), cellInfo));
                             cellToBePlaced.setAppInfo(null);
                         }
 
@@ -585,7 +589,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return  arrayListHashMap.get(distances.get(0));
     }
 
-    void copyCellInfo(ItemInfo fromCellInfo, ItemInfo toCellInfo) {
+    void copyCellInfo(ItemInfoModel fromCellInfo, ItemInfoModel toCellInfo) {
         toCellInfo.setDragLayoutParams(fromCellInfo.getDragLayoutParams());
         toCellInfo.setSpanY(fromCellInfo.getSpanY());
         toCellInfo.setDragMatrices(fromCellInfo.getDragMatrices());
@@ -713,7 +717,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     }
 
-    public void addAppToPage(Bitmap icon, ItemInfo itemInfo, FrameLayout.LayoutParams layoutParams) {
+    public void addAppToPage(Bitmap icon, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
 
         try {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -731,7 +735,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     }
 
-    public void addFolderToPage(Bitmap icon, ItemInfo itemInfo, FrameLayout.LayoutParams layoutParams) {
+    public void addFolderToPage(Bitmap icon, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
 
         try {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -792,7 +796,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         try {
             launcherApplication.folderFragmentsInfo.clear();
             for (int i = 0; i < pageLayout.getChildCount(); i++) {
-                ItemInfo cellInfo = (ItemInfo) ((View) pageLayout.getChildAt(i)).getTag();
+                ItemInfoModel cellInfo = (ItemInfoModel) ((View) pageLayout.getChildAt(i)).getTag();
                 if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
                     launcherApplication.folderFragmentsInfo.add(cellInfo.getFolderInfo());
                 }
@@ -829,7 +833,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             if (dragInfo.getIsAppOrFolderOrWidget() != DatabaseHandler.ITEM_TYPE_APPWIDGET) {
                 if (dragInfo.getIsAppOrFolderOrWidget() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-                    ItemInfo cellInfo = (ItemInfo) drag_view.getTag();
+                    ItemInfoModel cellInfo = (ItemInfoModel) drag_view.getTag();
                     cellInfo.setMatrixCells(copyArray(new ArrayList<ArrayList<Integer>>(), dragInfo.getDragMatrices()));
                     pageLayout.addView(drag_view, layoutParams);
                 } else {
@@ -846,7 +850,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     @Override
     public void onClick(View v) {
-        ItemInfo cellInfo = (ItemInfo) v.getTag();
+        ItemInfoModel cellInfo = (ItemInfoModel) v.getTag();
         if (cellInfo.getIsAppOrFolderOrWidget() == DatabaseHandler.ITEM_TYPE_FOLDER) {
             if (launcherApplication.folderView != null) {
                 pageLayout.removeView(launcherApplication.folderView);
@@ -859,8 +863,8 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     @Override
     public boolean onLongClick(View v) {
         try {
-            DragInfo dragInfo = new DragInfo();
-            ItemInfo cellInfo = (ItemInfo) v.getTag();
+            DragInfoModel dragInfo = new DragInfoModel();
+            ItemInfoModel cellInfo = (ItemInfoModel) v.getTag();
             dragInfo.setAppInfo(cellInfo.getAppInfo());
             dragInfo.setFolderInfo(cellInfo.getFolderInfo());
             dragInfo.setDropExternal(false);
@@ -878,7 +882,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return false;
     }
 
-    void getPopUp(ArrayList<ItemInfo> appInfos) {
+    void getPopUp(ArrayList<ItemInfoModel> appInfos) {
         try {
 
             blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
@@ -899,12 +903,12 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     @Override
     public void onDragWidget(LauncherAppWidgetHostView launcherAppWidgetHostView) {
         try {
-            DragInfo dragInfo = new DragInfo();
+            DragInfoModel dragInfo = new DragInfoModel();
             dragInfo.setIsAppOrFolderOrWidget(3);
             dragInfo.setIsItemCanPlaced(true);
-            ItemInfo cellInfo = null;
+            ItemInfoModel cellInfo = null;
             try {
-                cellInfo = (ItemInfo) launcherAppWidgetHostView.getTag();
+                cellInfo = (ItemInfoModel) launcherAppWidgetHostView.getTag();
             } catch (Exception e) {
                 e.printStackTrace();
             }

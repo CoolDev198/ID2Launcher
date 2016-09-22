@@ -10,7 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -47,7 +48,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     static int maxID = -1;
     static DatabaseHandler sInstance;
     Context context;
-    public static  ArrayList<ItemInfo> itemInfosList;
+    public static  ArrayList<ItemInfoModel> itemInfosList;
     private DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
@@ -181,23 +182,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void addOrMoveItemInfo(ItemInfo itemInfo) {
-        if (itemInfo.getId() == ItemInfo.NO_ID) {
+    public void addOrMoveItemInfo(ItemInfoModel itemInfo) {
+        if (itemInfo.getId() == ItemInfoModel.NO_ID) {
             addItemInfoToDataBase(itemInfo);
         } else {
             moveItemInfo(itemInfo);
         }
     }
 
-    public void moveItemInfo(ItemInfo itemInfo) {
+    public void moveItemInfo(ItemInfoModel itemInfo) {
 
     }
 
-    public void modifyItemInfo(ItemInfo itemInfo) {
+    public void modifyItemInfo(ItemInfoModel itemInfo) {
 
     }
 
-    public ArrayList<ItemInfo>getItemsInfo(){
+    public ArrayList<ItemInfoModel>getItemsInfo(){
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = null;
@@ -208,7 +209,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             while (res.isAfterLast() == false) {
 
-                ItemInfo itemInfo = new ItemInfo();
+                ItemInfoModel itemInfo = new ItemInfoModel();
                 itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
                 itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
                 itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
@@ -225,7 +226,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         return itemInfosList;
     }
-    public void addItemInfoToDataBase(ItemInfo itemInfo) {
+    public void addItemInfoToDataBase(ItemInfoModel itemInfo) {
         initializeMaxId();
         itemInfo.setId(maxID++);
 

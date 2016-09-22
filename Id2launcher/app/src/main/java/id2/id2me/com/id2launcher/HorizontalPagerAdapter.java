@@ -7,6 +7,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+
 /**
  * Created by bliss76 on 26/05/16.
  */
@@ -27,7 +29,7 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
         this.notifyDataSetChanged();
 
     }
-    public void updateFragments(int position , ArrayList<ApplicationInfo> appInfos){
+    public void updateFragments(int position , ArrayList<AppInfoModel> appInfos){
         if(position!=0) {
             FolderFragment fragment = (FolderFragment) fragments.get(position);
             FolderGridAdapter folderGridAdapter=   ((FolderGridAdapter) fragment.getAdapter());
