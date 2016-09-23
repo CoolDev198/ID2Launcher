@@ -26,7 +26,7 @@ public class NonSwipeViewPager extends ViewPager {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 try {
                     if (position != 0) {
-                        pagerAdapter.updateFragments(position, application.folderFragmentsInfo.get(position - 1).getAppInfos());
+                     //   pagerAdapter.updateFragments(position, application.folderFragmentsInfo.get(position - 1).getAppInfos());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

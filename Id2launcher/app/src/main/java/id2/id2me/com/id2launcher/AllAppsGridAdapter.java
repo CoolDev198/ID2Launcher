@@ -18,7 +18,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.DragInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by bliss76 on 21/06/16.
@@ -94,7 +94,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             holder.appInfo = gridList.get(position);
             holder.pName = gridList.get(position).getPname();
             holder.itemText.setText(gridList.get(position).getAppname());
-            holder.itemImage.setImageDrawable(gridList.get(position).getIcon());
+            holder.itemImage.setImageBitmap(gridList.get(position).getBitmapIcon());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,20 +134,14 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
     }
 
     private void dragAnimation(View view) {
-
         try {
-            DragInfoModel dragInfo = new DragInfoModel();
-            dragInfo.setAppInfo(gridList.get(Integer.parseInt(view
-                    .findViewById(R.id.drawer_grid_image).getTag().toString())));
-            dragInfo.setIsAppOrFolderOrWidget(1);
-            dragInfo.setDropExternal(true);
-            dragInfo.setIsItemCanPlaced(true);
-            dragInfo.setSpanX(1);
-            dragInfo.setSpanY(1);
 
-            ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = dragInfo;
+            ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = (ItemInfoModel) gridList.get(Integer.parseInt(view
+                    .findViewById(R.id.drawer_grid_image).getTag().toString())).clone();
+
             launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image));
             drawerLayout.closeDrawer(Gravity.LEFT);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

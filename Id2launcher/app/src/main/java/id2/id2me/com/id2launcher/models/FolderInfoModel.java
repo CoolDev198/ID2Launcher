@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by bliss105 on 14/07/16.
  */
-public class FolderInfoModel {
+public class FolderInfoModel extends ItemInfoModel{
 
     private int folderId;
     private String folderName = "";

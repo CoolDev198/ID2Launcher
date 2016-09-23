@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable;
 /**
  * Created by sunita on 8/3/16.
  */
-public class WidgetInfoModel {
+public class WidgetInfoModel extends ItemInfoModel{
     private String widgetName = "";
     private String pname = "";
     private int preview;

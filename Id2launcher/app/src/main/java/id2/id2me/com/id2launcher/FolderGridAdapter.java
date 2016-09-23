@@ -73,7 +73,7 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
 
             holder.itemImage.setTag(position);
             holder.pName = appInfos.get(position).getPname();
-         //   holder.itemImage.setImageDrawable(appInfos.get(position).getIcon());
+         //   holder.itemImage.setImageDrawable(appInfos.get(position).getBitmapIcon());
 
 
         } catch (Exception e) {

@@ -1,22 +1,36 @@
 package id2.id2me.com.id2launcher.models;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 /**
  * Created by bliss76 on 27/05/16.
  */
-public class AppInfoModel {
+public class AppInfoModel extends ItemInfoModel implements  Cloneable {
     private String appname = "";
     private String pname = "";
-    private Drawable icon;
+    private Bitmap icon;
     private String className = "";
-    private int pageId;
-    private int folderId;
 
-
-    public AppInfoModel() {
-
+    public AppInfoModel(){
+        setDropExternal(true);
+        setIsItemCanPlaced(false);
+        setSpanX(1);
+        setSpanY(1);
     }
+
+    public Object clone()
+    {
+        try
+        {
+            return super.clone();
+        }
+        catch( CloneNotSupportedException e )
+        {
+            return null;
+        }
+    }
+
     public String getAppname() {
         return appname;
     }
@@ -33,33 +47,13 @@ public class AppInfoModel {
         this.pname = pname;
     }
 
-    public int getPageId() {
-        return pageId;
-    }
-
-    public void setPageId(int pageId) {
-        this.pageId = pageId;
-    }
-
-
-    public int getFolderId() {
-        return folderId;
-    }
-
-    public void setFolderId(int folderId) {
-        this.folderId = folderId;
-    }
-
-    public Drawable getIcon() {
+    public Bitmap getBitmapIcon() {
         return icon;
     }
 
-    public void setIcon(Drawable icon) {
+    public void setBitmapIcon(Bitmap icon) {
         this.icon = icon;
-    }
-
-    public String getClassName() {
-        return className;
+        setIcon(writeBitmap(icon));
     }
 
     public void setClassName(String className) {

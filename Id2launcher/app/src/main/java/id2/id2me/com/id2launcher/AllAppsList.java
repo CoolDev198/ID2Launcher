@@ -111,7 +111,7 @@ public class AllAppsList
                 AppInfoModel appInfo = new AppInfoModel();
                 appInfo.setAppname(rInfo.activityInfo.loadLabel(pm)
                         .toString().trim());
-                appInfo.setIcon(rInfo.activityInfo.loadIcon(pm));
+                appInfo.setBitmapIcon(createIconBitmap(rInfo.activityInfo.loadIcon(pm), context));
                 appInfo.setPname(rInfo.activityInfo.packageName);
                 appInfo.setClassName(rInfo.activityInfo.name);
                 data.add(appInfo);

@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import id2.id2me.com.id2launcher.models.DragInfoModel;
 import id2.id2me.com.id2launcher.models.WidgetInfoModel;
 
 /**
@@ -32,13 +31,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     @Override
     public boolean onLongClick(View v) {
         try {
-            DragInfoModel dragInfo = new DragInfoModel();
-            dragInfo.setDropExternal(true);
-            dragInfo.setIsAppOrFolderOrWidget(3);
-            dragInfo.setIsItemCanPlaced(true);
-            MyViewHolder holder = (MyViewHolder) recycleView.getChildViewHolder(v);
-            dragInfo.setWidgetInfo(holder.widgetInfo);
-            ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = dragInfo;
+          //  ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = dragInfo;
             launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {

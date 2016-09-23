@@ -198,33 +198,33 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
     @Override
     public void bindAppsRemoved(ArrayList<String> packageNames) {
-        appsListingFragment.setListAdapter();
-        for (int k = 0; k < packageNames.size(); k++) {
-            for (int i = 0; i < parentLayout.getChildCount(); i++) {
-
-                View child = parentLayout.getChildAt(i);
-                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
-                if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
-
-                    if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
-                        parentLayout.removeView(child);
-                        application.getPageDragListener().unMarkCells(cellInfo.getMatrixCells());
-                        break;
-                    }
-
-                } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
-                    FolderInfoModel folderInfo = cellInfo.getFolderInfo();
-//                    ArrayList<AppInfoModel> applicationInfos = folderInfo.getAppInfos();
-//                    for (int j = 0; j < applicationInfos.size(); i++) {
-//                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
-//                            folderInfo.deleteAppInfo(applicationInfos.get(j));
-//                            break;
-//                        }
+//        appsListingFragment.setListAdapter();
+//        for (int k = 0; k < packageNames.size(); k++) {
+//            for (int i = 0; i < parentLayout.getChildCount(); i++) {
 //
+//                View child = parentLayout.getChildAt(i);
+//                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
+//                if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
+//
+//                    if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
+//                        parentLayout.removeView(child);
+//                        application.getPageDragListener().unMarkCells(cellInfo.getMatrixCells());
+//                        break;
 //                    }
-                }
-            }
-        }
+//
+//                } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
+//                    FolderInfoModel folderInfo = cellInfo.getFolderInfo();
+////                    ArrayList<AppInfoModel> applicationInfos = folderInfo.getAppInfos();
+////                    for (int j = 0; j < applicationInfos.size(); i++) {
+////                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
+////                            folderInfo.deleteAppInfo(applicationInfos.get(j));
+////                            break;
+////                        }
+////
+////                    }
+//                }
+//            }
+//        }
     }
 
 

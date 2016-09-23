@@ -15,11 +15,15 @@ import id2.id2me.com.id2launcher.R;
 
 public class ItemInfoModel {
 
-    static final int NO_ID = -1; /*The id in the settings database for this item */
+    public static final int NO_ID = -1; /*The id in the settings database for this item */
     long id = NO_ID;
     private int container = NO_ID;
+
     private int cellX = NO_ID;
     private int cellY = NO_ID;
+    public static int tmpCellX = NO_ID;
+    public static int tmpCellY = NO_ID;
+
     private byte[] icon;
     private String intent = "";
     private int spanX = 1;
@@ -29,6 +33,10 @@ public class ItemInfoModel {
     private int itemType = DatabaseHandler.ITEM_TYPE_APP;
     private int iconType = 0;
     private String pname = "";
+    private boolean dropExternal;
+    private boolean isItemCanPlaced;
+    private int tempCellX;
+    private int tempCellY;
 
     public long getId() {
         return id;
@@ -98,8 +106,16 @@ public class ItemInfoModel {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public int getItemType() {
         return itemType;
+    }
+
+    public void setItemType(int itemType) {
+        this.itemType = itemType;
     }
 
     public int getIconType() {
@@ -112,6 +128,25 @@ public class ItemInfoModel {
 
     public void setPname(String pname) {
         this.pname = pname;
+    }
+
+
+
+    public void setDropExternal(boolean dropExternal) {
+        this.dropExternal = dropExternal;
+    }
+
+    public boolean getDropExternal() {
+        return dropExternal;
+    }
+
+
+    public boolean getIsItemCanPlaced() {
+        return isItemCanPlaced;
+    }
+
+    public void setIsItemCanPlaced(boolean isItemCanPlaced) {
+        this.isItemCanPlaced = isItemCanPlaced;
     }
 
 
@@ -158,4 +193,12 @@ public class ItemInfoModel {
         return data;
     }
 
+    public void setTempCellX(int tempCellX) {
+        this.tempCellX = tempCellX;
+    }
+
+
+    public void setTempCellY(int tempCellY) {
+        this.tempCellY = tempCellY;
+    }
 }

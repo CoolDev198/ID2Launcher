@@ -47,7 +47,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
             launcherApplication.setLauncher(this);
 
             init();
-            openNotificationAccess();
+           // openNotificationAccess();
             loadDesktop();
             setStatusBarStyle();
         } catch (Exception e) {
