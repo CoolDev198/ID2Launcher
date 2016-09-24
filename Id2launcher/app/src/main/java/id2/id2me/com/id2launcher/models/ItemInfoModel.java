@@ -21,8 +21,6 @@ public class ItemInfoModel {
 
     private int cellX = NO_ID;
     private int cellY = NO_ID;
-    public static int tmpCellX = NO_ID;
-    public static int tmpCellY = NO_ID;
 
     private byte[] icon;
     private String intent = "";
@@ -35,8 +33,16 @@ public class ItemInfoModel {
     private String pname = "";
     private boolean dropExternal;
     private boolean isItemCanPlaced;
-    private int tempCellX;
-    private int tempCellY;
+    private int tempCellX=NO_ID;
+    private int tempCellY=NO_ID;
+
+    public int getTmpCellY() {
+        return tempCellY;
+    }
+
+    public int getTmpCellX() {
+        return tempCellX;
+    }
 
     public long getId() {
         return id;

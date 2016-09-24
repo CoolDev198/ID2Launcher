@@ -45,10 +45,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_ICON_TYPE = "iconType";
     private static final String COLUMN_INTENT = "intent";
     private static final String COLUMN_CONTAINER = "container";
-    static int maxID = -1;
+    public static ArrayList<ItemInfoModel> itemInfosList;
+    int maxID = -1;
     static DatabaseHandler sInstance;
     Context context;
-    public static  ArrayList<ItemInfoModel> itemInfosList;
+
     private DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
@@ -168,25 +169,30 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     private void initializeMaxId() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.beginTransaction();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
         try {
             cursor = db.rawQuery("SELECT MAX(" + COLUMN_ID + ") FROM " + TABLE_ITEMS, null);
-            maxID = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+            cursor.moveToFirst();
+            maxID = cursor.getInt(0);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            maxID=-1;
         } finally {
-            db.endTransaction();
             cursor.close();
         }
     }
 
     public void addOrMoveItemInfo(ItemInfoModel itemInfo) {
-        if (itemInfo.getId() == ItemInfoModel.NO_ID) {
-            addItemInfoToDataBase(itemInfo);
-        } else {
-            moveItemInfo(itemInfo);
+        try {
+            if (itemInfo.getId() == ItemInfoModel.NO_ID) {
+                addItemInfoToDataBase(itemInfo);
+            }
+//            else {
+//                moveItemInfo(itemInfo);
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -198,7 +204,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
-    public ArrayList<ItemInfoModel>getItemsInfo(){
+    public ArrayList<ItemInfoModel> getItemsInfo() {
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = null;
@@ -226,9 +232,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         return itemInfosList;
     }
+
     public void addItemInfoToDataBase(ItemInfoModel itemInfo) {
         initializeMaxId();
-        itemInfo.setId(maxID++);
+        try {
+            maxID++;
+            itemInfo.setId(maxID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
@@ -263,13 +275,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
 
-
     public void getNotificationData() {
         ArrayList<NotificationWidgetModel> notificationWidgetModels = null;
         Cursor cursor = null;
         SQLiteDatabase db = null;
         try {
-            db = this.getWritableDatabase();
+            db = this.getReadableDatabase();
         } catch (Exception e) {
             e.printStackTrace();
         }
