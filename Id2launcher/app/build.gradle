@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
@@ -36,9 +36,6 @@ android {
     }
 }
 
-ext {
-    permissionsDispatcherVersion = '2.1.2'
-}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -50,7 +47,7 @@ dependencies {
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     compile project(':simplecropview')
     compile project(':blurry')
-    compile "com.github.hotchemi:permissionsdispatcher:${permissionsDispatcherVersion}"
-    apt "com.github.hotchemi:permissionsdispatcher-processor:${permissionsDispatcherVersion}"
+    compile 'com.github.hotchemi:permissionsdispatcher:2.1.3'
+    apt 'com.github.hotchemi:permissionsdispatcher-processor:2.1.3'
 
 }

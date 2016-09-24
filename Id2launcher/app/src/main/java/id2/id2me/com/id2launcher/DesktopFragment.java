@@ -306,6 +306,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     }
 
     private void populateDesktop() {
+        HashMap<Integer, FolderInfoModel> folderInfoHashMap = new HashMap<>();
 
         for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
             ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
@@ -317,10 +318,9 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
             int leftMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
-            int topMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
+            int topMargin = itemInfo.getCellY() * application.getCellWidth() + application.getMaxGapTB() * (itemInfo.getCellY() + 1);
             layoutParams.setMargins(leftMargin, topMargin, 0, 0);
 
-            HashMap<Integer, FolderInfoModel> folderInfoHashMap = new HashMap<>();
 
             switch (type) {
 

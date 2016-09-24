@@ -144,7 +144,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 pageLayout.removeView(drag_view);
                 dragInfo.setTempCellX(dragInfo.getCellX());
                 dragInfo.setTempCellY(dragInfo.getCellY());
-                unMarkCells(dragInfo.getTmpCellX(), dragInfo.getCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
+                unMarkCells(dragInfo.getTmpCellX(), dragInfo.getTmpCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
                 findAvalCells();
             }
         } catch (Exception e) {
@@ -619,7 +619,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             View view = inflater.inflate(R
                     .layout.grid_item, null, true);
             ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
-           // imageView.setImageBitmap();
+            imageView.setImageBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(),context));
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
 
@@ -671,15 +671,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             e.printStackTrace();
         }
 
-    }
-
-
-    ArrayList<ArrayList<Integer>> copyArray(ArrayList<ArrayList<Integer>> copyInto, ArrayList<ArrayList<Integer>> copyFrom) {
-
-        for (int i = 0; i < copyFrom.size(); i++) {
-            copyInto.add(copyFrom.get(i));
-        }
-        return copyInto;
     }
 
 
@@ -780,7 +771,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     public boolean onLongClick(View v) {
         try {
             launcherApplication.dragInfo = (ItemInfoModel) v.getTag();
-            ;
+            dragInfo.setDropExternal(false);
             launcherApplication.dragAnimation(v);
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,7 +2,9 @@ package id2.id2me.com.id2launcher.models;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 
@@ -206,5 +208,14 @@ public class ItemInfoModel {
 
     public void setTempCellY(int tempCellY) {
         this.tempCellY = tempCellY;
+    }
+
+    public static Bitmap getIconFromCursor(byte[] data,Context context) {
+        try {
+            return ItemInfoModel.createIconBitmap(
+                    BitmapFactory.decodeByteArray(data, 0, data.length), context);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
