@@ -7,8 +7,6 @@
         <item name="android:fastScrollOverlayPosition">atThumb</item>
         <item name="android:fastScrollThumbDrawable">@mipmap/thumb</item>
         <item name="android:fastScrollTextColor">@color/tab_text_color</item>
-        <item name="android:fastScrollPreviewBackgroundLeft">@mipmap/indicator</item>
-        <item name="android:fastScrollPreviewBackgroundRight">@mipmap/indicator</item>
         <item name="android:windowActionBar">false</item>
     </style>
 

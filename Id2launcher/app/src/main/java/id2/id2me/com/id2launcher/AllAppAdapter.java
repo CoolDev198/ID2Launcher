@@ -3,11 +3,11 @@ package id2.id2me.com.id2launcher;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.SectionIndexer;
 
@@ -17,24 +17,27 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 /**
- * Created by bliss76 on 21/06/16.
+ * Created by Pinto on 24/09/16.
  */
-public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
-    private static LayoutInflater inflater = null;
-    private LauncherApplication launcherApplication;
-    ArrayList<AppInfoModel> list;
-    ArrayList<ArrayList<AppInfoModel>> groupList;
-    ArrayList<View> items = null;
-    DrawerLayout drawerLayout;
-    int NO_OF_APPS_IN_ROW = 3;
-    private Activity activity;
-    HashMap<String, Integer> mapIndex;
-    String[] sections;
+public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter {
 
-    public AllAppsListAdapter(Activity activity, DrawerLayout drawerLayout) {
+    private static LayoutInflater inflater = null;
+    DrawerLayout drawerLayout;
+    ArrayList<View> items = null;
+    ArrayList<AppInfoModel> list;
+    HashMap<Integer, String> mapIndex;
+    String[] sections;
+    ArrayList<ArrayList<AppInfoModel>> groupList;
+    private Activity activity;
+    private LauncherApplication launcherApplication;
+    int NO_OF_APPS_IN_ROW = 3;
+     ArrayList<String> sectionList;
+
+    public AllAppAdapter(Activity activity, DrawerLayout drawerLayout) {
         try {
             this.activity = activity;
             launcherApplication = (LauncherApplication) activity.getApplication();
@@ -54,10 +57,8 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
         }
     }
 
-
-
     private void makeSections() {
-        mapIndex = new LinkedHashMap<String, Integer>();
+        mapIndex = new LinkedHashMap<Integer, String>();
         for (int x = 0; x < groupList.size(); x++) {
             try {
                 String modifyChar;
@@ -65,6 +66,7 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
                     char ch = ((ArrayList<AppInfoModel>) groupList.get(x)).get(i).getAppname().charAt(0);
                     if (ch >= 'A' && ch <= 'Z') {
                         modifyChar = Character.toString(ch).toUpperCase();
+
                     } else {
                         if (ch >= 'a' && ch <= 'z') {
                             modifyChar = Character.toString(ch).toUpperCase();
@@ -73,8 +75,8 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
                         }
                     }
 
-                    if (!mapIndex.containsKey(modifyChar)) {
-                         mapIndex.put(modifyChar, x);
+                    if (!mapIndex.containsKey(x)) {
+                        mapIndex.put(x, modifyChar);
                     }
                 }
 
@@ -83,17 +85,17 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
             }
         }
 
-        Set<String> sectionLetters = mapIndex.keySet();
+       // Set<String> sectionLetters = mapIndex.keySet();
 
         // create a list from the set to sort
-        ArrayList<String> sectionList = new ArrayList<String>(sectionLetters);
+      //  sectionList = new ArrayList<String>(sectionLetters);
 
         Log.v("sectionList", sectionList.toString());
         Collections.sort(sectionList);
 
-        sections = new String[sectionList.size()];
+       // sections = new String[sectionList.size()];
 
-        sectionList.toArray(sections);
+       // sectionList.toArray(sections);
     }
 
     private void makeGroups() {
@@ -111,41 +113,39 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
         }
     }
 
-    public Object getItem(int position) {
-        return items.get(position);
-    }
-
-    public long getItemId(int position) {
-        return position;
-    }
-
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        View vi = convertView;
-        ViewHolder holder;
-
-        try {
-            if (convertView == null) {
-                vi = inflater.inflate(R.layout.adapter_viewitem, null);
-                items.add(vi);
-                holder = new ViewHolder();
-                holder.gridView = (AppGridView) vi.findViewById(R.id.grid);
-                vi.setTag(holder);
-            } else {
-                holder = (ViewHolder) vi.getTag();
-            }
-            setNoOfColumnsOfGrid(holder.gridView);
-            AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList.get(position), drawerLayout);
-            holder.gridView.setAdapter(adapter);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Override
+    public String getTextToShowInBubble(int pos) {
+        if(mapIndex.containsKey(pos)) {
+            return mapIndex.get(pos);
+        }else{
+            return "";
         }
-        return vi;
+
     }
 
     @Override
-    public int getCount() {
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.adapter_viewitem, parent, false);
+        items.add(itemView);
+
+        return new MyViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(MyViewHolder holder, int position) {
+        /*Movie movie = moviesList.get(position);
+        holder.title.setText(movie.getTitle());
+        holder.genre.setText(movie.getGenre());
+        holder.year.setText(movie.getYear());*/
+
+        setNoOfColumnsOfGrid(holder.gridView);
+        AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList.get(position), drawerLayout);
+        holder.gridView.setAdapter(adapter);
+    }
+
+    @Override
+    public int getItemCount() {
         return groupList.size();
     }
 
@@ -153,23 +153,19 @@ public class AllAppsListAdapter extends BaseAdapter implements SectionIndexer {
         gridView.setNumColumns(NO_OF_APPS_IN_ROW);
     }
 
-    public int getPositionForSection(int section) {
-        Log.d("section", "" + section);
-        return mapIndex.get(sections[section]);
-    }
 
-    public int getSectionForPosition(int position) {
-        Log.d("position", "" + position);
-        return 0;
-    }
-
-    public Object[] getSections() {
-        return sections;
-    }
-
-    public static class ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        //public TextView title, year, genre;
         public AppGridView gridView;
+
+        public MyViewHolder(View view) {
+            super(view);
+            gridView = (AppGridView) view.findViewById(R.id.grid);
+
+            /*title = (TextView) view.findViewById(R.id.title);
+            genre = (TextView) view.findViewById(R.id.genre);
+            year = (TextView) view.findViewById(R.id.year);*/
+        }
+
     }
-
-
 }
