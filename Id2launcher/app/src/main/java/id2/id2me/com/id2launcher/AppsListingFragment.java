@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 /**
@@ -19,13 +23,14 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
  */
 public class AppsListingFragment extends Fragment {
     private ListView navList;
-    private AllAppsListAdapter adapter;
+    private AllAppAdapter adapter;
     private static DrawerLayout drawer;
     private View fragmentView;
 
 
     Context context;
     private LauncherApplication launcherApplication;
+    private RecyclerView recyclerView;
 
 
     public static AppsListingFragment newInstance(DrawerLayout drawerLayout) {
@@ -98,10 +103,48 @@ public class AppsListingFragment extends Fragment {
     public void setListAdapter() {
         try {
             seperateCharNumApps();
-            navList = (ListView) fragmentView.findViewById(R.id.list);
+            /*navList = (ListView) fragmentView.findViewById(R.id.list);
             navList.setClickable(false);
             adapter = new AllAppsListAdapter(getActivity(), drawer);
-            navList.setAdapter(adapter);
+            navList.setAdapter(adapter);*/
+
+            recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+            //adapter = new AllAppsListAdapter(getActivity(), drawer);
+            adapter = new AllAppAdapter(getActivity(), drawer);
+
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
+//
+//            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false) {
+//                @Override
+//                public void onLayoutChildren(final RecyclerView.Recycler recycler, final RecyclerView.State state) {
+//                    super.onLayoutChildren(recycler, state);
+//                    //TODO if the items are filtered, considered hiding the fast scroller here
+//                    final int firstVisibleItemPosition = findFirstVisibleItemPosition();
+//                    if (firstVisibleItemPosition != 0) {
+//                        // this avoids trying to handle un-needed calls
+//                        if (firstVisibleItemPosition == -1)
+//                            //not initialized, or no items shown, so hide fast-scroller
+//                            fastScroller.setVisibility(View.GONE);
+//                        return;
+//
+//                    }
+//                    final int lastVisibleItemPosition = findLastVisibleItemPosition();
+//                    int itemsShown = lastVisibleItemPosition - firstVisibleItemPosition + 1;
+//                    //if all items are shown, hide the fast-scroller
+//                    fastScroller.setVisibility(adapter.getItemCount() > itemsShown ? View.VISIBLE : View.GONE);
+//
+//                    //fastScroller.setVisibility(View.GONE);
+//                }
+//            });
+            fastScroller.setRecyclerView(recyclerView);
+            fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
+                    R.id.fastscroller_handle);
+            recyclerView.setAdapter(adapter);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
