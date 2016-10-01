@@ -122,7 +122,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        try {
+        try {if(mAppWidgetHost!=null)
             mAppWidgetHost.startListening();
         } catch (Exception e) {
             e.printStackTrace();

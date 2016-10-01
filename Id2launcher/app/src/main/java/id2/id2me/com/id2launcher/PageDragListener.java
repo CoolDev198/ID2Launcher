@@ -205,10 +205,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             if (Arrays.equals(nearestCell, nearCellsObj)) {
                 ticks++;
             } else {
-
-                if (nearestCell[0] == -1 && nearestCell[1] == -1) {
                     nearestCell = nearCellsObj;
-                }
                 ticks = 0;
             }
 
@@ -320,12 +317,13 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     dragInfo.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
                 }
 
-                view.setTag(dragInfo);
-
                 db.addOrMoveItemInfo(dragInfo);
             } else {
                 ItemInfoModel cellInfo = (ItemInfoModel) view.getTag();
             }
+
+            view.setTag(dragInfo);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

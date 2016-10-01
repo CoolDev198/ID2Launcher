@@ -10,6 +10,10 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="contentInsetStart">0dp</item>
+        <item name="android:contentInsetStart">0dp</item>
+    </style>
 
     <style name="DropTargetBar">
         <item name="android:orientation">horizontal</item>
