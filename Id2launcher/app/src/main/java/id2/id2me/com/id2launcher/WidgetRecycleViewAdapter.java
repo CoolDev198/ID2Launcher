@@ -31,9 +31,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     @Override
     public boolean onLongClick(View v) {
         try {
-          //  ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
-            drawerLayout.closeDrawer(Gravity.LEFT);
+            ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = ((MyViewHolder)v.getTag()).widgetInfo;
+             launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
+             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,8 +71,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.widget_listing_item, parent, false);
-        itemView.setTag(this);
-        return new MyViewHolder(itemView);
+        MyViewHolder myViewHolder= new MyViewHolder(itemView);
+        itemView.setTag(myViewHolder);
+        return myViewHolder;
     }
 
     @Override

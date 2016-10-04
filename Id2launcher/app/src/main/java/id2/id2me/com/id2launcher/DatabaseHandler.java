@@ -20,8 +20,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final int ITEM_TYPE_FOLDER = 2;
     public static final int ITEM_TYPE_APPWIDGET = 3;
     public static final String COLUMN_ICON = "icon";
-    static final int CONTAINER_DESKTOP = -100;
-    static final int CONTAINER_FOLDER = -101;
+    static final long CONTAINER_DESKTOP = -100;
+    static final long CONTAINER_FOLDER = -101;
     static final int ITEM_TYPE_WIDGET_CLOCK = 1000;
     static final int ITEM_TYPE_WIDGET_SEARCH = 1001;
     static final int ITEM_TYPE_WIDGET_PHOTO_FRAME = 1002;
@@ -46,8 +46,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_INTENT = "intent";
     private static final String COLUMN_CONTAINER = "container";
     public static ArrayList<ItemInfoModel> itemInfosList;
-    int maxID = -1;
     static DatabaseHandler sInstance;
+    int maxID = -1;
     Context context;
 
     private DatabaseHandler(Context context) {
@@ -177,7 +177,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             maxID = cursor.getInt(0);
 
         } catch (Exception e) {
-            maxID=-1;
+            maxID = -1;
         } finally {
             cursor.close();
         }
@@ -187,10 +187,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         try {
             if (itemInfo.getId() == ItemInfoModel.NO_ID) {
                 addItemInfoToDataBase(itemInfo);
+            } else {
+                modifyItemInfo(itemInfo);
             }
-//            else {
-//                moveItemInfo(itemInfo);
-//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -201,6 +200,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void modifyItemInfo(ItemInfoModel itemInfo) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_CONTAINER, itemInfo.getContainer());
+            values.put(COLUMN_CELLX, itemInfo.getCellX());
+            values.put(COLUMN_CELLY, itemInfo.getCellY());
+            db.update(TABLE_ITEMS, values, COLUMN_ID + " = ? ", new String[]{itemInfo.getId() + ""});
+            db.setTransactionSuccessful();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+         //   cursor.close();
+        }
+
 
     }
 
@@ -303,5 +320,72 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.close();
         }
         LauncherApplication.notificationWidgetModels = notificationWidgetModels;
+    }
+
+    public ArrayList<ItemInfoModel> getAppsListOfFolder(long id) {
+        ArrayList<ItemInfoModel> itemInfoModels = null;
+        Cursor res = null;
+        SQLiteDatabase db = null;
+        try {
+            db = this.getReadableDatabase();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            itemInfoModels = new ArrayList<>();
+            res = db.query(TABLE_ITEMS, null, COLUMN_CONTAINER + "=?", new String[]{id + ""}, null, null, null);
+            res.moveToFirst();
+            while (!res.isAfterLast()) {
+                ItemInfoModel itemInfo = new ItemInfoModel();
+                itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
+                itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
+                itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
+                itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
+                itemInfo.setContainer(res.getInt(res.getColumnIndex(COLUMN_CONTAINER)));
+                itemInfoModels.add(itemInfo);
+                res.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            res.close();
+        }
+        return itemInfoModels;
+    }
+
+    public long addFolderToDatabase(ItemInfoModel itemInfo) {
+        initializeMaxId();
+        try {
+            maxID++;
+            itemInfo.setId(maxID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_ID, itemInfo.getId());
+            values.put(COLUMN_CONTAINER, itemInfo.getContainer());
+            values.put(COLUMN_CELLX, itemInfo.getCellX());
+            values.put(COLUMN_CELLY, itemInfo.getCellY());
+            values.put(COLUMN_ICON, itemInfo.getIcon());
+            values.put(COLUMN_INTENT, itemInfo.getIntent());
+            values.put(COLUMN_SPANX, itemInfo.getSpanX());
+            values.put(COLUMN_SPANY, itemInfo.getSpanY());
+            values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
+            values.put(COLUMN_TITLE, itemInfo.getTitle());
+            values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
+            values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
+            values.put(COLUMN_PNAME, itemInfo.getPname());
+            db.insert(TABLE_ITEMS, null, values);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+        return itemInfo.getId();
     }
 }

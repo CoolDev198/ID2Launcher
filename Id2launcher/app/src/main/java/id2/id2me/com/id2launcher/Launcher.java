@@ -18,6 +18,7 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
 public class Launcher extends AppCompatActivity implements View.OnLongClickListener{
@@ -122,7 +123,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        try {if(mAppWidgetHost!=null)
+        try {
+            if(mAppWidgetHost!=null)
             mAppWidgetHost.startListening();
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,6 +189,10 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     public void addNewFolderFragment() {
         pageAdapter.addNewFolderFragment();
+    }
+
+    public void updateFolderFragment(int pos , ArrayList<ItemInfoModel>itemInfoModels) {
+        pageAdapter.updateFragments(pos,itemInfoModels);
     }
 
     @Override

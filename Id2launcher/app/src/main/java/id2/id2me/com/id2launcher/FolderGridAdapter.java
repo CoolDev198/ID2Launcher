@@ -71,9 +71,10 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
                 holder = (ViewHolder) grid.getTag();
             }
 
+            holder.itemInfoModel=appInfos.get(position);
             holder.itemImage.setTag(position);
             holder.pName = appInfos.get(position).getPname();
-         //   holder.itemImage.setImageDrawable(appInfos.get(position).getBitmapIcon());
+            holder.itemImage.setImageBitmap(ItemInfoModel.getIconFromCursor(appInfos.get(position).getIcon(),context));
 
 
         } catch (Exception e) {
@@ -101,8 +102,8 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
         launchApp(((ViewHolder) view.getTag()).pName);
     }
 
-    public void setAppInfos(ArrayList<AppInfoModel> appInfos) {
-      //  this.appInfos = appInfos;
+    public void setAppInfos(ArrayList<ItemInfoModel> appInfos) {
+        this.appInfos = appInfos;
         this.notifyDataSetChanged();
     }
 
@@ -110,5 +111,6 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
     private static class ViewHolder {
         public ImageView itemImage;
         public String pName;
+        ItemInfoModel itemInfoModel;
     }
 }

@@ -4,6 +4,8 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.graphics.drawable.Drawable;
 
+import id2.id2me.com.id2launcher.DatabaseHandler;
+
 /**
  * Created by sunita on 8/3/16.
  */
@@ -11,15 +13,16 @@ public class WidgetInfoModel extends ItemInfoModel{
     private String widgetName = "";
     private String pname = "";
     private int preview;
-    private ComponentName componentName;
     private String className = "";
     private int pageId;
-    private int spanX;
-    private int spanY;
     private int minSpanX;
     private int minSpanY;
-    private AppWidgetProviderInfo appWidgetProviderInfo;
 
+    public WidgetInfoModel(){
+        setDropExternal(true);
+        setIsItemCanPlaced(false);
+        setItemType(DatabaseHandler.ITEM_TYPE_APPWIDGET);
+    }
     public String getWidgetName() {
         return widgetName;
     }
@@ -60,22 +63,6 @@ public class WidgetInfoModel extends ItemInfoModel{
         this.className = className;
     }
 
-    public void setSpanX(int x) {
-        this.spanX = x;
-    }
-
-    public int getSpanX() {
-        return spanX;
-    }
-
-    public void setSpanY(int y) {
-        this.spanY = y;
-    }
-
-    public int getSpanY() {
-        return spanY;
-    }
-
     public void setMinSpanX(int minSpanX) {
         this.minSpanX = minSpanX;
     }
@@ -92,20 +79,5 @@ public class WidgetInfoModel extends ItemInfoModel{
         return minSpanY;
     }
 
-    public ComponentName getComponentName() {
-        return componentName;
-    }
 
-    public void setComponentName(ComponentName componentName) {
-        this.componentName = componentName;
-    }
-
-
-    public AppWidgetProviderInfo getAppWidgetProviderInfo() {
-        return appWidgetProviderInfo;
-    }
-
-    public void setAppWidgetProviderInfo(AppWidgetProviderInfo appWidgetProviderInfo) {
-        this.appWidgetProviderInfo = appWidgetProviderInfo;
-    }
 }

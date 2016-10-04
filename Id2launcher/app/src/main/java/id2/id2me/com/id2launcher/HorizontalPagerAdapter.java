@@ -8,14 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by bliss76 on 26/05/16.
  */
 
 public class HorizontalPagerAdapter extends FragmentPagerAdapter {
-    private List<Fragment> fragments;
     NonSwipeViewPager nonSwipeViewPager;
+    private List<Fragment> fragments;
 
     public HorizontalPagerAdapter(FragmentManager fm, List<Fragment> fragments, NonSwipeViewPager pager) {
         super(fm);
@@ -23,16 +24,17 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
         this.fragments = fragments;
     }
 
-    public void addNewFolderFragment(){
+    public void addNewFolderFragment() {
         int count = fragments.size();
-       fragments.add(FolderFragment.newInstance());
+        fragments.add(FolderFragment.newInstance(count));
         this.notifyDataSetChanged();
 
     }
-    public void updateFragments(int position , ArrayList<AppInfoModel> appInfos){
-        if(position!=0) {
+
+    public void updateFragments(int position, ArrayList<ItemInfoModel> appInfos) {
+        if (position != 0) {
             FolderFragment fragment = (FolderFragment) fragments.get(position);
-            FolderGridAdapter folderGridAdapter=   ((FolderGridAdapter) fragment.getAdapter());
+            FolderGridAdapter folderGridAdapter = ((FolderGridAdapter) fragment.getAdapter());
             folderGridAdapter.setAppInfos(appInfos);
 
         }
@@ -49,9 +51,6 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return this.fragments.size();
     }
-
-
-
 
 
 }

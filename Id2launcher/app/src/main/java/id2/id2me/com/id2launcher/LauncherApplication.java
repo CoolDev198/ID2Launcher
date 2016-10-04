@@ -26,7 +26,7 @@ public class LauncherApplication extends Application {
     public static List<NotificationWidgetModel> notificationWidgetModels;
     public View folderView;
     public boolean isDrawerOpen = false;
-    public ArrayList<FolderInfoModel> folderFragmentsInfo;
+    public ArrayList<ItemInfoModel> folderFragmentsInfo;
     public ItemInfoModel dragInfo;
     private PageDragListener pageDragListener;
     public LauncherAppWidgetHost mAppWidgetHost;

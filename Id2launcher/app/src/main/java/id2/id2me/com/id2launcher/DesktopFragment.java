@@ -19,6 +19,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -119,7 +120,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
                 initViews();
                 setDrawerWidth();
-
+                Log.v(TAG, "desktop fragment created");
                 startTimer();
                 ViewPager viewPager = (ViewPager) fragmentView.findViewById(R.id.viewpager);
                 setupViewPagerAsInnerFragment(viewPager);
@@ -306,7 +307,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     }
 
     private void populateDesktop() {
-        HashMap<Integer, FolderInfoModel> folderInfoHashMap = new HashMap<>();
+        HashMap<Long, FolderInfoModel> folderInfoHashMap = new HashMap<>();
 
         for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
             ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
@@ -325,26 +326,25 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             switch (type) {
 
                 case DatabaseHandler.ITEM_TYPE_APP:
-                    switch (itemInfo.getContainer()) {
-                        case DatabaseHandler.CONTAINER_DESKTOP:
-                            application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
-                            break;
-                        default:
-                            if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
-                                FolderInfoModel folderInfo = new FolderInfoModel();
-                                folderInfo.setFolderId(itemInfo.getContainer());
-                                folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
-                                folderInfo.addNewItemInfo(itemInfo);
-                            } else {
-                                FolderInfoModel folderInfo = folderInfoHashMap.get(itemInfo.getContainer());
-                                folderInfo.addNewItemInfo(itemInfo);
-                            }
-                            break;
+
+                    if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
+                        application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+
+                    } else {
+                        if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
+                            FolderInfoModel folderInfo = new FolderInfoModel();
+                            folderInfo.setFolderId(itemInfo.getContainer());
+                            folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
+                            folderInfo.addNewItemInfo(itemInfo);
+                        } else {
+                            FolderInfoModel folderInfo = folderInfoHashMap.get(itemInfo.getContainer());
+                            folderInfo.addNewItemInfo(itemInfo);
+                        }
                     }
                     break;
                 case DatabaseHandler.ITEM_TYPE_FOLDER:
 
-                     application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+                    application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
 
                     if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
                         FolderInfoModel folderInfo = new FolderInfoModel();

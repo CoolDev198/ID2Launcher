@@ -1,5 +1,7 @@
 package id2.id2me.com.id2launcher.models;
 
+import android.appwidget.AppWidgetProviderInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -19,7 +21,7 @@ public class ItemInfoModel {
 
     public static final int NO_ID = -1; /*The id in the settings database for this item */
     long id = NO_ID;
-    private int container = NO_ID;
+    private long container = NO_ID;
 
     private int cellX = NO_ID;
     private int cellY = NO_ID;
@@ -37,6 +39,9 @@ public class ItemInfoModel {
     private boolean isItemCanPlaced;
     private int tempCellX=NO_ID;
     private int tempCellY=NO_ID;
+    private boolean isExisitingFolder;
+    private ComponentName componentName;
+    private AppWidgetProviderInfo appWidgetProviderInfo;
 
     public int getTmpCellY() {
         return tempCellY;
@@ -54,11 +59,11 @@ public class ItemInfoModel {
         this.id = id;
     }
 
-    public int getContainer() {
+    public long getContainer() {
         return container;
     }
 
-    public void setContainer(int container) {
+    public void setContainer(long container) {
         this.container = container;
     }
 
@@ -138,7 +143,13 @@ public class ItemInfoModel {
         this.pname = pname;
     }
 
+    public void setIsExisitingFolder(boolean isExisitingFolder){
+        this.isExisitingFolder=isExisitingFolder;
+    }
 
+    public boolean getIsExisitingFolder() {
+        return isExisitingFolder;
+    }
 
     public void setDropExternal(boolean dropExternal) {
         this.dropExternal = dropExternal;
@@ -193,7 +204,7 @@ public class ItemInfoModel {
         }
     }
 
-    static byte[] writeBitmap(Bitmap bitmap) {
+  public   static byte[] writeBitmap(Bitmap bitmap) {
         byte[] data = null;
         if (bitmap != null) {
             data = flattenBitmap(bitmap);
@@ -217,5 +228,25 @@ public class ItemInfoModel {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public void setAppWidgetId(int appWidgetId) {
+        this.appWidgetId = appWidgetId;
+    }
+
+    public ComponentName getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(ComponentName componentName) {
+        this.componentName = componentName;
+    }
+
+    public AppWidgetProviderInfo getAppWidgetProviderInfo() {
+        return appWidgetProviderInfo;
+    }
+
+    public void setAppWidgetProviderInfo(AppWidgetProviderInfo appWidgetProviderInfo) {
+        this.appWidgetProviderInfo = appWidgetProviderInfo;
     }
 }
