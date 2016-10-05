@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -185,6 +186,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 if (noOfAvailCells >= noOfReqCells && !isRequiredCellsCalculated) {
                     isAvailableCellsGreater = true;
                 } else {
+                    // if(dragInfo.getItemType()==DatabaseHandler.ITEM_TYPE_APP)
                     dragInfo.setIsItemCanPlaced(false);
                 }
 
@@ -270,7 +272,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             isRequiredCellsCalculated = false;
             isItemCanPlaced = false;
             cellToBePlaced = null;
-            dropTargetLayout.setVisibility(View.INVISIBLE);
+            dropTargetLayout.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -280,21 +282,23 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         try {
 
             isDragStarted = false;
-
+            int[] bestCell = null;
             if (dragInfo.getIsItemCanPlaced()) {
 
-                dragInfo.setCellX(dragInfo.getTmpCellX());
-                dragInfo.setCellY(dragInfo.getTmpCellY());
+                if (dragInfo.getTmpCellX() == -1 && dragInfo.getTmpCellY() == -1) {
+                    bestCell = findBestCell(dragInfo.getSpanX(), dragInfo.getSpanY());
 
-             //   Toast.makeText(context, "cellx :: " + nearestCell[0] + " celly:: " + nearestCell[1], Toast.LENGTH_LONG).show();
+                    if (bestCell != null) {
+                        dragInfo.setTempCellX(bestCell[0]);
+                        dragInfo.setTempCellY(bestCell[1]);
+                        acceptDrop();
+                    } else {
+                        Toast.makeText(context, "No room available", Toast.LENGTH_LONG).show();
 
-                markCells(dragInfo.getCellX(), dragInfo.getCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
-
-                calculateLayoutParams();
-
-                createOrUpdateItemInfo();
-
-                copyDragMatricesToActualMatrices();
+                    }
+                } else {
+                    acceptDrop();
+                }
 
 
             } else {
@@ -308,6 +312,31 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     }
 
+    void acceptDrop() {
+        dragInfo.setCellX(dragInfo.getTmpCellX());
+
+        dragInfo.setCellY(dragInfo.getTmpCellY());
+
+        //   Toast.makeText(context, "cellx :: " + nearestCell[0] + " celly:: " + nearestCell[1], Toast.LENGTH_LONG).show();
+
+        markCells(dragInfo.getCellX(), dragInfo.getCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
+
+        calculateLayoutParams();
+
+        createOrUpdateItemInfo();
+
+        copyDragMatricesToActualMatrices();
+
+
+//        Log.v(TAG, "Printing status of cells :: ");
+//        for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
+//            for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
+//
+//                Log.v(TAG," occupied x :: y :: " +x + "  " + y + "  "+ launcherApplication.getCellMatrixVal(new int[]{x, y}));
+//            }
+//        }
+    }
+
     private void createOrUpdateItemInfo() {
 
         try {
@@ -315,6 +344,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             if (cellToBePlaced != null && dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
 
                 if (cellToBePlaced.getIsExisitingFolder()) {
+                    Log.v(TAG,"createOrUpdateItemInfo :: existing folder");
                     dragInfo.setDropExternal(false);
                     ItemInfoModel folderInfo = (ItemInfoModel) folderTempApps.get(0).getTag();
                     dragInfo.setContainer(folderInfo.getId());
@@ -442,7 +472,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
         for (int x = xStart; x <= xEnd; x++) {
             for (int y = yStart; y <= yEnd; y++) {
-                Log.v(TAG, "cells unmarked :: " + x + "  " + y);
+          //      Log.v(TAG, "cells unmarked :: " + x + "  " + y);
                 launcherApplication.setCellsMatrix(new int[]{x, y}, true);
             }
 
@@ -479,8 +509,11 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
                 itemInfoModel.setTempCellX(itemInfoModel.getCellX());
                 itemInfoModel.setTempCellY(itemInfoModel.getCellY());
-                int leftMargin = itemInfoModel.getCellX() * cellWidth + (launcherApplication.getMaxGapLR() * (itemInfoModel.getCellX() + 1));
-                int topMargin = itemInfoModel.getCellY() * cellHeight + (launcherApplication.getMaxGapTB() * (itemInfoModel.getCellY() + 1));
+                int leftMargin = itemInfoModel.getCellX() * cellWidth + (launcherApplication.getMaxGapLR() * (itemInfoModel.getCellX()));
+                int topMargin = itemInfoModel.getCellY() * cellHeight + (launcherApplication.getMaxGapTB() * (itemInfoModel.getCellY()));
+                int width = cellWidth * itemInfoModel.getSpanX();
+                int height = cellHeight * itemInfoModel.getSpanY();
+                layoutParams = new FrameLayout.LayoutParams(width, height);
                 layoutParams.setMargins(leftMargin, topMargin, 0, 0);
                 child.setLayoutParams(layoutParams);
                 reorderView.remove(child);
@@ -514,12 +547,30 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                         cellToBePlaced = new ItemInfoModel();
                         cellToBePlaced.setIsExisitingFolder(true);
                         folderTempApps.add(child);
+                    } else if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APPWIDGET) {
+                        Log.v(TAG, "added to existing folder");
+                        folderTempApps.clear();
+                        cellToBePlaced = null;
+                        Log.v(TAG, "move affected cell");
+                        try {
+                            bestCell = findBestCell(cellInfo.getSpanX(), cellInfo.getSpanY());
+                            if (bestCell == null) {
+                                dragInfo.setTempCellY(dragInfo.getCellY());
+                                dragInfo.setTempCellX(dragInfo.getCellX());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APPWIDGET || dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
                         folderTempApps.clear();
                         cellToBePlaced = null;
-                        Log.v(TAG, "move a ffected cell");
+                        Log.v(TAG, "move affected cell");
                         try {
                             bestCell = findBestCell(cellInfo.getSpanX(), cellInfo.getSpanY());
+                            if (bestCell == null) {
+                                dragInfo.setTempCellY(dragInfo.getCellY());
+                                dragInfo.setTempCellX(dragInfo.getCellX());
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -531,8 +582,42 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     Log.v(TAG, "move affected cell");
                     try {
                         bestCell = findBestCell(cellInfo.getSpanX(), cellInfo.getSpanY());
+                        if (bestCell == null) {
+                            dragInfo.setTempCellY(dragInfo.getCellY());
+                            dragInfo.setTempCellX(dragInfo.getCellX());
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
+                } else if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APPWIDGET) {
+                    boolean isAffected = false;
+                    cellToBePlaced = null;
+                    folderTempApps.clear();
+                    //   Log.v(TAG, "move affected cell");
+                    int xStart = cellInfo.getTmpCellX();
+                    int yStart = cellInfo.getTmpCellY();
+                    int xEnd = (cellInfo.getTmpCellX() + cellInfo.getSpanX() - 1);
+                    int yEnd = (cellInfo.getTmpCellY() + cellInfo.getSpanY() - 1);
+
+                    for (int x = xStart; x <= xEnd; x++) {
+                        for (int y = yStart; y <= yEnd; y++) {
+                            //Log.v(TAG, "cells unmarked :: " + x + "  " + y);
+                            if (x == nearestCell[0] && y == nearestCell[1]) {
+                                isAffected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (isAffected) {
+                        try {
+                            bestCell = findBestCell(cellInfo.getSpanX(), cellInfo.getSpanY());
+                            if (bestCell == null) {
+                                dragInfo.setTempCellY(dragInfo.getCellY());
+                                dragInfo.setTempCellX(dragInfo.getCellX());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -542,11 +627,16 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     cellInfo.setTempCellY(bestCell[1]);
 
                     reorderView.add(child);
-                    int leftMargin = bestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (bestCell[0] + 1));
-                    int topMargin = bestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (bestCell[1] + 1));
+                    int leftMargin = bestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (bestCell[0]));
+                    int topMargin = bestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (bestCell[1]));
                     layoutParams.setMargins(leftMargin, topMargin, 0, 0);
                     child.setLayoutParams(layoutParams);
-                    launcherApplication.setCellsMatrix(new int[]{bestCell[0], bestCell[1]}, true);
+
+                    if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APPWIDGET) {
+                        unMarkCells(cellInfo.getCellX(), cellInfo.getCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
+                        markCells(nearestCell[0], nearestCell[1], dragInfo.getSpanX(), dragInfo.getSpanY());
+                    }
+                    markCells(cellInfo.getTmpCellX(), cellInfo.getTmpCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
                 }
 
             } catch (Exception e) {
@@ -715,6 +805,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         dragInfo.setAppWidgetId(appWidgetId);
         hostView = (LauncherAppWidgetHostView) launcherApplication.mAppWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo);
         hostView.setIWidgetInterface(this);
+        hostView.setBackgroundColor(Color.RED);
         AppWidgetProviderInfo appWidgetInfo = launcherApplication.getLauncher().mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
         hostView.setForegroundGravity(Gravity.TOP);
@@ -740,7 +831,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
 
-            pageLayout.addView(view, layoutParams);
             return view;
         } catch (Exception e) {
             e.printStackTrace();
@@ -889,6 +979,25 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             }
             ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(itemInfoModel.getId());
             getPopUp(itemInfoModels);
+        } else {
+            try {
+                Intent intent = null;
+                String pckName = itemInfoModel.getPname();
+
+                if (pckName != null) {
+                    intent = context.getPackageManager()
+                            .getLaunchIntentForPackage(pckName);
+
+                    context.startActivity(intent);
+
+                } else {
+                    Toast.makeText(context,
+                            context.getResources().getText(R.string.appNotFound),
+                            Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -980,7 +1089,19 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         isRequiredCellsCalculated = false;
         isItemCanPlaced = false;
         cellToBePlaced = null;
-        dropTargetLayout.setVisibility(View.INVISIBLE);
+        dropTargetLayout.setVisibility(View.GONE);
+    }
+
+    public void addWidgetToPage(int appWidgetId, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
+        appWidgetProviderInfo = launcherApplication.getLauncher().mAppWidgetManager.getAppWidgetInfo
+                (appWidgetId);
+        hostView = (LauncherAppWidgetHostView) launcherApplication.mAppWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo);
+        hostView.setIWidgetInterface(this);
+        hostView.setBackgroundColor(Color.RED);
+        hostView.setAppWidget(appWidgetId, appWidgetProviderInfo);
+        hostView.setForegroundGravity(Gravity.TOP);
+        hostView.setTag(itemInfo);
+        pageLayout.addView(hostView, layoutParams);
     }
     // }
 }

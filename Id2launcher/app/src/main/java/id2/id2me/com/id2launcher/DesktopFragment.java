@@ -318,8 +318,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
 
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-            int leftMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX() + 1);
-            int topMargin = itemInfo.getCellY() * application.getCellWidth() + application.getMaxGapTB() * (itemInfo.getCellY() + 1);
+            int leftMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX());
+            int topMargin = itemInfo.getCellY() * application.getCellWidth() + application.getMaxGapTB() * (itemInfo.getCellY());
             layoutParams.setMargins(leftMargin, topMargin, 0, 0);
 
 
@@ -329,31 +329,16 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
                     if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
                         application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
-
-                    } else {
-                        if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
-                            FolderInfoModel folderInfo = new FolderInfoModel();
-                            folderInfo.setFolderId(itemInfo.getContainer());
-                            folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
-                            folderInfo.addNewItemInfo(itemInfo);
-                        } else {
-                            FolderInfoModel folderInfo = folderInfoHashMap.get(itemInfo.getContainer());
-                            folderInfo.addNewItemInfo(itemInfo);
-                        }
                     }
                     break;
                 case DatabaseHandler.ITEM_TYPE_FOLDER:
 
                     application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
 
-                    if (!folderInfoHashMap.containsKey(itemInfo.getContainer())) {
-                        FolderInfoModel folderInfo = new FolderInfoModel();
-                        folderInfo.setFolderId((int) itemInfo.getId());
-                        folderInfoHashMap.put(itemInfo.getContainer(), folderInfo);
-                    }
-
                     break;
                 case DatabaseHandler.ITEM_TYPE_APPWIDGET:
+                    application.getPageDragListener().addWidgetToPage(itemInfo.getAppWidgetId(), itemInfo, layoutParams);
+
                     break;
             }
         }

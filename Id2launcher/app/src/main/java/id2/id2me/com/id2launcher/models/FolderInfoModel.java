@@ -7,7 +7,6 @@ import java.util.ArrayList;
  */
 public class FolderInfoModel extends ItemInfoModel{
 
-    private long folderId;
     private String folderName = "";
     private int pageId;
     private ArrayList<ItemInfoModel> appInfos;
@@ -43,9 +42,6 @@ public class FolderInfoModel extends ItemInfoModel{
         this.folderName = folderName;
     }
 
-    public long getFolderId() {
-        return folderId;
-    }
 
     public int getPageId() {
         return pageId;
@@ -60,7 +56,4 @@ public class FolderInfoModel extends ItemInfoModel{
     }
 
 
-    public void setFolderId(long folderId) {
-        this.folderId = folderId;
-    }
 }

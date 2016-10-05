@@ -90,8 +90,8 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
         // create a list from the set to sort
       //  sectionList = new ArrayList<String>(sectionLetters);
 
-        Log.v("sectionList", sectionList.toString());
-        Collections.sort(sectionList);
+//        Log.v("sectionList", sectionList.toString());
+  //      Collections.sort(sectionList);
 
        // sections = new String[sectionList.size()];
 

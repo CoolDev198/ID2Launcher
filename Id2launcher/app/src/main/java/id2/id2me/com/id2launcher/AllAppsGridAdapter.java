@@ -117,8 +117,6 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                         Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-
-
             e.printStackTrace();
         }
     }
