@@ -32,11 +32,15 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
     }
 
     public void updateFragments(int position, ArrayList<ItemInfoModel> appInfos) {
-        if (position != 0) {
-            FolderFragment fragment = (FolderFragment) fragments.get(position);
-            FolderGridAdapter folderGridAdapter = ((FolderGridAdapter) fragment.getAdapter());
-            folderGridAdapter.setAppInfos(appInfos);
+        try {
+            if (position != 0 && position <fragments.size()) {
+                FolderFragment fragment = (FolderFragment) fragments.get(position);
+                FolderGridAdapter folderGridAdapter = ((FolderGridAdapter) fragment.getAdapter());
+                folderGridAdapter.setAppInfos(appInfos);
 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

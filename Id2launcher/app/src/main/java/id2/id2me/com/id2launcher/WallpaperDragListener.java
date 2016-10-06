@@ -54,7 +54,7 @@ public class WallpaperDragListener implements View.OnDragListener {
                 break;
 
             case DragEvent.ACTION_DRAG_EXITED:
-                // Log.v(TAG, "Drag EXITED");
+                Log.v(TAG, "Drag EXITED");
                 break;
             case DragEvent.ACTION_DRAG_LOCATION:
                 try {
@@ -74,7 +74,7 @@ public class WallpaperDragListener implements View.OnDragListener {
                 }
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
-                // Log.v(TAG, "Drag ENDED");
+                 Log.v(TAG, "Drag ENDED");
                 return true;
 
             default:

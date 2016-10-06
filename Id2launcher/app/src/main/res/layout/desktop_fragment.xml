@@ -80,7 +80,7 @@
             android:layout_height="60dp"
             android:orientation="horizontal"
             android:background="@color/overlay"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:weightSum="2">
             <RelativeLayout
                 android:id="@+id/layout_remove"
