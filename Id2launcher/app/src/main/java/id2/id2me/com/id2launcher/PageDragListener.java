@@ -69,6 +69,20 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         init();
     }
 
+    public static Bitmap getScaledBitmap(Bitmap b, int reqWidth, int reqHeight) {
+        int bWidth = b.getWidth();
+        int bHeight = b.getHeight();
+
+        int nWidth = reqWidth;
+        int nHeight = reqHeight;
+
+        float parentRatio = (float) reqHeight / reqWidth;
+
+        nHeight = bHeight;
+        nWidth = (int) (reqWidth * parentRatio);
+
+        return Bitmap.createScaledBitmap(b, nWidth, nHeight, true);
+    }
 
     void init() {
         isRequiredCellsCalculated = false;
@@ -142,7 +156,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             onDrop();
         }
     }
-
 
     void onDrag(DragEvent event) {
         X = (int) event.getX();
@@ -348,11 +361,15 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 //        }
     }
 
+
+
     private void createOrUpdateItemInfo() {
 
         try {
 
+
             if (cellToBePlaced != null && dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
+
 
                 if (cellToBePlaced.getIsExisitingFolder()) {
                     Log.v(TAG, "createOrUpdateItemInfo :: existing folder");
@@ -360,12 +377,12 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     ItemInfoModel folderInfo = (ItemInfoModel) folderTempApps.get(0).getTag();
                     dragInfo.setContainer(folderInfo.getId());
                     db.addOrMoveItemInfo(dragInfo);
+                    Utility.setFolderView(context,folderTempApps.get(0),db.getAppsListOfFolder(folderInfo.getId()));
+                    updateFoldersFragment();
 
-                   updateFoldersFragment();
 
                 } else {
                     try {
-                        View child = createNewFolder();
 
                         dragInfo.setDropExternal(false);
                         ItemInfoModel folderInfo = createFolderInfo();
@@ -378,10 +395,15 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                         db.addOrMoveItemInfo(firstItemInfo);
                         pageLayout.removeView(folderTempApps.get(0));
 
+
+
+                        View child = createNewFolder(folderId);
+
                         if (child != null) {
                             child.setTag(folderInfo);
                         }
                         pageLayout.addView(child, layoutParams);
+
 
                         updateFoldersList();
                         addFragmentToHorizontalPagerAdapter();
@@ -564,6 +586,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     Log.v(TAG, "added to existing folder");
                     cellToBePlaced = new ItemInfoModel();
                     cellToBePlaced.setIsExisitingFolder(true);
+                    folderTempApps.clear();
                     folderTempApps.add(child);
                 } else if (isAffedted) {
                     folderTempApps.clear();
@@ -869,15 +892,15 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     }
 
 
-    private View createNewFolder() {
+    private View createNewFolder(long folderId) {
         try {
+            ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(folderId);
 
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             View view = inflater.inflate(R
-                    .layout.grid_item, null, true);
+                    .layout.folder_view, null, true);
 
-            ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
-            imageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.folder_icon));
+            Utility.setFolderView(context,view,itemInfoModels);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
 

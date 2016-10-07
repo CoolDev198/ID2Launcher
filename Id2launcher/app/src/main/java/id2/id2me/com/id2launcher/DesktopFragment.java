@@ -245,6 +245,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         addWallpaperCropper();
 
 
+
+
         blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
         blur_relative.setOnTouchListener(new View.OnTouchListener() {
             @Override
