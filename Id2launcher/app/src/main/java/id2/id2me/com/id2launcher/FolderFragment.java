@@ -2,6 +2,7 @@ package id2.id2me.com.id2launcher;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ public class FolderFragment extends Fragment {
             setColumnWidth(appGridView);
             setNoOfColumnsOfGrid(appGridView);
             appGridView.setAdapter(adapter);
+            setRetainInstance(true);
 
 
         } catch (Exception e) {
@@ -56,12 +58,22 @@ public class FolderFragment extends Fragment {
     }
 
     private ArrayList<ItemInfoModel> getAppsListFromDataBase() {
-        ItemInfoModel itemInfoModel = ((LauncherApplication) getActivity().getApplication()).folderFragmentsInfo.get(id-1);
+        ItemInfoModel itemInfoModel = ((LauncherApplication) getActivity().getApplication()).folderFragmentsInfo.get(id - 1);
 
         return db.getAppsListOfFolder(itemInfoModel.getId());
 
     }
 
+    @Override
+    public void onResume() {
+        Log.v("", "On resume called");
+        if (adapter != null) {
+            ArrayList<ItemInfoModel> itemInfoModels = getAppsListFromDataBase();
+            adapter.setAppInfos(itemInfoModels);
+            adapter.notifyDataSetChanged();
+        }
+        super.onResume();
+    }
 
     void setColumnWidth(GridView gridView) {
         int width = (int) (gridView.getWidth() / NO_OF_APPS_IN_ROW) - 30;

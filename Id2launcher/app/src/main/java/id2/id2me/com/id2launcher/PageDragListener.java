@@ -361,7 +361,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     dragInfo.setContainer(folderInfo.getId());
                     db.addOrMoveItemInfo(dragInfo);
 
-                    updateFoldersFragment();
+                   updateFoldersFragment();
 
                 } else {
                     try {
@@ -427,7 +427,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     pageLayout.addView(drag_view, layoutParams);
 
 
-                    updateFoldersFragment();
+                    updateFoldersList();
                 }
 
             }
