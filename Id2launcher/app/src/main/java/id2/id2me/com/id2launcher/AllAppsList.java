@@ -50,7 +50,7 @@ public class AllAppsList
 //            }
 
             int width = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
-            int height = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+            int height = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
 
 
             int sourceWidth = icon.getIntrinsicWidth();
@@ -86,7 +86,7 @@ public class AllAppsList
 
             @SuppressWarnings("all") // suppress dead code warning
             final boolean debug = false;
-                  icon.setBounds(left, top, left+width, top+height);
+            icon.setBounds(left, top, left+width, top+height);
             icon.draw(canvas);
             canvas.setBitmap(null);
             return bitmap;
