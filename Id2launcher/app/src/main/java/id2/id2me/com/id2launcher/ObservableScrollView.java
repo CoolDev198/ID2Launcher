@@ -14,14 +14,12 @@ public class ObservableScrollView extends ScrollView {
 
     public ObservableScrollView(Context context) {
         super(context);
-    }
-
-    public ObservableScrollView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+        this.setFadingEdgeLength(150);
     }
 
     public ObservableScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.setFadingEdgeLength(150);
     }
 
     public void setScrollViewListener(ScrollViewListener scrollViewListener) {

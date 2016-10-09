@@ -36,6 +36,7 @@ public class LauncherApplication extends Application {
     public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
+    private static float density;
 
     @Override
     public void onCreate() {
@@ -44,12 +45,13 @@ public class LauncherApplication extends Application {
         setCellCountX();
         setCellCountY();
 
+
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();
         cellsMatrix = new boolean[cellCountX][cellCountY];
 
         mModel = new LauncherModel(this);
-
+         density = getResources().getDisplayMetrics().density;
 
        addBroadCastReceiver();
 
@@ -171,8 +173,8 @@ public class LauncherApplication extends Application {
         return cellWidth;
     }
 
-    public int getScreenDensity() {
-        int density = (int) getApplicationContext().getResources().getDisplayMetrics().density;
+    public static float getScreenDensity() {
+
         return density;
     }
 
@@ -211,13 +213,13 @@ public class LauncherApplication extends Application {
 
     }
 
-    public int convertFromPixelToDp(int dimension) {
-        int dimensionInDp = dimension / getScreenDensity();
+    public float convertFromPixelToDp(int dimension) {
+        float dimensionInDp = (dimension / getScreenDensity());
         return dimensionInDp;
     }
 
-    public int convertFromDpToPixel(int resource) {
-        int dimensionInPixel = getApplicationContext().getResources().getDimensionPixelOffset(resource);
+    public float convertFromDpToPixel(int resource) {
+        float dimensionInPixel = getApplicationContext().getResources().getDimensionPixelOffset(resource);
         return dimensionInPixel;
     }
 

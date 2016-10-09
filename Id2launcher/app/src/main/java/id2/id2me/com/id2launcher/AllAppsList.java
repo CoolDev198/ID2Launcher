@@ -8,7 +8,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +54,18 @@ public class AllAppsList
             int width = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
             int height = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
 
+            if (icon instanceof PaintDrawable) {
+                PaintDrawable painter = (PaintDrawable) icon;
+                painter.setIntrinsicWidth(width);
+                painter.setIntrinsicHeight(height);
+            } else if (icon instanceof BitmapDrawable) {
+                // Ensure the bitmap has a density.
+                BitmapDrawable bitmapDrawable = (BitmapDrawable) icon;
+                Bitmap bitmap = bitmapDrawable.getBitmap();
+                if (bitmap.getDensity() == Bitmap.DENSITY_NONE) {
+                    bitmapDrawable.setTargetDensity(context.getResources().getDisplayMetrics());
+                }
+            }
 
             int sourceWidth = icon.getIntrinsicWidth();
             int sourceHeight = icon.getIntrinsicHeight();
@@ -84,8 +98,6 @@ public class AllAppsList
             final int left = (textureWidth-width) / 2;
             final int top = (textureHeight-height) / 2;
 
-            @SuppressWarnings("all") // suppress dead code warning
-            final boolean debug = false;
                   icon.setBounds(left, top, left+width, top+height);
             icon.draw(canvas);
             canvas.setBitmap(null);
