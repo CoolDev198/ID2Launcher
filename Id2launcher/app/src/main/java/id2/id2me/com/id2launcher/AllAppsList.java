@@ -22,12 +22,7 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
  * Created by Sunita on 27/05/16.
  */
 
-public class AllAppsList
-{
-
-    /** The list off all apps. */
-    public ArrayList<AppInfoModel> data =
-            new ArrayList<AppInfoModel>();
+public class AllAppsList {
 
     private static final Canvas sCanvas = new Canvas();
 
@@ -36,23 +31,23 @@ public class AllAppsList
                 Paint.FILTER_BITMAP_FLAG));
     }
 
-    public void clear() {
-        data.clear();
-        // TODO: do we clear these too?
-    }
-
+    /**
+     * The list off all apps.
+     */
+    public ArrayList<AppInfoModel> data =
+            new ArrayList<AppInfoModel>();
 
     /**
      * Returns a bitmap suitable for the all apps view.
      */
-  public   static Bitmap createIconBitmap(Drawable icon, Context context) {
+    public static Bitmap createIconBitmap(Drawable icon, Context context) {
         synchronized (sCanvas) { // we share the statics :-(
 //            if (sIconWidth == -1) {
 //                initStatics(context);
 //            }
 
             int width = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
-            int height = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+            int height = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
 
             if (icon instanceof PaintDrawable) {
                 PaintDrawable painter = (PaintDrawable) icon;
@@ -87,24 +82,31 @@ public class AllAppsList
             }
 
             // no intrinsic size --> use default size
-            int textureWidth = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
-            int textureHeight = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);;
+            int textureWidth = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
+            ;
+            int textureHeight = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
+            ;
 
             final Bitmap bitmap = Bitmap.createBitmap(textureWidth, textureHeight,
                     Bitmap.Config.ARGB_8888);
             final Canvas canvas = sCanvas;
             canvas.setBitmap(bitmap);
 
-            final int left = (textureWidth-width) / 2;
-            final int top = (textureHeight-height) / 2;
+            final int left = (textureWidth - width) / 2;
+            final int top = (textureHeight - height) / 2;
 
-                  icon.setBounds(left, top, left+width, top+height);
+            icon.setBounds(left, top, left + width, top + height);
+
             icon.draw(canvas);
             canvas.setBitmap(null);
             return bitmap;
         }
     }
 
+    public void clear() {
+        data.clear();
+        // TODO: do we clear these too?
+    }
 
     public void getVisibleInstalledApps(Context context) {
 

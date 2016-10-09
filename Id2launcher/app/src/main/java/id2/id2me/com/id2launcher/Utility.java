@@ -1,6 +1,7 @@
 package id2.id2me.com.id2launcher;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,11 +35,16 @@ public class Utility {
         setFolderImagesList((LinearLayout) view);
 
         for (int i = 0; i < folderImgs.size(); i++) {
+
             if (i < itemInfoModels.size()) {
+                folderImgs.get(i).setBackground(null);
                 folderImgs.get(i).setImageBitmap(ItemInfoModel.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
                 folderImgs.get(i).setVisibility(View.VISIBLE);
             } else {
-                folderImgs.get(i).setVisibility(View.INVISIBLE);
+                //folderImgs.get(i).setVisibility(View.INVISIBLE);
+                folderImgs.get(i).setBackground(ContextCompat.getDrawable(context,R.drawable.folder_empty_icon));
+                //iv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.img));
+
             }
         }
 
