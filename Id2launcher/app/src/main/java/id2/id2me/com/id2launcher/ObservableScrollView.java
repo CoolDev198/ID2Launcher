@@ -1,6 +1,7 @@
 package id2.id2me.com.id2launcher;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ScrollView;
@@ -14,12 +15,12 @@ public class ObservableScrollView extends ScrollView {
 
     public ObservableScrollView(Context context) {
         super(context);
-        this.setFadingEdgeLength(150);
     }
 
     public ObservableScrollView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        this.setFadingEdgeLength(150);
+        super(new ContextWrapperEdgeEffect(context), attrs);
+        ((ContextWrapperEdgeEffect)context).setEdgeEffectColor(Color.RED);
+
     }
 
     public void setScrollViewListener(ScrollViewListener scrollViewListener) {
