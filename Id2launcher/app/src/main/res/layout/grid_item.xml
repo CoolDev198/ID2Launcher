@@ -9,7 +9,6 @@
         android:layout_centerInParent="true"
         android:id="@+id/grid_image"
         android:layout_width="@dimen/app_icon_size"
-        android:background="@android:color/holo_blue_bright"
         android:scaleType="fitXY"
         android:layout_height="@dimen/app_icon_size" />
         />

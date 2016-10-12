@@ -246,7 +246,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
 
 
-
         blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
         blur_relative.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -298,7 +297,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
         parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
-        parentLayout.setOnDragListener(pageDragListener);
+      parentLayout.setOnDragListener(pageDragListener);
         application.setPageDragListener(pageDragListener);
 
     }

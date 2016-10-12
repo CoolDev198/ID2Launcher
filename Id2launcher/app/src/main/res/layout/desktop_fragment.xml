@@ -22,10 +22,10 @@
             android:layout_width="match_parent"
             android:fadingEdge="horizontal"
             android:layout_height="match_parent"
-            android:background="@android:color/holo_red_dark"
             android:visibility="visible">
 
             <LinearLayout
+                android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -64,7 +64,9 @@
                     android:id="@+id/relative_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/home_screen_color"></id2.id2me.com.id2launcher.DragLayer>
+                    android:background="@color/home_screen_color">
+
+                </id2.id2me.com.id2launcher.DragLayer>
             </LinearLayout>
 
         </id2.id2me.com.id2launcher.ObservableScrollView>

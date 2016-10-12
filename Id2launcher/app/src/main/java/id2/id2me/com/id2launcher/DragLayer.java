@@ -20,6 +20,16 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
         setOnHierarchyChangeListener(this);
+        setMinimumHeight(getResources().getDisplayMetrics().heightPixels);
+    }
+
+    public DragLayer(Context context) {
+        super(context);
+
+        setMotionEventSplittingEnabled(false);
+        setChildrenDrawingOrderEnabled(true);
+        setOnHierarchyChangeListener(this);
+        setMinimumHeight(getResources().getDisplayMetrics().heightPixels);
     }
 
     @Override

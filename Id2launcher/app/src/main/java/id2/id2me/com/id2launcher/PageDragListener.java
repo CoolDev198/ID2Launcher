@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     int ticks = 0;
     DatabaseHandler db;
     View dropTargetLayout, blur_relative;
+    LinearLayout container;
     ObservableScrollView scrollView;
     ArrayList<View> reorderView;
     ArrayList<View> folderTempApps;
@@ -67,6 +69,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
         scrollView = (ObservableScrollView) desktopFragment.findViewById(R.id.scrollView);
+        container = (LinearLayout) desktopFragment.findViewById(R.id.container);
         init();
     }
 
@@ -103,7 +106,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
                     isDragStarted = true;
                     dragInfo = launcherApplication.dragInfo;
-
+                    init();
                     if (!dragInfo.getDropExternal()) {
                         dropTargetLayout.setVisibility(View.VISIBLE);
                     }
@@ -162,6 +165,18 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         X = (int) event.getX();
         Y = (int) event.getY();
         Log.v(TAG, "X :: Y :: " + X + "  " + Y);
+        int scroll = scrollView.getScrollY();
+        int translatedY = Y - scroll;
+        // make a scrolling up due the y has passed the threshold
+        if (translatedY < 500) {
+            // make a scroll up by 30 px
+            scrollView.smoothScrollBy(0, -5);
+        }
+        // make a autoscrolling down due y has passed the 500 px border
+        if (translatedY > 900) {
+            // make a scroll down by 30 px
+            scrollView.smoothScrollBy(0, 5);
+        }
         goAhead();
 
     }
@@ -211,6 +226,9 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     isAvailableCellsGreater = true;
                 } else {
                     // if(dragInfo.getItemType()==DatabaseHandler.ITEM_TYPE_APP)
+                    DragLayer dragLayer = new DragLayer(context);
+                    dragLayer.setBackgroundColor(Color.YELLOW);
+                    container.addView(dragLayer);
                     dragInfo.setIsItemCanPlaced(false);
                 }
 
@@ -246,7 +264,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             }
 
-        //    scrollView.smoothScrollBy(0, 15);
 
 
         }
@@ -818,7 +835,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         dragInfo.setAppWidgetId(appWidgetId);
         hostView = (LauncherAppWidgetHostView) launcherApplication.mAppWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo);
         hostView.setIWidgetInterface(this);
-        hostView.setBackgroundColor(Color.RED);
+       // hostView.setBackgroundColor(Color.RED);
         AppWidgetProviderInfo appWidgetInfo = launcherApplication.getLauncher().mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
         hostView.setForegroundGravity(Gravity.TOP);
@@ -1085,7 +1102,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 (appWidgetId);
         hostView = (LauncherAppWidgetHostView) launcherApplication.mAppWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo);
         hostView.setIWidgetInterface(this);
-        hostView.setBackgroundColor(Color.RED);
+      //  hostView.setBackgroundColor(Color.RED);
         hostView.setAppWidget(appWidgetId, appWidgetProviderInfo);
         hostView.setForegroundGravity(Gravity.TOP);
         hostView.setTag(itemInfo);
