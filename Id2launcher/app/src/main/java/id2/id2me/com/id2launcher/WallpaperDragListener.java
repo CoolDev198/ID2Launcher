@@ -67,6 +67,7 @@ public class WallpaperDragListener implements View.OnDragListener {
                 break;
             case DragEvent.ACTION_DROP:
                 //  Log.v(TAG, "DROP Action");
+                if(!launcherApplication.dragInfo.getDropExternal())
                 checkToRemoveUninstall((int) event.getX(), (int) event.getY(), v);
                 try {
                 } catch (Exception e) {

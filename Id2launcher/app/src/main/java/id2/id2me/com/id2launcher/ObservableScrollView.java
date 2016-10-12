@@ -18,13 +18,22 @@ public class ObservableScrollView extends ScrollView {
     }
 
     public ObservableScrollView(Context context, AttributeSet attrs) {
-        super(new ContextWrapperEdgeEffect(context), attrs);
-        ((ContextWrapperEdgeEffect)context).setEdgeEffectColor(Color.RED);
+        super(context, attrs);
 
     }
 
     public void setScrollViewListener(ScrollViewListener scrollViewListener) {
         this.scrollViewListener = scrollViewListener;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return super.onTouchEvent(ev);
     }
 
     @Override

@@ -238,7 +238,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
         }
 
-        addDragListener();
+
 
         addNotifyWidget();
 
@@ -256,6 +256,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             }
         });
 
+
         scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
         scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
             @Override
@@ -269,6 +270,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
             }
         });
 
+        addDragListener();
 
         if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
             populateDesktop();
@@ -292,6 +294,8 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
 
     private void addDragListener() {
         PageDragListener pageDragListener = new PageDragListener(context, fragmentView);
+
+
         parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
         parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
         parentLayout.setOnDragListener(pageDragListener);

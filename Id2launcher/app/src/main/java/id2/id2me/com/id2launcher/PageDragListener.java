@@ -45,7 +45,8 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     int spanX = 1, spanY = 1, X, Y;
     int ticks = 0;
     DatabaseHandler db;
-    View dropTargetLayout, scrollView, blur_relative;
+    View dropTargetLayout, blur_relative;
+    ObservableScrollView scrollView;
     ArrayList<View> reorderView;
     ArrayList<View> folderTempApps;
     private FrameLayout.LayoutParams layoutParams;
@@ -65,7 +66,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
-        scrollView = desktopFragment.findViewById(R.id.scrollView);
+        scrollView = (ObservableScrollView) desktopFragment.findViewById(R.id.scrollView);
         init();
     }
 
@@ -160,6 +161,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     void onDrag(DragEvent event) {
         X = (int) event.getX();
         Y = (int) event.getY();
+        Log.v(TAG, "X :: Y :: " + X + "  " + Y);
         goAhead();
 
     }
@@ -243,6 +245,9 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 calDragInfoCells();
 
             }
+
+        //    scrollView.smoothScrollBy(0, 15);
+
 
         }
 
@@ -362,7 +367,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     }
 
 
-
     private void createOrUpdateItemInfo() {
 
         try {
@@ -377,7 +381,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     ItemInfoModel folderInfo = (ItemInfoModel) folderTempApps.get(0).getTag();
                     dragInfo.setContainer(folderInfo.getId());
                     db.addOrMoveItemInfo(dragInfo);
-                    Utility.setFolderView(context,folderTempApps.get(0),db.getAppsListOfFolder(folderInfo.getId()));
+                    Utility.setFolderView(context, folderTempApps.get(0), db.getAppsListOfFolder(folderInfo.getId()));
                     updateFoldersFragment();
 
 
@@ -394,7 +398,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                         db.addOrMoveItemInfo(dragInfo);
                         db.addOrMoveItemInfo(firstItemInfo);
                         pageLayout.removeView(folderTempApps.get(0));
-
 
 
                         View child = createNewFolder(folderId);
@@ -900,7 +903,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             View view = inflater.inflate(R
                     .layout.folder_view, null, true);
 
-            Utility.setFolderView(context,view,itemInfoModels);
+            Utility.setFolderView(context, view, itemInfoModels);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
 
