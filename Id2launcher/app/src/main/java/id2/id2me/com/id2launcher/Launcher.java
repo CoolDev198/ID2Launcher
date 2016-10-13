@@ -179,6 +179,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         try {
             fList = new ArrayList<Fragment>();
             desktopFragment = DesktopFragment.newInstance();
+
             fList.add(desktopFragment);
         } catch (Exception e) {
             e.printStackTrace();

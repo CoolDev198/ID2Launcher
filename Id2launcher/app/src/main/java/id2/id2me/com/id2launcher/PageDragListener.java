@@ -124,7 +124,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 break;
 
             case DragEvent.ACTION_DRAG_EXITED:
-
                 Log.v(TAG, "Drag EXITED");
                 break;
             case DragEvent.ACTION_DRAG_LOCATION:

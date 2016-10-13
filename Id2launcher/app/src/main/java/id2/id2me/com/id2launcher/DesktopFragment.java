@@ -122,6 +122,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                 setDrawerWidth();
                 Log.v(TAG, "desktop fragment created");
                 startTimer();
+
                 ViewPager viewPager = (ViewPager) fragmentView.findViewById(R.id.viewpager);
                 setupViewPagerAsInnerFragment(viewPager);
                 TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);

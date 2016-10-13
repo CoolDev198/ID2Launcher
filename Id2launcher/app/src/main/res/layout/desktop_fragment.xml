@@ -1,162 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawer_layout"
+
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
 
     <include
         android:id="@+id/blur_relative"
         layout="@layout/popup_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        />
 
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-        <id2.id2me.com.id2launcher.ObservableScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:fadingEdge="horizontal"
-            android:layout_height="match_parent"
-            android:visibility="visible">
-
-            <LinearLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-
-                <RelativeLayout
-                    android:id="@+id/wallpaper_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/wallpaper_img"
-                        android:layout_width="match_parent"
-                        android:layout_height="300dp"
-                        android:background="@mipmap/wallpaper"
-                        android:scaleType="centerCrop" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="300dp" />
-
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/noti_widget"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="20dp"
-                        android:background="@android:color/transparent"
-                        android:scrollbars="none"
-                        android:visibility="visible" />
-
-                </RelativeLayout>
-
-                <id2.id2me.com.id2launcher.DragLayer
-                    android:id="@+id/relative_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/home_screen_color">
-
-                </id2.id2me.com.id2launcher.DragLayer>
-            </LinearLayout>
-
-        </id2.id2me.com.id2launcher.ObservableScrollView>
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/ToolbarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:visibility="visible">
-
-            <LinearLayout
-                android:id="@+id/drop_target_layout"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="25dp"
-                android:background="@color/overlay"
-                android:orientation="horizontal"
-                android:visibility="invisible"
-                android:weightSum="2">
-
-                <RelativeLayout
-                    android:id="@+id/layout_remove"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:src="@mipmap/ic_launcher_clear_normal_holo" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/layout_uninstall"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
-
-
-                </RelativeLayout>
-
-
-            </LinearLayout>
-        </android.support.v7.widget.Toolbar>
-    </FrameLayout>
-
-    <RelativeLayout
-        android:id="@+id/left_drawer_layout"
+    <id2.id2me.com.id2launcher.ObservableScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start">
+        android:fadingEdge="horizontal"
+        android:background="@color/home_screen_color"
+        >
 
-        <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        <LinearLayout
+            android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <android.support.design.widget.AppBarLayout
+
+            <RelativeLayout
+                android:id="@+id/wallpaper_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+                android:layout_height="wrap_content">
 
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/tabs"
+                <ImageView
+                    android:id="@+id/wallpaper_img"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:background="@color/tab_background_color"
-                    app:tabGravity="fill"
-                    app:tabIndicatorColor="@color/tab_text_color"
-                    app:tabMode="fixed"
-                    app:tabSelectedTextColor="@color/tab_text_color"
-                    app:tabTextColor="@color/tab_text_color" />
-            </android.support.design.widget.AppBarLayout>
+                    android:layout_height="300dp"
+                    android:background="@mipmap/wallpaper"
+                    android:scaleType="centerCrop" />
 
-            <android.support.v4.view.ViewPager
-                android:id="@+id/viewpager"
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/noti_widget"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="20dp"
+                    android:background="@android:color/transparent"
+                    android:scrollbars="none"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
+            <id2.id2me.com.id2launcher.DragLayer
+                android:id="@+id/relative_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/app_drawer_color"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-        </android.support.design.widget.CoordinatorLayout>
+                >
 
-    </RelativeLayout>
+            </id2.id2me.com.id2launcher.DragLayer>
+        </LinearLayout>
 
-</android.support.v4.widget.DrawerLayout>
+    </id2.id2me.com.id2launcher.ObservableScrollView>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/ToolbarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/drop_target_layout"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="25dp"
+            android:background="@color/overlay"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            android:weightSum="2">
+
+            <RelativeLayout
+                android:id="@+id/layout_remove"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/ic_launcher_clear_normal_holo" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_uninstall"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
+            </RelativeLayout>
+
+
+        </LinearLayout>
+    </android.support.v7.widget.Toolbar>
+</FrameLayout>
+
