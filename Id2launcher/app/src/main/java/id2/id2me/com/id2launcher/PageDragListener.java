@@ -223,14 +223,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
                 if (noOfAvailCells >= noOfReqCells && !isRequiredCellsCalculated) {
                     isAvailableCellsGreater = true;
-                } else {
-                    // if(dragInfo.getItemType()==DatabaseHandler.ITEM_TYPE_APP)
-                    DragLayer dragLayer = new DragLayer(context);
-                    dragLayer.setBackgroundColor(Color.YELLOW);
-                    container.addView(dragLayer);
-                    dragInfo.setIsItemCanPlaced(false);
                 }
-
                 isRequiredCellsCalculated = true;
 
                 nearestCell[0] = -1;

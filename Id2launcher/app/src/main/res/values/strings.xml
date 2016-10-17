@@ -42,6 +42,8 @@
     <string name="permission_crop_rationale">WRITE_EXTERNAL_STORAGE permission is needed to save cropped image.</string>
     <string name="permission_denied">Permission was denied. Please consider granting it in order to use all features.</string>
     <string name="permission_denied_never_ask_again">Permission was denied with never ask again.</string>
+    <string name="drawerTitleWidgets">Widgets</string>
+    <string name="drawerTitleApps">Apps</string>
 
 
     <string-array name="noti_app_id">

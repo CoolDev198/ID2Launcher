@@ -15,22 +15,11 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
     public DragLayer(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        // Disable multitouch across the workspace/all apps/customize tray
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
         setOnHierarchyChangeListener(this);
-        setMinimumHeight(getResources().getDisplayMetrics().heightPixels);
     }
 
-    public DragLayer(Context context) {
-        super(context);
-
-        setMotionEventSplittingEnabled(false);
-        setChildrenDrawingOrderEnabled(true);
-        setOnHierarchyChangeListener(this);
-        setMinimumHeight(getResources().getDisplayMetrics().heightPixels);
-    }
 
     @Override
     public void onChildViewAdded(View parent, View child) {

@@ -27,12 +27,9 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
     private final LauncherApplication launcherApplication;
     LayoutInflater inflater;
     ArrayList<AppInfoModel> gridList;
-    DrawerLayout drawerLayout;
-    AppGridView appGridView;
     private Context mContext;
 
-    public AllAppsGridAdapter(Context c, ArrayList<AppInfoModel> gridList, DrawerLayout drawerLayout) {
-        this.drawerLayout = drawerLayout;
+    public AllAppsGridAdapter(Context c, ArrayList<AppInfoModel> gridList) {
         mContext = c;
         launcherApplication= (LauncherApplication)((Activity)mContext).getApplication();
         inflater = (LayoutInflater) mContext
@@ -110,7 +107,6 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                 intent = mContext.getPackageManager()
                         .getLaunchIntentForPackage(pckName);
                 mContext.startActivity(intent);
-                drawerLayout.closeDrawer(Gravity.LEFT);
             } else {
                 Toast.makeText(mContext,
                         mContext.getResources().getText(R.string.appNotFound),
@@ -137,8 +133,8 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = (ItemInfoModel) gridList.get(Integer.parseInt(view
                     .findViewById(R.id.drawer_grid_image).getTag().toString())).clone();
 
+            launcherApplication.getLauncher().resetPage();
             launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image));
-            drawerLayout.closeDrawer(Gravity.LEFT);
 
         } catch (Exception e) {
             e.printStackTrace();

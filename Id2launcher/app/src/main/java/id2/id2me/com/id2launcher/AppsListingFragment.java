@@ -22,20 +22,16 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
  * Created by sunita on 8/2/16.
  */
 public class AppsListingFragment extends Fragment {
+    private static DrawerLayout drawer;
+    Context context;
     private ListView navList;
     private AllAppAdapter adapter;
-    private static DrawerLayout drawer;
     private View fragmentView;
-
-
-    Context context;
     private LauncherApplication launcherApplication;
     private RecyclerView recyclerView;
 
 
-    public static AppsListingFragment newInstance(DrawerLayout drawerLayout) {
-        drawer = drawerLayout;
-
+    public static AppsListingFragment newInstance() {
         AppsListingFragment f = new AppsListingFragment();
         return f;
     }
@@ -43,6 +39,7 @@ public class AppsListingFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         launcherApplication = (LauncherApplication) getActivity().getApplication();
         fragmentView = inflater.inflate(R.layout.apps_listing_fragment, container, false);
         drawerAppsListing();
@@ -103,10 +100,6 @@ public class AppsListingFragment extends Fragment {
     public void setListAdapter() {
         try {
             seperateCharNumApps();
-            /*navList = (ListView) fragmentView.findViewById(R.id.list);
-            navList.setClickable(false);
-            adapter = new AllAppsListAdapter(getActivity(), drawer);
-            navList.setAdapter(adapter);*/
 
             recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
             //adapter = new AllAppsListAdapter(getActivity(), drawer);

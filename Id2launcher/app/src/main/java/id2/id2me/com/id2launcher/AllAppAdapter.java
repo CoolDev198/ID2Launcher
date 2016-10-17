@@ -30,12 +30,10 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     ArrayList<View> items = null;
     ArrayList<AppInfoModel> list;
     HashMap<Integer, String> mapIndex;
-    String[] sections;
     ArrayList<ArrayList<AppInfoModel>> groupList;
     private Activity activity;
     private LauncherApplication launcherApplication;
     int NO_OF_APPS_IN_ROW = 3;
-     ArrayList<String> sectionList;
 
     public AllAppAdapter(Activity activity, DrawerLayout drawerLayout) {
         try {
@@ -84,18 +82,6 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
                 e.printStackTrace();
             }
         }
-
-       // Set<String> sectionLetters = mapIndex.keySet();
-
-        // create a list from the set to sort
-      //  sectionList = new ArrayList<String>(sectionLetters);
-
-//        Log.v("sectionList", sectionList.toString());
-  //      Collections.sort(sectionList);
-
-       // sections = new String[sectionList.size()];
-
-       // sectionList.toArray(sections);
     }
 
     private void makeGroups() {
@@ -134,13 +120,8 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        /*Movie movie = moviesList.get(position);
-        holder.title.setText(movie.getTitle());
-        holder.genre.setText(movie.getGenre());
-        holder.year.setText(movie.getYear());*/
-
         setNoOfColumnsOfGrid(holder.gridView);
-        AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList.get(position), drawerLayout);
+        AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList.get(position));
         holder.gridView.setAdapter(adapter);
     }
 
@@ -161,10 +142,6 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
         public MyViewHolder(View view) {
             super(view);
             gridView = (AppGridView) view.findViewById(R.id.grid);
-
-            /*title = (TextView) view.findViewById(R.id.title);
-            genre = (TextView) view.findViewById(R.id.genre);
-            year = (TextView) view.findViewById(R.id.year);*/
         }
 
     }

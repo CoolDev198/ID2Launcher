@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -21,26 +22,27 @@ import java.util.List;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
-public class Launcher extends AppCompatActivity implements View.OnLongClickListener{
+public class Launcher extends AppCompatActivity implements View.OnLongClickListener {
+    static final int APPWIDGET_HOST_ID = 1024;
+    static final String TAG = "Launcher";
     private static final int REQUEST_PICK_APPWIDGET = 6;
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_BIND_APPWIDGET = 11;
-
-    public AppWidgetManager mAppWidgetManager;
-    private LauncherAppWidgetHost mAppWidgetHost;
-    HorizontalPagerAdapter pageAdapter;
-    static final int APPWIDGET_HOST_ID = 1024;
-    private DesktopFragment desktopFragment;
-    static final String TAG = "Launcher";
-    LauncherApplication launcherApplication;
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+    public AppWidgetManager mAppWidgetManager;
+    HorizontalPagerAdapter pageAdapter;
+    LauncherApplication launcherApplication;
     DatabaseHandler db;
+    private LauncherAppWidgetHost mAppWidgetHost;
+    private DesktopFragment desktopFragment;
+    public static ViewPager pager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
 
-            db =  DatabaseHandler.getInstance(this);
+            db = DatabaseHandler.getInstance(this);
             setContentView(R.layout.activity_home);
             setTranslucentStatus(true);
             launcherApplication = ((LauncherApplication) getApplication());
@@ -58,10 +60,10 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     private void loadDesktop() {
-       db.getItemsInfo();
+        db.getItemsInfo();
     }
 
-    private void setStatusBarStyle() {
+    public void setStatusBarStyle() {
         // create our manager instance after the content view is set
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         // enable status bar tint
@@ -82,10 +84,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
 
-
     private void openNotificationAccess() {
-        if(!NotificationService.isNotificationAccessEnabled)
-        startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
+        if (!NotificationService.isNotificationAccessEnabled)
+            startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
     }
 
     public void startActivityForBindingWidget(int appWidgetId, ComponentName componentName) {
@@ -105,13 +106,29 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     void init() {
         List<Fragment> fragments = getFragments();
-        NonSwipeViewPager pager = (NonSwipeViewPager) findViewById(R.id.viewpager);
+        pager = (ViewPager) findViewById(R.id.viewpager);
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
-        pager.setPagerAdapter(pageAdapter);
-        pager.setApplication(launcherApplication);
         pager.setAdapter(pageAdapter);
-
+        resetPage();
         setAppWidgetManager();
+    }
+
+
+    private List<Fragment> getFragments() {
+        List<Fragment> fList = null;
+        try {
+            fList = new ArrayList<Fragment>();
+            desktopFragment = DesktopFragment.newInstance();
+            fList.add(DrawerFragment.newInstance());
+            fList.add(desktopFragment);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return fList;
+    }
+    void resetPage(){
+        pager.setCurrentItem(1);
     }
 
     private void setAppWidgetManager() {
@@ -124,8 +141,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     protected void onStart() {
         super.onStart();
         try {
-            if(mAppWidgetHost!=null)
-            mAppWidgetHost.startListening();
+            if (mAppWidgetHost != null)
+                mAppWidgetHost.startListening();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -152,48 +169,34 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-            if (resultCode == RESULT_OK) {
-                if (requestCode == REQUEST_BIND_APPWIDGET) {
-                    ((LauncherApplication) getApplication()).getPageDragListener()
-                            .askToConfigure(data);
-                }
-
-                if (requestCode == REQUEST_PICK_APPWIDGET) {
-                    ((LauncherApplication) getApplication()).getPageDragListener()
-                            .askToConfigure(data);
-                } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
-                    ((LauncherApplication) getApplication()).getPageDragListener().addWidgetImpl(data);
-                }
-            } else if (resultCode == RESULT_CANCELED && data != null) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_BIND_APPWIDGET) {
+                ((LauncherApplication) getApplication()).getPageDragListener()
+                        .askToConfigure(data);
             }
+
+            if (requestCode == REQUEST_PICK_APPWIDGET) {
+                ((LauncherApplication) getApplication()).getPageDragListener()
+                        .askToConfigure(data);
+            } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
+                ((LauncherApplication) getApplication()).getPageDragListener().addWidgetImpl(data);
+            }
+        } else if (resultCode == RESULT_CANCELED && data != null) {
+        }
 
     }
 
     @Override
     public void onBackPressed() {
-        //    ((DrawerHandler) desktopFragment).drawerClose();
     }
 
-    private List<Fragment> getFragments() {
-        List<Fragment> fList = null;
-        try {
-            fList = new ArrayList<Fragment>();
-            desktopFragment = DesktopFragment.newInstance();
-
-            fList.add(desktopFragment);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return fList;
-    }
 
     public void addNewFolderFragment() {
         pageAdapter.addNewFolderFragment();
     }
 
-    public void updateFolderFragment(int pos , ArrayList<ItemInfoModel>itemInfoModels) {
-        pageAdapter.updateFragments(pos,itemInfoModels);
+    public void updateFolderFragment(int pos, ArrayList<ItemInfoModel> itemInfoModels) {
+        pageAdapter.updateFragments(pos, itemInfoModels);
     }
 
     @Override

@@ -3,6 +3,7 @@ package id2.id2me.com.id2launcher;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,10 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
  */
 
 public class HorizontalPagerAdapter extends FragmentPagerAdapter {
-    NonSwipeViewPager nonSwipeViewPager;
+    ViewPager nonSwipeViewPager;
     private List<Fragment> fragments;
 
-    public HorizontalPagerAdapter(FragmentManager fm, List<Fragment> fragments, NonSwipeViewPager pager) {
+    public HorizontalPagerAdapter(FragmentManager fm, List<Fragment> fragments, ViewPager pager) {
         super(fm);
         this.nonSwipeViewPager = pager;
         this.fragments = fragments;

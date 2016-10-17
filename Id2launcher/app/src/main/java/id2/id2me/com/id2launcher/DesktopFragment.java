@@ -48,21 +48,19 @@ import jp.wasabeef.blurry.Blurry;
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements DrawerHandler, LauncherModel.Callbacks {
+public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
     private static final int PICK_FROM_CAMERA = 1;
     private static final int PICK_FROM_GALLERY = 2;
     final int CONTEXT_MENU_CAMERA = 1;
     final int CONTEXT_MENU_GALLERY = 2;
     final Handler handler = new Handler();
-    private final List<Fragment> mFragmentList = new ArrayList<>();
-    private final List<String> mFragmentTitleList = new ArrayList<>();
+
     String TAG = "DesktopFragment";
     //context menu ids
     Dialog customDialog;
     Timer timer;
     TimerTask timerTask;
     private ArrayList<AppInfoModel> appInfos;
-    private DrawerLayout drawer;
     private View fragmentView = null;
     private Context context;
     private LauncherApplication application;
@@ -119,16 +117,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
                 initViews();
-                setDrawerWidth();
-                Log.v(TAG, "desktop fragment created");
                 startTimer();
-
-                ViewPager viewPager = (ViewPager) fragmentView.findViewById(R.id.viewpager);
-                setupViewPagerAsInnerFragment(viewPager);
-                TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
-                tabLayout.setupWithViewPager(viewPager);
-                changeTabsFont(tabLayout);
-
 
                 application.desktopFragment = fragmentView;
             }
@@ -161,31 +150,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         timer.schedule(timerTask, 5000, 500); //
     }
 
-    private void changeTabsFont(TabLayout tabLayout) {
-
-        ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
-        int tabsCount = vg.getChildCount();
-        for (int j = 0; j < tabsCount; j++) {
-            ViewGroup vgTab = (ViewGroup) vg.getChildAt(j);
-            int tabChildsCount = vgTab.getChildCount();
-            for (int i = 0; i < tabChildsCount; i++) {
-                View tabViewChild = vgTab.getChildAt(i);
-                if (tabViewChild instanceof TextView) {
-                    ((TextView) tabViewChild).setTypeface(application.getTypeFace());
-                }
-            }
-        }
-    }
-
-    private void setupViewPagerAsInnerFragment(ViewPager viewPager) {
-        if (viewPager.getChildCount() == 0) {
-            ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager()); // Nested Fragment
-            appsListingFragment = AppsListingFragment.newInstance(drawer);
-            adapter.addFragment(appsListingFragment, "Apps");
-            adapter.addFragment(WidgetsListingFragment.newInstance(drawer), "Widgets");
-            viewPager.setAdapter(adapter);
-        }
-    }
 
     @Override
     public void bindAppsAdded() {
@@ -233,12 +197,6 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     private void initViews() {
 
         wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-        drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
-
-        if (drawer != null) {
-            drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
-        }
-
 
 
         addNotifyWidget();
@@ -374,28 +332,9 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
     }
 
 
-    private void setDrawerWidth() {
-        try {
-            RelativeLayout leftDrawer = (RelativeLayout) fragmentView.findViewById(R.id.left_drawer_layout);
-            ViewGroup.LayoutParams params = leftDrawer.getLayoutParams();
-            params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth();
-            leftDrawer.setLayoutParams(params);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    @Override
-    public void drawerOpen() {
-        application.isDrawerOpen = true;
-        drawer.openDrawer(Gravity.LEFT);
-    }
 
-    @Override
-    public void drawerClose() {
-        application.isDrawerOpen = false;
-        drawer.closeDrawer(Gravity.LEFT);
-    }
+
 
     @Override
     public void onDestroyView() {
@@ -403,34 +342,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler, Launcher
         super.onDestroyView();
     }
 
-    class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-    }
 
 }
 

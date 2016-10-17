@@ -25,10 +25,8 @@ public class WidgetsListingFragment extends Fragment {
     Context context;
     final String TAG = "WidgetsListingFragment";
     ArrayList<WidgetInfoModel> widgetInfos;
-    static DrawerLayout drawerLayout;
 
-    public static WidgetsListingFragment newInstance(DrawerLayout drawer) {
-        drawerLayout = drawer;
+    public static WidgetsListingFragment newInstance() {
         WidgetsListingFragment widgetsListingFragment = new WidgetsListingFragment();
         return widgetsListingFragment;
     }
@@ -41,14 +39,14 @@ public class WidgetsListingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         widgetInfos = new ArrayList<>();
         fragmentView = inflater.inflate(R.layout.widgets_listing_fragment, container, false);
         RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         recyclerView.setLayoutManager(manager);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,drawerLayout,recyclerView));
+        recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,recyclerView));
         return fragmentView;
     }
 

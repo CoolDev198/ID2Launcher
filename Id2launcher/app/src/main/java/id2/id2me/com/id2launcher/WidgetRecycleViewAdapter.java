@@ -21,7 +21,7 @@ import id2.id2me.com.id2launcher.models.WidgetInfoModel;
  */
 public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycleViewAdapter.MyViewHolder> implements View.OnLongClickListener {
 
-    private final DrawerLayout drawerLayout;
+
     private List<WidgetInfoModel> widgetInfoList;
     Context context;
     RecyclerView recycleView;
@@ -33,7 +33,6 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
         try {
             ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = ((MyViewHolder)v.getTag()).widgetInfo;
              launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
-             drawerLayout.closeDrawer(Gravity.LEFT);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,9 +58,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
         widgetInfoList = widgetsListManager.getInstalledWidgets();
     }
 
-    public WidgetRecycleViewAdapter(Context context, DrawerLayout drawerLayout, RecyclerView recycleView) {
+    public WidgetRecycleViewAdapter(Context context, RecyclerView recycleView) {
         this.recycleView = recycleView;
-        this.drawerLayout = drawerLayout;
+
         this.context = context;
         launcherApplication= (LauncherApplication)((Activity)context).getApplication();
         loadWidgets();
