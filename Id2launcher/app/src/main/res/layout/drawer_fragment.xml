@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
     android:orientation="vertical">
 
     <LinearLayout
@@ -10,12 +9,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:background="@color/app_drawer_text_color"
         android:weightSum="2">
 
         <Button
             android:id="@+id/btnApp"
             android:layout_width="0dp"
-            android:background="@android:color/transparent"
+            android:textColor="@color/tab_text_color"
+            android:background="@drawable/round_transperant_border"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/drawerTitleApps" />
@@ -23,6 +24,7 @@
         <Button
             android:id="@+id/btnWidget"
             android:layout_width="0dp"
+            android:textColor="@color/tab_text_color"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:layout_weight="1"
@@ -36,4 +38,4 @@
        >
 
     </FrameLayout>
-   </LinearLayout>
+</LinearLayout>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,18 +36,25 @@ public class DrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         fragmentView = inflater.inflate(R.layout.drawer_fragment, container, false);
         application = (LauncherApplication) ((Activity) context).getApplication();
-        Button btnApp = (Button) fragmentView.findViewById(R.id.btnApp);
+        final Button btnApp = (Button) fragmentView.findViewById(R.id.btnApp);
+        final Button btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
+
         btnApp.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                btnWidget.setBackground(null);
+                view.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.round_transperant_border));
                 replaceView(appsListingFragment, "Apps");
             }
         });
-        Button btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
+
         btnWidget.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                btnApp.setBackground(null);
+                view.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.round_transperant_border));
                 replaceView(widgetsListingFragment, "Apps");
+
             }
         });
 

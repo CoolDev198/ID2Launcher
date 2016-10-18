@@ -10,30 +10,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -204,7 +194,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         addWallpaperCropper();
 
 
-
         blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
         blur_relative.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -230,15 +219,15 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
         addDragListener();
 
-        if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
-            populateDesktop();
-        }
+//        if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
+//            populateDesktop();
+//        }
     }
 
     private void addWallpaperCropper() {
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
         LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-        wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), application.getPageDragListener(), fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
+        //wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), application.getPageDragListener(), fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -251,12 +240,22 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
     private void addDragListener() {
-        PageDragListener pageDragListener = new PageDragListener(context, fragmentView);
-
-
         parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
-        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
-      parentLayout.setOnDragListener(pageDragListener);
+        FrameLayout parentLayoutSecond = (FrameLayout) fragmentView.findViewById(R.id.relative_view_second);
+        FrameLayout parentLayoutThird= (FrameLayout) fragmentView.findViewById(R.id.relative_view_third);
+        FrameLayout parentLayoutFourth = (FrameLayout) fragmentView.findViewById(R.id.relative_view_fourth);
+
+        PageDragListener pageDragListener = new PageDragListener(context, fragmentView, parentLayout);
+        PageDragListener pageDragListenerSecond = new PageDragListener(context, fragmentView, parentLayoutSecond);
+        PageDragListener pageDragListenerThird = new PageDragListener(context, fragmentView, parentLayoutThird);
+        PageDragListener pageDragListenerFourth = new PageDragListener(context, fragmentView, parentLayoutFourth);
+
+        parentLayout.setOnDragListener(pageDragListener);
+        parentLayoutSecond.setOnDragListener(pageDragListenerSecond);
+        parentLayoutThird.setOnDragListener(pageDragListenerThird);
+        parentLayoutFourth.setOnDragListener(pageDragListenerFourth);
+
+        //change
         application.setPageDragListener(pageDragListener);
 
     }
@@ -332,16 +331,11 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
 
-
-
-
-
     @Override
     public void onDestroyView() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(onNotice);
         super.onDestroyView();
     }
-
 
 
 }

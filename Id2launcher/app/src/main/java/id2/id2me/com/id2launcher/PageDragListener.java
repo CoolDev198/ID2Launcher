@@ -57,9 +57,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private boolean isDragStarted = false;
     private ItemInfoModel dragInfo;
     private LauncherAppWidgetHostView hostView;
+    boolean isScrolled=false;
 
-    PageDragListener(Context mContext, View desktopFragment) {
-        this.pageLayout = (FrameLayout) desktopFragment.findViewById(R.id.relative_view);
+    PageDragListener(Context mContext, View desktopFragment ,FrameLayout pageLayout) {
+        this.pageLayout =pageLayout;
         launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
         cellWidth = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellWidth();
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
@@ -163,19 +164,9 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     void onDrag(DragEvent event) {
         X = (int) event.getX();
         Y = (int) event.getY();
-        Log.v(TAG, "X :: Y :: " + X + "  " + Y);
-        int scroll = scrollView.getScrollY();
-        int translatedY = Y - scroll;
-        // make a scrolling up due the y has passed the threshold
-        if (translatedY < 500) {
-            // make a scroll up by 30 px
-            scrollView.smoothScrollBy(0, -5);
-        }
-        // make a autoscrolling down due y has passed the 500 px border
-        if (translatedY > 900) {
-            // make a scroll down by 30 px
-            scrollView.smoothScrollBy(0, 5);
-        }
+        Log.v(TAG, "X :: Y :: " + X + "  " + scrollView.getScrollY());
+
+
         goAhead();
 
     }

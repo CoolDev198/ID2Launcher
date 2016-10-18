@@ -9,16 +9,13 @@
         android:id="@+id/blur_relative"
         layout="@layout/popup_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent" />
 
     <id2.id2me.com.id2launcher.ObservableScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fadingEdge="horizontal"
-        android:background="@color/home_screen_color"
-        >
+        android:background="@color/home_screen_color">
 
         <LinearLayout
             android:id="@+id/container"
@@ -26,45 +23,65 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-
-            <RelativeLayout
-                android:id="@+id/wallpaper_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/wallpaper_img"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:background="@mipmap/wallpaper"
-                    android:scaleType="centerCrop" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp" />
-
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/noti_widget"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="20dp"
-                    android:background="@android:color/transparent"
-                    android:scrollbars="none"
-                    android:visibility="visible" />
-
-            </RelativeLayout>
-
-            <id2.id2me.com.id2launcher.DragLayer
+            <id2.id2me.com.id2launcher.CellLayout
                 android:id="@+id/relative_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                >
+                android:background="@android:color/holo_red_dark">
 
-            </id2.id2me.com.id2launcher.DragLayer>
+                <RelativeLayout
+                    android:id="@+id/wallpaper_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/wallpaper_img"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="@mipmap/wallpaper"
+                        android:scaleType="centerCrop" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp" />
+
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/noti_widget"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="20dp"
+                        android:background="@android:color/transparent"
+                        android:scrollbars="none"
+                        android:visibility="visible" />
+
+                </RelativeLayout>
+            </id2.id2me.com.id2launcher.CellLayout>
+
+            <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view_second"
+                android:layout_width="match_parent"
+                android:background="@android:color/holo_blue_dark"
+                android:layout_height="match_parent">
+            </id2.id2me.com.id2launcher.CellLayout>
+
+
+            <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view_third"
+                android:layout_width="match_parent"
+                android:background="@android:color/holo_green_light"
+                android:layout_height="match_parent">
+            </id2.id2me.com.id2launcher.CellLayout>
+
+            <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view_fourth"
+                android:layout_width="match_parent"
+                android:background="@android:color/holo_orange_dark"
+                android:layout_height="match_parent">
+            </id2.id2me.com.id2launcher.CellLayout>
+
         </LinearLayout>
-
     </id2.id2me.com.id2launcher.ObservableScrollView>
 
     <android.support.v7.widget.Toolbar
@@ -109,7 +126,6 @@
                     android:layout_centerInParent="true"
                     android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
             </RelativeLayout>
-
 
         </LinearLayout>
     </android.support.v7.widget.Toolbar>
