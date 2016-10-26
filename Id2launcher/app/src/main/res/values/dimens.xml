@@ -30,5 +30,6 @@
     <dimen name="text_size_s">16sp</dimen>
     <dimen name="button_height">48dp</dimen>
     <dimen name="app_icon_size">60dp</dimen>
-
+    <dimen name="cell_layout_height">660dp</dimen>
+    <dimen name="pagemargin">16dp</dimen>
 </resources>

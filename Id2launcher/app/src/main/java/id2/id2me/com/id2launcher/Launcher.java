@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -107,6 +108,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     void init() {
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
+
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
         resetPage();
@@ -127,6 +129,13 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
         return fList;
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.v(TAG," on touch event  :: " +event.getX() + " " +event.getY());
+        return super.onTouchEvent(event);
+    }
+
     void resetPage(){
         pager.setCurrentItem(1);
     }

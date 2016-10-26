@@ -33,7 +33,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_NOTI_APP_NAME = "app_name";
     private static final String COLUMN_NOTI_COUNT = "noti_count";
     private static final String COLUMN_NOTI_APP_IMG = "noti_app_img";
-    private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_SCREEN = "screenID";
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_CELLX = "cellx";
     private static final String COLUMN_CELLY = "celly";
@@ -69,8 +70,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_NOTI_PNAME + " TEXT PRIMARY KEY," + COLUMN_NOTI_APP_NAME + " TEXT," + COLUMN_NOTI_COUNT +
                 " INTEGER," + COLUMN_NOTI_APP_IMG + " TEXT " + ")";
 
-        String CREATE_ITEMS_TABLE = "CREATE TABLE " + TABLE_ITEMS + "(" + COLUMN_ID + " INTEGER PRIMARY KEY," +
-                COLUMN_TITLE + " TEXT," + COLUMN_INTENT + " TEXT," + COLUMN_CONTAINER + " INTEGER," +
+        String CREATE_ITEMS_TABLE = "CREATE TABLE " + TABLE_ITEMS + "(" + COLUMN_ID + " INTEGER PRIMARY KEY," + COLUMN_SCREEN + " INTEGER,"
+                + COLUMN_TITLE + " TEXT," + COLUMN_INTENT + " TEXT," + COLUMN_CONTAINER + " INTEGER," +
                 COLUMN_CELLX + " INTEGER," + COLUMN_CELLY + " INTEGER," + COLUMN_SPANX + " INTEGER," + COLUMN_SPANY + " INTEGER,"
                 + COLUMN_ITEM_TYPE + " INTEGER," + COLUMN_APPWIDGET_ID + " INTEGER NOT NULL DEFAULT -1," + COLUMN_ICON_TYPE + " INTEGER,"
                 + COLUMN_PNAME + " TEXT," + COLUMN_ICON + " BLOB " + ")";
@@ -215,7 +216,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         } finally {
             db.endTransaction();
-         //   cursor.close();
+            //   cursor.close();
         }
 
 
@@ -237,6 +238,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
                 itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
                 itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
+                itemInfo.setScreen(res.getInt(res.getColumnIndex(COLUMN_SCREEN)));
                 itemInfo.setContainer(res.getInt(res.getColumnIndex(COLUMN_CONTAINER)));
                 itemInfosList.add(itemInfo);
                 res.moveToNext();
@@ -276,6 +278,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
             values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
             values.put(COLUMN_PNAME, itemInfo.getPname());
+            values.put(COLUMN_SCREEN,itemInfo.getScreen());
             db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -379,6 +382,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
             values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
             values.put(COLUMN_PNAME, itemInfo.getPname());
+            values.put(COLUMN_SCREEN,itemInfo.getScreen());
             db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e) {

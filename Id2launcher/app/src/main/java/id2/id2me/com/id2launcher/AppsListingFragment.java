@@ -8,7 +8,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -42,6 +44,8 @@ public class AppsListingFragment extends Fragment {
 
         launcherApplication = (LauncherApplication) getActivity().getApplication();
         fragmentView = inflater.inflate(R.layout.apps_listing_fragment, container, false);
+
+
         drawerAppsListing();
         return fragmentView;
     }
@@ -51,6 +55,7 @@ public class AppsListingFragment extends Fragment {
         super.onAttach(context);
         this.context = context;
     }
+
 
     public void drawerAppsListing() {
         try {
@@ -102,6 +107,14 @@ public class AppsListingFragment extends Fragment {
             seperateCharNumApps();
 
             recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+
+//            recyclerView.setOnTouchListener(new View.OnTouchListener() {
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    Log.v("Recycle View :: " , " on touch ");
+//                    return launcherApplication.getLauncher().onTouchEvent(event);
+//                }
+//            });
             //adapter = new AllAppsListAdapter(getActivity(), drawer);
             adapter = new AllAppAdapter(getActivity(), drawer);
 

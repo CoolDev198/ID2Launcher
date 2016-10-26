@@ -32,6 +32,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public boolean onLongClick(View v) {
         try {
             ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = ((MyViewHolder)v.getTag()).widgetInfo;
+            launcherApplication.getLauncher().resetPage();
              launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
         } catch (Exception e) {
             e.printStackTrace();

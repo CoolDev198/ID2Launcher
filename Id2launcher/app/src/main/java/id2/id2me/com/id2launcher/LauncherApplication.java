@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.models.FolderInfoModel;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 
@@ -24,19 +23,27 @@ import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 public class LauncherApplication extends Application {
     public static ImageView wallpaperImg;
     public static List<NotificationWidgetModel> notificationWidgetModels;
+    private static float density;
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
     public ItemInfoModel dragInfo;
-    private PageDragListener pageDragListener;
     public LauncherAppWidgetHost mAppWidgetHost;
-    private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     public boolean cellsMatrix[][];
-    private Launcher launcher;
     public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
-    private static float density;
+    public int currentScreen = 0;
+    public boolean isTimerTaskCompleted = true;
+    public List<View> viewList;
+    private PageDragListener pageDragListener;
+    private int cellCountX, cellCountY, maxGapLR, maxGapTB;
+    private Launcher launcher;
+
+    public static float getScreenDensity() {
+
+        return density;
+    }
 
     @Override
     public void onCreate() {
@@ -51,9 +58,9 @@ public class LauncherApplication extends Application {
         cellsMatrix = new boolean[cellCountX][cellCountY];
 
         mModel = new LauncherModel(this);
-         density = getResources().getDisplayMetrics().density;
+        density = getResources().getDisplayMetrics().density;
 
-       addBroadCastReceiver();
+        addBroadCastReceiver();
 
     }
 
@@ -106,7 +113,7 @@ public class LauncherApplication extends Application {
     }
 
     public void setLauncher(Launcher launcher) {
-        this.launcher= launcher;
+        this.launcher = launcher;
     }
 
     public LauncherModel setDeskTopFragment(DesktopFragment fragment) {
@@ -114,12 +121,12 @@ public class LauncherApplication extends Application {
         return null;
     }
 
-    public void setPageDragListener(PageDragListener pageDragListener) {
-        this.pageDragListener = pageDragListener;
-    }
-
     public PageDragListener getPageDragListener() {
         return pageDragListener;
+    }
+
+    public void setPageDragListener(PageDragListener pageDragListener) {
+        this.pageDragListener = pageDragListener;
     }
 
     public int getMaxGapLR() {
@@ -172,12 +179,6 @@ public class LauncherApplication extends Application {
                 R.dimen.cell_width);
         return cellWidth;
     }
-
-    public static float getScreenDensity() {
-
-        return density;
-    }
-
 
     public void setCellCountX() {
         int countX = getScreenWidth() / getCellWidth();

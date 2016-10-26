@@ -7,9 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
@@ -17,13 +16,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
@@ -35,6 +35,7 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 class PageDragListener implements View.OnDragListener, View.OnClickListener, View.OnLongClickListener, IWidgetDrag {
 
     final String TAG = "PageDragListener";
+    final Handler handler = new Handler();
     LauncherApplication launcherApplication;
     Context context;
     int cellWidth, cellHeight;
@@ -47,30 +48,35 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     int ticks = 0;
     DatabaseHandler db;
     View dropTargetLayout, blur_relative;
-    LinearLayout container;
-    ObservableScrollView scrollView;
+    ObservableScrollView container;
+    //   ObservableScrollView scrollView;
     ArrayList<View> reorderView;
     ArrayList<View> folderTempApps;
+    int isScrolled = 1;
+    Timer timer;
+    View desktopFragment;
     private FrameLayout.LayoutParams layoutParams;
     private int[] nearestCell;
     private ItemInfoModel cellToBePlaced;
     private boolean isDragStarted = false;
     private ItemInfoModel dragInfo;
     private LauncherAppWidgetHostView hostView;
-    boolean isScrolled=false;
+    private int preY;
+    private TimerTask timerTask;
+    private int direction = -1;
 
-    PageDragListener(Context mContext, View desktopFragment ,FrameLayout pageLayout) {
-        this.pageLayout =pageLayout;
+    PageDragListener(Context mContext, View desktopFragment, FrameLayout pageLayout) {
+        this.pageLayout = pageLayout;
         launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
         cellWidth = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellWidth();
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
         this.context = mContext;
         db = DatabaseHandler.getInstance(context);
 
+        this.desktopFragment = desktopFragment;
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
-        scrollView = (ObservableScrollView) desktopFragment.findViewById(R.id.scrollView);
-        container = (LinearLayout) desktopFragment.findViewById(R.id.container);
+        container = (ObservableScrollView) desktopFragment.findViewById(R.id.container);
         init();
     }
 
@@ -97,6 +103,8 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         reorderView = new ArrayList<>();
         folderTempApps = new ArrayList<>();
         nearestCell = new int[2];
+
+
     }
 
     @Override
@@ -111,6 +119,14 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     if (!dragInfo.getDropExternal()) {
                         dropTargetLayout.setVisibility(View.VISIBLE);
                     }
+
+                    if (((FrameLayout) container.getChildAt(container.getChildCount() - 1)).getChildCount() > 0) {
+                        CellLayout layout = new CellLayout(context);
+                        layout.setMinimumHeight(R.dimen.cell_layout_height);
+                        container.addView(layout);
+                        layout.setOnDragListener(new PageDragListener(context, desktopFragment, layout));
+                    }
+
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
                     calculateReqCells();
@@ -126,6 +142,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
             case DragEvent.ACTION_DRAG_EXITED:
                 Log.v(TAG, "Drag EXITED");
+
                 break;
             case DragEvent.ACTION_DRAG_LOCATION:
                 try {
@@ -138,6 +155,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             case DragEvent.ACTION_DROP:
                 //  Log.v(TAG, "DROP Action");
                 try {
+                    launcherApplication.isTimerTaskCompleted = true;
+                    if (timer != null)
+                        timer.cancel();
+
                     onDrop();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -145,6 +166,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
                 boundryCheckUp();
+
                 Log.v(TAG, "Drag ENDED");
                 return true;
 
@@ -162,14 +184,84 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     }
 
     void onDrag(DragEvent event) {
-        X = (int) event.getX();
-        Y = (int) event.getY();
-        Log.v(TAG, "X :: Y :: " + X + "  " + scrollView.getScrollY());
+        try {
+            X = (int) event.getX();
+            Y = (int) event.getY();
+
+            try {
+                Log.v(TAG, "X :: Y :: height " + X + "  " + Y + "   ");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 
-        goAhead();
+            if (Y > 1800) {
+                if (launcherApplication.currentScreen < container.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
+                    direction = 1;
+                    launcherApplication.isTimerTaskCompleted = false;
+                    Log.v(TAG, "incremented");
+                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen + 1).getTop());
+                    launcherApplication.currentScreen++;
+                    startTimer();
+                }
+            } else if (Y < 250) {
+                if (launcherApplication.currentScreen > 0 && launcherApplication.isTimerTaskCompleted) {
+                    direction = 0;
+                    launcherApplication.isTimerTaskCompleted = false;
+                    Log.v(TAG, "decremented");
+                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen - 1).getTop());
+                    launcherApplication.currentScreen--;
+                    startTimer();
+                }
+            } else if (direction == 1 && Y < 1700) {
+                Log.v(TAG, "nullify up");
+                direction = -1;
+                launcherApplication.isTimerTaskCompleted = true;
+                timer.cancel();
+            } else if (direction == 0 && Y > 350) {
+                Log.v(TAG, "nullify down");
+                direction = -1;
+                launcherApplication.isTimerTaskCompleted = true;
+                timer.cancel();
+            }
 
+            goAhead();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    public void startTimer() {
+        //set a new Timer
+        timer = new Timer();
+
+        //initialize the TimerTask's job
+        initializeTimerTask();
+
+        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+        timer.schedule(timerTask, 1000, 5); //
+    }
+
+    public void initializeTimerTask() {
+
+
+        timerTask = new TimerTask() {
+            public void run() {
+
+                //use a handler to run a toast that shows the current timestamp
+                handler.post(new Runnable() {
+                    public void run() {
+                        //get the current timeStamp
+                        Log.v(TAG, "timer xpires");
+                        launcherApplication.isTimerTaskCompleted = true;
+                        timer.cancel();
+                        direction = -1;
+                    }
+                });
+            }
+        };
+    }
+
 
     private void calculateReqCells() {
         try {
@@ -248,7 +340,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             }
 
 
-
         }
 
     }
@@ -302,7 +393,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             isRequiredCellsCalculated = false;
             isItemCanPlaced = false;
             cellToBePlaced = null;
-            dropTargetLayout.setVisibility(View.INVISIBLE);
+            //  dropTargetLayout.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -818,7 +909,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         dragInfo.setAppWidgetId(appWidgetId);
         hostView = (LauncherAppWidgetHostView) launcherApplication.mAppWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo);
         hostView.setIWidgetInterface(this);
-       // hostView.setBackgroundColor(Color.RED);
+        // hostView.setBackgroundColor(Color.RED);
         AppWidgetProviderInfo appWidgetInfo = launcherApplication.getLauncher().mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         hostView.setAppWidget(appWidgetId, appWidgetInfo);
         hostView.setForegroundGravity(Gravity.TOP);
@@ -1021,15 +1112,15 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     void getPopUp(ArrayList<ItemInfoModel> itemInfoModels) {
         try {
 
-            blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
+//            blur_relative.setLayoutParams(new DrawerLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
+//
+//            scrollView.setVisibility(View.GONE);
 
-            scrollView.setVisibility(View.GONE);
 
-
-            AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
-            appGridView.setNumColumns(3);
-            FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
-            appGridView.setAdapter(adapter);
+//            AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
+//            appGridView.setNumColumns(3);
+//            FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
+//            appGridView.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1085,7 +1176,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                 (appWidgetId);
         hostView = (LauncherAppWidgetHostView) launcherApplication.mAppWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo);
         hostView.setIWidgetInterface(this);
-      //  hostView.setBackgroundColor(Color.RED);
+        //  hostView.setBackgroundColor(Color.RED);
         hostView.setAppWidget(appWidgetId, appWidgetProviderInfo);
         hostView.setForegroundGravity(Gravity.TOP);
         hostView.setTag(itemInfo);

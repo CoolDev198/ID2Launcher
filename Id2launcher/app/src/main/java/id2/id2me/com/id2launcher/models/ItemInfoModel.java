@@ -42,6 +42,7 @@ public class ItemInfoModel {
     private boolean isExisitingFolder;
     private ComponentName componentName;
     private AppWidgetProviderInfo appWidgetProviderInfo;
+    private int screen;
 
     public int getTmpCellY() {
         return tempCellY;
@@ -248,5 +249,13 @@ public class ItemInfoModel {
 
     public void setAppWidgetProviderInfo(AppWidgetProviderInfo appWidgetProviderInfo) {
         this.appWidgetProviderInfo = appWidgetProviderInfo;
+    }
+
+    public void setScreen(int screen) {
+        this.screen = screen;
+    }
+
+    public int getScreen() {
+        return screen;
     }
 }

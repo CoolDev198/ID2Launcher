@@ -18,7 +18,11 @@ public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChan
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
         setOnHierarchyChangeListener(this);
-        setMinimumHeight(getResources().getDisplayMetrics().heightPixels);
+
+    }
+
+    public CellLayout(Context context) {
+        super(context);
     }
 
 

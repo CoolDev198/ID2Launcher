@@ -1,133 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/drop_target_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/overlay"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="2">
+
+        <RelativeLayout
+            android:id="@+id/layout_remove"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/ic_launcher_clear_normal_holo" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_uninstall"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
+        </RelativeLayout>
+
+    </LinearLayout>
 
     <include
         android:id="@+id/blur_relative"
         layout="@layout/popup_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
+
 
     <id2.id2me.com.id2launcher.ObservableScrollView
-        android:id="@+id/scrollView"
+        android:id="@+id/container"
+        android:layout_below="@id/drop_target_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/home_screen_color">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/container"
+        <id2.id2me.com.id2launcher.CellLayout
+            android:id="@+id/wallpaper_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="660dp"
+            android:background="@android:color/holo_orange_light">
 
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view"
+            <ImageView
+                android:id="@+id/wallpaper_img"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/holo_red_dark">
+                android:layout_height="300dp"
+                android:background="@mipmap/wallpaper"
+                android:scaleType="centerCrop" />
 
-                <RelativeLayout
-                    android:id="@+id/wallpaper_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/wallpaper_img"
-                        android:layout_width="match_parent"
-                        android:layout_height="300dp"
-                        android:background="@mipmap/wallpaper"
-                        android:scaleType="centerCrop" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="300dp" />
-
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/noti_widget"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="20dp"
-                        android:background="@android:color/transparent"
-                        android:scrollbars="none"
-                        android:visibility="visible" />
-
-                </RelativeLayout>
-            </id2.id2me.com.id2launcher.CellLayout>
-
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_second"
+            <View
                 android:layout_width="match_parent"
-                android:background="@android:color/holo_blue_dark"
-                android:layout_height="match_parent">
-            </id2.id2me.com.id2launcher.CellLayout>
+                android:layout_height="300dp" />
 
 
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_third"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/noti_widget"
                 android:layout_width="match_parent"
-                android:background="@android:color/holo_green_light"
-                android:layout_height="match_parent">
-            </id2.id2me.com.id2launcher.CellLayout>
+                android:layout_height="100dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="20dp"
+                android:background="@android:color/transparent"
+                android:scrollbars="none"
+                android:visibility="visible" />
 
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_fourth"
-                android:layout_width="match_parent"
-                android:background="@android:color/holo_orange_dark"
-                android:layout_height="match_parent">
-            </id2.id2me.com.id2launcher.CellLayout>
+        </id2.id2me.com.id2launcher.CellLayout>
 
-        </LinearLayout>
     </id2.id2me.com.id2launcher.ObservableScrollView>
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        style="@style/ToolbarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:visibility="visible">
 
-        <LinearLayout
-            android:id="@+id/drop_target_layout"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="25dp"
-            android:background="@color/overlay"
-            android:orientation="horizontal"
-            android:visibility="invisible"
-            android:weightSum="2">
-
-            <RelativeLayout
-                android:id="@+id/layout_remove"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:src="@mipmap/ic_launcher_clear_normal_holo" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/layout_uninstall"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
-            </RelativeLayout>
-
-        </LinearLayout>
-    </android.support.v7.widget.Toolbar>
-</FrameLayout>
+</RelativeLayout>
 
