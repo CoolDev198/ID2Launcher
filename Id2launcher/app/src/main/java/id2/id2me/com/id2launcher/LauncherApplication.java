@@ -39,6 +39,7 @@ public class LauncherApplication extends Application {
     private PageDragListener pageDragListener;
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
+    public int pos = 1;
 
     public static float getScreenDensity() {
 

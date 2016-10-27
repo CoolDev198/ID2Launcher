@@ -28,4 +28,16 @@
 
     <color name="statusbar_bg">#FF006080</color>
 
+
+    <color name="red">#FF0000</color>
+    <color name="blue">#1100ff</color>
+    <color name="green">#00ff08</color>
+
+
+    <array name="rainbow">
+        <item></item>
+        <item>@color/red</item>
+        <item>@color/blue</item>
+        <item>@color/green</item>
+    </array>
 </resources>

@@ -56,13 +56,14 @@
         android:id="@+id/container"
         android:layout_below="@id/drop_target_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/home_screen_color">
 
         <id2.id2me.com.id2launcher.CellLayout
             android:id="@+id/wallpaper_layout"
             android:layout_width="match_parent"
             android:layout_height="660dp"
-            android:background="@android:color/holo_orange_light">
+           >
 
             <ImageView
                 android:id="@+id/wallpaper_img"

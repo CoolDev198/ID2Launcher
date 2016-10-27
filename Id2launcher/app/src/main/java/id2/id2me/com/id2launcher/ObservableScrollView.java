@@ -21,6 +21,7 @@ public class ObservableScrollView extends LinearLayout {
 
     public ObservableScrollView(Context context) {
         super(context);
+        setOrientation(VERTICAL);
     }
 
     public ObservableScrollView(Context context, AttributeSet attrs) {

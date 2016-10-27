@@ -14,6 +14,7 @@ import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -55,6 +56,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     int isScrolled = 1;
     Timer timer;
     View desktopFragment;
+    int[] rainbow;
     private FrameLayout.LayoutParams layoutParams;
     private int[] nearestCell;
     private ItemInfoModel cellToBePlaced;
@@ -72,7 +74,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
         this.context = mContext;
         db = DatabaseHandler.getInstance(context);
-
+        rainbow = context.getResources().getIntArray(R.array.rainbow);
         this.desktopFragment = desktopFragment;
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
@@ -117,15 +119,18 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     dragInfo = launcherApplication.dragInfo;
                     init();
                     if (!dragInfo.getDropExternal()) {
-                        dropTargetLayout.setVisibility(View.VISIBLE);
+                        //    dropTargetLayout.setVisibility(View.VISIBLE);
                     }
+
 
                     if (((FrameLayout) container.getChildAt(container.getChildCount() - 1)).getChildCount() > 0) {
                         CellLayout layout = new CellLayout(context);
-                        layout.setMinimumHeight(R.dimen.cell_layout_height);
+                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, R.dimen.cell_layout_height);
+                        layout.setLayoutParams(layoutParams);
                         container.addView(layout);
                         layout.setOnDragListener(new PageDragListener(context, desktopFragment, layout));
                     }
+
 
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
