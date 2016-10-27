@@ -42,7 +42,6 @@ public class LauncherApplication extends Application {
     public int pos = 1;
 
     public static float getScreenDensity() {
-
         return density;
     }
 

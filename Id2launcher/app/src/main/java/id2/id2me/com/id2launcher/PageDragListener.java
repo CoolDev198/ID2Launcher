@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -67,6 +69,9 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private TimerTask timerTask;
     private int direction = -1;
 
+    private HolographicOutlineHelper mOutlineHelper;
+    private Bitmap outlineBmp;
+
     PageDragListener(Context mContext, View desktopFragment, FrameLayout pageLayout) {
         this.pageLayout = pageLayout;
         launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
@@ -79,6 +84,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
         container = (ObservableScrollView) desktopFragment.findViewById(R.id.container);
+        mOutlineHelper = new HolographicOutlineHelper();
         init();
     }
 
@@ -121,10 +127,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     if (!dragInfo.getDropExternal()) {
                         //    dropTargetLayout.setVisibility(View.VISIBLE);
                     }
-
-
-
-
 
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
@@ -235,6 +237,13 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             }
 
             goAhead();
+
+            byte arr[] = dragInfo.getIcon();
+
+            Bitmap bitmap = ItemInfoModel.getIconFromCursor(arr, context);
+            final Canvas canvas = new Canvas();
+            outlineBmp = createDragOutline(bitmap, canvas, 2, drag_view.getWidth(), drag_view.getHeight(), false);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1190,5 +1199,29 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         hostView.setForegroundGravity(Gravity.TOP);
         hostView.setTag(itemInfo);
         pageLayout.addView(hostView, layoutParams);
+    }
+
+    private Bitmap createDragOutline(Bitmap orig, Canvas canvas, int padding, int w, int h,
+                                     boolean clipAlpha) {
+        final int outlineColor = context.getResources().getColor(android.R.color.holo_blue_light);
+        final Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(b);
+
+        Rect src = new Rect(0, 0, orig.getWidth(), orig.getHeight());
+        float scaleFactor = Math.min((w - padding) / (float) orig.getWidth(),
+                (h - padding) / (float) orig.getHeight());
+        int scaledWidth = (int) (scaleFactor * orig.getWidth());
+        int scaledHeight = (int) (scaleFactor * orig.getHeight());
+        Rect dst = new Rect(0, 0, scaledWidth, scaledHeight);
+
+        // center the image
+        dst.offset((w - scaledWidth) / 2, (h - scaledHeight) / 2);
+
+        canvas.drawBitmap(orig, src, dst, null);
+        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor,
+                clipAlpha);
+        canvas.setBitmap(null);
+
+        return b;
     }
 }
