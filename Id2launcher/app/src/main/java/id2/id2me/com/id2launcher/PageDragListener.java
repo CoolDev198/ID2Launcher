@@ -123,13 +123,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
                     }
 
 
-                    if (((FrameLayout) container.getChildAt(container.getChildCount() - 1)).getChildCount() > 0) {
-                        CellLayout layout = new CellLayout(context);
-                        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, R.dimen.cell_layout_height);
-                        layout.setLayoutParams(layoutParams);
-                        container.addView(layout);
-                        layout.setOnDragListener(new PageDragListener(context, desktopFragment, layout));
-                    }
+
 
 
                     copyActualMatricesToDragMatrices();
@@ -181,6 +175,16 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         return true;
     }
 
+
+    void extendDesktop(){
+        if (((FrameLayout) container.getChildAt(container.getChildCount() - 1)).getChildCount() > 0) {
+            CellLayout layout = new CellLayout(context);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, R.dimen.cell_layout_height);
+            layout.setLayoutParams(layoutParams);
+            container.addView(layout);
+            layout.setOnDragListener(new PageDragListener(context, desktopFragment, layout));
+        }
+    }
     public void boundryCheckUp() {
         if (!dragInfo.getDropExternal() && isDragStarted) {
             cellToBePlaced = null;
@@ -392,12 +396,12 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         try {
 
             actionAfterDrop();
-
             isDragStarted = false;
             isAvailableCellsGreater = false;
             isRequiredCellsCalculated = false;
             isItemCanPlaced = false;
             cellToBePlaced = null;
+            extendDesktop();
             //  dropTargetLayout.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
