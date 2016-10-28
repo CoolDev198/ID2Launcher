@@ -31,7 +31,7 @@ public class LauncherApplication extends Application {
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
     public ItemInfoModel dragInfo;
     public LauncherAppWidgetHost mAppWidgetHost;
-    public boolean cellsMatrix[][];
+
     public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
@@ -59,7 +59,7 @@ public class LauncherApplication extends Application {
 
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();
-        cellsMatrix = new boolean[cellCountX][cellCountY];
+
 
         mModel = new LauncherModel(this);
         density = getResources().getDisplayMetrics().density;
@@ -146,21 +146,12 @@ public class LauncherApplication extends Application {
         return cellCountX;
     }
 
-    public void setCellsMatrix(int[] matrix, boolean val) {
-        cellsMatrix[matrix[0]][matrix[1]] = val;
-    }
-
-    public boolean getCellMatrixVal(int[] matrix) {
-        return cellsMatrix[matrix[0]][matrix[1]];
-    }
 
     public int getCellCountY() {
         return cellCountY;
     }
 
-    public boolean[][] getCellMatrix() {
-        return cellsMatrix;
-    }
+
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;

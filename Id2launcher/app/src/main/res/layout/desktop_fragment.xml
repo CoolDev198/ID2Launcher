@@ -62,29 +62,27 @@
         <id2.id2me.com.id2launcher.CellLayout
             android:id="@+id/wallpaper_layout"
             android:layout_width="match_parent"
-            android:layout_height="660dp"
+            android:layout_height="@dimen/cell_layout_height"
            >
+
 
             <ImageView
                 android:id="@+id/wallpaper_img"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="@dimen/wallpaper_height"
                 android:background="@mipmap/wallpaper"
                 android:scaleType="centerCrop" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="300dp" />
 
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/noti_widget"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="@dimen/noti_widget_height"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="20dp"
-                android:background="@android:color/transparent"
+                android:background="@android:color/holo_red_dark"
                 android:scrollbars="none"
+                android:layout_marginTop="@dimen/noti_widget_margin_top"
                 android:visibility="visible" />
 
             <ImageView

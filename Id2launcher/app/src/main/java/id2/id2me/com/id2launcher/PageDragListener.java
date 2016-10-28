@@ -50,23 +50,20 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     DatabaseHandler db;
     View dropTargetLayout, blur_relative;
     ObservableScrollView container;
-    //   ObservableScrollView scrollView;
     ArrayList<View> reorderView;
     ArrayList<View> folderTempApps;
-    int isScrolled = 1;
     Timer timer;
     View desktopFragment;
-    int[] rainbow;
+    private boolean cellsMatrix[][];
     private FrameLayout.LayoutParams layoutParams;
     private int[] nearestCell;
     private ItemInfoModel cellToBePlaced;
     private boolean isDragStarted = false;
     private ItemInfoModel dragInfo;
     private LauncherAppWidgetHostView hostView;
-    private int preY;
     private TimerTask timerTask;
     private int direction = -1;
-
+    private int screen;
 
     private Bitmap outlineBmp;
     private ImageView mOutlineView;
@@ -77,29 +74,25 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         cellWidth = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellWidth();
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
         this.context = mContext;
+        screen=Integer.parseInt(pageLayout.getTag().toString());
         db = DatabaseHandler.getInstance(context);
-        rainbow = context.getResources().getIntArray(R.array.rainbow);
+        cellsMatrix = new boolean[launcherApplication.getCellCountX()][launcherApplication.getCellCountY()];
         this.desktopFragment = desktopFragment;
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
         container = (ObservableScrollView) desktopFragment.findViewById(R.id.container);
         mOutlineView = (ImageView) cellLayout.findViewById(R.id.drag_outline_img);
+
         init();
     }
 
-    public static Bitmap getScaledBitmap(Bitmap b, int reqWidth, int reqHeight) {
-        int bWidth = b.getWidth();
-        int bHeight = b.getHeight();
 
-        int nWidth = reqWidth;
-        int nHeight = reqHeight;
+    private void setCellsMatrix(int[] matrix, boolean val) {
+        cellsMatrix[matrix[0]][matrix[1]] = val;
+    }
 
-        float parentRatio = (float) reqHeight / reqWidth;
-
-        nHeight = bHeight;
-        nWidth = (int) (reqWidth * parentRatio);
-
-        return Bitmap.createScaledBitmap(b, nWidth, nHeight, true);
+    private boolean getCellMatrixVal(int[] matrix) {
+        return cellsMatrix[matrix[0]][matrix[1]];
     }
 
     void init() {
@@ -182,15 +175,17 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     }
 
 
-    void extendDesktop(){
+    void extendDesktop() {
         if (((FrameLayout) container.getChildAt(container.getChildCount() - 1)).getChildCount() > 0) {
-            CellLayout layout = (CellLayout) ((Activity)context).getLayoutInflater().inflate(R.layout.cell_layout,null,false);
+            CellLayout layout = (CellLayout) ((Activity) context).getLayoutInflater().inflate(R.layout.cell_layout, null, false);
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, R.dimen.cell_layout_height);
             layout.setLayoutParams(layoutParams);
             container.addView(layout);
+            layout.setTag(container.getChildCount()-1);
             layout.setOnDragListener(new PageDragListener(context, desktopFragment, layout));
         }
     }
+
     public void boundryCheckUp() {
         mOutlineView.setVisibility(View.GONE);
         if (!dragInfo.getDropExternal() && isDragStarted) {
@@ -242,8 +237,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             }
 
             goAhead();
-
-
 
 
         } catch (Exception e) {
@@ -312,7 +305,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
                 for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
                     for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
-                        if (!launcherApplication.getCellMatrixVal(new int[]{x, y})) {
+                        if (!getCellMatrixVal(new int[]{x, y})) {
                             noOfAvailCells++;
 
                         }
@@ -356,8 +349,13 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             if (ticks > 5) {
                 nearestCell = nearCellsObj;
                 //transition
-                outlineAnimation(nearestCell);
-                calDragInfoCells();
+                if(screen==0 && nearestCell[1]>2) {
+                    outlineAnimation(nearestCell);
+                    calDragInfoCells();
+                }else if(screen>0){
+                    outlineAnimation(nearestCell);
+                    calDragInfoCells();
+                }
 
 
             }
@@ -398,7 +396,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             dragInfo.setTempCellY(nearestCell[1]);
             markCells(dragInfo.getTmpCellX(), dragInfo.getTmpCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
             dragInfo.setIsItemCanPlaced(true);
-          //  shiftAndAddToNewPos();
+            //  shiftAndAddToNewPos();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -630,7 +628,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         for (int x = xStart; x <= xEnd; x++) {
             for (int y = yStart; y <= yEnd; y++) {
                 //      Log.v(TAG, "cells unmarked :: " + x + "  " + y);
-                launcherApplication.setCellsMatrix(new int[]{x, y}, true);
+                setCellsMatrix(new int[]{x, y}, true);
             }
 
         }
@@ -648,7 +646,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             for (int x = xStart; x <= xEnd; x++) {
                 for (int y = yStart; y <= yEnd; y++) {
                     //Log.v(TAG, "cells unmarked :: " + x + "  " + y);
-                    launcherApplication.setCellsMatrix(new int[]{x, y}, false);
+                    setCellsMatrix(new int[]{x, y}, false);
                 }
             }
         }
@@ -660,7 +658,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
         for (View child : reorderView) {
             ItemInfoModel itemInfoModel = (ItemInfoModel) child.getTag();
-            if (!launcherApplication.getCellMatrixVal(new int[]{itemInfoModel.getCellX(), itemInfoModel.getCellY()})) {
+            if (!getCellMatrixVal(new int[]{itemInfoModel.getCellX(), itemInfoModel.getCellY()})) {
                 unMarkCells(itemInfoModel.getTmpCellX(), itemInfoModel.getTmpCellY(), itemInfoModel.getSpanX(), itemInfoModel.getSpanY());
                 markCells(itemInfoModel.getCellX(), itemInfoModel.getCellY(), itemInfoModel.getSpanX(), itemInfoModel.getSpanY());
 
@@ -783,7 +781,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
                 for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
 
-                    if (!launcherApplication.getCellMatrixVal(new int[]{x, y})) {
+                    if (!getCellMatrixVal(new int[]{x, y})) {
                         int[] scalableList = isScalable(x, y, spanX, spanY);
 
                         if (scalableList != null) {
@@ -828,7 +826,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
         for (int x = xPos; x <= scaleXEndPos; x++) {
             for (int y = yPos; y <= scaleYEndPos; y++) {
-                if (launcherApplication.getCellMatrixVal(new int[]{x, y})) {
+                if (getCellMatrixVal(new int[]{x, y})) {
                     return null;
                 }
             }
@@ -1218,7 +1216,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             params.leftMargin = leftMargin;
             params.topMargin = topMargin;
             mOutlineView.setLayoutParams(params);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

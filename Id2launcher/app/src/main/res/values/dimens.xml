@@ -29,7 +29,10 @@
     <dimen name="text_size_m">20sp</dimen>
     <dimen name="text_size_s">16sp</dimen>
     <dimen name="button_height">48dp</dimen>
+    <dimen name="noti_widget_height">100dp</dimen>
     <dimen name="app_icon_size">60dp</dimen>
     <dimen name="cell_layout_height">660dp</dimen>
+    <dimen name="wallpaper_height">300dp</dimen>
+    <dimen name="noti_widget_margin_top">200dp</dimen>
     <dimen name="pagemargin">16dp</dimen>
 </resources>
