@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 /**
  * Created by sunita on 10/17/16.
@@ -18,11 +19,13 @@ public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChan
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
         setOnHierarchyChangeListener(this);
-
     }
 
     public CellLayout(Context context) {
         super(context);
+        setMotionEventSplittingEnabled(false);
+        setChildrenDrawingOrderEnabled(true);
+        setOnHierarchyChangeListener(this);
     }
 
 

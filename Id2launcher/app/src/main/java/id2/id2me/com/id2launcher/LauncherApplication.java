@@ -5,6 +5,8 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.view.View;
@@ -36,10 +38,12 @@ public class LauncherApplication extends Application {
     public int currentScreen = 0;
     public boolean isTimerTaskCompleted = true;
     public List<View> viewList;
+    public int pos = 1;
+    public Bitmap outlineBitmap;
     private PageDragListener pageDragListener;
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
-    public int pos = 1;
+    private HolographicOutlineHelper mOutlineHelper;
 
     public static float getScreenDensity() {
         return density;
@@ -61,6 +65,7 @@ public class LauncherApplication extends Application {
         density = getResources().getDisplayMetrics().density;
 
         addBroadCastReceiver();
+        mOutlineHelper = new HolographicOutlineHelper();
 
     }
 
@@ -224,5 +229,39 @@ public class LauncherApplication extends Application {
         return dimensionInPixel;
     }
 
+    public Bitmap getOutLinerBitmap(Bitmap bitmap) {
+        Bitmap outlinerBitmap = null;
+        try {
+            final Canvas canvas = new Canvas();
+            outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return outlinerBitmap;
+    }
+
+    private Bitmap createDragOutline(Bitmap orig, Canvas canvas, int padding, int w, int h,
+                                     boolean clipAlpha) {
+        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(b);
+
+        Rect src = new Rect(0, 0, orig.getWidth(), orig.getHeight());
+        float scaleFactor = Math.min((w - padding) / (float) orig.getWidth(),
+                (h - padding) / (float) orig.getHeight());
+        int scaledWidth = (int) (scaleFactor * orig.getWidth());
+        int scaledHeight = (int) (scaleFactor * orig.getHeight());
+        Rect dst = new Rect(0, 0, scaledWidth, scaledHeight);
+
+        // center the image
+        dst.offset((w - scaledWidth) / 2, (h - scaledHeight) / 2);
+
+        canvas.drawBitmap(orig, src, dst, null);
+        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor,
+                clipAlpha);
+        canvas.setBitmap(null);
+
+        return b;
+    }
 
 }

@@ -30,13 +30,13 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_BIND_APPWIDGET = 11;
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+    public static ViewPager pager;
     public AppWidgetManager mAppWidgetManager;
     HorizontalPagerAdapter pageAdapter;
     LauncherApplication launcherApplication;
     DatabaseHandler db;
     private LauncherAppWidgetHost mAppWidgetHost;
     private DesktopFragment desktopFragment;
-    public static ViewPager pager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +59,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         }
 
     }
+
 
     private void loadDesktop() {
         db.getItemsInfo();
@@ -132,11 +133,11 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.v(TAG," on touch event  :: " +event.getX() + " " +event.getY());
+        Log.v(TAG, " on touch event  :: " + event.getX() + " " + event.getY());
         return super.onTouchEvent(event);
     }
 
-    void resetPage(){
+    void resetPage() {
         pager.setCurrentItem(1);
     }
 
@@ -197,6 +198,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     @Override
     public void onBackPressed() {
+        if (pager.getCurrentItem() == 0) {
+            pager.setCurrentItem(1);
+        }
     }
 
 
