@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -188,10 +189,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
 
     public void boundryCheckUp() {
         mOutlineView.setVisibility(View.GONE);
-        if (!dragInfo.getDropExternal() && isDragStarted) {
-            cellToBePlaced = null;
-            onDrop();
-        }
+//        if (!dragInfo.getDropExternal() && isDragStarted) {
+//            cellToBePlaced = null;
+//            onDrop();
+//        }
     }
 
     void onDrag(DragEvent event) {
@@ -396,7 +397,7 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             dragInfo.setTempCellY(nearestCell[1]);
             markCells(dragInfo.getTmpCellX(), dragInfo.getTmpCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
             dragInfo.setIsItemCanPlaced(true);
-            //  shiftAndAddToNewPos();
+              shiftAndAddToNewPos();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -483,7 +484,6 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
     private void createOrUpdateItemInfo() {
 
         try {
-
 
             if (cellToBePlaced != null && dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
 
@@ -596,8 +596,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             for (int i = 0; i < cellLayout.getChildCount(); i++) {
                 View child = (View) cellLayout.getChildAt(i);
                 ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
-                cellInfo.setCellX(cellInfo.getTmpCellX());
-                cellInfo.setCellY(cellInfo.getTmpCellY());
+                if(cellInfo!=null) {
+                    cellInfo.setCellX(cellInfo.getTmpCellX());
+                    cellInfo.setCellY(cellInfo.getTmpCellY());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -609,8 +611,10 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
             for (int i = 0; i < cellLayout.getChildCount(); i++) {
                 View child = (View) cellLayout.getChildAt(i);
                 ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
-                cellInfo.setTempCellX(cellInfo.getCellX());
-                cellInfo.setTempCellY(cellInfo.getCellY());
+                if(cellInfo!=null) {
+                    cellInfo.setTempCellX(cellInfo.getCellX());
+                    cellInfo.setTempCellY(cellInfo.getCellY());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -677,66 +681,73 @@ class PageDragListener implements View.OnDragListener, View.OnClickListener, Vie
         ArrayList<int[]> mTargetCells = getAllCellsList(nearestCell[0], nearestCell[1], dragInfo.getSpanX(), dragInfo.getSpanY());
 
         for (int i = 0; i < cellLayout.getChildCount(); i++) {
+
             try {
                 View child = (View) cellLayout.getChildAt(i);
 
                 ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
 
-                int width = cellWidth * cellInfo.getSpanX();
-                int height = cellHeight * cellInfo.getSpanY();
-                layoutParams = new FrameLayout.LayoutParams(width, height);
+                if(cellInfo !=null) {
+                    int width = cellWidth * cellInfo.getSpanX();
+                    int height = cellHeight * cellInfo.getSpanY();
+                    layoutParams = new FrameLayout.LayoutParams(width, height);
 
-                int[] bestCell = null;
+                    int[] bestCell = null;
 
-                ArrayList<int[]> mChildCells = getAllCellsList(cellInfo.getTmpCellX(), cellInfo.getTmpCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
+                    ArrayList<int[]> mChildCells = getAllCellsList(cellInfo.getTmpCellX(), cellInfo.getTmpCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
 
-                boolean isAffedted = checkIsCellContain(mTargetCells, mChildCells);
+                    boolean isAffedted = checkIsCellContain(mTargetCells, mChildCells);
 
-                if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
-                    cellToBePlaced = new ItemInfoModel();
-                    cellToBePlaced.setIsExisitingFolder(false);
-                    Log.v(TAG, "new folder created");
-                    folderTempApps.add(child);
+                    if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
+                        cellToBePlaced = new ItemInfoModel();
+                        ((RelativeLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
+                        cellToBePlaced.setIsExisitingFolder(false);
+                        Log.v(TAG, "new folder created");
+                        folderTempApps.add(child);
 
-                } else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
-                    Log.v(TAG, "added to existing folder");
-                    cellToBePlaced = new ItemInfoModel();
-                    cellToBePlaced.setIsExisitingFolder(true);
-                    folderTempApps.clear();
-                    folderTempApps.add(child);
-                } else if (isAffedted) {
-                    folderTempApps.clear();
-                    cellToBePlaced = null;
-                    Log.v(TAG, "move affected cell");
-                    try {
-                        bestCell = findBestCell(cellInfo.getSpanX(), cellInfo.getSpanY());
-                        if (bestCell == null) {
-                            dragInfo.setTempCellY(dragInfo.getCellY());
-                            dragInfo.setTempCellX(dragInfo.getCellX());
+                    } else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
+                        Log.v(TAG, "added to existing folder");
+                        cellToBePlaced = new ItemInfoModel();
+                        cellToBePlaced.setIsExisitingFolder(true);
+                        folderTempApps.clear();
+                        folderTempApps.add(child);
+                    } else if (isAffedted) {
+                        ((RelativeLayout) child).setBackground(null);
+                        folderTempApps.clear();
+                        cellToBePlaced = null;
+                        Log.v(TAG, "move affected cell");
+                        try {
+                            bestCell = findBestCell(cellInfo.getSpanX(), cellInfo.getSpanY());
+                            if (bestCell == null) {
+                                dragInfo.setTempCellY(dragInfo.getCellY());
+                                dragInfo.setTempCellX(dragInfo.getCellX());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+
+                    } else {
+                        ((RelativeLayout) child).setBackground(null);
+                    }
+
+                    if (bestCell != null) {
+                        cellInfo.setTempCellX(bestCell[0]);
+                        cellInfo.setTempCellY(bestCell[1]);
+
+                        reorderView.add(child);
+                        int leftMargin = bestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (bestCell[0]));
+                        int topMargin = bestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (bestCell[1]));
+                        layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+                        child.setLayoutParams(layoutParams);
+
+                        if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APPWIDGET) {
+                            unMarkCells(cellInfo.getCellX(), cellInfo.getCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
+                            markCells(nearestCell[0], nearestCell[1], dragInfo.getSpanX(), dragInfo.getSpanY());
+                        }
+                        markCells(cellInfo.getTmpCellX(), cellInfo.getTmpCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
                     }
 
                 }
-
-                if (bestCell != null) {
-                    cellInfo.setTempCellX(bestCell[0]);
-                    cellInfo.setTempCellY(bestCell[1]);
-
-                    reorderView.add(child);
-                    int leftMargin = bestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (bestCell[0]));
-                    int topMargin = bestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (bestCell[1]));
-                    layoutParams.setMargins(leftMargin, topMargin, 0, 0);
-                    child.setLayoutParams(layoutParams);
-
-                    if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APPWIDGET) {
-                        unMarkCells(cellInfo.getCellX(), cellInfo.getCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
-                        markCells(nearestCell[0], nearestCell[1], dragInfo.getSpanX(), dragInfo.getSpanY());
-                    }
-                    markCells(cellInfo.getTmpCellX(), cellInfo.getTmpCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
-                }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
