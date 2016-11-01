@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
+
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/blur_relative"
+        layout="@layout/popup_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
 
 
     <LinearLayout
@@ -44,12 +54,6 @@
 
     </LinearLayout>
 
-    <include
-        android:id="@+id/blur_relative"
-        layout="@layout/popup_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible" />
 
 
     <id2.id2me.com.id2launcher.ObservableScrollView
@@ -80,7 +84,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/noti_widget_height"
                 android:layout_alignParentBottom="true"
-                android:background="@android:color/holo_red_dark"
                 android:scrollbars="none"
                 android:layout_marginTop="@dimen/noti_widget_margin_top"
                 android:visibility="visible" />

@@ -33,7 +33,7 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
 
     public void updateFragments(int position, ArrayList<ItemInfoModel> appInfos) {
         try {
-            if (position != 0 && position < fragments.size()) {
+            if (position > 1  && position < fragments.size()) {
                 FolderFragment fragment = (FolderFragment) fragments.get(position);
                 FolderGridAdapter folderGridAdapter = ((FolderGridAdapter) fragment.getAdapter());
                 if (folderGridAdapter != null) {

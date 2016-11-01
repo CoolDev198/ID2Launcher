@@ -107,15 +107,6 @@ public class AppsListingFragment extends Fragment {
             seperateCharNumApps();
 
             recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
-
-//            recyclerView.setOnTouchListener(new View.OnTouchListener() {
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//                    Log.v("Recycle View :: " , " on touch ");
-//                    return launcherApplication.getLauncher().onTouchEvent(event);
-//                }
-//            });
-            //adapter = new AllAppsListAdapter(getActivity(), drawer);
             adapter = new AllAppAdapter(getActivity(), drawer);
 
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());

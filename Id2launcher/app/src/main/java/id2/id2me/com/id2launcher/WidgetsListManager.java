@@ -46,6 +46,7 @@ public class WidgetsListManager {
             for (AppWidgetProviderInfo widget : widgets) {
                 if (widget.minWidth > 0 && widget.minHeight > 0) {
 
+
                     int[] spanXY = getSpanForWidget(context, widget.provider, widget.minWidth, widget.minHeight);
                     int[] minSpanXY = getSpanForWidget(context, widget.provider, widget.minResizeWidth, widget.minResizeHeight);
 

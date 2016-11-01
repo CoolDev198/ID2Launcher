@@ -58,7 +58,12 @@ public class FolderFragment extends Fragment {
     }
 
     private ArrayList<ItemInfoModel> getAppsListFromDataBase() {
-        ItemInfoModel itemInfoModel = ((LauncherApplication) getActivity().getApplication()).folderFragmentsInfo.get(id - 1);
+        ItemInfoModel itemInfoModel = null;
+        try {
+            itemInfoModel = ((LauncherApplication) getActivity().getApplication()).folderFragmentsInfo.get(id - 2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return db.getAppsListOfFolder(itemInfoModel.getId());
 

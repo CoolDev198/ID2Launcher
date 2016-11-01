@@ -15,10 +15,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -64,7 +66,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             notifyDataInNotificationWidget();
         }
     };
-    private ObservableScrollView scrollView;
     private View blur_relative;
     private LauncherModel mModel;
 
@@ -192,17 +193,21 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         addWallpaperCropper();
 
 
-//        blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
-//        blur_relative.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                //scrollView.setVisibility(View.VISIBLE);
-//                return true;
-//            }
-//        });
+      blur_relative = (RelativeLayout) fragmentView.findViewById(R.id.blur_relative);
+      blur_relative.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                try {
+                    fragmentView.findViewById(R.id.container).setVisibility(View.VISIBLE);
+                    blur_relative.setVisibility(View.GONE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
 
-//
-        scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+
 
 
         addDragListener();
@@ -332,104 +337,9 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        static Context context;
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        View rootView;
-
-        public PlaceholderFragment() {
-        }
-
-        public static PlaceholderFragment newInstance(int sectionNumber, Context _context, int color) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-
-            context = _context;
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            args.putInt("Color", color);
-            fragment.setArguments(args);
 
 
-            return fragment;
-        }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            try {
-                LauncherApplication launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-
-                if (launcherApplication.viewList.size() < getArguments().getInt(ARG_SECTION_NUMBER)) {
-                    rootView = ((Activity) context).getLayoutInflater().inflate(R.layout.fragment_layout, container, false);
-                    Log.v("PlaceHolder", " position :: " + Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-
-                    PageDragListener pageDragListener = new PageDragListener(context, rootView, (FrameLayout) rootView);
-                    ((FrameLayout) rootView).setOnDragListener(pageDragListener);
-
-                    launcherApplication.viewList.add(rootView);
-
-                    TextView textView = (TextView) rootView.findViewById(R.id.textview);
-                    textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-                    rootView.setBackgroundColor(getArguments().getInt("Color"));
-                } else {
-                    rootView = launcherApplication.viewList.get(getArguments().getInt(ARG_SECTION_NUMBER) - 1);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return rootView;
-
-
-        }
-    }
-
-    public class DummyAdapter extends FragmentPagerAdapter {
-
-        public DummyAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-
-            return fragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return fragmentList.size();
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return "PAGE 1";
-                case 1:
-                    return "PAGE 2";
-                case 2:
-                    return "PAGE 3";
-            }
-            return null;
-        }
-
-    }
 
 
 }

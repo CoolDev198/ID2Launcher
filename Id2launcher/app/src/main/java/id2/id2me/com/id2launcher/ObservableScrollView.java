@@ -33,10 +33,10 @@ public class ObservableScrollView extends LinearLayout {
     }
 
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
-    }
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        return true;
+//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -91,6 +91,8 @@ public class ObservableScrollView extends LinearLayout {
             }
             return result;
         }
+
+
 
 
         public void onSwipeRight() {

@@ -42,11 +42,15 @@ public class WidgetsListingFragment extends Fragment {
 
         widgetInfos = new ArrayList<>();
         fragmentView = inflater.inflate(R.layout.widgets_listing_fragment, container, false);
-        RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
-        GridLayoutManager manager = new GridLayoutManager(context, 2);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,recyclerView));
+        try {
+            RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
+            GridLayoutManager manager = new GridLayoutManager(context, 2);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,recyclerView));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return fragmentView;
     }
 

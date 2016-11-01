@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.view.View;
@@ -255,4 +256,15 @@ public class LauncherApplication extends Application {
         return b;
     }
 
+    public void dragAnimation(View view, Point point) {
+        ClipData.Item item = new ClipData.Item(
+                (CharSequence) (""));
+
+        String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+        ClipData data = new ClipData("",
+                mimeTypes, item);
+        DragShadowBuilder shadowBuilder = new DragShadowBuilder(
+                view,point);
+        view.startDrag(data, shadowBuilder, view, 0);
+    }
 }

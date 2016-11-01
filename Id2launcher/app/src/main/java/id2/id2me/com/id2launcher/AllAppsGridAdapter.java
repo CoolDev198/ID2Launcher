@@ -8,6 +8,7 @@ import android.os.Build;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -23,7 +24,7 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 /**
  * Created by bliss76 on 21/06/16.
  */
-public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener {
+public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener{
     private final LauncherApplication launcherApplication;
     LayoutInflater inflater;
     ArrayList<AppInfoModel> gridList;
@@ -80,6 +81,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                     e.printStackTrace();
                 }
                 holder.itemImage = (ImageView) grid.findViewById(R.id.drawer_grid_image);
+
                 grid.setOnClickListener(this);
                 grid.setOnLongClickListener(this);
             } else {
@@ -141,6 +143,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         }
 
     }
+
 
 
 
