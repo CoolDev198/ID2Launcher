@@ -3,10 +3,10 @@ package id2.id2me.com.id2launcher;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import android.widget.ImageView;
 
 /**
  * Created by CrazyInnoTech on 31-10-2016.
@@ -14,8 +14,8 @@ import android.widget.ImageView;
 
 public class DragShadowBuilder extends View.DragShadowBuilder {
 
-    private Point lastTouch;
     View v;
+    private Point lastTouch;
 
     public DragShadowBuilder(View v, Point lastTouch) {
         super(v);
@@ -28,7 +28,7 @@ public class DragShadowBuilder extends View.DragShadowBuilder {
     }
 
     @Override
-    public void onProvideShadowMetrics (Point size, Point touch) {
+    public void onProvideShadowMetrics(Point size, Point touch) {
         super.onProvideShadowMetrics(size, touch);
 
         // The touch point must be set in order for the canvas to properly fit the view
@@ -46,12 +46,14 @@ public class DragShadowBuilder extends View.DragShadowBuilder {
 
     private Bitmap getBitmapFromView(View view) {
         //Define a bitmap with the same size as the view
-        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
-        //Bind a canvas to it
+        Matrix m = new Matrix();
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+      //Bind a canvas to it
         Canvas canvas = new Canvas(returnedBitmap);
+
         //Get the view's background
-        Drawable bgDrawable =view.getBackground();
-        if (bgDrawable!=null)
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
             //has background drawable, then draw it on the canvas
             bgDrawable.draw(canvas);
         else

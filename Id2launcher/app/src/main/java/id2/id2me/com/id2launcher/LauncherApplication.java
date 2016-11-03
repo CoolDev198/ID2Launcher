@@ -265,6 +265,9 @@ public class LauncherApplication extends Application {
                 mimeTypes, item);
         DragShadowBuilder shadowBuilder = new DragShadowBuilder(
                 view,point);
+       // view.setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.grid_image).setScaleX(1.2f);
+        view.findViewById(R.id.grid_image).setScaleY(1.2f);
         view.startDrag(data, shadowBuilder, view, 0);
     }
 }
