@@ -38,12 +38,10 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
  * Created by sunita on 8/9/16.
  */
 
-class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWidgetDrag {
+class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     final String TAG = "PageDragListener";
     final Handler handler = new Handler();
-    private final GestureDetector gestureDetector;
-    private final GestureListener gestureListener;
     LauncherApplication launcherApplication;
     Context context;
     int cellWidth, cellHeight;
@@ -82,9 +80,6 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
         this.context = mContext;
         screen = Integer.parseInt(pageLayout.getTag().toString());
-
-        gestureListener = new GestureListener();
-        gestureDetector = new GestureDetector(context, gestureListener);
 
         db = DatabaseHandler.getInstance(context);
         cellsMatrix = new boolean[launcherApplication.getCellCountX()][launcherApplication.getCellCountY()];
@@ -990,14 +985,8 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
     private View addAppToPage() {
 
         try {
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            View view = inflater.inflate(R
-                    .layout.grid_item, null, true);
-            ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
-            imageView.setImageBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), context));
-            view.setOnTouchListener(this);
-
-            return view;
+            AppItemView appItemView = new AppItemView(context, dragInfo);
+            return appItemView.getView();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1012,7 +1001,7 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
                     .layout.grid_item, null, true);
             ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
             imageView.setImageBitmap(icon);
-            view.setOnTouchListener(this);
+            //view.setOnTouchListener(this);
             cellLayout.addView(view, layoutParams);
             view.setTag(itemInfo);
         } catch (Exception e) {
@@ -1029,7 +1018,7 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
                     .layout.grid_item, null, true);
             ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
             imageView.setImageDrawable(context.getResources().getDrawable(R.mipmap.folder_icon));
-            view.setOnTouchListener(this);
+          //  view.setOnTouchListener(this);
             cellLayout.addView(view, layoutParams);
             view.setTag(itemInfo);
 
@@ -1051,7 +1040,7 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
                     .layout.folder_view, null, true);
 
             Utility.setFolderView(context, view, itemInfoModels);
-            view.setOnTouchListener(this);
+//            view.setOnTouchListener(this);
 
 
             return view;
@@ -1137,49 +1126,6 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
         }
     }
 
-//    @Override
-//    public void onClick(View v) {
-//        ItemInfoModel itemInfoModel = (ItemInfoModel) v.getTag();
-//        if (itemInfoModel.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-//            if (launcherApplication.folderView != null) {
-//                cellLayout.removeView(launcherApplication.folderView);
-//            }
-//            ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(itemInfoModel.getId());
-//            getPopUp(itemInfoModels);
-//        } else {
-//            try {
-//                Intent intent = null;
-//                String pckName = itemInfoModel.getPname();
-//
-//                if (pckName != null) {
-//                    intent = context.getPackageManager()
-//                            .getLaunchIntentForPackage(pckName);
-//
-//                    context.startActivity(intent);
-//
-//                } else {
-//                    Toast.makeText(context,
-//                            context.getResources().getText(R.string.appNotFound),
-//                            Toast.LENGTH_SHORT).show();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
-
-//    @Override
-//    public boolean onLongClick(View v) {
-//        try {
-//            launcherApplication.dragInfo = (ItemInfoModel) v.getTag();
-//            dragInfo.setDropExternal(false);
-//            launcherApplication.dragAnimation(v);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
 
     @Override
     public void onDragWidget(LauncherAppWidgetHostView launcherAppWidgetHostView) {
@@ -1252,26 +1198,11 @@ class PageDragListener implements View.OnDragListener, View.OnTouchListener, IWi
 
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        gestureListener.setView(v);
-        return gestureDetector.onTouchEvent(event);
-    }
+//    @Override
+//    public boolean onTouch(View v, MotionEvent event) {
+//        gestureListener.setView(v);
+//        return gestureDetector.onTouchEvent(event);
+//    }
+//
 
-    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        private View view;
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-            super.onLongPress(e);
-            launcherApplication.dragInfo = (ItemInfoModel) view.getTag();
-            dragInfo.setDropExternal(false);
-            launcherApplication.dragAnimation(view , new Point((int)e.getX(),(int) e.getY()));
-        }
-
-        public void setView(View view) {
-            this.view = view;
-        }
-    }
 }
