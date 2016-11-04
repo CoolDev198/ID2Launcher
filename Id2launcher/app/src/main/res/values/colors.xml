@@ -40,4 +40,6 @@
         <item>@color/blue</item>
         <item>@color/green</item>
     </array>
+
+    <color name="transparent_alpha">#dcffffff</color>
 </resources>
