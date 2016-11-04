@@ -708,7 +708,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
                         mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
-                        ((RelativeLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
+                        ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         cellToBePlaced.setIsExisitingFolder(false);
                         Log.v(TAG, "new folder created");
                         folderTempApps.add(child);
@@ -778,8 +778,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     void removeBackground(View child) {
         if (child instanceof LinearLayout) {
             ((LinearLayout) child).setBackground(null);
-        } else if (child instanceof RelativeLayout) {
-            ((RelativeLayout) child).setBackground(null);
+        } else if (child instanceof ImageView) {
+            ((ImageView) child).setBackground(null);
         }
     }
 
@@ -1100,7 +1100,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             int width = cellWidth * dragInfo.getSpanX();
             int height = cellHeight * dragInfo.getSpanY();
 
-            layoutParams = new FrameLayout.LayoutParams(width, height);
+            layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             int leftMargin = dragInfo.getCellX() * cellWidth + (launcherApplication.getMaxGapLR() * (dragInfo.getCellX()));
             int topMargin = dragInfo.getCellY() * cellHeight + (launcherApplication.getMaxGapTB() * (dragInfo.getCellY()));
             layoutParams.setMargins(leftMargin, topMargin, 0, 0);
@@ -1188,6 +1188,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             int leftMargin = nearestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (nearestCell[0]));
             int topMargin = nearestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (nearestCell[1]));
+
 
             params.leftMargin = leftMargin;
             params.topMargin = topMargin;
