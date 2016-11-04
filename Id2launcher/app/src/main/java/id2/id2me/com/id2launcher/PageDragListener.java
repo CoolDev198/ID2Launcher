@@ -248,36 +248,36 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 e.printStackTrace();
             }
 
-
-            if (Y > 1600) {  //previous 1800
-                if (launcherApplication.currentScreen < container.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
-                    direction = 1;
-                    launcherApplication.isTimerTaskCompleted = false;
-                    Log.v(TAG, "incremented");
-                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen + 1).getTop());
-                    launcherApplication.currentScreen++;
-                    startTimer();
-                }
-            } else if (Y < 250) {
-                if (launcherApplication.currentScreen > 0 && launcherApplication.isTimerTaskCompleted) {
-                    direction = 0;
-                    launcherApplication.isTimerTaskCompleted = false;
-                    Log.v(TAG, "decremented");
-                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen - 1).getTop()-40);
-                    launcherApplication.currentScreen--;
-                    startTimer();
-                }
-            } else if (direction == 1 && Y < 1700) {
-                Log.v(TAG, "nullify up");
-                direction = -1;
-                launcherApplication.isTimerTaskCompleted = true;
-                timer.cancel();
-            } else if (direction == 0 && Y > 350) {
-                Log.v(TAG, "nullify down");
-                direction = -1;
-                launcherApplication.isTimerTaskCompleted = true;
-                timer.cancel();
-            }
+//
+//            if (Y > 1600) {  //previous 1800
+//                if (launcherApplication.currentScreen < container.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
+//                    direction = 1;
+//                    launcherApplication.isTimerTaskCompleted = false;
+//                    Log.v(TAG, "incremented");
+//                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen + 1).getTop());
+//                    launcherApplication.currentScreen++;
+//                    startTimer();
+//                }
+//            } else if (Y < 250) {
+//                if (launcherApplication.currentScreen > 0 && launcherApplication.isTimerTaskCompleted) {
+//                    direction = 0;
+//                    launcherApplication.isTimerTaskCompleted = false;
+//                    Log.v(TAG, "decremented");
+//                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen - 1).getTop()-40);
+//                    launcherApplication.currentScreen--;
+//                    startTimer();
+//                }
+//            } else if (direction == 1 && Y < 1700) {
+//                Log.v(TAG, "nullify up");
+//                direction = -1;
+//                launcherApplication.isTimerTaskCompleted = true;
+//                timer.cancel();
+//            } else if (direction == 0 && Y > 350) {
+//                Log.v(TAG, "nullify down");
+//                direction = -1;
+//                launcherApplication.isTimerTaskCompleted = true;
+//                timer.cancel();
+//            }
 
             goAhead();
 

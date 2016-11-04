@@ -7,36 +7,50 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 /**
  * Created by sunita on 8/23/16.
  */
 
-public class ObservableScrollView extends LinearLayout {
+public class ObservableScrollView extends ScrollView {
 
+    private ScrollViewListener scrollViewListener = null;
     String TAG = "ObservableScrollView";
     Context context;
     GestureDetector gestureDetector;
     LauncherApplication launcherApplication;
 
+
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    protected void onScrollChanged(int x, int y, int oldx, int oldy) {
+        super.onScrollChanged(x, y, oldx, oldy);
+        if(scrollViewListener != null) {
+            scrollViewListener.onScrollChanged(this, x, y, oldx, oldy);
+        }
+    }
+
+    public interface ScrollViewListener {
+        void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy);
+    }
+
     public ObservableScrollView(Context context) {
         super(context);
-        setOrientation(VERTICAL);
     }
 
     public ObservableScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
         launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-        setOrientation(VERTICAL);
         gestureDetector = new GestureDetector(context, new GestureListener(this));
     }
 
-
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        return true;
-//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -103,19 +117,11 @@ public class ObservableScrollView extends LinearLayout {
 
         public void onSwipeTop() {
             Log.v("Scrollview", "top scroll");
-            if (launcherApplication.currentScreen < observableScrollView.getChildCount() - 1) {
-                observableScrollView.scrollTo(0, observableScrollView.getChildAt(launcherApplication.currentScreen + 1).getTop());
-                launcherApplication.currentScreen++;
-            }
+
         }
 
         public void onSwipeBottom() {
             Log.v("Scrollview", "bottom scroll");
-            if (launcherApplication.currentScreen > 0) {
-                observableScrollView.scrollTo(0, observableScrollView.getChildAt(launcherApplication.currentScreen - 1).getTop());
-                launcherApplication.currentScreen--;
-            }
-
         }
     }
 
