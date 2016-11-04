@@ -69,9 +69,11 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     private TimerTask timerTask;
     private int direction = -1;
     private int screen;
+    private ArrayList<FrameLayout> mFrameArr;
 
     private Bitmap outlineBmp;
     private ImageView mOutlineView;
+    private int mCellLayoutHeight;
 
     PageDragListener(Context mContext, View desktopFragment, FrameLayout pageLayout) {
         this.cellLayout = pageLayout;
@@ -80,6 +82,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         cellHeight = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellHeight();
         this.context = mContext;
         screen = Integer.parseInt(pageLayout.getTag().toString());
+        mCellLayoutHeight = (int)context.getResources().getDimension(R.dimen.cell_layout_height);
 
         db = DatabaseHandler.getInstance(context);
         cellsMatrix = new boolean[launcherApplication.getCellCountX()][launcherApplication.getCellCountY()];
@@ -121,10 +124,27 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     @Override
     public boolean onDrag(View v, DragEvent event) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                (mCellLayoutHeight - 200));
+        params.topMargin = 40;
+        params.bottomMargin = 0;
+        params.leftMargin = 40;
+        params.rightMargin = 40;
+        //main_relative.setLayoutParams(params);
+        mFrameArr = new ArrayList<>();
+        for(int i = 0 ; i < container.getChildCount(); i++){
+            FrameLayout linearLayout = (FrameLayout) container.getChildAt(i);
+            mFrameArr.add(linearLayout);
+        }
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
                 try {
-
+                    for(int i = 0 ; i < mFrameArr.size(); i++){
+                        FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
+                        frameLayout.setBackgroundResource(R.drawable.frame_border);
+                        //frameLayout.getBackground().setAlpha(128);
+                        frameLayout.setLayoutParams(params);
+                    }
                     isDragStarted = true;
                     dragInfo = launcherApplication.dragInfo;
                     outlineBmp = launcherApplication.getOutLinerBitmap(ItemInfoModel.getIconFromCursor(
@@ -175,7 +195,17 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 }
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
+
                 boundryCheckUp();
+                params.topMargin = 0;
+                params.bottomMargin = 0;
+                params.leftMargin = 0;
+                params.rightMargin = 0;
+                for(int i = 0 ; i < mFrameArr.size(); i++){
+                    FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
+                    frameLayout.setBackgroundResource(0);
+                    frameLayout.setLayoutParams(params);
+                }
 
                 Log.v(TAG, "Drag ENDED");
                 return true;
@@ -219,7 +249,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             }
 
 
-            if (Y > 1800) {
+            if (Y > 1600) {  //previous 1800
                 if (launcherApplication.currentScreen < container.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
                     direction = 1;
                     launcherApplication.isTimerTaskCompleted = false;
@@ -233,7 +263,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     direction = 0;
                     launcherApplication.isTimerTaskCompleted = false;
                     Log.v(TAG, "decremented");
-                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen - 1).getTop());
+                    container.scrollTo(0, container.getChildAt(launcherApplication.currentScreen - 1).getTop()-40);
                     launcherApplication.currentScreen--;
                     startTimer();
                 }
