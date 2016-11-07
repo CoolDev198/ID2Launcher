@@ -36,7 +36,7 @@ public class LauncherApplication extends Application {
     public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
-    public int currentScreen = 0;
+    public int currentScreen = 1;
     public boolean isTimerTaskCompleted = true;
     public List<View> viewList;
     public int pos = 1;
@@ -107,6 +107,7 @@ public class LauncherApplication extends Application {
             View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
                     view);
             view.startDrag(data, shadowBuilder, view, 0);
+
 
         } catch (Exception e) {
             e.printStackTrace();

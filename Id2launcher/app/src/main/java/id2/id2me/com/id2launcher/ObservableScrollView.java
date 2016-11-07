@@ -25,6 +25,7 @@ public class ObservableScrollView extends ScrollView {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Log.v("scrollview", " INTERCEPT TOUCH event");
         return super.onInterceptTouchEvent(ev);
     }
 

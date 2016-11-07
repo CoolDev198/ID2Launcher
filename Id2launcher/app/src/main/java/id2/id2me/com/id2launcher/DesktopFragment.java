@@ -198,8 +198,8 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 try {
-                    fragmentView.findViewById(R.id.container).setVisibility(View.VISIBLE);
-                    blur_relative.setVisibility(View.GONE);
+//                    fragmentView.findViewById(R.id.container).setVisibility(View.VISIBLE);
+//                    blur_relative.setVisibility(View.GONE);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -246,27 +246,27 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     private void addDragListener() {
    //     wallpaperLayout = (FrameLayout) fragmentView.findViewById(R.id.wallpaper_layout);
      //   wallpaperLayout.setTag(0);
-//        parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
-//        parentLayout.setTag(1);
-//        FrameLayout parentLayoutSecond = (FrameLayout) fragmentView.findViewById(R.id.relative_view_second);
-//        parentLayoutSecond.setTag(2);
-//        FrameLayout parentLayoutThird = (FrameLayout) fragmentView.findViewById(R.id.relative_view_third);
-//        parentLayoutThird.setTag(3);
-//        FrameLayout parentLayoutFourth = (FrameLayout) fragmentView.findViewById(R.id.relative_view_fourth);
-//        parentLayoutFourth.setTag(4);
+        FrameLayout parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
+        parentLayout.setTag(1);
+        FrameLayout parentLayoutSecond = (FrameLayout) fragmentView.findViewById(R.id.relative_view_second);
+        parentLayoutSecond.setTag(2);
+        FrameLayout parentLayoutThird = (FrameLayout) fragmentView.findViewById(R.id.relative_view_third);
+        parentLayoutThird.setTag(3);
+        FrameLayout parentLayoutFourth = (FrameLayout) fragmentView.findViewById(R.id.relative_view_fourth);
+        parentLayoutFourth.setTag(4);
 
-     //   PageDragListener pageDragListenerZero = new PageDragListener(context, fragmentView, wallpaperLayout);
+//  PageDragListener pageDragListenerZero = new PageDragListener( context, fragmentView, wallpaperLayout);
 
-//        PageDragListener pageDragListener = new PageDragListener(context, fragmentView, parentLayout);
-//        PageDragListener pageDragListenerSecond = new PageDragListener(context, fragmentView, parentLayoutSecond);
-//        PageDragListener pageDragListenerThird = new PageDragListener(context, fragmentView, parentLayoutThird);
-//        PageDragListener pageDragListenerFourth = new PageDragListener(context, fragmentView, parentLayoutFourth);
+        PageDragListener pageDragListener = new PageDragListener(context, fragmentView, parentLayout);
+        PageDragListener pageDragListenerSecond = new PageDragListener(context, fragmentView, parentLayoutSecond);
+        PageDragListener pageDragListenerThird = new PageDragListener(context, fragmentView, parentLayoutThird);
+        PageDragListener pageDragListenerFourth = new PageDragListener(context, fragmentView, parentLayoutFourth);
 
       //  wallpaperLayout.setOnDragListener(pageDragListenerZero);
-//        parentLayout.setOnDragListener(pageDragListener);
-//        parentLayoutSecond.setOnDragListener(pageDragListenerSecond);
-//        parentLayoutThird.setOnDragListener(pageDragListenerThird);
-//        parentLayoutFourth.setOnDragListener(pageDragListenerFourth);
+        parentLayout.setOnDragListener(pageDragListener);
+        parentLayoutSecond.setOnDragListener(pageDragListenerSecond);
+        parentLayoutThird.setOnDragListener(pageDragListenerThird);
+        parentLayoutFourth.setOnDragListener(pageDragListenerFourth);
 
         //change
         // application.setPageDragListener(pageDragListenerSecond);

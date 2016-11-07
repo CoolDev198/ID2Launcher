@@ -10,7 +10,7 @@
         layout="@layout/popup_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 
     <LinearLayout
@@ -57,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/drop_target_layout"
-        android:background="@color/home_screen_color">
+        >
 
 
         <LinearLayout
@@ -94,11 +94,13 @@
                     android:visibility="visible" />
 
             </RelativeLayout>
-
-
             <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height">
+                android:layout_height="360dp"
+                android:background="@android:color/holo_red_dark">
+
+
 
                 <ImageView
                     android:id="@+id/drag_outline_img"
@@ -108,16 +110,28 @@
             </id2.id2me.com.id2launcher.CellLayout>
 
             <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view_second"
+
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"></id2.id2me.com.id2launcher.CellLayout>
+                android:layout_height="@dimen/cell_layout_height"
+                android:background="@android:color/holo_green_light"></id2.id2me.com.id2launcher.CellLayout>
 
             <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view_third"
+
+
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"></id2.id2me.com.id2launcher.CellLayout>
+                android:layout_height="@dimen/cell_layout_height"
+                android:background="@android:color/holo_purple"></id2.id2me.com.id2launcher.CellLayout>
 
             <id2.id2me.com.id2launcher.CellLayout
+                android:id="@+id/relative_view_fourth"
+
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"></id2.id2me.com.id2launcher.CellLayout>
+                android:layout_height="@dimen/cell_layout_height"
+                android:background="@android:color/holo_orange_dark">
+
+            </id2.id2me.com.id2launcher.CellLayout>
 
 
         </LinearLayout>
