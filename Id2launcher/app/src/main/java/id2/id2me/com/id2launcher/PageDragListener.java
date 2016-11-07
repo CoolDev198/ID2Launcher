@@ -461,7 +461,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             isRequiredCellsCalculated = false;
             isItemCanPlaced = false;
             cellToBePlaced = null;
-            extendDesktop();
+          //  extendDesktop();
             //  dropTargetLayout.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();

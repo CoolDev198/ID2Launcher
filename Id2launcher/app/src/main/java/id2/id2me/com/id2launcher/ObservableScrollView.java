@@ -29,11 +29,21 @@ public class ObservableScrollView extends ScrollView {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        Log.v("scrollview", " x::y:: " + ev.getX() +"  " +ev.getY());
+        return super.onTouchEvent(ev);
+    }
+
+    @Override
     protected void onScrollChanged(int x, int y, int oldx, int oldy) {
         super.onScrollChanged(x, y, oldx, oldy);
         if(scrollViewListener != null) {
             scrollViewListener.onScrollChanged(this, x, y, oldx, oldy);
         }
+    }
+
+    public void setScrollViewListener(ScrollViewListener scrollViewListener) {
+        this.scrollViewListener = scrollViewListener;
     }
 
     public interface ScrollViewListener {
@@ -52,11 +62,7 @@ public class ObservableScrollView extends ScrollView {
     }
 
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-//        Log.v(TAG, "on TOuch event  ::  X :: Y :: " + ev.getX() + "   " + ev.getY());
-        return gestureDetector.onTouchEvent(ev);
-    }
+
 
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {

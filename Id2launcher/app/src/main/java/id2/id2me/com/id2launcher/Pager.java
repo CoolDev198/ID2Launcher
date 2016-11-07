@@ -15,9 +15,14 @@ public class Pager extends ViewPager {
         super(context, attrs);
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent ev) {
-//        Log.v("Pager" , " on touch event");
-//        return super.onTouchEvent(ev);
-//    }
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        Log.v("Pager", " on touch event");
+        try {
+            return super.onTouchEvent(ev);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

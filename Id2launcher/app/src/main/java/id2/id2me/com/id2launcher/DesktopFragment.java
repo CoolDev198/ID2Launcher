@@ -208,7 +208,18 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         });
 
 
+        ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+        scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
+            @Override
+            public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
 
+                View view = scrollView.findViewById(R.id.wallpaper_img);
+                if (view != null) {
+                    view.setTranslationY(scrollView.getScrollY() / 2);
+                }
+
+            }
+        });
 
         addDragListener();
 
