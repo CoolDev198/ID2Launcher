@@ -97,8 +97,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     cellsMatrix[x][y] = true;
                 }
             }
-            init();
         }
+        init();
     }
 
     private void setCellsMatrix(int[] matrix, boolean val) {
@@ -123,41 +123,25 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     @Override
     public boolean onDrag(View v, DragEvent event) {
-//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//                (mCellLayoutHeight - 200));
-//        params.topMargin = 40;
-//        params.bottomMargin = 0;
-//        params.leftMargin = 40;
-//        params.rightMargin = 40;
-//        //main_relative.setLayoutParams(params);
-//        mFrameArr = new ArrayList<>();
-//        for(int i = 1 ; i < containerL.getChildCount(); i++){
-//            FrameLayout linearLayout = (FrameLayout) containerL.getChildAt(i);
-//            mFrameArr.add(linearLayout);
-//        }
+
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
                 try {
-//                    for(int i = 1 ; i < mFrameArr.size(); i++){
-//                        FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
-//                    //    frameLayout.setBackgroundResource(R.drawable.frame_border);
-//                        frameLayout.setLayoutParams(params);
-//                    }
+
                     isDragStarted = true;
                     dragInfo = launcherApplication.dragInfo;
                     outlineBmp = launcherApplication.getOutLinerBitmap(ItemInfoModel.getIconFromCursor(
                             dragInfo.getIcon(),
                             context));
-//                    mOutlineView.setVisibility(View.VISIBLE);
-//                    mOutlineView.setImageBitmap(outlineBmp);
-//                    init();
-                    if (!dragInfo.getDropExternal()) {
-                        //    dropTargetLayout.setVisibility(View.VISIBLE);
-                    }
+
 
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
                     calculateReqCells();
+
+                    //                    if (!dragInfo.getDropExternal()) {
+                    //    dropTargetLayout.setVisibility(View.VISIBLE);
+//                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -195,15 +179,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             case DragEvent.ACTION_DRAG_ENDED:
 
                 boundryCheckUp();
-//                params.topMargin = 0;
-//                params.bottomMargin = 0;
-//                params.leftMargin = 0;
-//                params.rightMargin = 0;
-//                for(int i = 1 ; i < mFrameArr.size(); i++){
-//                    FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
-//                   // frameLayout.setBackgroundResource(0);
-//                    frameLayout.setLayoutParams(params);
-//                }
 
                 Log.v(TAG, "Drag ENDED");
                 return true;
@@ -475,6 +450,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         try {
 
             //    mOutlineView.setVisibility(View.GONE);
+            drag_view.setVisibility(View.VISIBLE);
             actionAfterDrop();
             isDragStarted = false;
             isAvailableCellsGreater = false;
@@ -591,6 +567,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 }
             } else {
                 dragInfo.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
+                dragInfo.setScreen(Integer.parseInt(cellLayout.getTag().toString()));
                 if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
                     View child = null;
                     if (dragInfo.getDropExternal()) {

@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,24 +97,6 @@ public class LauncherApplication extends Application {
         return typeface;
     }
 
-    public void dragAnimation(View view) {
-        try {
-            ClipData.Item item = new ClipData.Item(
-                    (CharSequence) (""));
-
-            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-            ClipData data = new ClipData("",
-                    mimeTypes, item);
-            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
-                    view);
-            view.startDrag(data, shadowBuilder, view, 0);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public Launcher getLauncher() {
         return launcher;
@@ -152,7 +135,6 @@ public class LauncherApplication extends Application {
     public int getCellCountY() {
         return cellCountY;
     }
-
 
 
     public int getScreenHeight() {
@@ -257,6 +239,28 @@ public class LauncherApplication extends Application {
         return b;
     }
 
+    public void dragAnimation(View view) {
+        try {
+            ClipData.Item item = new ClipData.Item(
+                    (CharSequence) (""));
+
+            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+            ClipData data = new ClipData("",
+                    mimeTypes, item);
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
+                    view);
+            if (dragInfo.getDropExternal()) {
+                ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
+            }
+            view.startDrag(data, shadowBuilder, view, 0);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void dragAnimation(View view, Point point) {
         ClipData.Item item = new ClipData.Item(
                 (CharSequence) (""));
@@ -265,10 +269,20 @@ public class LauncherApplication extends Application {
         ClipData data = new ClipData("",
                 mimeTypes, item);
         DragShadowBuilder shadowBuilder = new DragShadowBuilder(
-                view,point);
-       // view.setVisibility(View.INVISIBLE);
+                view, point);
+         view.setVisibility(View.INVISIBLE);
+        if (!dragInfo.getDropExternal()) {
+            int screen;
+            if (dragInfo.getScreen() == 1) {
+                screen = 0;
+            } else {
+                screen = dragInfo.getScreen();
+            }
+            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop());
+        }
+
         view.findViewById(R.id.grid_image).setScaleX(1.2f);
-        view.findViewById(R.id.grid_image).setScaleY(1.2f);
+
         view.startDrag(data, shadowBuilder, view, 0);
     }
 }
