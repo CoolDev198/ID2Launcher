@@ -123,26 +123,30 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     @Override
     public boolean onDrag(View v, DragEvent event) {
-//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//                (mCellLayoutHeight - 200));
-//        params.topMargin = 40;
-//        params.bottomMargin = 0;
-//        params.leftMargin = 40;
-//        params.rightMargin = 40;
-//        //main_relative.setLayoutParams(params);
-//        mFrameArr = new ArrayList<>();
-//        for(int i = 1 ; i < containerL.getChildCount(); i++){
-//            FrameLayout linearLayout = (FrameLayout) containerL.getChildAt(i);
-//            mFrameArr.add(linearLayout);
-//        }
+        /*LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                (mCellLayoutHeight - 200));
+        params.topMargin = 40;
+        params.bottomMargin = 0;
+        params.leftMargin = 40;
+        params.rightMargin = 40;
+        //main_relative.setLayoutParams(params);
+        mFrameArr = new ArrayList<>();
+        for(int i = 0 ; i < containerL.getChildCount(); i++){
+
+            View view = containerL.getChildAt(i);
+            if(view instanceof CellLayout){
+                FrameLayout linearLayout = (FrameLayout) view;
+                mFrameArr.add(linearLayout);
+            }
+        }*/
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
                 try {
-//                    for(int i = 1 ; i < mFrameArr.size(); i++){
-//                        FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
-//                    //    frameLayout.setBackgroundResource(R.drawable.frame_border);
-//                        frameLayout.setLayoutParams(params);
-//                    }
+                   /* for(int i = 0 ; i < mFrameArr.size(); i++){
+                        FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
+                    //    frameLayout.setBackgroundResource(R.drawable.frame_border);
+                        frameLayout.setLayoutParams(params);
+                    }*/
                     isDragStarted = true;
                     dragInfo = launcherApplication.dragInfo;
                     outlineBmp = launcherApplication.getOutLinerBitmap(ItemInfoModel.getIconFromCursor(
@@ -195,15 +199,16 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             case DragEvent.ACTION_DRAG_ENDED:
 
                 boundryCheckUp();
-//                params.topMargin = 0;
-//                params.bottomMargin = 0;
-//                params.leftMargin = 0;
-//                params.rightMargin = 0;
-//                for(int i = 1 ; i < mFrameArr.size(); i++){
-//                    FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
-//                   // frameLayout.setBackgroundResource(0);
-//                    frameLayout.setLayoutParams(params);
-//                }
+                LauncherApplication.removeMargin();
+                /*params.topMargin = 0;
+                params.bottomMargin = 0;
+                params.leftMargin = 0;
+                params.rightMargin = 0;
+                for(int i = 0 ; i < mFrameArr.size(); i++){
+                    FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
+                   // frameLayout.setBackgroundResource(0);
+                    frameLayout.setLayoutParams(params);
+                }*/
 
                 Log.v(TAG, "Drag ENDED");
                 return true;
@@ -247,6 +252,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             }
 
             int currentScreen = Integer.parseInt(cellLayout.getTag().toString());
+
             if (currentScreen== 1) {
                 if (Y > 900) {  //previous 1800
                     if (currentScreen < containerL.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
@@ -536,17 +542,12 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
         copyDragMatricesToActualMatrices();
 
-
     }
 
     private void createOrUpdateItemInfo() {
-
         try {
-
             String tag = cellLayout.getTag().toString();
             if (cellToBePlaced != null && dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
-
-
                 if (cellToBePlaced.getIsExisitingFolder()) {
                     Log.v(TAG, "createOrUpdateItemInfo :: existing folder");
                     dragInfo.setDropExternal(false);
@@ -1238,7 +1239,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             int leftMargin = nearestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (nearestCell[0]));
             int topMargin = nearestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (nearestCell[1]));
-
 
             params.leftMargin = leftMargin;
             params.topMargin = topMargin;

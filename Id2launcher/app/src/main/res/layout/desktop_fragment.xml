@@ -69,7 +69,8 @@
             <RelativeLayout
                 android:id="@+id/wallpaper_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                >
 
                 <ImageView
                     android:id="@+id/wallpaper_img"
@@ -94,6 +95,7 @@
                     android:visibility="visible" />
 
             </RelativeLayout>
+
             <id2.id2me.com.id2launcher.CellLayout
                 android:id="@+id/relative_view"
                 android:layout_width="match_parent"

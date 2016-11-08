@@ -11,7 +11,9 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +48,9 @@ public class LauncherApplication extends Application {
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
 
+    private static int mCellLayoutHeight;
+    private static ArrayList<FrameLayout> mFrameArr;
+
     public static float getScreenDensity() {
         return density;
     }
@@ -64,6 +69,7 @@ public class LauncherApplication extends Application {
 
         mModel = new LauncherModel(this);
         density = getResources().getDisplayMetrics().density;
+        mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
         addBroadCastReceiver();
         mOutlineHelper = new HolographicOutlineHelper();
@@ -98,6 +104,7 @@ public class LauncherApplication extends Application {
 
     public void dragAnimation(View view) {
         try {
+            addMargin();
             ClipData.Item item = new ClipData.Item(
                     (CharSequence) (""));
 
@@ -107,6 +114,7 @@ public class LauncherApplication extends Application {
             View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
                     view);
             view.startDrag(data, shadowBuilder, view, 0);
+
 
 
         } catch (Exception e) {
@@ -258,6 +266,7 @@ public class LauncherApplication extends Application {
     }
 
     public void dragAnimation(View view, Point point) {
+        addMargin();
         ClipData.Item item = new ClipData.Item(
                 (CharSequence) (""));
 
@@ -270,5 +279,49 @@ public class LauncherApplication extends Application {
         view.findViewById(R.id.grid_image).setScaleX(1.2f);
         view.findViewById(R.id.grid_image).setScaleY(1.2f);
         view.startDrag(data, shadowBuilder, view, 0);
+
+    }
+
+    public void addMargin(){
+        try {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    (mCellLayoutHeight - 200));
+            params.topMargin = 30;
+            params.bottomMargin = 0;
+            params.leftMargin = 30;
+            params.rightMargin = 30;
+            //main_relative.setLayoutParams(params);
+            mFrameArr = new ArrayList<>();
+            LinearLayout containerL = (LinearLayout)desktopFragment.findViewById(R.id.container);
+            for(int i = 0 ; i < containerL.getChildCount(); i++){
+                View view = containerL.getChildAt(i);
+                if(view instanceof CellLayout){
+                    FrameLayout linearLayout = (FrameLayout) view;
+                    mFrameArr.add(linearLayout);
+                    linearLayout.setLayoutParams(params);
+
+                }
+            }
+        } catch (Exception e){
+
+        }
+    }
+
+    public static void removeMargin(){
+        try {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    (mCellLayoutHeight - 200));
+            params.topMargin = 0;
+            params.bottomMargin = 0;
+            params.leftMargin = 0;
+            params.rightMargin = 0;
+            for(int i = 0 ; i < mFrameArr.size(); i++){
+                FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
+                // frameLayout.setBackgroundResource(0);
+                frameLayout.setLayoutParams(params);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
