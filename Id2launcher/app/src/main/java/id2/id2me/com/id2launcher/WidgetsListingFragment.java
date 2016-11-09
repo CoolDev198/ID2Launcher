@@ -2,6 +2,7 @@ package id2.id2me.com.id2launcher;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -25,6 +26,7 @@ public class WidgetsListingFragment extends Fragment {
     Context context;
     final String TAG = "WidgetsListingFragment";
     ArrayList<WidgetInfoModel> widgetInfos;
+    private RecyclerView recyclerView;
 
     public static WidgetsListingFragment newInstance() {
         WidgetsListingFragment widgetsListingFragment = new WidgetsListingFragment();
@@ -42,8 +44,15 @@ public class WidgetsListingFragment extends Fragment {
 
         widgetInfos = new ArrayList<>();
         fragmentView = inflater.inflate(R.layout.widgets_listing_fragment, container, false);
+
+        return fragmentView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         try {
-            RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
+            recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
             GridLayoutManager manager = new GridLayoutManager(context, 2);
             recyclerView.setLayoutManager(manager);
             recyclerView.setHasFixedSize(true);
@@ -51,9 +60,9 @@ public class WidgetsListingFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return fragmentView;
-    }
 
+
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -71,6 +80,7 @@ public class WidgetsListingFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        recyclerView.stopScroll();
         Log.v(TAG, "On Detach called");
 
     }

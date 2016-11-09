@@ -23,17 +23,8 @@ public class ObservableScrollView extends ScrollView {
 
 
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Log.v("scrollview", " INTERCEPT TOUCH event");
-        return super.onInterceptTouchEvent(ev);
-    }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        Log.v("scrollview", " x::y:: " + ev.getX() +"  " +ev.getY());
-        return super.onTouchEvent(ev);
-    }
+
 
     @Override
     protected void onScrollChanged(int x, int y, int oldx, int oldy) {
@@ -59,7 +50,7 @@ public class ObservableScrollView extends ScrollView {
         super(context, attrs);
         this.context = context;
         launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-        gestureDetector = new GestureDetector(context, new GestureListener(this));
+        //gestureDetector = new GestureDetector(context, new GestureListener(this));
     }
 
 

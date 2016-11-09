@@ -106,18 +106,7 @@ public class AppsListingFragment extends Fragment {
         try {
             seperateCharNumApps();
 
-            recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
-            adapter = new AllAppAdapter(getActivity(), drawer);
 
-            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-            recyclerView.setLayoutManager(mLayoutManager);
-            recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-            final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
-            fastScroller.setRecyclerView(recyclerView);
-            fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
-                    R.id.fastscroller_handle);
-            recyclerView.setAdapter(adapter);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,5 +114,31 @@ public class AppsListingFragment extends Fragment {
 
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        try {
+            recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+            adapter = new AllAppAdapter(getActivity(), drawer);
+
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(mLayoutManager);
+            //recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
+            fastScroller.setRecyclerView(recyclerView);
+            fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
+                    R.id.fastscroller_handle);
+            recyclerView.setAdapter(adapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        recyclerView.stopScroll();
+        super.onDetach();
+    }
 }

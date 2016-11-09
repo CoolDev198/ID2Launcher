@@ -138,7 +138,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     void resetPage() {
-        pager.setCurrentItem(1);
+       /// pager.setCurrentItem(1);
     }
 
     private void setAppWidgetManager() {

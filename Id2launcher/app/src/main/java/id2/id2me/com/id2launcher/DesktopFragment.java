@@ -13,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -91,7 +93,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         try {
-            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
+           // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
 
             application = (LauncherApplication) ((Activity) context).getApplication();
             if (application.desktopFragment == null) {
@@ -107,7 +109,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
-                initViews();
+               initViews();
                 //  startTimer();
 
                 application.desktopFragment = fragmentView;
@@ -213,15 +215,19 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             @Override
             public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
 
-                View view = scrollView.findViewById(R.id.wallpaper_img);
-                if (view != null) {
-                    view.setTranslationY(scrollView.getScrollY() / 2);
+                try {
+                    View view = fragmentView.findViewById(R.id.wallpaper_img);
+                    if (view != null) {
+                        view.setTranslationY(scrollView.getScrollY() / 2);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             }
         });
 
-        addDragListener();
+       // addDragListener();
 
 //        if (DatabaseHandler.itemInfosList != null && !DatabaseHandler.itemInfosList.isEmpty()) {
 //            populateDesktop();
@@ -262,7 +268,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         PageDragListener pageDragListenerThird = new PageDragListener(context, fragmentView, parentLayoutThird);
         PageDragListener pageDragListenerFourth = new PageDragListener(context, fragmentView, parentLayoutFourth);
 
-      //  wallpaperLayout.setOnDragListener(pageDragListenerZero);
+       // wallpaperLayout.setOnDragListener(pageDragListenerZero);
         parentLayout.setOnDragListener(pageDragListener);
         parentLayoutSecond.setOnDragListener(pageDragListenerSecond);
         parentLayoutThird.setOnDragListener(pageDragListenerThird);
@@ -274,12 +280,12 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
     private void addNotifyWidget() {
-//        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
-//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-//        notificationRecyclerView.setLayoutManager(linearLayoutManager);
-//        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
-//        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
-//        notifyDataInNotificationWidget();
+        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        notificationRecyclerView.setLayoutManager(linearLayoutManager);
+        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
+        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
+        notifyDataInNotificationWidget();
     }
 
     private void populateDesktop() {
