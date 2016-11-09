@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -28,12 +29,13 @@ public class LauncherApplication extends Application {
     public static ImageView wallpaperImg;
     public static List<NotificationWidgetModel> notificationWidgetModels;
     private static float density;
+    private static int mCellLayoutHeight;
+    private static ArrayList<FrameLayout> mFrameArr;
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
     public ItemInfoModel dragInfo;
     public LauncherAppWidgetHost mAppWidgetHost;
-
     public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
@@ -51,6 +53,24 @@ public class LauncherApplication extends Application {
         return density;
     }
 
+    public static void removeMargin() {
+        try {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    (mCellLayoutHeight - 200));
+            params.topMargin = 0;
+            params.bottomMargin = 0;
+            params.leftMargin = 0;
+            params.rightMargin = 0;
+            for (int i = 0; i < mFrameArr.size(); i++) {
+                FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
+                // frameLayout.setBackgroundResource(0);
+                frameLayout.setLayoutParams(params);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -65,6 +85,7 @@ public class LauncherApplication extends Application {
 
         mModel = new LauncherModel(this);
         density = getResources().getDisplayMetrics().density;
+        mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
         addBroadCastReceiver();
         mOutlineHelper = new HolographicOutlineHelper();
@@ -96,7 +117,6 @@ public class LauncherApplication extends Application {
         Typeface typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
         return typeface;
     }
-
 
     public Launcher getLauncher() {
         return launcher;
@@ -131,11 +151,9 @@ public class LauncherApplication extends Application {
         return cellCountX;
     }
 
-
     public int getCellCountY() {
         return cellCountY;
     }
-
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
@@ -241,6 +259,8 @@ public class LauncherApplication extends Application {
 
     public void dragAnimation(View view) {
         try {
+
+
             ClipData.Item item = new ClipData.Item(
                     (CharSequence) (""));
 
@@ -252,6 +272,9 @@ public class LauncherApplication extends Application {
             if (dragInfo.getDropExternal()) {
                 ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
             }
+
+         //   addMargin();
+
             view.startDrag(data, shadowBuilder, view, 0);
 
 
@@ -262,6 +285,7 @@ public class LauncherApplication extends Application {
     }
 
     public void dragAnimation(View view, Point point) {
+
         ClipData.Item item = new ClipData.Item(
                 (CharSequence) (""));
 
@@ -270,7 +294,7 @@ public class LauncherApplication extends Application {
                 mimeTypes, item);
         DragShadowBuilder shadowBuilder = new DragShadowBuilder(
                 view, point);
-         view.setVisibility(View.INVISIBLE);
+        view.setVisibility(View.INVISIBLE);
         if (!dragInfo.getDropExternal()) {
             int screen;
             if (dragInfo.getScreen() == 1) {
@@ -280,9 +304,39 @@ public class LauncherApplication extends Application {
             }
             ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop());
         }
+    //    addMargin();
 
-        view.findViewById(R.id.grid_image).setScaleX(1.2f);
+      //  view.findViewById(R.id.grid_image).setScaleX(1.2f);
 
         view.startDrag(data, shadowBuilder, view, 0);
+
+    }
+
+    public void addMargin() {
+        try {
+
+            //main_relative.setLayoutParams(params);
+            mFrameArr = new ArrayList<>();
+
+            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+            for (int i = 1; i < containerL.getChildCount(); i++) {
+                View view = containerL.getChildAt(i);
+                if (view instanceof CellLayout) {
+                    FrameLayout linearLayout = (FrameLayout) view;
+                    mFrameArr.add(linearLayout);
+
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) linearLayout.getLayoutParams();
+                    params.topMargin = 30;
+                    params.bottomMargin = 0;
+                    params.leftMargin = 30;
+                    params.rightMargin = 30;
+
+                    containerL.updateViewLayout(linearLayout,params);
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

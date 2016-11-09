@@ -239,7 +239,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 }
             } else {
 
-                if (Y > 1600) {  //previous 1800
+                if (Y > 1700) {  //previous 1800
                     if (currentScreen < containerL.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
                         direction = 1;
                         launcherApplication.isTimerTaskCompleted = false;
@@ -706,7 +706,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 int topMargin = itemInfoModel.getCellY() * cellHeight + (launcherApplication.getMaxGapTB() * (itemInfoModel.getCellY()));
                 int width = cellWidth * itemInfoModel.getSpanX();
                 int height = cellHeight * itemInfoModel.getSpanY();
-                layoutParams = new FrameLayout.LayoutParams(width, height);
+                layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                 layoutParams.setMargins(leftMargin, topMargin, 0, 0);
                 child.setLayoutParams(layoutParams);
                 reorderView.remove(child);
@@ -724,7 +724,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 if (cellInfo != null) {
                     int width = cellWidth * cellInfo.getSpanX();
                     int height = cellHeight * cellInfo.getSpanY();
-                    layoutParams = new FrameLayout.LayoutParams(width, height);
+                    layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
                     int[] bestCell = null;
 
@@ -735,14 +735,14 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
                         //   mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
-                        ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
+                       // ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         cellToBePlaced.setIsExisitingFolder(false);
                         Log.v(TAG, "new folder created");
                         folderTempApps.add(child);
 
                     } else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
                         Log.v(TAG, "added to existing folder");
-                        ((LinearLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
+                      //  ((LinearLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         //   mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
                         cellToBePlaced.setIsExisitingFolder(true);
@@ -1230,7 +1230,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 //    public boolean onTouch(View v, MotionEvent event) {
 //        gestureListener.setView(v);
 //        return gestureDetector.onTouchEvent(event);
-//    }
+//    }e
 //
 
 }
