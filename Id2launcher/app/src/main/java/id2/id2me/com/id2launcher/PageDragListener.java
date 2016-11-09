@@ -89,7 +89,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         blur_relative = desktopFragment.findViewById(R.id.blur_relative);
         container = (ObservableScrollView) desktopFragment.findViewById(R.id.scrollView);
         containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
-        //  mOutlineView = (ImageView) cellLayout.findViewById(R.id.drag_outline_img);
+        mOutlineView = (ImageView) cellLayout.findViewById(R.id.drag_outline_img);
 
         if (screen == 0) {
             for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
@@ -118,7 +118,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         folderTempApps = new ArrayList<>();
         nearestCell = new int[2];
 
-
     }
 
     @Override
@@ -134,6 +133,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                             dragInfo.getIcon(),
                             context));
 
+                    mOutlineView.setImageBitmap(outlineBmp);
+                    mOutlineView.setVisibility(View.VISIBLE);
 
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
@@ -276,7 +277,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             }
             goAhead();
 
-
+            mOutlineView.setImageBitmap(outlineBmp);
+            mOutlineView.setVisibility(View.VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -364,6 +366,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             }
 
 
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -449,7 +452,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     void onDrop() {
         try {
 
-            //    mOutlineView.setVisibility(View.GONE);
+            mOutlineView.setVisibility(View.GONE);
             drag_view.setVisibility(View.VISIBLE);
             actionAfterDrop();
             isDragStarted = false;
@@ -766,9 +769,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                     } else {
                         removeBackground(child);
-                        //   mOutlineView.setVisibility(View.VISIBLE);
+                        //mOutlineView.setVisibility(View.VISIBLE);
 
-                        outlineAnimation(nearestCell);
+                        //outlineAnimation(nearestCell);
 
                     }
 
@@ -1219,7 +1222,10 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
             params.leftMargin = leftMargin;
             params.topMargin = topMargin;
-            // mOutlineView.setLayoutParams(params);
+           /* mOutlineView.setVisibility(View.VISIBLE);
+            mOutlineView.setImageBitmap(outlineBmp);
+
+            mOutlineView.setLayoutParams(params);*/
         } catch (Exception e) {
             e.printStackTrace();
         }
