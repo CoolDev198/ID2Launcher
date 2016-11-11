@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     LauncherApplication launcherApplication;
     Context context;
     int cellWidth, cellHeight;
-    FrameLayout cellLayout;
+    CellLayout cellLayout;
     AppWidgetProviderInfo appWidgetProviderInfo;
     int appWidgetId = 0;
     View drag_view;
@@ -51,13 +50,12 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     int spanX = 1, spanY = 1, X, Y;
     int ticks = 0;
     DatabaseHandler db;
-    View dropTargetLayout, blur_relative;
+    View dropTargetLayout;
     ObservableScrollView container;
     ArrayList<View> reorderView;
     ArrayList<View> folderTempApps;
     Timer timer;
     View desktopFragment;
-    private boolean cellsMatrix[][];
     private FrameLayout.LayoutParams layoutParams;
     private int[] nearestCell;
     private ItemInfoModel cellToBePlaced;
@@ -67,13 +65,11 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     private TimerTask timerTask;
     private int direction = -1;
     private int screen;
-    private ArrayList<FrameLayout> mFrameArr;
-
     private Bitmap outlineBmp;
     private ImageView mOutlineView;
     private int mCellLayoutHeight;
 
-    PageDragListener(Context mContext, View desktopFragment, FrameLayout pageLayout) {
+    PageDragListener(Context mContext, View desktopFragment, CellLayout pageLayout) {
         this.cellLayout = pageLayout;
         launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
         cellWidth = ((LauncherApplication) ((Activity) mContext).getApplication()).getCellWidth();
@@ -83,31 +79,17 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         mCellLayoutHeight = (int) context.getResources().getDimension(R.dimen.cell_layout_height);
 
         db = DatabaseHandler.getInstance(context);
-        cellsMatrix = new boolean[launcherApplication.getCellCountX()][launcherApplication.getCellCountY()];
         this.desktopFragment = desktopFragment;
         dropTargetLayout = desktopFragment.findViewById(R.id.drop_target_layout);
-        blur_relative = desktopFragment.findViewById(R.id.blur_relative);
         container = (ObservableScrollView) desktopFragment.findViewById(R.id.scrollView);
         containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
         //  mOutlineView = (ImageView) cellLayout.findViewById(R.id.drag_outline_img);
 
-        if (screen == 0) {
-            for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
-                for (int y = 0; y < 2; y++) {
-                    cellsMatrix[x][y] = true;
-                }
-            }
-        }
         init();
     }
 
-    private void setCellsMatrix(int[] matrix, boolean val) {
-        cellsMatrix[matrix[0]][matrix[1]] = val;
-    }
 
-    private boolean getCellMatrixVal(int[] matrix) {
-        return cellsMatrix[matrix[0]][matrix[1]];
-    }
+
 
     void init() {
         isRequiredCellsCalculated = false;
@@ -172,6 +154,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                         timer.cancel();
 
                     onDrop();
+                    launcherApplication.removeMargin();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -210,76 +193,69 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 //        }
     }
 
+
     void onDrag(DragEvent event) {
         try {
             X = (int) event.getX();
             Y = (int) event.getY();
 
             try {
-                Log.v(TAG, "X :: Y :: height " + X + "  " + Y + "   ");
+             //   Log.v(TAG, "X :: Y :: height " + X + "  " + Y + "   ");
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             int currentScreen = Integer.parseInt(cellLayout.getTag().toString());
-            if (currentScreen== 1) {
-                if (Y > 900) {  //previous 1800
-                    if (currentScreen < containerL.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
-                        direction = 1;
-                        launcherApplication.isTimerTaskCompleted = false;
-                        Log.v(TAG, "incremented");
-                        container.scrollTo(0, containerL.getChildAt(currentScreen + 1).getTop());
-                        startTimer();
-                    }
-                } else if (direction == 1 && Y < 800) {
-                    Log.v(TAG, "nullify up");
-                    direction = -1;
-                    launcherApplication.isTimerTaskCompleted = true;
-                    timer.cancel();
-                }
-            } else {
 
-                if (Y > 1700) {  //previous 1800
-                    if (currentScreen < containerL.getChildCount() - 1 && launcherApplication.isTimerTaskCompleted) {
-                        direction = 1;
-                        launcherApplication.isTimerTaskCompleted = false;
-                        Log.v(TAG, "incremented");
-                        container.scrollTo(0, containerL.getChildAt(currentScreen + 1).getTop());
-                     //   launcherApplication.currentScreen++;
-                        startTimer();
-                    }
-                } else if (Y < 250) {
-                    if (currentScreen > 1 && launcherApplication.isTimerTaskCompleted) {
-                        direction = 0;
-                        launcherApplication.isTimerTaskCompleted = false;
-                        Log.v(TAG, "decremented");
-                        if (currentScreen == 2) {
-                            container.scrollTo(0, containerL.getChildAt(0).getTop());
-                        } else {
-                            container.scrollTo(0, containerL.getChildAt(currentScreen - 1).getTop());
-                        }
+            if (launcherApplication.currentScreen != currentScreen && Y > 1200 && launcherApplication.isTimerTaskCompleted) {
+                direction = 1;
+                launcherApplication.isTimerTaskCompleted = false;
+                Log.v(TAG, "decremented");
 
-                     //  launcherApplication.currentScreen--;
-                        startTimer();
-                    }
-                } else if (direction == 1 && Y < 1700) {
-                    Log.v(TAG, "nullify up");
-                    direction = -1;
-                    launcherApplication.isTimerTaskCompleted = true;
-                    timer.cancel();
-                } else if (direction == 0 && Y > 350) {
-                    Log.v(TAG, "nullify down");
-                    direction = -1;
-                    launcherApplication.isTimerTaskCompleted = true;
-                    timer.cancel();
-                }
+
+                int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up) ;
+                container.scrollTo(0,containerL.getChildAt(currentScreen).getTop()-margin);
+                launcherApplication.currentScreen = currentScreen;
+                startTimer();
+            } else if (launcherApplication.currentScreen != currentScreen && Y < 100 && launcherApplication.isTimerTaskCompleted) {
+                direction = 0;
+                launcherApplication.isTimerTaskCompleted = false;
+                Log.v(TAG, "incremented");
+                Log.v(TAG," container top  " +containerL.getChildAt(currentScreen).getTop());
+                int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up);
+                Log.v(TAG," margin  " +margin);
+                launcherApplication.currentScreen = currentScreen;
+                container.scrollTo(0, containerL.getChildAt(currentScreen).getTop() - margin);
+
+
+                startTimer();
+
+            } else if (launcherApplication.currentScreen != currentScreen && currentScreen == 1 && Y > 500 && launcherApplication.isTimerTaskCompleted) {
+                direction = 1;
+                launcherApplication.isTimerTaskCompleted = false;
+                Log.v(TAG, "incremented");
+                container.scrollTo(0, containerL.getChildAt(0).getTop());
+                launcherApplication.currentScreen = currentScreen;
+                startTimer();
+            } else if (direction == 1 && Y < 1200) {
+                Log.v(TAG, "nullify up");
+                direction = -1;
+                launcherApplication.isTimerTaskCompleted = true;
+                timer.cancel();
+            } else if (direction == 0 && Y > 100) {
+                Log.v(TAG, "nullify down");
+                direction = -1;
+                launcherApplication.isTimerTaskCompleted = true;
+                timer.cancel();
             }
+
             goAhead();
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
     }
 
     public void startTimer() {
@@ -340,9 +316,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                 noOfReqCells = spanX * spanY;
 
-                for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
-                    for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
-                        if (!getCellMatrixVal(new int[]{x, y})) {
+                for (int x = 0; x < cellLayout.getCellCountX(); x++) {
+                    for (int y = 0; y < cellLayout.getCellCountY(); y++) {
+                        if (!cellLayout.getCellMatrixVal(new int[]{x, y})) {
                             noOfAvailCells++;
 
                         }
@@ -386,20 +362,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             if (ticks > 5) {
                 nearestCell = nearCellsObj;
                 //transition
-                if (screen == 0 && nearestCell[1] > 2) {
-                    if (cellLayout.getChildCount() == 3) {
-                        outlineAnimation(nearestCell);
-                    }
-
-                    calDragInfoCells();
-                } else if (screen > 0) {
-                    if (cellLayout.getChildCount() < 1) {
-                        outlineAnimation(nearestCell);
-                    }
-                    calDragInfoCells();
-                }
-
-
+                outlineAnimation(nearestCell);
+                calDragInfoCells();
             }
 
 
@@ -417,7 +381,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             int scaleXEndPos = nearestCell[0] + actualSpanX;
             int scaleYEndPos = nearestCell[1] + actualSpanY;
 
-            if (scaleXEndPos > launcherApplication.getCellCountX() - 1) {
+            if (scaleXEndPos > cellLayout.getCellCountX() - 1) {
                 int startPos = nearestCell[0] - actualSpanX;
                 if (startPos < 0) {
                     startPos = 0;
@@ -425,7 +389,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 nearestCell[0] = startPos;
             }
 
-            if (scaleYEndPos > launcherApplication.getCellCountY() - 1) {
+            if (scaleYEndPos > cellLayout.getCellCountY() - 1) {
                 int startPos = nearestCell[1] - actualSpanY;
                 if (startPos < 0) {
                     startPos = 0;
@@ -668,7 +632,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         for (int x = xStart; x <= xEnd; x++) {
             for (int y = yStart; y <= yEnd; y++) {
                 //      Log.v(TAG, "cells unmarked :: " + x + "  " + y);
-                setCellsMatrix(new int[]{x, y}, true);
+                cellLayout.setCellsMatrix(new int[]{x, y}, true);
             }
 
         }
@@ -685,7 +649,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             for (int x = xStart; x <= xEnd; x++) {
                 for (int y = yStart; y <= yEnd; y++) {
                     //Log.v(TAG, "cells unmarked :: " + x + "  " + y);
-                    setCellsMatrix(new int[]{x, y}, false);
+                    cellLayout.setCellsMatrix(new int[]{x, y}, false);
                 }
             }
         }
@@ -696,7 +660,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
         for (View child : reorderView) {
             ItemInfoModel itemInfoModel = (ItemInfoModel) child.getTag();
-            if (!getCellMatrixVal(new int[]{itemInfoModel.getCellX(), itemInfoModel.getCellY()})) {
+            if (!cellLayout.getCellMatrixVal(new int[]{itemInfoModel.getCellX(), itemInfoModel.getCellY()})) {
                 unMarkCells(itemInfoModel.getTmpCellX(), itemInfoModel.getTmpCellY(), itemInfoModel.getSpanX(), itemInfoModel.getSpanY());
                 markCells(itemInfoModel.getCellX(), itemInfoModel.getCellY(), itemInfoModel.getSpanX(), itemInfoModel.getSpanY());
 
@@ -735,14 +699,14 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
                         //   mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
-                       // ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
+                        // ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         cellToBePlaced.setIsExisitingFolder(false);
                         Log.v(TAG, "new folder created");
                         folderTempApps.add(child);
 
                     } else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
                         Log.v(TAG, "added to existing folder");
-                      //  ((LinearLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
+                        //  ((LinearLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         //   mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
                         cellToBePlaced.setIsExisitingFolder(true);
@@ -844,10 +808,10 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         try {
             HashMap<Float, int[]> arrayListHashMap = new HashMap<>();
             ArrayList<Float> distances = new ArrayList<>();
-            for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
-                for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
+            for (int x = 0; x < cellLayout.getCellCountX(); x++) {
+                for (int y = 0; y < cellLayout.getCellCountY(); y++) {
 
-                    if (!getCellMatrixVal(new int[]{x, y})) {
+                    if (!cellLayout.getCellMatrixVal(new int[]{x, y})) {
                         int[] scalableList = isScalable(x, y, spanX, spanY);
 
                         if (scalableList != null) {
@@ -882,17 +846,17 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         int scaleXEndPos = xPos + actualSpanX;
         int scaleYEndPos = yPos + actualSpanY;
 
-        if (scaleXEndPos > launcherApplication.getCellCountX() - 1) {
+        if (scaleXEndPos > cellLayout.getCellCountX() - 1) {
             return null;
         }
 
-        if (scaleYEndPos > launcherApplication.getCellCountY() - 1) {
+        if (scaleYEndPos > cellLayout.getCellCountY() - 1) {
             return null;
         }
 
         for (int x = xPos; x <= scaleXEndPos; x++) {
             for (int y = yPos; y <= scaleYEndPos; y++) {
-                if (getCellMatrixVal(new int[]{x, y})) {
+                if (cellLayout.getCellMatrixVal(new int[]{x, y})) {
                     return null;
                 }
             }
@@ -905,8 +869,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         float bestDistance = -1;
         int[] bestCell = null;
 
-        for (int x = 0; x < launcherApplication.getCellCountX(); x++) {
-            for (int y = 0; y < launcherApplication.getCellCountY(); y++) {
+        for (int x = 0; x < cellLayout.getCellCountX(); x++) {
+            for (int y = 0; y < cellLayout.getCellCountY(); y++) {
 
                 float distance = findDistanceFromEachCell(x, y);
                 if (bestDistance == -1) {
@@ -1138,20 +1102,20 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     }
 
-    void getPopUp(ArrayList<ItemInfoModel> itemInfoModels) {
-        try {
-
-            blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
-            container.setVisibility(View.GONE);
-            blur_relative.setVisibility(View.VISIBLE);
-            AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
-            appGridView.setNumColumns(3);
-            FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
-            appGridView.setAdapter(adapter);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    void getPopUp(ArrayList<ItemInfoModel> itemInfoModels) {
+//        try {
+//
+//            blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
+//            container.setVisibility(View.GONE);
+//            blur_relative.setVisibility(View.VISIBLE);
+//            AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
+//            appGridView.setNumColumns(3);
+//            FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
+//            appGridView.setAdapter(adapter);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     @Override

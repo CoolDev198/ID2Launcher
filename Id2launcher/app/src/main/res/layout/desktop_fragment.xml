@@ -16,8 +16,8 @@
     <LinearLayout
         android:id="@+id/drop_target_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginTop="25dp"
+        android:layout_height="@dimen/drop_target_height"
+        android:layout_marginTop="@dimen/drop_target_margin"
         android:background="@color/overlay"
         android:orientation="horizontal"
         android:visibility="gone"
@@ -69,19 +69,18 @@
             <RelativeLayout
                 android:id="@+id/wallpaper_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/wallpaper_img"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
+                    android:layout_height="@dimen/wallpaper_height"
                     android:background="@mipmap/wallpaper"
                     android:scaleType="centerCrop" />
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="300dp" />
+                    android:layout_height="@dimen/wallpaper_height" />
 
 
                 <android.support.v7.widget.RecyclerView
@@ -95,44 +94,6 @@
                     android:visibility="visible" />
 
             </RelativeLayout>
-
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view"
-                android:layout_width="match_parent"
-                android:layout_height="360dp"
-                android:background="@android:color/holo_red_dark">
-
-
-                <ImageView
-                    android:id="@+id/drag_outline_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
-            </id2.id2me.com.id2launcher.CellLayout>
-
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_second"
-
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"
-                android:background="@android:color/holo_green_light"></id2.id2me.com.id2launcher.CellLayout>
-
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_third"
-
-
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"
-                android:background="@android:color/holo_purple"></id2.id2me.com.id2launcher.CellLayout>
-
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_fourth"
-
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"
-                android:background="@android:color/holo_orange_dark">
-
-            </id2.id2me.com.id2launcher.CellLayout>
 
 
         </LinearLayout>

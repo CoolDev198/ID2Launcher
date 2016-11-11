@@ -45,16 +45,14 @@ public class WidgetsListManager {
             List<ResolveInfo> shortcuts = mPackageManager.queryIntentActivities(shortcutsIntent, 0);
             for (AppWidgetProviderInfo widget : widgets) {
                 if (widget.minWidth > 0 && widget.minHeight > 0) {
-
-
                     int[] spanXY = getSpanForWidget(context, widget.provider, widget.minWidth, widget.minHeight);
                     int[] minSpanXY = getSpanForWidget(context, widget.provider, widget.minResizeWidth, widget.minResizeHeight);
 
                     int minSpanX = Math.min(spanXY[0], minSpanXY[0]);
                     int minSpanY = Math.min(spanXY[1], minSpanXY[1]);
 
-                    if (minSpanX <= ((LauncherApplication) ((Activity) context).getApplication()).getCellCountX() &&
-                            minSpanY <=  ((LauncherApplication) ((Activity) context).getApplication()).getCellCountY()) {
+//                    if (minSpanX <= ((LauncherApplication) ((Activity) context).getApplication()).getCellCountX() &&
+//                            minSpanY <=  ((LauncherApplication) ((Activity) context).getApplication()).getCellCountY()) {
                         WidgetInfoModel widgetInfo = new WidgetInfoModel();
                         widgetInfo.setPname(widget.provider.getPackageName());
                         widgetInfo.setSpanX(spanXY[0]);
@@ -66,7 +64,7 @@ public class WidgetsListManager {
                         widgetInfo.setMinSpanY(minSpanXY[1]);
                         widgetInfo.setWidgetName(widget.loadLabel(mPackageManager));
                         widgetInfos.add(widgetInfo);
-                    }
+                  //  }
 
                 } else {
                     Log.e(TAG, "Widget " + widget.provider + " can not fit on this device (" +

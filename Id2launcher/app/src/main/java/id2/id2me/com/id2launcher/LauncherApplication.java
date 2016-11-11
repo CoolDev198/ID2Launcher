@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +45,6 @@ public class LauncherApplication extends Application {
     public boolean isTimerTaskCompleted = true;
     public List<View> viewList;
     public int pos = 1;
-    public Bitmap outlineBitmap;
     private PageDragListener pageDragListener;
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
@@ -53,31 +54,10 @@ public class LauncherApplication extends Application {
         return density;
     }
 
-    public static void removeMargin() {
-        try {
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    (mCellLayoutHeight - 200));
-            params.topMargin = 0;
-            params.bottomMargin = 0;
-            params.leftMargin = 0;
-            params.rightMargin = 0;
-            for (int i = 0; i < mFrameArr.size(); i++) {
-                FrameLayout frameLayout = (FrameLayout) mFrameArr.get(i);
-                // frameLayout.setBackgroundResource(0);
-                frameLayout.setLayoutParams(params);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        setCellCountX();
-        setCellCountY();
-
 
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();
@@ -147,13 +127,6 @@ public class LauncherApplication extends Application {
         return maxGapTB;
     }
 
-    public int getCellCountX() {
-        return cellCountX;
-    }
-
-    public int getCellCountY() {
-        return cellCountY;
-    }
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
@@ -178,17 +151,7 @@ public class LauncherApplication extends Application {
         return cellWidth;
     }
 
-    public void setCellCountX() {
-        int countX = getScreenWidth() / getCellWidth();
-        cellCountX = countX;
-        setMaxGapForLR();
-    }
 
-    public void setCellCountY() {
-        int countY = getScreenHeight() / getCellHeight();
-        cellCountY = countY;
-        setMaxGapForTB();
-    }
 
     public int calculateExtraSpaceWidthWise() {
         int extraWidthSpace = getScreenWidth() - cellCountX * getCellWidth();
@@ -269,11 +232,14 @@ public class LauncherApplication extends Application {
                     mimeTypes, item);
             View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
                     view);
+
+            addMargin();
+
             if (dragInfo.getDropExternal()) {
+                currentScreen = 1;
                 ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
             }
 
-         //   addMargin();
 
             view.startDrag(data, shadowBuilder, view, 0);
 
@@ -295,6 +261,8 @@ public class LauncherApplication extends Application {
         DragShadowBuilder shadowBuilder = new DragShadowBuilder(
                 view, point);
         view.setVisibility(View.INVISIBLE);
+
+        currentScreen = dragInfo.getScreen();
         if (!dragInfo.getDropExternal()) {
             int screen;
             if (dragInfo.getScreen() == 1) {
@@ -302,11 +270,12 @@ public class LauncherApplication extends Application {
             } else {
                 screen = dragInfo.getScreen();
             }
-            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop());
-        }
-    //    addMargin();
 
-      //  view.findViewById(R.id.grid_image).setScaleX(1.2f);
+            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move_up));
+        }
+        addMargin();
+
+        //  view.findViewById(R.id.grid_image).setScaleX(1.2f);
 
         view.startDrag(data, shadowBuilder, view, 0);
 
@@ -315,25 +284,52 @@ public class LauncherApplication extends Application {
     public void addMargin() {
         try {
 
-            //main_relative.setLayoutParams(params);
-            mFrameArr = new ArrayList<>();
-
+            desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
+            int margin = getResources().getDimensionPixelOffset(R.dimen.cell_layout_margin);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
-            for (int i = 1; i < containerL.getChildCount(); i++) {
+            for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
-                if (view instanceof CellLayout) {
-                    FrameLayout linearLayout = (FrameLayout) view;
-                    mFrameArr.add(linearLayout);
 
-                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) linearLayout.getLayoutParams();
-                    params.topMargin = 30;
-                    params.bottomMargin = 0;
-                    params.leftMargin = 30;
-                    params.rightMargin = 30;
-
-                    containerL.updateViewLayout(linearLayout,params);
-
+                if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+                    params.setMargins(margin, margin, margin, 0);
+                    if (i == containerL.getChildCount() - 1) {
+                        params.setMargins(margin, margin, margin, margin);
+                    }
+                    view.setBackgroundColor(getResources().getColor(R.color.frame_color));
+                    containerL.updateViewLayout(view, params);
+                } else if (view.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                    params.setMargins(margin, margin, margin, 0);
+                    containerL.updateViewLayout(view, params);
                 }
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeMargin() {
+        try {
+            desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
+            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+            for (int i = 0; i < containerL.getChildCount(); i++) {
+                View view = containerL.getChildAt(i);
+
+                if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+                    params.setMargins(0, 0, 0, 0);
+                    containerL.updateViewLayout(view, params);
+                    view.setBackgroundColor(Color.TRANSPARENT);
+                } else if (view.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                    params.setMargins(0, 0, 0, 0);
+                    containerL.updateViewLayout(view, params);
+                }
+
+
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -29,10 +29,17 @@
     <dimen name="text_size_m">20sp</dimen>
     <dimen name="text_size_s">16sp</dimen>
     <dimen name="button_height">48dp</dimen>
+    <dimen name="wallpaper_height">310dp</dimen>
     <dimen name="noti_widget_height">100dp</dimen>
+    <dimen name="wallpaper_cell_layout">200dp</dimen>
     <dimen name="app_icon_size">60dp</dimen>
-    <dimen name="cell_layout_height">660dp</dimen>
-    <dimen name="wallpaper_height">300dp</dimen>
+    <dimen name="cell_layout_height">500dp</dimen>
+    <dimen name="cell_layout_margin">5dp</dimen>
+    <dimen name="extra_move_up">30dp</dimen>
     <dimen name="noti_widget_margin_top">200dp</dimen>
     <dimen name="pagemargin">16dp</dimen>
+    <dimen name="drop_target_height">60dp</dimen>
+    <dimen name="drop_target_margin">25dp</dimen>
+
+
 </resources>
