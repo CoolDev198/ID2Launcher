@@ -10,11 +10,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
@@ -49,6 +52,7 @@ public class LauncherApplication extends Application {
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
+    private final Rect mTempRect = new Rect();
 
     public static float getScreenDensity() {
         return density;
@@ -185,10 +189,15 @@ public class LauncherApplication extends Application {
         return dimensionInPixel;
     }
 
-    public Bitmap getOutLinerBitmap(Bitmap bitmap) {
+    public Bitmap getOutLinerBitmap(Bitmap bitmap) { // i 0 for App and 1 for Widget
         Bitmap outlinerBitmap = null;
         try {
             final Canvas canvas = new Canvas();
+            /*if(i == 0){
+                outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+            } else if(i == 1){
+                outlinerBitmap = createDragOutline();
+            }*/
             outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
         } catch (Exception e) {
             e.printStackTrace();
@@ -219,6 +228,7 @@ public class LauncherApplication extends Application {
 
         return b;
     }
+
 
     public void dragAnimation(View view) {
         try {
@@ -275,7 +285,8 @@ public class LauncherApplication extends Application {
         }
         addMargin();
 
-        //  view.findViewById(R.id.grid_image).setScaleX(1.2f);
+        //view.findViewById(R.id.grid_image).setScaleX(1.2f);
+
 
         view.startDrag(data, shadowBuilder, view, 0);
 
@@ -335,4 +346,6 @@ public class LauncherApplication extends Application {
             e.printStackTrace();
         }
     }
+
+
 }
