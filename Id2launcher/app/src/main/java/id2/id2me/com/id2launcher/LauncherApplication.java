@@ -9,10 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +49,7 @@ public class LauncherApplication extends Application {
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
+    private final Rect mTempRect = new Rect();
 
     public static float getScreenDensity() {
         return density;
@@ -204,10 +208,15 @@ public class LauncherApplication extends Application {
         return dimensionInPixel;
     }
 
-    public Bitmap getOutLinerBitmap(Bitmap bitmap) {
+    public Bitmap getOutLinerBitmap(Bitmap bitmap) { // i 0 for App and 1 for Widget
         Bitmap outlinerBitmap = null;
         try {
             final Canvas canvas = new Canvas();
+            /*if(i == 0){
+                outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+            } else if(i == 1){
+                outlinerBitmap = createDragOutline();
+            }*/
             outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
         } catch (Exception e) {
             e.printStackTrace();
@@ -236,6 +245,18 @@ public class LauncherApplication extends Application {
                 clipAlpha);
         canvas.setBitmap(null);
 
+        return b;
+    }
+
+    public Bitmap createDragOutline(View v, Canvas canvas, int padding) {
+        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final Bitmap b = Bitmap.createBitmap(
+                v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
+
+        canvas.setBitmap(b);
+        drawDragView(v, canvas, padding, true);
+        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor);
+        canvas.setBitmap(null);
         return b;
     }
 
@@ -281,8 +302,49 @@ public class LauncherApplication extends Application {
             ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop());
         }
 
-        view.findViewById(R.id.grid_image).setScaleX(1.2f);
+        //view.findViewById(R.id.grid_image).setScaleX(1.2f);
 
         view.startDrag(data, shadowBuilder, view, 0);
+    }
+
+    private void drawDragView(View v, Canvas destCanvas, int padding, boolean pruneToDrawable) {
+        final Rect clipRect = mTempRect;
+        v.getDrawingRect(clipRect);
+
+        boolean textVisible = false;
+
+        destCanvas.save();
+        if (v instanceof TextView && pruneToDrawable) {
+            Drawable d = ((TextView) v).getCompoundDrawables()[1];
+            clipRect.set(0, 0, d.getIntrinsicWidth() + padding, d.getIntrinsicHeight() + padding);
+            destCanvas.translate(padding / 2, padding / 2);
+            d.draw(destCanvas);
+        } else {
+            /*if (v instanceof FolderIcon) {
+                // For FolderIcons the text can bleed into the icon area, and so we need to
+                // hide the text completely (which can't be achieved by clipping).
+                if (((FolderIcon) v).getTextVisible()) {
+                    ((FolderIcon) v).setTextVisible(false);
+                    textVisible = true;
+                }
+            } else if (v instanceof BubbleTextView) {
+                final BubbleTextView tv = (BubbleTextView) v;
+                clipRect.bottom = tv.getExtendedPaddingTop() - (int) BubbleTextView.PADDING_V +
+                        tv.getLayout().getLineTop(0);
+            } else if (v instanceof TextView) {
+                final TextView tv = (TextView) v;
+                clipRect.bottom = tv.getExtendedPaddingTop() - tv.getCompoundDrawablePadding() +
+                        tv.getLayout().getLineTop(0);
+            }
+            destCanvas.translate(-v.getScrollX() + padding / 2, -v.getScrollY() + padding / 2);
+            destCanvas.clipRect(clipRect, Region.Op.REPLACE);
+            v.draw(destCanvas);
+
+            // Restore text visibility of FolderIcon if necessary
+            if (textVisible) {
+                ((FolderIcon) v).setTextVisible(true);
+            }*/
+        }
+        destCanvas.restore();
     }
 }

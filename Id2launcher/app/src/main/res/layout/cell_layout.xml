@@ -8,7 +8,7 @@
 
 
     <ImageView
-        android:id="@+id/drag_outline_img"
+        android:id="@+id/drag_outline_img1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"

@@ -59,80 +59,86 @@
         android:layout_below="@id/drop_target_layout"
         >
 
-
-        <LinearLayout
-            android:id ="@+id/container"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <RelativeLayout
-                android:id="@+id/wallpaper_layout"
+
+            <LinearLayout
+                android:id ="@+id/container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/wallpaper_img"
+                <RelativeLayout
+                    android:id="@+id/wallpaper_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:background="@mipmap/wallpaper"
-                    android:scaleType="centerCrop" />
+                    android:layout_height="wrap_content">
 
-                <View
+                    <ImageView
+                        android:id="@+id/wallpaper_img"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="@mipmap/wallpaper"
+                        android:scaleType="centerCrop" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp" />
+
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/noti_widget"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="20dp"
+                        android:background="@android:color/transparent"
+                        android:scrollbars="none"
+                        android:visibility="visible" />
+
+                </RelativeLayout>
+                <id2.id2me.com.id2launcher.CellLayout
+                    android:id="@+id/relative_view"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp" />
+                    android:layout_height="360dp"
+                    android:background="@android:color/holo_red_dark">
 
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/noti_widget"
+                </id2.id2me.com.id2launcher.CellLayout>
+
+                <id2.id2me.com.id2launcher.CellLayout
+                    android:id="@+id/relative_view_second"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="20dp"
-                    android:background="@android:color/transparent"
-                    android:scrollbars="none"
-                    android:visibility="visible" />
+                    android:layout_height="@dimen/cell_layout_height"
+                    android:background="@android:color/holo_green_light"></id2.id2me.com.id2launcher.CellLayout>
 
-            </RelativeLayout>
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view"
-                android:layout_width="match_parent"
-                android:layout_height="360dp"
-                android:background="@android:color/holo_red_dark">
+                <id2.id2me.com.id2launcher.CellLayout
+                    android:id="@+id/relative_view_third"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/cell_layout_height"
+                    android:background="@android:color/holo_purple"></id2.id2me.com.id2launcher.CellLayout>
 
-                <ImageView
-                    android:id="@+id/drag_outline_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
-            </id2.id2me.com.id2launcher.CellLayout>
+                <id2.id2me.com.id2launcher.CellLayout
+                    android:id="@+id/relative_view_fourth"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/cell_layout_height"
+                    android:background="@android:color/holo_orange_dark">
 
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_second"
-
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"
-                android:background="@android:color/holo_green_light"></id2.id2me.com.id2launcher.CellLayout>
-
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_third"
+                </id2.id2me.com.id2launcher.CellLayout>
 
 
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"
-                android:background="@android:color/holo_purple"></id2.id2me.com.id2launcher.CellLayout>
+            </LinearLayout>
 
-            <id2.id2me.com.id2launcher.CellLayout
-                android:id="@+id/relative_view_fourth"
+            <ImageView
+                android:id="@+id/drag_outline_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                />
 
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/cell_layout_height"
-                android:background="@android:color/holo_orange_dark">
+        </FrameLayout>
 
-            </id2.id2me.com.id2launcher.CellLayout>
-
-
-        </LinearLayout>
     </id2.id2me.com.id2launcher.ObservableScrollView>
 
 
