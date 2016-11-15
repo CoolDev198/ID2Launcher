@@ -221,7 +221,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         for (int i = 0; i < Default_Screens; i++) {
             if (i == 0) {
                 child = new CellLayout(context, R.dimen.wallpaper_cell_layout);
-                child.setBackgroundColor(Color.RED);
+              //  child.setBackgroundColor(Color.RED);
             } else {
                 child = new CellLayout(context, R.dimen.cell_layout_height);
 
