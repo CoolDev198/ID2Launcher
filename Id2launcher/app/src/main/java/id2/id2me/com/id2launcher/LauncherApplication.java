@@ -294,11 +294,11 @@ public class LauncherApplication extends Application {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
             int margin = getResources().getDimensionPixelOffset(R.dimen.cell_layout_margin);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
 
                 view.setScaleX(0.85f);
-
 
                 if (i==0) {
                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
@@ -333,6 +333,7 @@ public class LauncherApplication extends Application {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
                 view.setScaleY(1f);

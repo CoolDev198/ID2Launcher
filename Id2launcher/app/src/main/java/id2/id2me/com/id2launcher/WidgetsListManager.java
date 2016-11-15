@@ -16,6 +16,8 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.models.WidgetInfoModel;
@@ -75,6 +77,12 @@ public class WidgetsListManager {
             e.printStackTrace();
         }
 
+        Collections.sort(widgetInfos, new Comparator<WidgetInfoModel>() {
+            @Override
+            public int compare(WidgetInfoModel widgetInfoModel, WidgetInfoModel t1) {
+                return widgetInfoModel.getWidgetName().compareToIgnoreCase(t1.getWidgetName());
+            }
+        });
         return widgetInfos;
     }
 

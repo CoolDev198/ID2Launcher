@@ -133,12 +133,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                         outlineBmp = launcherApplication.getOutLinerBitmap(folderBitmap);
                     }
 
-                    /*mOutlineView.setVisibility(View.VISIBLE);
-                    mOutlineView.setImageBitmap(outlineBmp);*/
-                    /*int x = (int) event.getX();
-                    int y = (int) event.getY();
-                    setMarginOutline(x, y);*/
-                    //init();
+
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
                     calculateReqCells();
@@ -227,6 +222,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             }
             mOutlineView.setImageBitmap(outlineBmp);
             mOutlineView.setVisibility(View.VISIBLE);
+           // mOutlineView.setScaleX(0.98f);
 
             int currentScreen = Integer.parseInt(cellLayout.getTag().toString());
 
@@ -664,8 +660,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             }
 
         }
-        /*mOutlineView.setVisibility(View.VISIBLE);
-        mOutlineView.setImageBitmap(outlineBmp);*/
+
     }
 
     void unMarkCells(int cellx, int celly, int spanx, int spany) {
@@ -727,6 +722,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     boolean isAffedted = checkIsCellContain(mTargetCells, mChildCells);
 
                     if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
+                        ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
                         // ((ImageView) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
@@ -736,7 +732,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                     } else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP && cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER && isAffedted && findDistanceFromEachCell(nearestCell[0], nearestCell[1]) < 100) {
                         Log.v(TAG, "added to existing folder");
-
                         ((LinearLayout) child).setBackground(ContextCompat.getDrawable(context, R.drawable.background));
                         mOutlineView.setVisibility(View.GONE);
                         cellToBePlaced = new ItemInfoModel();
@@ -761,9 +756,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                     } else {
                         removeBackground(child);
-                        //mOutlineView.setVisibility(View.VISIBLE);
 
-                        //outlineAnimation(nearestCell);
 
                     }
 
@@ -785,9 +778,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                             markCells(nearestCell[0], nearestCell[1], dragInfo.getSpanX(), dragInfo.getSpanY());
                         }
                         markCells(cellInfo.getTmpCellX(), cellInfo.getTmpCellY(), cellInfo.getSpanX(), cellInfo.getSpanY());
-                        //mOutlineView.setVisibility(View.VISIBLE);
 
-                        //outlineAnimation(nearestCell);
 
                     }
 
@@ -800,6 +791,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     }
 
     void removeBackground(View child) {
+
         if (child instanceof LinearLayout) {
             ((LinearLayout) child).setBackground(null);
         } else if (child instanceof ImageView) {
@@ -1230,10 +1222,11 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             params.topMargin = topMargin + mCellPaddingTop;*/
 
             FrameLayout.LayoutParams params = getFrameLayoutParams(leftMargin, topMargin);
+            //params.gravity = Gravity.CENTER;
 
-           /* mOutlineView.setVisibility(View.VISIBLE);
-            mOutlineView.setImageBitmap(outlineBmp);*/
+
             mOutlineView.setLayoutParams(params);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
