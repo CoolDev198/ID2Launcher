@@ -1138,20 +1138,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     }
 
-//    void getPopUp(ArrayList<ItemInfoModel> itemInfoModels) {
-//        try {
-//
-//            blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
-//            container.setVisibility(View.GONE);
-//            blur_relative.setVisibility(View.VISIBLE);
-//            AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
-//            appGridView.setNumColumns(3);
-//            FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
-//            appGridView.setAdapter(adapter);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 
     @Override
