@@ -10,14 +10,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
@@ -36,6 +33,7 @@ public class LauncherApplication extends Application {
     private static float density;
     private static int mCellLayoutHeight;
     private static ArrayList<FrameLayout> mFrameArr;
+    private final Rect mTempRect = new Rect();
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
@@ -52,7 +50,6 @@ public class LauncherApplication extends Application {
     private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
-    private final Rect mTempRect = new Rect();
 
     public static float getScreenDensity() {
         return density;
@@ -154,7 +151,6 @@ public class LauncherApplication extends Application {
                 R.dimen.cell_width);
         return cellWidth;
     }
-
 
 
     public int calculateExtraSpaceWidthWise() {
@@ -301,22 +297,33 @@ public class LauncherApplication extends Application {
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
 
-                if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                view.setScaleX(0.85f);
+
+
+                if (i==0) {
                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
-                    params.setMargins(margin, margin, margin, 0);
-                    if (i == containerL.getChildCount() - 1) {
-                        params.setMargins(margin, margin, margin, margin);
-                    }
+                   params.height=getResources().getDimensionPixelOffset(R.dimen.wallpaper_height_after_anim);
+//                  params.setMargins(margin, 0, margin, 0);
+                  containerL.updateViewLayout(view, params);
+
+                } else  {
+                    view.setScaleY(0.98f);
                     view.setBackgroundColor(getResources().getColor(R.color.frame_color));
-                    containerL.updateViewLayout(view, params);
-                } else if (view.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                    params.setMargins(margin, margin, margin, 0);
-                    containerL.updateViewLayout(view, params);
+                }
+                if(view instanceof  FrameLayout) {
+                    FrameLayout viewF = (FrameLayout)view;
+                    for (int j = 0; j < viewF.getChildCount();j++){
+                        View child = viewF.getChildAt(j);
+                        child.setPivotY(0.5f);
+                        child.setPivotX(0.5f);
+                        child.setScaleX(0.98f);
+                        child.setScaleY(0.85f);
+                    }
+
                 }
 
-
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -328,20 +335,32 @@ public class LauncherApplication extends Application {
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
-
-                if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                view.setScaleY(1f);
+                view.setScaleX(1f);
+                if (i == 0) {
                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
-                    params.setMargins(0, 0, 0, 0);
+                  //  params.setMargins(0, 0, 0, 0);
+                    params.height = getResources().getDimensionPixelOffset(R.dimen.wallpaper_height);
+
                     containerL.updateViewLayout(view, params);
+                } else {
+
                     view.setBackgroundColor(Color.TRANSPARENT);
-                } else if (view.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                    params.setMargins(0, 0, 0, 0);
-                    containerL.updateViewLayout(view, params);
                 }
 
 
+                if(view instanceof  FrameLayout) {
+                    FrameLayout viewF = (FrameLayout)view;
+                    for (int j = 0; j < viewF.getChildCount();j++){
+                        View child = viewF.getChildAt(j);
+                        child.setScaleX(1f);
+                        child.setScaleY(1f);
+                    }
+
+                }
+
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

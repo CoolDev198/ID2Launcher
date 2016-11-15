@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -30,6 +31,7 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
 import id2.id2me.com.id2launcher.models.FolderInfoModel;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
+import jp.wasabeef.blurry.Blurry;
 
 
 /**
@@ -131,7 +133,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         timer = new Timer();
 
         //initialize the TimerTask's job
-        initializeTimerTask();
+       // initializeTimerTask();
 
         //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
         timer.schedule(timerTask, 5000, 500); //
@@ -219,6 +221,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         for (int i = 0; i < Default_Screens; i++) {
             if (i == 0) {
                 child = new CellLayout(context, R.dimen.wallpaper_cell_layout);
+                child.setBackgroundColor(Color.RED);
             } else {
                 child = new CellLayout(context, R.dimen.cell_layout_height);
 
@@ -299,27 +302,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         }
     }
 
-    public void initializeTimerTask() {
 
-//        timerTask = new TimerTask() {
-//            public void run() {
-//
-//                //use a handler to run a toast that shows the current timestamp
-//                handler.post(new Runnable() {
-//                    public void run() {
-//                        //get the current timeStamp
-//                        Blurry.with(context)
-//                                .radius(25)
-//                                .sampling(1)
-//                                .color(Color.argb(66, 255, 255, 255))
-//                                .async()
-//                                .capture(scrollView)
-//                                .into(blur_relative);
-//                    }
-//                });
-//            }
-//        };
-    }
 
     @Override
     public void onDestroyView() {

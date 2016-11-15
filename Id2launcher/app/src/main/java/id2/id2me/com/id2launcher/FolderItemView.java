@@ -2,31 +2,30 @@ package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by CrazyInnoTech on 11-11-2016.
  */
 
-public class FolderItemView implements  View.OnTouchListener, View.OnClickListener{
+public class FolderItemView implements View.OnTouchListener, View.OnClickListener {
 
     final Handler handler = new Handler();
     static View item;
@@ -128,6 +127,14 @@ public class FolderItemView implements  View.OnTouchListener, View.OnClickListen
         container.setVisibility(View.GONE);
         blur_relative.setVisibility(View.VISIBLE);
 
+        Blurry.with(context)
+                .radius(25)
+                .sampling(1)
+                .color(Color.argb(66, 255, 255, 255))
+                .async()
+                .capture(launcherApplication.desktopFragment.findViewById(R.id.scrollView))
+                .into(blur_relative);
+
         AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
         appGridView.setNumColumns(3);
         FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
@@ -136,26 +143,7 @@ public class FolderItemView implements  View.OnTouchListener, View.OnClickListen
 
     }
 
-    private void launchApplication(ItemInfoModel itemInfoModel) {
-        try {
-            Intent intent = null;
-            String pckName = itemInfoModel.getPname();
 
-            if (pckName != null) {
-                intent = context.getPackageManager()
-                        .getLaunchIntentForPackage(pckName);
-
-                context.startActivity(intent);
-
-            } else {
-                Toast.makeText(context,
-                        context.getResources().getText(R.string.appNotFound),
-                        Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 
     private void setFolderImagesList(LinearLayout folder_view) {
         folderImgs = new ArrayList<>();
@@ -167,7 +155,7 @@ public class FolderItemView implements  View.OnTouchListener, View.OnClickListen
         }
     }
 
-    private  void setFolderView(Context context, View view, ArrayList<ItemInfoModel> itemInfoModels) {
+    private void setFolderView(Context context, View view, ArrayList<ItemInfoModel> itemInfoModels) {
         setFolderImagesList((LinearLayout) view);
         for (int i = 0; i < folderImgs.size(); i++) {
             if (i < itemInfoModels.size()) {
@@ -176,19 +164,17 @@ public class FolderItemView implements  View.OnTouchListener, View.OnClickListen
                 folderImgs.get(i).setVisibility(View.VISIBLE);
             } else {
                 //folderImgs.get(i).setVisibility(View.INVISIBLE);
-                folderImgs.get(i).setBackground(ContextCompat.getDrawable(context,R.drawable.folder_empty_icon));
+                folderImgs.get(i).setBackground(ContextCompat.getDrawable(context, R.drawable.folder_empty_icon));
                 //iv.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.img));
 
             }
         }
-    }
-
-    public static Bitmap getBitmapFolderView(){
+    }    public static Bitmap getBitmapFolderView() {
         try {
             item.buildDrawingCache();
             Bitmap folderBitmap = item.getDrawingCache();
             return folderBitmap;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -233,9 +219,9 @@ public class FolderItemView implements  View.OnTouchListener, View.OnClickListen
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             Log.v("FolderItemView ", " onSingleTapUp: ");
-           // if(view.getId()!= R.id.blur_relative){
-                performClick(view);
-           // }
+            // if(view.getId()!= R.id.blur_relative){
+            performClick(view);
+            // }
 
             return super.onSingleTapUp(e);
         }
