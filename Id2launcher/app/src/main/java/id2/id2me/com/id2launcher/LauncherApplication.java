@@ -300,8 +300,8 @@ public class LauncherApplication extends Application {
 
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
-            for (int i = 0; i < containerL.getChildCount(); i++) {
 
+            for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
 
                 if (i==0) {
@@ -340,6 +340,7 @@ public class LauncherApplication extends Application {
             desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(1f);
             desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
                 view.setScaleY(1f);
