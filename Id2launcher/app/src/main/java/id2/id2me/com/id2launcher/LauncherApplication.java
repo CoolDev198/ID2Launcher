@@ -277,7 +277,7 @@ public class LauncherApplication extends Application {
                 screen = dragInfo.getScreen();
             }
 
-            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move_up));
+            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move));
         }
         addMargin();
 
@@ -292,13 +292,17 @@ public class LauncherApplication extends Application {
         try {
 
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
-            int margin = getResources().getDimensionPixelOffset(R.dimen.cell_layout_margin);
+            desktopFragment.findViewById(R.id.drag_layer).setScaleX(0.85f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
+
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
             for (int i = 0; i < containerL.getChildCount(); i++) {
+
                 View view = containerL.getChildAt(i);
-
-                view.setScaleX(0.85f);
-
 
                 if (i==0) {
                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
@@ -332,6 +336,9 @@ public class LauncherApplication extends Application {
     public void removeMargin() {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
+            desktopFragment.findViewById(R.id.drag_layer).setScaleX(1f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(1f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);

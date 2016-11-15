@@ -60,6 +60,7 @@
         android:layout_below="@id/drop_target_layout">
 
         <FrameLayout
+            android:id="@+id/drag_layer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

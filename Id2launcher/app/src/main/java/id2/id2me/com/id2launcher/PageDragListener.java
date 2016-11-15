@@ -218,6 +218,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     void onDrag(DragEvent event) {
         try {
+
             X = (int) event.getX();
             Y = (int) event.getY();
             try {
@@ -234,23 +235,18 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 direction = 1;
                 launcherApplication.isTimerTaskCompleted = false;
                 Log.v(TAG, "decremented");
-
-
                 int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up);
                 container.scrollTo(0, containerL.getChildAt(currentScreen).getTop() - margin);
                 launcherApplication.currentScreen = currentScreen;
                 startTimer();
+
             } else if (launcherApplication.currentScreen != currentScreen && Y < 100 && launcherApplication.isTimerTaskCompleted) {
                 direction = 0;
                 launcherApplication.isTimerTaskCompleted = false;
                 Log.v(TAG, "incremented");
-                Log.v(TAG, " container top  " + containerL.getChildAt(currentScreen).getTop());
                 int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up);
-                Log.v(TAG, " margin  " + margin);
                 launcherApplication.currentScreen = currentScreen;
                 container.scrollTo(0, containerL.getChildAt(currentScreen).getTop() - margin);
-
-
                 startTimer();
 
             } else if (launcherApplication.currentScreen != currentScreen && currentScreen == 1 && Y > 500 && launcherApplication.isTimerTaskCompleted) {
@@ -1223,8 +1219,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             System.out.println("Top Margin Layout :  " + topLayoutMargin);
             /*FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);*/
-            int leftMargin = nearestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (nearestCell[0]));
-            int topMargin = nearestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (nearestCell[1]) + topLayoutMargin);
+            int leftMargin = nearestCell[0] * cellWidth;// + (launcherApplication.getMaxGapLR() * (nearestCell[0]));
+            int topMargin =  nearestCell[1] * cellHeight + topLayoutMargin;
 
            /* params.leftMargin = leftMargin + mCellPaddingLeft;
             params.topMargin = topMargin + mCellPaddingTop;*/
