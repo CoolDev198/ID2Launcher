@@ -1,37 +1,29 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.FolderInfoModel;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
-import jp.wasabeef.blurry.Blurry;
+import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 
 
 /**
@@ -44,17 +36,14 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     String TAG = "DesktopFragment";
     //context menu ids
-    Dialog customDialog;
-    Timer timer;
     TimerTask timerTask;
     List<Fragment> fragmentList;
     private ArrayList<AppInfoModel> appInfos;
     private View fragmentView = null;
     private Context context;
     private LauncherApplication application;
-    private FrameLayout parentLayout;
     private ImageView wallpaperImg;
-    private FrameLayout wallpaperLayout;
+    private RelativeLayout wallpaperLayout;
     private AppsListingFragment appsListingFragment;
     private DatabaseHandler db;
     private NotificationWidgetAdapter notificationWidgetAdapter;
@@ -65,7 +54,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             notifyDataInNotificationWidget();
         }
     };
-    private View blur_relative;
     private LauncherModel mModel;
 
     public static DesktopFragment newInstance() {
@@ -128,16 +116,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     }
 
-    public void startTimer() {
-        //set a new Timer
-        timer = new Timer();
-
-        //initialize the TimerTask's job
-       // initializeTimerTask();
-
-        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
-        timer.schedule(timerTask, 5000, 500); //
-    }
 
     @Override
     public void bindAppsAdded() {
@@ -183,12 +161,9 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     private void initViews() {
 
-        //wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-
-
         addNotifyWidget();
 
-        addWallpaperCropper();
+        //  addWallpaperCropper();
 
 
         ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
@@ -221,7 +196,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         for (int i = 0; i < Default_Screens; i++) {
             if (i == 0) {
                 child = new CellLayout(context, R.dimen.wallpaper_cell_layout);
-              //  child.setBackgroundColor(Color.RED);
             } else {
                 child = new CellLayout(context, R.dimen.cell_layout_height);
 
@@ -231,27 +205,29 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
     private void addWallpaperCropper() {
-        //  wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
-//        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-//        //wallpaperLayout.setOnDragListener(new WallpaperDragListener(getActivity(), application.getPageDragListener(), fragmentView.findViewById(R.id.layout_remove), fragmentView.findViewById(R.id.layout_uninstall)));
-//        wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//                Intent intent = new Intent(getActivity(), MainActivity.class);
-//                startActivity(intent);
-//                return false;
-//            }
-//        });
+        wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
+        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
+        wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
 
     }
 
     private void addDragListener() {
 
+        fragmentView.findViewById(R.id.main_layout).setOnDragListener(new DesktopDragListener(context, fragmentView));
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
         for (int i = 1; i < containerL.getChildCount(); i++) {
             CellLayout child = (CellLayout) containerL.getChildAt(i);
             child.setTag(i);
-            child.setOnDragListener(new PageDragListener(context, fragmentView, child));
+            PageDragListener pageDragListener = new PageDragListener(context, fragmentView, child);
+            child.setOnDragListener(pageDragListener);
+            child.setDragListener(pageDragListener);
         }
     }
 
@@ -264,44 +240,43 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         notifyDataInNotificationWidget();
     }
 
-    private void populateDesktop() {
-        HashMap<Long, FolderInfoModel> folderInfoHashMap = new HashMap<>();
-
-        for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
-            ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
-            int type = itemInfo.getItemType();
-
-            int width = application.getCellWidth() * itemInfo.getSpanX();
-            int height = application.getCellHeight() * itemInfo.getSpanY();
-
-
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-            int leftMargin = itemInfo.getCellX() * application.getCellWidth() + application.getMaxGapLR() * (itemInfo.getCellX());
-            int topMargin = itemInfo.getCellY() * application.getCellWidth() + application.getMaxGapTB() * (itemInfo.getCellY());
-            layoutParams.setMargins(leftMargin, topMargin, 0, 0);
-
-
-            switch (type) {
-
-                case DatabaseHandler.ITEM_TYPE_APP:
-
-                    if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
-                        application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
-                    }
-                    break;
-                case DatabaseHandler.ITEM_TYPE_FOLDER:
-
-                    application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
-
-                    break;
-                case DatabaseHandler.ITEM_TYPE_APPWIDGET:
-                    application.getPageDragListener().addWidgetToPage(itemInfo.getAppWidgetId(), itemInfo, layoutParams);
-
-                    break;
-            }
-        }
-    }
-
+//    private void populateDesktop() {
+//        HashMap<Long, FolderInfoModel> folderInfoHashMap = new HashMap<>();
+//
+//        for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
+//            ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
+//            int type = itemInfo.getItemType();
+//
+//            int width = application.getCellWidth() * itemInfo.getSpanX();
+//            int height = application.getCellHeight() * itemInfo.getSpanY();
+//
+//
+//            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+//            int leftMargin = itemInfo.getCellX() * application.getCellWidth();
+//            int topMargin = itemInfo.getCellY() * application.getCellWidth();
+//            layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+//
+//
+//            switch (type) {
+//
+//                case DatabaseHandler.ITEM_TYPE_APP:
+//
+//                    if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
+//                        application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+//                    }
+//                    break;
+//                case DatabaseHandler.ITEM_TYPE_FOLDER:
+//
+//                    application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+//
+//                    break;
+//                case DatabaseHandler.ITEM_TYPE_APPWIDGET:
+//                    application.getPageDragListener().addWidgetToPage(itemInfo.getAppWidgetId(), itemInfo, layoutParams);
+//
+//                    break;
+//            }
+//        }
+//    }
 
 
     @Override

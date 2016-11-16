@@ -31,9 +31,6 @@ public class LauncherApplication extends Application {
     public static ImageView wallpaperImg;
     public static List<NotificationWidgetModel> notificationWidgetModels;
     private static float density;
-    private static int mCellLayoutHeight;
-    private static ArrayList<FrameLayout> mFrameArr;
-    private final Rect mTempRect = new Rect();
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
@@ -45,11 +42,11 @@ public class LauncherApplication extends Application {
     public int currentScreen = 1;
     public boolean isTimerTaskCompleted = true;
     public List<View> viewList;
-    public int pos = 1;
     private PageDragListener pageDragListener;
-    private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
+    public boolean isDragStarted = false;
+
 
     public static float getScreenDensity() {
         return density;
@@ -66,7 +63,6 @@ public class LauncherApplication extends Application {
 
         mModel = new LauncherModel(this);
         density = getResources().getDisplayMetrics().density;
-        mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
         addBroadCastReceiver();
         mOutlineHelper = new HolographicOutlineHelper();
@@ -120,14 +116,6 @@ public class LauncherApplication extends Application {
         this.pageDragListener = pageDragListener;
     }
 
-    public int getMaxGapLR() {
-        return maxGapLR;
-    }
-
-    public int getMaxGapTB() {
-        return maxGapTB;
-    }
-
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
@@ -153,27 +141,6 @@ public class LauncherApplication extends Application {
     }
 
 
-    public int calculateExtraSpaceWidthWise() {
-        int extraWidthSpace = getScreenWidth() - cellCountX * getCellWidth();
-        return extraWidthSpace;
-    }
-
-    public int calculateExtraSpaceHeightWise() {
-        int extraHeightSpace = getScreenHeight() - cellCountY * getCellHeight();
-        return extraHeightSpace;
-    }
-
-    public void setMaxGapForLR() {
-        int paddingLR = calculateExtraSpaceWidthWise() / (cellCountX + 1);
-        maxGapLR = paddingLR;
-
-    }
-
-    public void setMaxGapForTB() {
-        int paddingTB = calculateExtraSpaceHeightWise() / (cellCountY + 1);
-        maxGapTB = paddingTB;
-
-    }
 
     public float convertFromPixelToDp(int dimension) {
         float dimensionInDp = (dimension / getScreenDensity());
@@ -230,6 +197,7 @@ public class LauncherApplication extends Application {
         try {
 
 
+            isDragStarted=true;
             ClipData.Item item = new ClipData.Item(
                     (CharSequence) (""));
 
@@ -258,6 +226,7 @@ public class LauncherApplication extends Application {
 
     public void dragAnimation(View view, Point point) {
 
+        isDragStarted=true;
         ClipData.Item item = new ClipData.Item(
                 (CharSequence) (""));
 
@@ -311,7 +280,7 @@ public class LauncherApplication extends Application {
                   containerL.updateViewLayout(view, params);
 
                 } else  {
-                    view.setScaleY(0.98f);
+                 //   view.setScaleY(0.98f);
                     view.setBackgroundColor(getResources().getColor(R.color.frame_color));
                 }
                 if(view instanceof  FrameLayout) {
@@ -366,6 +335,8 @@ public class LauncherApplication extends Application {
                     }
 
                 }
+
+
 
             }
 

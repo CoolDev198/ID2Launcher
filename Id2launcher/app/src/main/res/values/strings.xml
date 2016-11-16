@@ -46,6 +46,8 @@
     <string name="drawerTitleApps">Apps</string>
 
 
+    <string name="invalid_alert">Invalid Location</string>
+
     <string-array name="noti_app_id">
         <item>com.facebook.katana</item>
         <item>com.google.android.apps.messaging</item>

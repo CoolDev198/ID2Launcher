@@ -18,12 +18,20 @@ public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChan
     private int cellCountY;
     private int cellCountX;
     private int height;
+    PageDragListener pageDragListener;
 
     public CellLayout(Context context, int heightResource) {
         super(context);
         height = getResources().getDimensionPixelSize(heightResource);
         this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, height));
         init(context);
+    }
+
+    public void setDragListener(PageDragListener dragListener) {
+        this.pageDragListener = dragListener;
+    }
+    public PageDragListener getDragListener(){
+        return  this.pageDragListener;
     }
 
     public void setCellsMatrix(int[] matrix, boolean val) {

@@ -60,7 +60,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     private FrameLayout.LayoutParams layoutParams;
     private int[] nearestCell;
     private ItemInfoModel cellToBePlaced;
-    private boolean isDragStarted = false;
     private ItemInfoModel dragInfo;
     private LauncherAppWidgetHostView hostView;
     private TimerTask timerTask;
@@ -123,7 +122,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             case DragEvent.ACTION_DRAG_STARTED:
                 try {
 
-                    isDragStarted = true;
                     dragInfo = launcherApplication.dragInfo;
 
                     if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
@@ -133,14 +131,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                         outlineBmp = launcherApplication.getOutLinerBitmap(folderBitmap);
                     }
 
-
                     copyActualMatricesToDragMatrices();
                     drag_view = (View) event.getLocalState();
                     calculateReqCells();
-
-                    //                    if (!dragInfo.getDropExternal()) {
-                    //    dropTargetLayout.setVisibility(View.VISIBLE);
-//                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -166,12 +159,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             case DragEvent.ACTION_DROP:
                 //  Log.v(TAG, "DROP Action");
                 try {
-                    launcherApplication.isTimerTaskCompleted = true;
-                    if (timer != null)
-                        timer.cancel();
 
                     onDrop();
-                    launcherApplication.removeMargin();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -430,19 +420,30 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     }
 
+    void onDropOutOfCellLayout(){
+        launcherApplication.isTimerTaskCompleted = true;
+        if (timer != null)
+            timer.cancel();
+        launcherApplication.removeMargin();
+        mOutlineView.setVisibility(View.GONE);
+        launcherApplication.isDragStarted = false;
+    }
     void onDrop() {
         try {
-
+            launcherApplication.isTimerTaskCompleted = true;
+            if (timer != null)
+                timer.cancel();
+            launcherApplication.removeMargin();
+            drag_view.setScaleX(1f);
+            drag_view.setScaleY(1f);
             mOutlineView.setVisibility(View.GONE);
             drag_view.setVisibility(View.VISIBLE);
             actionAfterDrop();
-            isDragStarted = false;
+            launcherApplication.isDragStarted = false;
             isAvailableCellsGreater = false;
             isRequiredCellsCalculated = false;
             isItemCanPlaced = false;
             cellToBePlaced = null;
-            //  extendDesktop();
-            //  dropTargetLayout.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -687,8 +688,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                 itemInfoModel.setTempCellX(itemInfoModel.getCellX());
                 itemInfoModel.setTempCellY(itemInfoModel.getCellY());
-                int leftMargin = itemInfoModel.getCellX() * cellWidth + (launcherApplication.getMaxGapLR() * (itemInfoModel.getCellX()));
-                int topMargin = itemInfoModel.getCellY() * cellHeight + (launcherApplication.getMaxGapTB() * (itemInfoModel.getCellY()));
+                int leftMargin = itemInfoModel.getCellX() * cellWidth ;
+                int topMargin = itemInfoModel.getCellY() * cellHeight;
                 int width = cellWidth * itemInfoModel.getSpanX();
                 int height = cellHeight * itemInfoModel.getSpanY();
                 layoutParams = getFrameLayoutParams(leftMargin, topMargin);
@@ -762,8 +763,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                         cellInfo.setTempCellY(bestCell[1]);
 
                         reorderView.add(child);
-                        int leftMargin = bestCell[0] * cellWidth + (launcherApplication.getMaxGapLR() * (bestCell[0]));
-                        int topMargin = bestCell[1] * cellHeight + (launcherApplication.getMaxGapTB() * (bestCell[1]));
+                        int leftMargin = bestCell[0] * cellWidth;
+                        int topMargin = bestCell[1] * cellHeight ;
                         //layoutParams.setMargins(leftMargin, topMargin, 0, 0);
                         layoutParams = getFrameLayoutParams(leftMargin, topMargin);
 
@@ -911,9 +912,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     private float findDistanceFromEachCell(int x, int y) {
 
 
-        int centerX = (x * cellWidth) + launcherApplication.getMaxGapLR() * x +
+        int centerX = (x * cellWidth) +
                 (spanX * cellWidth) / 2;
-        int centerY = (y * cellHeight) + launcherApplication.getMaxGapTB() * y +
+        int centerY = (y * cellHeight)  +
                 (spanY * cellHeight) / 2;
 
         float distance = (float) Math.sqrt(Math.pow(X - centerX, 2) +
@@ -1118,8 +1119,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             int height = cellHeight * dragInfo.getSpanY();
 
             //layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            int leftMargin = (dragInfo.getCellX() * cellWidth + (launcherApplication.getMaxGapLR() * (dragInfo.getCellX())));
-            int topMargin = (dragInfo.getCellY() * cellHeight + (launcherApplication.getMaxGapTB() * (dragInfo.getCellY())));
+            int leftMargin = dragInfo.getCellX() * cellWidth;
+            int topMargin = dragInfo.getCellY() * cellHeight;
             //layoutParams.setMargins(leftMargin, topMargin, 0, 0);
 
             layoutParams = getFrameLayoutParams(leftMargin, topMargin);
@@ -1152,30 +1153,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         }
     }
 
-    public void dropOutOfTheBox() {
-        try {
-            if (isDragStarted) {
-                if (dragInfo.getDropExternal()) {
-                    Toast.makeText(context, "Invalid Drop Location", Toast.LENGTH_LONG).show();
-                } else {
-                    onDrop();
-                }
 
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void removeViewFromDesktop() {
-
-        if (!dragInfo.getDropExternal()) {
-            isDragStarted = false;
-            unMarkCells(dragInfo.getCellX(), dragInfo.getCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
-            cellLayout.removeView(drag_view);
-        }
-    }
 
     public void addWidgetToPage(int appWidgetId, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
         appWidgetProviderInfo = launcherApplication.getLauncher().mAppWidgetManager.getAppWidgetInfo
