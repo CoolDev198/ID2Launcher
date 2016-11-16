@@ -211,9 +211,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            mOutlineView.setImageBitmap(outlineBmp);
-            mOutlineView.setVisibility(View.VISIBLE);
-           // mOutlineView.setScaleX(0.98f);
+
+            // mOutlineView.setScaleX(0.98f);
+
 
             int currentScreen = Integer.parseInt(cellLayout.getTag().toString());
 
@@ -227,13 +227,23 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 startTimer();
 
             } else if (launcherApplication.currentScreen != currentScreen && Y < 100 && launcherApplication.isTimerTaskCompleted) {
-                direction = 0;
-                launcherApplication.isTimerTaskCompleted = false;
-                Log.v(TAG, "incremented");
-                int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up);
-                launcherApplication.currentScreen = currentScreen;
-                container.scrollTo(0, containerL.getChildAt(currentScreen).getTop() - margin);
-                startTimer();
+                if (((FrameLayout) containerL.getChildAt(currentScreen - 1)).getChildCount() > 0) {
+                    direction = 0;
+                    launcherApplication.isTimerTaskCompleted = false;
+                    Log.v(TAG, "incremented");
+                    int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up);
+                    launcherApplication.currentScreen = currentScreen;
+                    container.scrollTo(0, containerL.getChildAt(currentScreen).getTop() - margin);
+                    startTimer();
+                }else if(currentScreen==2){
+                    direction = 0;
+                    launcherApplication.isTimerTaskCompleted = false;
+                    Log.v(TAG, "incremented");
+                    int margin = context.getResources().getDimensionPixelSize(R.dimen.extra_move_up);
+                    launcherApplication.currentScreen = currentScreen;
+                    container.scrollTo(0, containerL.getChildAt(currentScreen).getTop() - margin);
+                    startTimer();
+                }
 
             } else if (launcherApplication.currentScreen != currentScreen && currentScreen == 1 && Y > 500 && launcherApplication.isTimerTaskCompleted) {
                 direction = 1;
@@ -304,6 +314,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                 cellLayout.removeView(drag_view);
                 unMarkCells(dragInfo.getTmpCellX(), dragInfo.getTmpCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
                 findAvalCells();
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -336,6 +347,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
 
                 if (noOfAvailCells >= noOfReqCells && !isRequiredCellsCalculated) {
+                    mOutlineView.setImageBitmap(outlineBmp);
+                    mOutlineView.setVisibility(View.VISIBLE);
                     isAvailableCellsGreater = true;
                 }
                 isRequiredCellsCalculated = true;
@@ -354,7 +367,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     void goAhead() {
 
-        if (isAvailableCellsGreater) {
+        if (isAvailableCellsGreater || dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
             int[] nearCellsObj = findNearestCells();
             //   Log.v(TAG, "matrixpos :: " + "  " + nearCellsObj.get(0) + "  " + nearCellsObj.get(1));
             if (Arrays.equals(nearestCell, nearCellsObj)) {
@@ -420,7 +433,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     }
 
-    void onDropOutOfCellLayout(){
+    void onDropOutOfCellLayout() {
         launcherApplication.isTimerTaskCompleted = true;
         if (timer != null)
             timer.cancel();
@@ -428,6 +441,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         mOutlineView.setVisibility(View.GONE);
         launcherApplication.isDragStarted = false;
     }
+
     void onDrop() {
         try {
             launcherApplication.isTimerTaskCompleted = true;
@@ -688,7 +702,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                 itemInfoModel.setTempCellX(itemInfoModel.getCellX());
                 itemInfoModel.setTempCellY(itemInfoModel.getCellY());
-                int leftMargin = itemInfoModel.getCellX() * cellWidth ;
+                int leftMargin = itemInfoModel.getCellX() * cellWidth;
                 int topMargin = itemInfoModel.getCellY() * cellHeight;
                 int width = cellWidth * itemInfoModel.getSpanX();
                 int height = cellHeight * itemInfoModel.getSpanY();
@@ -754,7 +768,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     } else {
                         removeBackground(child);
 
-
                     }
 
                     if (bestCell != null) {
@@ -764,7 +777,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
                         reorderView.add(child);
                         int leftMargin = bestCell[0] * cellWidth;
-                        int topMargin = bestCell[1] * cellHeight ;
+                        int topMargin = bestCell[1] * cellHeight;
                         //layoutParams.setMargins(leftMargin, topMargin, 0, 0);
                         layoutParams = getFrameLayoutParams(leftMargin, topMargin);
 
@@ -914,7 +927,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
         int centerX = (x * cellWidth) +
                 (spanX * cellWidth) / 2;
-        int centerY = (y * cellHeight)  +
+        int centerY = (y * cellHeight) +
                 (spanY * cellHeight) / 2;
 
         float distance = (float) Math.sqrt(Math.pow(X - centerX, 2) +
@@ -1025,7 +1038,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     }
 
     public void addFolderToPage(Bitmap icon, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
-
         try {
             System.out.println("Folder Fragment");
             //layoutParams = getFrameLayoutParams();
@@ -1132,7 +1144,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     }
 
 
-
     @Override
     public void onDragWidget(LauncherAppWidgetHostView launcherAppWidgetHostView) {
         try {
@@ -1152,7 +1163,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             e.printStackTrace();
         }
     }
-
 
 
     public void addWidgetToPage(int appWidgetId, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
@@ -1176,7 +1186,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             /*FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);*/
             int leftMargin = nearestCell[0] * cellWidth;// + (launcherApplication.getMaxGapLR() * (nearestCell[0]));
-            int topMargin =  nearestCell[1] * cellHeight + topLayoutMargin;
+            int topMargin = nearestCell[1] * cellHeight + topLayoutMargin;
 
            /* params.leftMargin = leftMargin + mCellPaddingLeft;
             params.topMargin = topMargin + mCellPaddingTop;*/
@@ -1227,5 +1237,16 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         canvas.setBitmap(null);
         return b;
     }*/
+
+    private void addScreen() {
+        try {
+
+            CellLayout child = new CellLayout(context, R.dimen.cell_layout_height);
+            containerL.addView(child);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

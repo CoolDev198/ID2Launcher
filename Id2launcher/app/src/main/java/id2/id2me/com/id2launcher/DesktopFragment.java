@@ -31,7 +31,7 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
  */
 public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
     private static final float MIN_SCALE = 0.75f;
-    private static final int Default_Screens = 4;
+    private static final int Default_Screens = 2;
     final Handler handler = new Handler();
 
     String TAG = "DesktopFragment";
@@ -39,7 +39,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     TimerTask timerTask;
     List<Fragment> fragmentList;
     private ArrayList<AppInfoModel> appInfos;
-    private View fragmentView = null;
+    private static View fragmentView = null;
     private Context context;
     private LauncherApplication application;
     private ImageView wallpaperImg;
@@ -55,6 +55,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         }
     };
     private LauncherModel mModel;
+    private static int mCellLayoutHeight;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -93,6 +94,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
                 mModel = application.setDeskTopFragment(this);
 
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
+                mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
                 initViews();
 
@@ -285,10 +287,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
-
 }
-
-
-
 
 
