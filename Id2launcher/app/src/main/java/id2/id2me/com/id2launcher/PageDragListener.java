@@ -518,7 +518,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
         try {
 
-            String tag = cellLayout.getTag().toString();
+            int screen = Integer.parseInt(cellLayout.getTag().toString());
+            dragInfo.setScreen(screen);
+            
             if (cellToBePlaced != null && dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
 
 
@@ -751,6 +753,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                         folderTempApps.add(child);
 
                     } else if (isAffedted) {
+                        mOutlineView.setVisibility(View.VISIBLE);
                         removeBackground(child);
                         folderTempApps.clear();
                         cellToBePlaced = null;
@@ -766,6 +769,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                         }
 
                     } else {
+                        mOutlineView.setVisibility(View.VISIBLE);
                         removeBackground(child);
 
                     }
@@ -1226,27 +1230,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         }
     }
 
-    /*private Bitmap createDragOutline(View v, Canvas canvas, int padding) {
-        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
-        final Bitmap b = Bitmap.createBitmap(
-                v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
 
-        canvas.setBitmap(b);
-        drawDragView(v, canvas, padding, true);
-        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor);
-        canvas.setBitmap(null);
-        return b;
-    }*/
 
-    private void addScreen() {
-        try {
-
-            CellLayout child = new CellLayout(context, R.dimen.cell_layout_height);
-            containerL.addView(child);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 }

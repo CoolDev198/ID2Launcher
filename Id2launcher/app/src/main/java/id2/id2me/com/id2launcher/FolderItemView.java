@@ -25,7 +25,7 @@ import jp.wasabeef.blurry.Blurry;
  * Created by CrazyInnoTech on 11-11-2016.
  */
 
-public class FolderItemView implements View.OnTouchListener, View.OnClickListener {
+public class FolderItemView implements View.OnTouchListener {
 
     final Handler handler = new Handler();
     static View item;
@@ -71,20 +71,11 @@ public class FolderItemView implements View.OnTouchListener, View.OnClickListene
                 blur_relative.setVisibility(View.GONE);
                 container.setVisibility(View.VISIBLE);
                 return false;
-               /* gestureListener.setView(blur_relative);
-                return gestureDetector.onTouchEvent(motionEvent);*/
+
             }
 
         });
 
-        /*blur_relative.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                blur_relative.setVisibility(View.GONE);
-                container.setVisibility(View.VISIBLE);
-            }
-
-        });*/
         gestureListener = new FolderItemView.GestureListener();
         gestureDetector = new GestureDetector(context, gestureListener);
 
@@ -113,15 +104,6 @@ public class FolderItemView implements View.OnTouchListener, View.OnClickListene
     void performClick(View view) {
         Log.v("FolderItemView ", " Click");
         ItemInfoModel itemInfoModel = (ItemInfoModel) view.getTag();
-//        if (itemInfoModel.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-//            if (launcherApplication.folderView != null) {
-//                cellLayout.removeView(launcherApplication.folderView);
-//            }
-//            ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(itemInfoModel.getId());
-//           // getPopUp(itemInfoModels);
-//        } else {
-        //launchApplication(itemInfoModel);
-        //  }
 
         ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(folderId);
         container.setVisibility(View.GONE);
@@ -178,11 +160,6 @@ public class FolderItemView implements View.OnTouchListener, View.OnClickListene
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Override
-    public void onClick(View view) {
-
     }
 
 
