@@ -220,9 +220,9 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            mOutlineView.setImageBitmap(outlineBmp);
-            mOutlineView.setVisibility(View.VISIBLE);
+
            // mOutlineView.setScaleX(0.98f);
+
 
             int currentScreen = Integer.parseInt(cellLayout.getTag().toString());
 
@@ -315,9 +315,11 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
             if (dragInfo.getDropExternal()) {
                 findAvalCells();
             } else {
+                mOutlineView.setVisibility(View.GONE);
                 cellLayout.removeView(drag_view);
                 unMarkCells(dragInfo.getTmpCellX(), dragInfo.getTmpCellY(), dragInfo.getSpanX(), dragInfo.getSpanY());
                 findAvalCells();
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -350,6 +352,8 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
 
                 if (noOfAvailCells >= noOfReqCells && !isRequiredCellsCalculated) {
+                    mOutlineView.setImageBitmap(outlineBmp);
+                    mOutlineView.setVisibility(View.VISIBLE);
                     isAvailableCellsGreater = true;
                 }
                 isRequiredCellsCalculated = true;
@@ -368,7 +372,7 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
 
     void goAhead() {
 
-        if (isAvailableCellsGreater) {
+        if (isAvailableCellsGreater || dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP) {
             int[] nearCellsObj = findNearestCells();
             //   Log.v(TAG, "matrixpos :: " + "  " + nearCellsObj.get(0) + "  " + nearCellsObj.get(1));
             if (Arrays.equals(nearestCell, nearCellsObj)) {
@@ -757,7 +761,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
                     } else {
                         removeBackground(child);
 
-
                     }
 
                     if (bestCell != null) {
@@ -1028,7 +1031,6 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
     }
 
     public void addFolderToPage(Bitmap icon, ItemInfoModel itemInfo, FrameLayout.LayoutParams layoutParams) {
-
         try {
             System.out.println("Folder Fragment");
             //layoutParams = getFrameLayoutParams();
@@ -1267,5 +1269,16 @@ class PageDragListener implements View.OnDragListener, IWidgetDrag {
         canvas.setBitmap(null);
         return b;
     }*/
+
+    private void addScreen(){
+        try {
+
+            CellLayout child = new CellLayout(context, R.dimen.cell_layout_height);
+            containerL.addView(child);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

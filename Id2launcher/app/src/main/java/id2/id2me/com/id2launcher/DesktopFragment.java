@@ -39,7 +39,7 @@ import jp.wasabeef.blurry.Blurry;
  */
 public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
     private static final float MIN_SCALE = 0.75f;
-    private static final int Default_Screens = 4;
+    private static final int Default_Screens = 2;
     final Handler handler = new Handler();
 
     String TAG = "DesktopFragment";
@@ -49,8 +49,8 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     TimerTask timerTask;
     List<Fragment> fragmentList;
     private ArrayList<AppInfoModel> appInfos;
-    private View fragmentView = null;
-    private Context context;
+    private static View fragmentView = null;
+    public static Context context;
     private LauncherApplication application;
     private FrameLayout parentLayout;
     private ImageView wallpaperImg;
@@ -67,6 +67,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     };
     private View blur_relative;
     private LauncherModel mModel;
+    private static int mCellLayoutHeight;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
@@ -105,6 +106,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
                 mModel = application.setDeskTopFragment(this);
 
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
+                mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
                 initViews();
 
@@ -246,7 +248,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
     private void addDragListener() {
-
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
         for (int i = 1; i < containerL.getChildCount(); i++) {
             CellLayout child = (CellLayout) containerL.getChildAt(i);
@@ -310,10 +311,22 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
+    public static void addScreen(){
+        try {
+            LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
+            System.out.println("Container Child count before add : " + containerL.getChildCount());
+
+            //CellLayout child = new CellLayout(context, mCellLayoutHeight);
+            CellLayout child = new CellLayout(context, R.dimen.cell_layout_height);
+            containerL.addView(child);
+            System.out.println("Container Child count after add : " + containerL.getChildCount());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
-
-
-
 
 
