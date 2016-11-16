@@ -36,6 +36,7 @@
     <dimen name="cell_layout_height">500dp</dimen>
     <dimen name="cell_layout_margin">30dp</dimen>
     <dimen name="extra_move_up">30dp</dimen>
+    <dimen name="extra_move">110dp</dimen>
     <dimen name="noti_widget_margin_top">200dp</dimen>
     <dimen name="pagemargin">16dp</dimen>
     <dimen name="drop_target_height">60dp</dimen>

@@ -23,7 +23,7 @@ public class DrawerFragment extends Fragment {
     private Context context;
     private LauncherApplication application;
     private View fragmentView;
-
+    Button btnApp,btnWidget;
     public static DrawerFragment newInstance() {
         DrawerFragment f = new DrawerFragment();
         appsListingFragment = AppsListingFragment.newInstance();
@@ -36,8 +36,8 @@ public class DrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         fragmentView = inflater.inflate(R.layout.drawer_fragment, container, false);
         application = (LauncherApplication) ((Activity) context).getApplication();
-        final Button btnApp = (Button) fragmentView.findViewById(R.id.btnApp);
-        final Button btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
+        btnApp = (Button) fragmentView.findViewById(R.id.btnApps);
+        btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
 
         btnApp.setOnClickListener(new View.OnClickListener() {
             @Override

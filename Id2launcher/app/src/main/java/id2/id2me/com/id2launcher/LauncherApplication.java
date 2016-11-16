@@ -32,9 +32,6 @@ public class LauncherApplication extends Application {
     public static ImageView wallpaperImg;
     public static List<NotificationWidgetModel> notificationWidgetModels;
     private static float density;
-    private static int mCellLayoutHeight;
-    private static ArrayList<FrameLayout> mFrameArr;
-    private final Rect mTempRect = new Rect();
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
@@ -46,12 +43,12 @@ public class LauncherApplication extends Application {
     public int currentScreen = 1;
     public boolean isTimerTaskCompleted = true;
     public List<View> viewList;
-    public int pos = 1;
     private PageDragListener pageDragListener;
-    private int cellCountX, cellCountY, maxGapLR, maxGapTB;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
     private final int MIN_NO_OF_APP = 0;
+    public boolean isDragStarted = false;
+
 
     public static float getScreenDensity() {
         return density;
@@ -68,7 +65,6 @@ public class LauncherApplication extends Application {
 
         mModel = new LauncherModel(this);
         density = getResources().getDisplayMetrics().density;
-        mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
         addBroadCastReceiver();
         mOutlineHelper = new HolographicOutlineHelper();
@@ -122,14 +118,6 @@ public class LauncherApplication extends Application {
         this.pageDragListener = pageDragListener;
     }
 
-    public int getMaxGapLR() {
-        return maxGapLR;
-    }
-
-    public int getMaxGapTB() {
-        return maxGapTB;
-    }
-
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
@@ -155,27 +143,6 @@ public class LauncherApplication extends Application {
     }
 
 
-    public int calculateExtraSpaceWidthWise() {
-        int extraWidthSpace = getScreenWidth() - cellCountX * getCellWidth();
-        return extraWidthSpace;
-    }
-
-    public int calculateExtraSpaceHeightWise() {
-        int extraHeightSpace = getScreenHeight() - cellCountY * getCellHeight();
-        return extraHeightSpace;
-    }
-
-    public void setMaxGapForLR() {
-        int paddingLR = calculateExtraSpaceWidthWise() / (cellCountX + 1);
-        maxGapLR = paddingLR;
-
-    }
-
-    public void setMaxGapForTB() {
-        int paddingTB = calculateExtraSpaceHeightWise() / (cellCountY + 1);
-        maxGapTB = paddingTB;
-
-    }
 
     public float convertFromPixelToDp(int dimension) {
         float dimensionInDp = (dimension / getScreenDensity());
@@ -232,6 +199,7 @@ public class LauncherApplication extends Application {
         try {
 
 
+            isDragStarted=true;
             ClipData.Item item = new ClipData.Item(
                     (CharSequence) (""));
 
@@ -262,6 +230,7 @@ public class LauncherApplication extends Application {
 
     public void dragAnimation(View view, Point point) {
 
+        isDragStarted=true;
         ClipData.Item item = new ClipData.Item(
                 (CharSequence) (""));
 
@@ -273,6 +242,10 @@ public class LauncherApplication extends Application {
         view.setVisibility(View.INVISIBLE);
 
         currentScreen = dragInfo.getScreen();
+
+
+        addScreen();
+
         if (!dragInfo.getDropExternal()) {
             int screen;
             if (dragInfo.getScreen() == 1) {
@@ -281,10 +254,10 @@ public class LauncherApplication extends Application {
                 screen = dragInfo.getScreen();
             }
 
-            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move_up));
+            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move));
         }
 
-        addScreen();
+
 
         addMargin();
 
@@ -307,22 +280,16 @@ public class LauncherApplication extends Application {
         try {
 
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
-            int margin = getResources().getDimensionPixelOffset(R.dimen.cell_layout_margin);
-            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
-            /*if(i == (containerL.getChildCount() -1)){
-                // Do your Task here
-                CellLayout cellLayout = (CellLayout) view;
-                if(cellLayout.getChildCount() > 1){
-                    System.out.println("last child of desktop reached");
-                    addScreen();
-                    //DesktopFragment.addScreen();
-                }
+            desktopFragment.findViewById(R.id.drag_layer).setScaleX(0.85f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
 
-            }*/
+            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
             for (int i = 0; i < containerL.getChildCount(); i++) {
                 View view = containerL.getChildAt(i);
-
-                view.setScaleX(0.85f);
 
                 if (i==0) {
                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
@@ -331,7 +298,7 @@ public class LauncherApplication extends Application {
                   containerL.updateViewLayout(view, params);
 
                 } else  {
-                    view.setScaleY(0.98f);
+                 //   view.setScaleY(0.98f);
                     view.setBackgroundColor(getResources().getColor(R.color.frame_color));
                 }
                 if(view instanceof CellLayout) {
@@ -359,6 +326,9 @@ public class LauncherApplication extends Application {
     public void removeMargin() {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
+            desktopFragment.findViewById(R.id.drag_layer).setScaleX(1f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(1f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
 
@@ -392,6 +362,8 @@ public class LauncherApplication extends Application {
 
                 }
 
+
+
             }
             int lastChild = 2;
             if(containerL.getChildCount() > 2){
@@ -411,12 +383,11 @@ public class LauncherApplication extends Application {
             //CellLayout child = new CellLayout(DesktopFragment.context, mCellLayoutHeight);
             CellLayout cellLayout = (CellLayout) containerL.getChildAt(containerL.getChildCount() - 1);
             if(cellLayout.getChildCount() > MIN_NO_OF_APP){
-                CellLayout child = new CellLayout(DesktopFragment.context, R.dimen.cell_layout_height);
+                CellLayout child = new CellLayout(launcher, R.dimen.cell_layout_height);
                 child.setTag(containerL.getChildCount());
-                if(containerL.getChildCount() % 2 ==0 )
-                    child.setBackgroundColor(Color.RED);
-
-                child.setOnDragListener(new PageDragListener(DesktopFragment.context, desktopFragment, child));
+                PageDragListener pageDragListener=new PageDragListener(launcher, desktopFragment, child);
+                child.setOnDragListener(pageDragListener);
+                child.setDragListener(pageDragListener);
                 containerL.addView(child);
             }
 
@@ -444,40 +415,6 @@ public class LauncherApplication extends Application {
             e.printStackTrace();
         }
     }
-    /*private void addScreen(){
-        try {
-            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
-            System.out.println("Container Child count before add : " + containerL.getChildCount());
-            //CellLayout child = new CellLayout(DesktopFragment.context, mCellLayoutHeight);
-            CellLayout child = new CellLayout(DesktopFragment.context, R.dimen.cell_layout_height);
-            child.setTag(containerL.getChildCount());
-            if(containerL.getChildCount() % 2 ==0 )
-                child.setBackgroundColor(Color.RED);
 
-            child.setOnDragListener(new PageDragListener(DesktopFragment.context, desktopFragment, child));
-            containerL.addView(child);
-
-            for(int i =0 ; i < containerL.getChildCount() ; i++){
-                if(i == (containerL.getChildCount() -1)){
-                    // Do your Task here
-                    View view = containerL.getChildAt(i);
-                    CellLayout cellLayout = (CellLayout) view;
-                    if(cellLayout.getChildCount() < 1){
-
-                        System.out.println("last child of desktop reached");
-                        containerL.removeView(view);
-                        //DesktopFragment.addScreen();
-                    }
-
-
-                }
-            }
-
-            System.out.println("Container Child count after add : " + containerL.getChildCount());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 
 }
