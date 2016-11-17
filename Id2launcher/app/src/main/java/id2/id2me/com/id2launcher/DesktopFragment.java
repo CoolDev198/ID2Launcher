@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -31,7 +32,6 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
  */
 public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
     private static final float MIN_SCALE = 0.75f;
-    private static final int Default_Screens = 2;
     final Handler handler = new Handler();
 
     String TAG = "DesktopFragment";
@@ -195,9 +195,10 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
         CellLayout child;
 
-        for (int i = 0; i < Default_Screens; i++) {
+        for (int i = 0; i < application.Default_Screens; i++) {
             if (i == 0) {
                 child = new CellLayout(context, R.dimen.wallpaper_cell_layout);
+                child.setBackgroundColor(Color.BLUE);
             } else {
                 child = new CellLayout(context, R.dimen.cell_layout_height);
 
