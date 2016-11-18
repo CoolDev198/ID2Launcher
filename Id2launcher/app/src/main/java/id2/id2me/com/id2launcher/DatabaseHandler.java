@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -391,5 +392,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.endTransaction();
         }
         return itemInfo.getId();
+    }
+
+    ItemInfoModel createFolderInfo(ItemInfoModel dragInfo) {
+        ItemInfoModel itemInfoModel = new ItemInfoModel();
+        itemInfoModel.setCellX(dragInfo.getCellX());
+        itemInfoModel.setCellY(dragInfo.getCellY());
+        itemInfoModel.setTempCellX(dragInfo.getCellX());
+        itemInfoModel.setTempCellY(dragInfo.getCellY());
+        itemInfoModel.setSpanX(dragInfo.getSpanX());
+        itemInfoModel.setSpanY(dragInfo.getSpanY());
+        itemInfoModel.setItemType(DatabaseHandler.ITEM_TYPE_FOLDER);
+        itemInfoModel.setTitle("");
+        itemInfoModel.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
+        itemInfoModel.setIcon(ItemInfoModel.writeBitmap(AllAppsList.createIconBitmap(ContextCompat.getDrawable(context, R.mipmap.folder_icon), context)));
+        return itemInfoModel;
     }
 }

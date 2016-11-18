@@ -1,11 +1,14 @@
 package id2.id2me.com.id2launcher;
 
+import android.app.Activity;
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 
 /**
@@ -14,14 +17,15 @@ import android.view.MotionEvent;
 
 public class LauncherAppWidgetHostView extends AppWidgetHostView {
 
-    LayoutInflater mInflater;
     final String TAG = "AppWidgetHostView";
-    private IWidgetDrag IWidgetInterface;
+    LayoutInflater mInflater;
+    LauncherApplication launcherApplication;
     private Handler handler;
     private Runnable runnable;
 
     public LauncherAppWidgetHostView(Context context) {
         super(context);
+        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         addHandler();
     }
@@ -31,7 +35,7 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
         runnable = new Runnable() {
             @Override
             public void run() {
-                IWidgetInterface.onDragWidget(LauncherAppWidgetHostView.this);
+                onDragWidget();
             }
         };
     }
@@ -39,14 +43,14 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if(ev.getAction()==MotionEvent.ACTION_DOWN){
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             handler.postDelayed(runnable, 500);
         }
-        if(ev.getAction()==MotionEvent.ACTION_UP){
+        if (ev.getAction() == MotionEvent.ACTION_UP) {
             if (handler != null && runnable != null)
                 handler.removeCallbacks(runnable);
         }
-        if(ev.getAction()==MotionEvent.ACTION_CANCEL){
+        if (ev.getAction() == MotionEvent.ACTION_CANCEL) {
             if (handler != null && runnable != null)
                 handler.removeCallbacks(runnable);
         }
@@ -60,9 +64,18 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
     }
 
 
-    public void setIWidgetInterface(IWidgetDrag IWidgetInterface) {
-        this.IWidgetInterface = IWidgetInterface;
+    private void onDragWidget() {
+
+        try {
+            launcherApplication.dragInfo = (ItemInfoModel) this.getTag();
+
+            launcherApplication.dragInfo.setDropExternal(false);
+            Canvas canvas = new Canvas();
+            //outlineBmp = launcherApplication.createDragOutline(launcherAppWidgetHostView );
+            launcherApplication.dragAnimation(this);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
-
 }

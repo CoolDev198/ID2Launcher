@@ -2,16 +2,19 @@ package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
+
 /**
  * Created by sunita on 10/17/16.
  */
 
-public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChangeListener {
+public class CellLayout extends FrameLayout {
 
     LauncherApplication launcherApplication;
     private boolean cellsMatrix[][];
@@ -19,6 +22,7 @@ public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChan
     private int cellCountX;
     private int height;
     PageDragListener pageDragListener;
+    private String TAG;
 
     public CellLayout(Context context, int heightResource) {
         super(context);
@@ -34,8 +38,42 @@ public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChan
         return  this.pageDragListener;
     }
 
-    public void setCellsMatrix(int[] matrix, boolean val) {
+    private void setCellsMatrix(int[] matrix, boolean val) {
         cellsMatrix[matrix[0]][matrix[1]] = val;
+    }
+
+    public void markCells(int cellx, int celly, int spanx, int spany) {
+
+        int xStart = cellx;
+        int yStart = celly;
+        int xEnd = (cellx + spanx - 1);
+        int yEnd = (celly + spany - 1);
+
+
+        for (int x = xStart; x <= xEnd; x++) {
+            for (int y = yStart; y <= yEnd; y++) {
+                //      Log.v(TAG, "cells unmarked :: " + x + "  " + y);
+                setCellsMatrix(new int[]{x, y}, true);
+            }
+        }
+    }
+
+    public void unMarkCells(int cellx, int celly, int spanx, int spany) {
+
+        int xStart = cellx;
+        int yStart = celly;
+        int xEnd = (cellx + spanx - 1);
+        int yEnd = (celly + spany - 1);
+
+        if (cellx != -1 && celly != -1) {
+            for (int x = xStart; x <= xEnd; x++) {
+                for (int y = yStart; y <= yEnd; y++) {
+                    //Log.v(TAG, "cells unmarked :: " + x + "  " + y);
+                    setCellsMatrix(new int[]{x, y}, false);
+                }
+            }
+        }
+
     }
 
     public boolean getCellMatrixVal(int[] matrix) {
@@ -69,19 +107,8 @@ public class CellLayout extends FrameLayout implements ViewGroup.OnHierarchyChan
         cellsMatrix = new boolean[cellCountX][cellCountY];
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
-        setOnHierarchyChangeListener(this);
     }
 
-
-    @Override
-    public void onChildViewAdded(View parent, View child) {
-
-    }
-
-    @Override
-    public void onChildViewRemoved(View parent, View child) {
-
-    }
 
 }
 

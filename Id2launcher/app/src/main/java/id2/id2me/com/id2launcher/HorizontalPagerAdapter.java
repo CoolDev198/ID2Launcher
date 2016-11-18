@@ -24,9 +24,8 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
         this.fragments = fragments;
     }
 
-    public void addNewFolderFragment() {
-        int count = fragments.size();
-        fragments.add(FolderFragment.newInstance(count));
+    public void addNewFolderFragment(long folderId) {
+        fragments.add(FolderFragment.newInstance(folderId));
         this.notifyDataSetChanged();
 
     }

@@ -1,8 +1,8 @@
 package id2.id2me.com.id2launcher;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +16,18 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
  * Created by bliss76 on 26/05/16.
  */
 public class FolderFragment extends Fragment {
+    static final String folderId = "folderId";
     final int NO_OF_APPS_IN_ROW = 3;
     View fragmentView;
-    int id;
+    ArrayList<ItemInfoModel> itemInfoModels;
     private FolderGridAdapter adapter;
     private DatabaseHandler db;
 
-    public static final FolderFragment newInstance(int count) {
+    public static final FolderFragment newInstance(long folderId) {
         FolderFragment f = new FolderFragment();
-        f.id = count;
+        Bundle bundle = new Bundle();
+        bundle.putLong("folderId", folderId);
+        f.setArguments(bundle);
         return f;
     }
 
@@ -37,14 +40,14 @@ public class FolderFragment extends Fragment {
                              Bundle savedInstanceState) {
         try {
             fragmentView = inflater.inflate(R.layout.popup_view, container, false);
-            db = DatabaseHandler.getInstance(getActivity());
-
             AppGridView appGridView = (AppGridView) fragmentView.findViewById(R.id.folder_gridView);
-            ArrayList<ItemInfoModel> itemInfoModels = getAppsListFromDataBase();
 
+            long id = getArguments().getLong(folderId);
+            itemInfoModels = db.getAppsListOfFolder(id);
             if (itemInfoModels != null) {
                 adapter = new FolderGridAdapter(itemInfoModels, getActivity(), R.layout.folder_grid, appGridView);
             }
+
             setColumnWidth(appGridView);
             setNoOfColumnsOfGrid(appGridView);
             appGridView.setAdapter(adapter);
@@ -57,27 +60,17 @@ public class FolderFragment extends Fragment {
         return fragmentView;
     }
 
-    private ArrayList<ItemInfoModel> getAppsListFromDataBase() {
-        ItemInfoModel itemInfoModel = null;
-        try {
-            itemInfoModel = ((LauncherApplication) getActivity().getApplication()).folderFragmentsInfo.get(id - 2);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return db.getAppsListOfFolder(itemInfoModel.getId());
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context != null)
+            db = DatabaseHandler.getInstance(context);
     }
 
     @Override
-    public void onResume() {
-        Log.v("", "On resume called");
-        if (adapter != null) {
-            ArrayList<ItemInfoModel> itemInfoModels = getAppsListFromDataBase();
-            adapter.setAppInfos(itemInfoModels);
-            adapter.notifyDataSetChanged();
-        }
-        super.onResume();
+    public boolean getUserVisibleHint() {
+        return super.getUserVisibleHint();
+
     }
 
     void setColumnWidth(GridView gridView) {

@@ -204,8 +204,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
 
-    public void addNewFolderFragment() {
-        pageAdapter.addNewFolderFragment();
+    public void addNewFolderFragment(long folderId) {
+        pageAdapter.addNewFolderFragment(folderId);
     }
 
     public void updateFolderFragment(int pos, ArrayList<ItemInfoModel> itemInfoModels) {
