@@ -159,43 +159,18 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         launcherApplication.getLauncher().addNewFolderFragment(folderId);
     }
 
-    private void updateFoldersFragment(CellLayout cellLayout) {
-
+    private void updateFoldersFragment() {
         try {
-            launcherApplication.folderFragmentsInfo.clear();
-            for (int i = 0; i < cellLayout.getChildCount(); i++) {
-                ItemInfoModel cellInfo = (ItemInfoModel) ((View) cellLayout.getChildAt(i)).getTag();
-                if (cellInfo != null) {
-                    if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-                        launcherApplication.folderFragmentsInfo.add(cellInfo);
-                        ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(cellInfo.getId());
-                        launcherApplication.getLauncher().updateFolderFragment(launcherApplication.folderFragmentsInfo.size(), itemInfoModels);
-                    }
-                }
-
-            }
+            launcherApplication.getLauncher().updateFolderFragment(folderId);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void updateFoldersList(CellLayout cellLayout) {
-
-        try {
-            launcherApplication.folderFragmentsInfo.clear();
-            for (int i = 0; i < cellLayout.getChildCount(); i++) {
-                ItemInfoModel cellInfo = (ItemInfoModel) ((View) cellLayout.getChildAt(i)).getTag();
-                if (cellInfo != null) {
-                    if (cellInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-                        launcherApplication.folderFragmentsInfo.add(cellInfo);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    public void addedToExistingFolder(){
+        this.setFolderView();
+        this.updateFoldersFragment();
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {

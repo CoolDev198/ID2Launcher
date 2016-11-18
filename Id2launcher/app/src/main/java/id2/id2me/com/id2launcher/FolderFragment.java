@@ -16,13 +16,13 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
  * Created by bliss76 on 26/05/16.
  */
 public class FolderFragment extends Fragment {
-    static final String folderId = "folderId";
+    static final String FolderId = "folderId";
     final int NO_OF_APPS_IN_ROW = 3;
     View fragmentView;
     ArrayList<ItemInfoModel> itemInfoModels;
     private FolderGridAdapter adapter;
     private DatabaseHandler db;
-
+    public long folderId;
     public static final FolderFragment newInstance(long folderId) {
         FolderFragment f = new FolderFragment();
         Bundle bundle = new Bundle();
@@ -40,19 +40,10 @@ public class FolderFragment extends Fragment {
                              Bundle savedInstanceState) {
         try {
             fragmentView = inflater.inflate(R.layout.popup_view, container, false);
+            folderId = getArguments().getLong(FolderId);
             AppGridView appGridView = (AppGridView) fragmentView.findViewById(R.id.folder_gridView);
-
-            long id = getArguments().getLong(folderId);
-            itemInfoModels = db.getAppsListOfFolder(id);
-            if (itemInfoModels != null) {
-                adapter = new FolderGridAdapter(itemInfoModels, getActivity(), R.layout.folder_grid, appGridView);
-            }
-
             setColumnWidth(appGridView);
             setNoOfColumnsOfGrid(appGridView);
-            appGridView.setAdapter(adapter);
-            setRetainInstance(true);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,6 +51,23 @@ public class FolderFragment extends Fragment {
         return fragmentView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //if (fragmentView != null) {
+          updateView();
+      //  }
+    }
+
+    void updateView(){
+        AppGridView appGridView = (AppGridView) fragmentView.findViewById(R.id.folder_gridView);
+        itemInfoModels = db.getAppsListOfFolder(folderId);
+        if (itemInfoModels != null) {
+            adapter = new FolderGridAdapter(itemInfoModels, getActivity(), R.layout.folder_grid, appGridView);
+        }
+
+        appGridView.setAdapter(adapter);
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

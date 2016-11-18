@@ -481,7 +481,7 @@ class PageDragListener implements View.OnDragListener {
                     ItemInfoModel folderInfo = (ItemInfoModel) folderTempApps.get(0).getTag();
                     dragInfo.setContainer(folderInfo.getId());
                     db.addOrMoveItemInfo(dragInfo);
-                    folderItemView.setFolderView();
+                    folderItemView.addedToExistingFolder();
 
                 } else {
                     try {
@@ -498,15 +498,15 @@ class PageDragListener implements View.OnDragListener {
                         cellLayout.removeView(folderTempApps.get(0));
 
 
-                        FolderItemView child = createNewFolder(folderId);
+                        FolderItemView folderItemView = createNewFolder(folderId);
 
-                        if (child != null) {
-                            child.setTag(folderInfo);
+                        if (folderItemView != null) {
+                            folderItemView.setTag(folderInfo);
                         }
 
-                        cellLayout.addView(child, layoutParams);
+                        cellLayout.addView(folderItemView, layoutParams);
 
-                        child.addFragmentToHorizontalPagerAdapter();
+                        folderItemView.addFragmentToHorizontalPagerAdapter();
 
                     } catch (Exception e) {
                         e.printStackTrace();

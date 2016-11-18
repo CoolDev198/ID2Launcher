@@ -2,19 +2,16 @@ package id2.id2me.com.id2launcher;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by bliss76 on 26/05/16.
  */
 
-public class HorizontalPagerAdapter extends FragmentPagerAdapter {
+public class HorizontalPagerAdapter extends FragmentStatePagerAdapter {
     ViewPager nonSwipeViewPager;
     private List<Fragment> fragments;
 
@@ -30,13 +27,16 @@ public class HorizontalPagerAdapter extends FragmentPagerAdapter {
 
     }
 
-    public void updateFragments(int position, ArrayList<ItemInfoModel> appInfos) {
+    public void updateFragments(long folderId) {
         try {
-            if (position > 1  && position < fragments.size()) {
-                FolderFragment fragment = (FolderFragment) fragments.get(position);
-                FolderGridAdapter folderGridAdapter = ((FolderGridAdapter) fragment.getAdapter());
-                if (folderGridAdapter != null) {
-                    folderGridAdapter.setAppInfos(appInfos);
+
+            for (int i = 2; i < fragments.size(); i++) {
+                if (fragments.get(i) instanceof FolderFragment) {
+                    FolderFragment folderFragment = (FolderFragment) fragments.get(i);
+                    if (folderFragment.folderId == folderId) {
+                        folderFragment.updateView();
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {

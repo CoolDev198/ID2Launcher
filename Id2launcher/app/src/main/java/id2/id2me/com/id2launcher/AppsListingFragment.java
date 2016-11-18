@@ -138,7 +138,6 @@ public class AppsListingFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        recyclerView.stopScroll();
         super.onDetach();
     }
 }
