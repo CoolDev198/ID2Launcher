@@ -4,14 +4,14 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:fastScrollOverlayPosition">atThumb</item>
-        <item name="android:fastScrollThumbDrawable">@mipmap/thumb</item>
-        <item name="android:fastScrollTextColor">@color/tab_text_color</item>
-        <item name="android:fastScrollPreviewBackgroundLeft">@mipmap/indicator</item>
-        <item name="android:fastScrollPreviewBackgroundRight">@mipmap/indicator</item>
         <item name="android:windowActionBar">false</item>
+
     </style>
 
+    <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="contentInsetStart">0dp</item>
+        <item name="android:contentInsetStart">0dp</item>
+    </style>
 
     <style name="DropTargetBar">
         <item name="android:orientation">horizontal</item>
@@ -45,4 +45,22 @@
         <item name="android:shadowDy">1.0</item>
         <item name="android:shadowRadius">4.0</item>
     </style>
+
+
+    <style name="AppTheme.Button.Borderless" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorPrimary">@android:color/transparent</item>
+        <item name="android:textSize">@dimen/text_size_s</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+    </style>
+
+    <style name="TextAppearance.Small" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textSize">@dimen/text_size_m</item>
+        <item name="android:gravity">center_horizontal|center_vertical</item>
+    </style>
+
 </resources>

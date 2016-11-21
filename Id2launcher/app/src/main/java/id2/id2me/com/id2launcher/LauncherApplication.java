@@ -1,75 +1,100 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Application;
-import android.appwidget.AppWidgetHost;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
-import id2.id2me.com.id2launcher.database.FolderInfo;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 
 /**
  * Created by sunita on 7/27/16.
  */
 public class LauncherApplication extends Application {
+    public static ImageView wallpaperImg;
+    public static List<NotificationWidgetModel> notificationWidgetModels;
+    private static float density;
+    private final int MIN_NO_OF_APP = 0;
     public View folderView;
     public boolean isDrawerOpen = false;
-    public ArrayList<FolderInfo> folderFragmentsInfo;
-    public DragInfo dragInfo;
-    private PageDragListener pageDragListener;
+    public ArrayList<ItemInfoModel> folderFragmentsInfo;
+    public ItemInfoModel dragInfo;
     public LauncherAppWidgetHost mAppWidgetHost;
-    private int cellCountX, cellCountY, maxGapLR, maxGapTB;
-    public boolean cellsMatrix[][];
-    private Launcher launcher;
-
+    public LauncherModel mModel;
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
+    public int currentScreen = 1;
+    public boolean isTimerTaskCompleted = true;
+    public List<View> viewList;
+    public boolean isDragStarted = false;
+    public int Default_Screens = 5;
+    String TAG = "LauncherApplication";
+    private PageDragListener pageDragListener;
+    private Launcher launcher;
+    private HolographicOutlineHelper mOutlineHelper;
+    public Bitmap outlineBmp;
+
+    public static float getScreenDensity() {
+        return density;
+    }
+
 
     @Override
     public void onCreate() {
         super.onCreate();
-        setCellCountX();
-        setCellCountY();
+
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();
-        cellsMatrix = new boolean[cellCountX][cellCountY];
+
+
+        mModel = new LauncherModel(this);
+        density = getResources().getDisplayMetrics().density;
+
+        addBroadCastReceiver();
+        mOutlineHelper = new HolographicOutlineHelper();
 
     }
 
-    public Typeface getTypeFace(){
-      Typeface  typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
-      return typeface;
+    private void addBroadCastReceiver() {
+        // Register intent receivers
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addDataScheme("package");
+        registerReceiver(mModel, filter);
+        filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
+        filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
+        filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+        filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+        registerReceiver(mModel, filter);
     }
 
-    public void dragAnimation(View view, int visibility) {
-        ClipData.Item item = new ClipData.Item(
-                (CharSequence) (""));
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        unregisterReceiver(mModel);
+    }
 
-        String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-        ClipData data = new ClipData("",
-                mimeTypes, item);
-        View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
-                view);
-//        shadowBuilder.onProvideShadowMetrics(
-//                new Point(view.getWidth(), view.getHeight()),
-//                new Point((int) view.getX(), (int) view
-//                        .getY()));
-        view.startDrag(data, // data to be dragged
-                shadowBuilder, // drag shadow
-                view, // local data about the drag and drop
-                // operation
-                0 // no needed flags
-        );
-        view.setVisibility(visibility);
-
+    public Typeface getTypeFace() {
+        Typeface typeface = Typeface.createFromAsset(getResources().getAssets(), "fonts/Roboto-Regular.ttf");
+        return typeface;
     }
 
     public Launcher getLauncher() {
@@ -80,41 +105,19 @@ public class LauncherApplication extends Application {
         this.launcher = launcher;
     }
 
-    public void setPageDragListener(PageDragListener pageDragListener) {
-        this.pageDragListener = pageDragListener;
+    public LauncherModel setDeskTopFragment(DesktopFragment fragment) {
+        mModel.initialize(fragment);
+        return null;
     }
 
     public PageDragListener getPageDragListener() {
         return pageDragListener;
     }
 
-    public int getMaxGapLR() {
-        return maxGapLR;
+    public void setPageDragListener(PageDragListener pageDragListener) {
+        this.pageDragListener = pageDragListener;
     }
 
-    public int getMaxGapTB() {
-        return maxGapTB;
-    }
-
-    public int getCellCountX() {
-        return cellCountX;
-    }
-
-    public void setCellsMatrix(int[] matrix, boolean val) {
-        cellsMatrix[matrix[0]][matrix[1]] = val;
-    }
-
-    public boolean getCellMatrixVal(int[] matrix) {
-        return cellsMatrix[matrix[0]][matrix[1]];
-    }
-
-    public int getCellCountY() {
-        return cellCountY;
-    }
-
-    public boolean[][] getCellMatrix() {
-        return cellsMatrix;
-    }
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
@@ -139,54 +142,270 @@ public class LauncherApplication extends Application {
         return cellWidth;
     }
 
-    public int getScreenDensity() {
-        int density = (int) getApplicationContext().getResources().getDisplayMetrics().density;
-        return density;
-    }
 
-
-    public void setCellCountX() {
-        int countX = getScreenWidth() / getCellWidth();
-        cellCountX = countX;
-        setMaxGapForLR();
-    }
-
-    public void setCellCountY() {
-        int countY = getScreenHeight() / getCellHeight();
-        cellCountY = countY;
-        setMaxGapForTB();
-    }
-
-    public int calculateExtraSpaceWidthWise() {
-        int extraWidthSpace = getScreenWidth() - cellCountX * getCellWidth();
-        return extraWidthSpace;
-    }
-
-    public int calculateExtraSpaceHeightWise() {
-        int extraHeightSpace = getScreenHeight() - cellCountY * getCellHeight();
-        return extraHeightSpace;
-    }
-
-    public void setMaxGapForLR() {
-        int paddingLR = calculateExtraSpaceWidthWise() / (cellCountX + 1);
-        maxGapLR = paddingLR;
-
-    }
-
-    public void setMaxGapForTB() {
-        int paddingTB = calculateExtraSpaceHeightWise() / (cellCountY + 1);
-        maxGapTB = paddingTB;
-
-    }
-
-    public int convertFromPixelToDp(int dimension) {
-        int dimensionInDp = dimension / getScreenDensity();
+    public float convertFromPixelToDp(int dimension) {
+        float dimensionInDp = (dimension / getScreenDensity());
         return dimensionInDp;
     }
 
-    public int convertFromDpToPixel(int resource) {
-        int dimensionInPixel = getApplicationContext().getResources().getDimensionPixelOffset(resource);
+    public float convertFromDpToPixel(int resource) {
+        float dimensionInPixel = getApplicationContext().getResources().getDimensionPixelOffset(resource);
         return dimensionInPixel;
+    }
+
+    public Bitmap getOutLinerBitmap(Bitmap bitmap) { // i 0 for App and 1 for Widget
+        Bitmap outlinerBitmap = null;
+        try {
+            final Canvas canvas = new Canvas();
+            /*if(i == 0){
+                outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+            } else if(i == 1){
+                outlinerBitmap = createDragOutline();
+            }*/
+            outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return outlinerBitmap;
+    }
+
+    private Bitmap createDragOutline(Bitmap orig, Canvas canvas, int padding, int w, int h,
+                                     boolean clipAlpha) {
+        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(b);
+
+        Rect src = new Rect(0, 0, orig.getWidth(), orig.getHeight());
+        float scaleFactor = Math.min((w - padding) / (float) orig.getWidth(),
+                (h - padding) / (float) orig.getHeight());
+        int scaledWidth = (int) (scaleFactor * orig.getWidth());
+        int scaledHeight = (int) (scaleFactor * orig.getHeight());
+        Rect dst = new Rect(0, 0, scaledWidth, scaledHeight);
+
+        // center the image
+        dst.offset((w - scaledWidth) / 2, (h - scaledHeight) / 2);
+
+        canvas.drawBitmap(orig, src, dst, null);
+        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor,
+                clipAlpha);
+        canvas.setBitmap(null);
+
+        return b;
+    }
+
+
+    public void dragAnimation(View view) {
+        try {
+
+
+            isDragStarted = true;
+            ClipData.Item item = new ClipData.Item(
+                    (CharSequence) (""));
+
+            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+            ClipData data = new ClipData("",
+                    mimeTypes, item);
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
+                    view);
+
+            addExtraEmptyScreen();
+
+            addMargin();
+
+            if (dragInfo.getDropExternal()) {
+                currentScreen = 1;
+                ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
+            }
+            if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
+                outlineBmp = getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), launcher));
+            else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
+                Bitmap folderBitmap = ((FolderItemView) view).getBitmapFolderView();
+                outlineBmp = getOutLinerBitmap(folderBitmap);
+            }
+
+
+            view.startDrag(data, shadowBuilder, view, 0);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void dragAnimation(View view, Point point) {
+
+        isDragStarted = true;
+        ClipData.Item item = new ClipData.Item(
+                (CharSequence) (""));
+
+        String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
+        ClipData data = new ClipData("",
+                mimeTypes, item);
+        DragShadowBuilder shadowBuilder = new DragShadowBuilder(
+                view, point);
+        view.setVisibility(View.INVISIBLE);
+
+        currentScreen = dragInfo.getScreen();
+
+        addExtraEmptyScreen();
+
+        if (!dragInfo.getDropExternal()) {
+            int screen;
+            if (dragInfo.getScreen() == 1) {
+                screen = 0;
+            } else {
+                screen = dragInfo.getScreen();
+            }
+
+            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move));
+        }
+
+
+        addMargin();
+
+        if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
+            outlineBmp = getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), launcher));
+        else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
+            Bitmap folderBitmap = ((FolderItemView) view).getBitmapFolderView();
+            outlineBmp = getOutLinerBitmap(folderBitmap);
+        }
+
+        view.startDrag(data, shadowBuilder, view, 0);
+
+    }
+
+    public void addMargin() {
+        try {
+
+
+            desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
+            desktopFragment.findViewById(R.id.drag_layer).setScaleX(0.85f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
+
+            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
+            for (int i = 0; i < containerL.getChildCount(); i++) {
+                View view = containerL.getChildAt(i);
+
+                if (i == 0) {
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+                    params.height = getResources().getDimensionPixelOffset(R.dimen.wallpaper_height_after_anim);
+                    containerL.updateViewLayout(view, params);
+
+                } else {
+
+                    view.setScaleY(0.98f);
+                    view.setBackgroundColor(getResources().getColor(R.color.frame_color));
+                }
+                if (view instanceof CellLayout) {
+                    CellLayout viewF = (CellLayout) view;
+                    System.out.println("CellLayout Launcher Application");
+                    for (int j = 0; j < viewF.getChildCount(); j++) {
+                        View child = viewF.getChildAt(j);
+                        child.setPivotY(0.5f);
+                        child.setPivotX(0.5f);
+                        child.setScaleX(0.98f);
+                        child.setScaleY(0.85f);
+                    }
+
+                }
+
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeMargin() {
+        try {
+            desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
+            desktopFragment.findViewById(R.id.drag_layer).setScaleX(1f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(1f);
+            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(1f);
+            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
+
+            for (int i = 0; i < containerL.getChildCount(); i++) {
+                View view = containerL.getChildAt(i);
+                view.setScaleY(1f);
+                view.setScaleX(1f);
+                if (i == 0) {
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+                    //  params.setMargins(0, 0, 0, 0);
+                    params.height = getResources().getDimensionPixelOffset(R.dimen.wallpaper_height);
+                    containerL.updateViewLayout(view, params);
+                } else {
+                    view.setScaleY(1f);
+                    view.setBackgroundColor(Color.TRANSPARENT);
+                }
+
+
+                if (view instanceof CellLayout) {
+                    CellLayout viewF = (CellLayout) view;
+                    for (int j = 0; j < viewF.getChildCount(); j++) {
+                        View child = viewF.getChildAt(j);
+                        child.setScaleX(1f);
+                        child.setScaleY(1f);
+                        //CellLayout cellLayout = (CellLayout) child;
+                    }
+
+                    /*if(viewF.getChildCount() > 1){
+                        removeScreen(viewF);
+                    }*/
+
+                }
+
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void addExtraEmptyScreen() {
+
+
+        LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+
+        Log.v(TAG, "Container Child count before add : " + containerL.getChildCount());
+
+        if (((CellLayout) containerL.getChildAt(containerL.getChildCount() - 1)).getChildCount() > 0) {
+            CellLayout child = new CellLayout(launcher, R.dimen.cell_layout_height);
+            child.setTag(containerL.getChildCount());
+            PageDragListener pageDragListener = new PageDragListener(launcher, desktopFragment, child);
+            child.setOnDragListener(pageDragListener);
+            child.setDragListener(pageDragListener);
+            containerL.addView(child);
+        }
+
+    }
+
+    public void removeScreen() {
+        try {
+            LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
+            for (int i = 0; i < containerL.getChildCount(); i++) {
+                if (i > Default_Screens) {
+                    CellLayout cellLayout = (CellLayout) containerL.getChildAt(i);
+                    if (cellLayout.getChildCount() == 0) {
+                        containerL.removeView(containerL.getChildAt(i));
+                        containerL.requestLayout();
+                    }
+                }
+            }
+
+            Log.v(TAG, "Container Child count after removing : " + containerL.getChildCount());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

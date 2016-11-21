@@ -14,33 +14,26 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import id2.id2me.com.id2launcher.database.WidgetInfo;
-import id2.id2me.com.id2launcher.general.WidgetsListManager;
+import id2.id2me.com.id2launcher.models.WidgetInfoModel;
 
 /**
  * Created by sunita on 8/9/16.
  */
 public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycleViewAdapter.MyViewHolder> implements View.OnLongClickListener {
 
-    private final DrawerLayout drawerLayout;
-    private List<WidgetInfo> widgetInfoList;
+
+    private List<WidgetInfoModel> widgetInfoList;
     Context context;
     RecyclerView recycleView;
     private WidgetsListManager widgetsListManager;
-    private WidgetInfo widgetInfo;
+    private WidgetInfoModel widgetInfo;
     LauncherApplication launcherApplication;
     @Override
     public boolean onLongClick(View v) {
         try {
-            DragInfo dragInfo = new DragInfo();
-            dragInfo.setDropExternal(true);
-            dragInfo.setIsAppOrFolderOrWidget(3);
-            dragInfo.setIsItemCanPlaced(true);
-            MyViewHolder holder = (MyViewHolder) recycleView.getChildViewHolder(v);
-            dragInfo.setWidgetInfo(holder.widgetInfo);
-            ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview), View.VISIBLE);
-            drawerLayout.closeDrawer(Gravity.LEFT);
+            ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = ((MyViewHolder)v.getTag()).widgetInfo;
+            launcherApplication.getLauncher().resetPage();
+             launcherApplication.dragAnimation(v.findViewById(R.id.widget_preview));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,7 +43,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView widget_name, widget_dim;
         ImageView widget_preview_img;
-        WidgetInfo widgetInfo;
+        WidgetInfoModel widgetInfo;
 
         private MyViewHolder(View view) {
             super(view);
@@ -66,9 +59,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
         widgetInfoList = widgetsListManager.getInstalledWidgets();
     }
 
-    public WidgetRecycleViewAdapter(Context context, DrawerLayout drawerLayout, RecyclerView recycleView) {
+    public WidgetRecycleViewAdapter(Context context, RecyclerView recycleView) {
         this.recycleView = recycleView;
-        this.drawerLayout = drawerLayout;
+
         this.context = context;
         launcherApplication= (LauncherApplication)((Activity)context).getApplication();
         loadWidgets();
@@ -78,8 +71,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.widget_listing_item, parent, false);
-        itemView.setTag(this);
-        return new MyViewHolder(itemView);
+        MyViewHolder myViewHolder= new MyViewHolder(itemView);
+        itemView.setTag(myViewHolder);
+        return myViewHolder;
     }
 
     @Override

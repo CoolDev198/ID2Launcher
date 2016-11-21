@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relative_view"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     >
-    <id2.id2me.com.id2launcher.general.AppGridView
-        android:id="@+id/mygridview"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
+
+    <id2.id2me.com.id2launcher.AppGridView
+        android:id="@+id/folder_gridView"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/app_drawer_color"
-        >
-    </id2.id2me.com.id2launcher.general.AppGridView>
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/round_white_border">
+    </id2.id2me.com.id2launcher.AppGridView>
 
 
 </RelativeLayout>

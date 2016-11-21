@@ -8,24 +8,23 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
-import id2.id2me.com.id2launcher.general.AppGridView;
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by bliss76 on 15/06/16.
  */
 public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItemClickListener {
-    ArrayList<AppInfo> appInfos;
+    ArrayList<ItemInfoModel> appInfos;
     LayoutInflater inflater;
     View grid;
     int layout;
     Context context;
 
-    public FolderGridAdapter(ArrayList<AppInfo> appInfos, Context context, int layout, AppGridView appGridView) {
+    public FolderGridAdapter(ArrayList<ItemInfoModel> appInfos, Context context, int layout, AppGridView appGridView) {
         this.layout = layout;
         this.context = context;
         if(appInfos==null){
@@ -72,9 +71,10 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
                 holder = (ViewHolder) grid.getTag();
             }
 
+            holder.itemInfoModel=appInfos.get(position);
             holder.itemImage.setTag(position);
             holder.pName = appInfos.get(position).getPname();
-            holder.itemImage.setImageDrawable(appInfos.get(position).getIcon());
+            holder.itemImage.setImageBitmap(ItemInfoModel.getIconFromCursor(appInfos.get(position).getIcon(),context));
 
 
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
         launchApp(((ViewHolder) view.getTag()).pName);
     }
 
-    public void setAppInfos(ArrayList<AppInfo> appInfos) {
+    public void setAppInfos(ArrayList<ItemInfoModel> appInfos) {
         this.appInfos = appInfos;
         this.notifyDataSetChanged();
     }
@@ -111,5 +111,6 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
     private static class ViewHolder {
         public ImageView itemImage;
         public String pName;
+        ItemInfoModel itemInfoModel;
     }
 }

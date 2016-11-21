@@ -2,6 +2,7 @@ package id2.id2me.com.id2launcher;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,7 +14,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.WidgetInfo;
+import id2.id2me.com.id2launcher.models.WidgetInfoModel;
 
 
 /**
@@ -24,11 +25,10 @@ public class WidgetsListingFragment extends Fragment {
     View fragmentView;
     Context context;
     final String TAG = "WidgetsListingFragment";
-    ArrayList<WidgetInfo> widgetInfos;
-    static DrawerLayout drawerLayout;
+    ArrayList<WidgetInfoModel> widgetInfos;
+    private RecyclerView recyclerView;
 
-    public static WidgetsListingFragment newInstance(DrawerLayout drawer) {
-        drawerLayout = drawer;
+    public static WidgetsListingFragment newInstance() {
         WidgetsListingFragment widgetsListingFragment = new WidgetsListingFragment();
         return widgetsListingFragment;
     }
@@ -41,17 +41,28 @@ public class WidgetsListingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         widgetInfos = new ArrayList<>();
         fragmentView = inflater.inflate(R.layout.widgets_listing_fragment, container, false);
-        RecyclerView recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
-        GridLayoutManager manager = new GridLayoutManager(context, 2);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,drawerLayout,recyclerView));
+
         return fragmentView;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        try {
+            recyclerView = (RecyclerView) fragmentView.findViewById(R.id.widget_recycle_view);
+            GridLayoutManager manager = new GridLayoutManager(context, 2);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,recyclerView));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -69,6 +80,7 @@ public class WidgetsListingFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        recyclerView.stopScroll();
         Log.v(TAG, "On Detach called");
 
     }

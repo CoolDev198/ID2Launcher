@@ -14,9 +14,33 @@
     <color name="symbol_circle_color">#303030</color>
     <color name="status_bar_color">#7c000000</color>
     <color name="delete_target_hover_tint">#DAFF0000</color>
-    <color name="colorPrimary">#125688</color>
+    <color name="colorPrimary">#DAFF0000</color>
     <color name="colorPrimaryDark">#125688</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#c8e8ff</color>
+    <color name="colorContextTitle">#d2c6ca</color>
+
+    <color name="windowBackground">#1C1C1C</color>
+    <color name="overlay">#AA1C1C1C</color>
+    <color name="divider">#333333</color>
+
+    <color name="animate_color">#F2F2F2</color>
+    <color name="frame_color">#E0E0E0</color>
+    <color name="statusbar_bg">#FF006080</color>
+
+
+    <color name="red">#FF0000</color>
+    <color name="blue">#1100ff</color>
+    <color name="green">#00ff08</color>
+
+
+    <array name="rainbow">
+        <item></item>
+        <item>@color/red</item>
+        <item>@color/blue</item>
+        <item>@color/green</item>
+    </array>
+
+    <color name="transparent_alpha">#dcffffff</color>
 </resources>

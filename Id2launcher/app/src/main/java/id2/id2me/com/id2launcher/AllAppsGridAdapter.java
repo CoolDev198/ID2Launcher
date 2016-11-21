@@ -8,6 +8,7 @@ import android.os.Build;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -17,22 +18,19 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
-import id2.id2me.com.id2launcher.general.AppGridView;
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by bliss76 on 21/06/16.
  */
-public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener {
+public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener{
     private final LauncherApplication launcherApplication;
     LayoutInflater inflater;
-    ArrayList<AppInfo> gridList;
-    DrawerLayout drawerLayout;
-    AppGridView appGridView;
+    ArrayList<AppInfoModel> gridList;
     private Context mContext;
 
-    public AllAppsGridAdapter(Context c, ArrayList<AppInfo> gridList, DrawerLayout drawerLayout) {
-        this.drawerLayout = drawerLayout;
+    public AllAppsGridAdapter(Context c, ArrayList<AppInfoModel> gridList) {
         mContext = c;
         launcherApplication= (LauncherApplication)((Activity)mContext).getApplication();
         inflater = (LayoutInflater) mContext
@@ -83,6 +81,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                     e.printStackTrace();
                 }
                 holder.itemImage = (ImageView) grid.findViewById(R.id.drawer_grid_image);
+
                 grid.setOnClickListener(this);
                 grid.setOnLongClickListener(this);
             } else {
@@ -94,14 +93,14 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
             holder.appInfo = gridList.get(position);
             holder.pName = gridList.get(position).getPname();
             holder.itemText.setText(gridList.get(position).getAppname());
-            holder.itemImage.setImageDrawable(gridList.get(position).getIcon());
+            holder.itemImage.setImageBitmap(gridList.get(position).getBitmapIcon());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return grid;
     }
 
-    public void launchApp(AppInfo appInfo) {
+    public void launchApp(AppInfoModel appInfo) {
         try {
             Intent intent = null;
             String pckName = appInfo.getPname();
@@ -110,15 +109,12 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                 intent = mContext.getPackageManager()
                         .getLaunchIntentForPackage(pckName);
                 mContext.startActivity(intent);
-                drawerLayout.closeDrawer(Gravity.LEFT);
             } else {
                 Toast.makeText(mContext,
                         mContext.getResources().getText(R.string.appNotFound),
                         Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-
-
             e.printStackTrace();
         }
     }
@@ -134,19 +130,14 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
     }
 
     private void dragAnimation(View view) {
-
         try {
-            DragInfo dragInfo = new DragInfo();
-            dragInfo.setAppInfo(gridList.get(Integer.parseInt(view
-                    .findViewById(R.id.drawer_grid_image).getTag().toString())));
-            dragInfo.setIsAppOrFolderOrWidget(1);
-            dragInfo.setDropExternal(true);
-            dragInfo.setIsItemCanPlaced(true);
-            dragInfo.setSpanX(1);
-            dragInfo.setSpanY(1);
-            ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = dragInfo;
-            launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image), View.VISIBLE);
-            drawerLayout.closeDrawer(Gravity.LEFT);
+
+            ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = (ItemInfoModel) gridList.get(Integer.parseInt(view
+                    .findViewById(R.id.drawer_grid_image).getTag().toString())).clone();
+
+            launcherApplication.getLauncher().resetPage();
+            launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,11 +145,13 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
     }
 
 
+
+
     private static class ViewHolder {
         public TextView itemText;
         public ImageView itemImage;
         public String pName;
-        public AppInfo appInfo;
+        public AppInfoModel appInfo;
     }
 
 }

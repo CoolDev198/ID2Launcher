@@ -1,57 +1,65 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
-import android.app.WallpaperManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.LinearLayoutCompat;
-import android.view.Gravity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
-import id2.id2me.com.id2launcher.database.AppInfo;
-import id2.id2me.com.id2launcher.drawer.DrawerHandler;
-import id2.id2me.com.id2launcher.drawer.MyDrawerListener;
-import id2.id2me.com.id2launcher.folder.FolderFragmentInterface;
-import id2.id2me.com.id2launcher.general.AllAppsListManager;
+import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
+import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
+
 
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements DrawerHandler {
-    private ArrayList<AppInfo> appInfos;
-    private DrawerLayout drawer;
-    private View fragmentView = null;
-    private Context context;
-    private final List<Fragment> mFragmentList = new ArrayList<>();
-    private final List<String> mFragmentTitleList = new ArrayList<>();
+public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
+    private static final float MIN_SCALE = 0.75f;
+    final Handler handler = new Handler();
 
+    String TAG = "DesktopFragment";
+    //context menu ids
+    TimerTask timerTask;
+    List<Fragment> fragmentList;
+    private ArrayList<AppInfoModel> appInfos;
+    private  View fragmentView = null;
+    private Context context;
     private LauncherApplication application;
-    private FrameLayout parentLayout;
     private ImageView wallpaperImg;
     private RelativeLayout wallpaperLayout;
+    private AppsListingFragment appsListingFragment;
+    private DatabaseHandler db;
+    private NotificationWidgetAdapter notificationWidgetAdapter;
+    private BroadcastReceiver onNotice = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            notifyDataInNotificationWidget();
+        }
+    };
+    private LauncherModel mModel;
+    private static int mCellLayoutHeight;
 
     public static DesktopFragment newInstance() {
         DesktopFragment f = new DesktopFragment();
+
         return f;
     }
 
@@ -59,6 +67,7 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+
     }
 
     @Override
@@ -70,199 +79,215 @@ public class DesktopFragment extends Fragment implements DrawerHandler {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         try {
+            // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
 
             application = (LauncherApplication) ((Activity) context).getApplication();
-            if(application.desktopFragment == null) {
+            if (application.desktopFragment == null) {
+
+                  /* communicator between notification service and activity*/
+
+                application.viewList = new ArrayList<>();
+                fragmentList = new ArrayList<>();
+
+
+                db = DatabaseHandler.getInstance(context);
+                mModel = application.setDeskTopFragment(this);
+
                 fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
+                mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
 
-
-                loadApps();
                 initViews();
-                updateObjectsFromDatabase();
-                setDrawerWidth();
 
-
-                ViewPager viewPager = (ViewPager) fragmentView.findViewById(R.id.viewpager);
-                setupViewPagerAsInnerFragment(viewPager);
-                TabLayout tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
-                tabLayout.setupWithViewPager(viewPager);
-                changeTabsFont(tabLayout);
-
-                ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
-
-                scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
-                    @Override
-                    public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
-
-                        View view = scrollView.findViewById(R.id.wallpaper_img);
-
-                        if (view != null) {
-                            view.setTranslationY(scrollView.getScrollY() / 2);
-                        }
-
-                    }
-                });
-
-                application.desktopFragment=fragmentView;
+                application.desktopFragment = fragmentView;
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         return application.desktopFragment;
 
     }
 
-    private void changeTabsFont(TabLayout tabLayout) {
+    // Refresh notification widget
+    public void notifyDataInNotificationWidget() {
+        db.getNotificationData();
+        notificationWidgetAdapter.notifyDataSetChanged();
 
-        ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
-        int tabsCount = vg.getChildCount();
-        for (int j = 0; j < tabsCount; j++) {
-            ViewGroup vgTab = (ViewGroup) vg.getChildAt(j);
-            int tabChildsCount = vgTab.getChildCount();
-            for (int i = 0; i < tabChildsCount; i++) {
-                View tabViewChild = vgTab.getChildAt(i);
-                if (tabViewChild instanceof TextView) {
-                    ((TextView) tabViewChild).setTypeface(application.getTypeFace());
-                }
-            }
-        }
     }
 
-    private void setupViewPagerAsInnerFragment(ViewPager viewPager) {
-        if (viewPager.getChildCount() == 0) {
-            ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager()); // Nested Fragment
-            adapter.addFragment(AppsListingFragment.newInstance(drawer, appInfos), "Apps");
-            adapter.addFragment(WidgetsListingFragment.newInstance(drawer), "Widgets");
-            viewPager.setAdapter(adapter);
-        }
+
+    @Override
+    public void bindAppsAdded() {
+        appsListingFragment.setListAdapter();
+
     }
 
-//    @Override
-//    public boolean onLongClick(View v) {
-//        if (v.getId() == R.id.wallpaper_img) {
-//            startWallpaperChooserActivity();
+    @Override
+    public void bindAppsUpdated() {
+        appsListingFragment.setListAdapter();
+    }
+
+    @Override
+    public void bindAppsRemoved(ArrayList<String> packageNames) {
+//        appsListingFragment.setListAdapter();
+//        for (int k = 0; k < packageNames.size(); k++) {
+//            for (int i = 0; i < parentLayout.getChildCount(); i++) {
 //
+//                View child = parentLayout.getChildAt(i);
+//                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
+//                if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
+//
+//                    if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
+//                        parentLayout.removeView(child);
+//                        application.getPageDragListener().unMarkCells(cellInfo.getMatrixCells());
+//                        break;
+//                    }
+//
+//                } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
+//                    FolderInfoModel folderInfo = cellInfo.getFolderInfo();
+////                    ArrayList<AppInfoModel> applicationInfos = folderInfo.getAppInfos();
+////                    for (int j = 0; j < applicationInfos.size(); i++) {
+////                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
+////                            folderInfo.deleteAppInfo(applicationInfos.get(j));
+////                            break;
+////                        }
+////
+////                    }
+//                }
+//            }
 //        }
-//        return true;
-//    }
-
-    public void setWallpaper() {
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            wallpaperImg.setImageDrawable(wallpaperDrawable);
-        }
     }
-
-
-    class ViewPagerAdapter extends FragmentStatePagerAdapter {
-
-
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-    }
-
-    private void updateObjectsFromDatabase() {
-    }
-
 
     private void initViews() {
-        wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
-        drawer = (DrawerLayout) fragmentView.findViewById(R.id.drawer_layout);
-        if (drawer != null) {
-            drawer.setDrawerListener(new MyDrawerListener(this, context, drawer));
-        }
-        parentLayout = (FrameLayout) fragmentView.findViewById(R.id.relative_view);
+
+        addNotifyWidget();
+
+        //  addWallpaperCropper();
 
 
-        PageDragListener pageDragListener = new PageDragListener(context, parentLayout);
-        parentLayout.setLayoutParams(new LinearLayout.LayoutParams(application.getScreenWidth(), application.getScreenHeight()));
-        application.setPageDragListener(pageDragListener);
-        wallpaperLayout = (RelativeLayout)fragmentView.findViewById(R.id.wallpaper_layout);
-        wallpaperLayout.setOnDragListener(new WallpaperDragListener(pageDragListener));
-
-       /* parentLayout.setOnClickListener(new View.OnClickListener() {
+        ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+        scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
             @Override
-            public void onClick(View v) {
-                if (application.folderView != null) {
-                    parentLayout.removeView(application.folderView);
-                    application.folderView = null;
+            public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
+
+                try {
+                    View view = fragmentView.findViewById(R.id.wallpaper_img);
+                    if (view != null) {
+                        view.setTranslationY(scrollView.getScrollY() / 2);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
             }
-        });*/
-        parentLayout.setOnDragListener(application.getPageDragListener());
+        });
+
+        addDefaultScreens();
+        addDragListener();
+
 
     }
 
+    private void addDefaultScreens() {
+        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
+        CellLayout child;
 
-    private void setDrawerWidth() {
-        try {
-            RelativeLayout leftDrawer = (RelativeLayout) fragmentView.findViewById(R.id.left_drawer_layout);
-            ViewGroup.LayoutParams params = leftDrawer.getLayoutParams();
-            params.width = ((LauncherApplication) getActivity().getApplication()).getScreenWidth();
-            leftDrawer.setLayoutParams(params);
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (int i = 0; i < application.Default_Screens; i++) {
+            if (i == 0) {
+                child = new CellLayout(context, R.dimen.wallpaper_cell_layout);
+                child.setBackgroundColor(Color.BLUE);
+            } else {
+                child = new CellLayout(context, R.dimen.cell_layout_height);
+
+            }
+            containerL.addView(child);
         }
     }
 
-    private void loadApps() {
-        try {
-            this.appInfos = new AllAppsListManager().getVisibleInstalledApps(context);
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void addWallpaperCropper() {
+        wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
+        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
+        wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+    }
+
+    private void addDragListener() {
+
+        fragmentView.findViewById(R.id.main_layout).setOnDragListener(new DesktopDragListener(context, fragmentView));
+        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
+        for (int i = 1; i < containerL.getChildCount(); i++) {
+            CellLayout child = (CellLayout) containerL.getChildAt(i);
+            child.setTag(i);
+            PageDragListener pageDragListener = new PageDragListener(context, fragmentView, child);
+            child.setOnDragListener(pageDragListener);
+            child.setDragListener(pageDragListener);
         }
     }
+
+    private void addNotifyWidget() {
+        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        notificationRecyclerView.setLayoutManager(linearLayoutManager);
+        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
+        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
+        notifyDataInNotificationWidget();
+    }
+
+//    private void populateDesktop() {
+//        HashMap<Long, FolderInfoModel> folderInfoHashMap = new HashMap<>();
+//
+//        for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
+//            ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
+//            int type = itemInfo.getItemType();
+//
+//            int width = application.getCellWidth() * itemInfo.getSpanX();
+//            int height = application.getCellHeight() * itemInfo.getSpanY();
+//
+//
+//            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+//            int leftMargin = itemInfo.getCellX() * application.getCellWidth();
+//            int topMargin = itemInfo.getCellY() * application.getCellWidth();
+//            layoutParams.setMargins(leftMargin, topMargin, 0, 0);
+//
+//
+//            switch (type) {
+//
+//                case DatabaseHandler.ITEM_TYPE_APP:
+//
+//                    if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
+//                        application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+//                    }
+//                    break;
+//                case DatabaseHandler.ITEM_TYPE_FOLDER:
+//
+//                    application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+//
+//                    break;
+//                case DatabaseHandler.ITEM_TYPE_APPWIDGET:
+//                    application.getPageDragListener().addWidgetToPage(itemInfo.getAppWidgetId(), itemInfo, layoutParams);
+//
+//                    break;
+//            }
+//        }
+//    }
+
 
     @Override
-    public void drawerOpen() {
-        application.isDrawerOpen = true;
-        drawer.openDrawer(Gravity.LEFT);
+    public void onDestroyView() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(onNotice);
+        super.onDestroyView();
     }
 
-    @Override
-    public void drawerClose() {
-        application.isDrawerOpen = false;
-        drawer.closeDrawer(Gravity.LEFT);
-    }
-
-    private void startWallpaperChooserActivity() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SET_WALLPAPER);
-        intent.setClassName("com.android.wallpaperchooser", "com.android.wallpaperchooser.WallpaperPickerActivity");
-        try {
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
-
-
-
 
 

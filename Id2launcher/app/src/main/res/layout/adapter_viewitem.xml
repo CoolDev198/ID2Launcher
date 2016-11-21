@@ -6,7 +6,7 @@
     android:weightSum="1"
     >
 
-    <id2.id2me.com.id2launcher.general.AppGridView
+    <id2.id2me.com.id2launcher.AppGridView
         android:id="@+id/grid"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
