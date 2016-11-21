@@ -23,6 +23,8 @@ public class CellLayout extends FrameLayout {
     private int height;
     PageDragListener pageDragListener;
     private String TAG;
+    private int mCellPaddingLeft;
+    private int mCellPaddingTop;
 
     public CellLayout(Context context, int heightResource) {
         super(context);
@@ -107,8 +109,31 @@ public class CellLayout extends FrameLayout {
         cellsMatrix = new boolean[cellCountX][cellCountY];
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
+
+        int cellWidth = (int) context.getResources().getDimension(R.dimen.cell_width);
+        int cellHeight = (int) context.getResources().getDimension(R.dimen.cell_height);
+
+        int appIconSize = (int) context.getResources().getDimension(R.dimen.app_icon_size);
+
+        mCellPaddingLeft = (cellWidth - appIconSize) / 2;
+        mCellPaddingTop = (cellHeight - appIconSize) / 2;
     }
 
+    public FrameLayout.LayoutParams getFrameLayoutParams(int left, int top) {
+        try {
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            System.out.println("Params Padding left : " + mCellPaddingLeft + " top : " + mCellPaddingTop);
+            left = left + mCellPaddingLeft;
+            top = top + mCellPaddingTop;
+            layoutParams.setMargins(left, top, 0, 0);
+            return layoutParams;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }
 

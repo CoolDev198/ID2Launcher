@@ -39,7 +39,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     TimerTask timerTask;
     List<Fragment> fragmentList;
     private ArrayList<AppInfoModel> appInfos;
-    private static View fragmentView = null;
+    private  View fragmentView = null;
     private Context context;
     private LauncherApplication application;
     private ImageView wallpaperImg;

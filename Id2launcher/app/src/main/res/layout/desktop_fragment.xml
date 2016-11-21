@@ -60,7 +60,7 @@
         android:background="@color/home_screen_color"
         android:layout_below="@id/drop_target_layout">
 
-        <FrameLayout
+        <id2.id2me.com.id2launcher.DragLayer
             android:id="@+id/drag_layer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
-        </FrameLayout>
+        </id2.id2me.com.id2launcher.DragLayer>
 
     </id2.id2me.com.id2launcher.ObservableScrollView>
 

@@ -28,7 +28,6 @@ import jp.wasabeef.blurry.Blurry;
 public class FolderItemView extends LinearLayout implements View.OnTouchListener {
 
     Context context;
-    MotionEvent event;
     LauncherApplication launcherApplication;
     FolderItemView.GestureListener gestureListener;
     GestureDetector gestureDetector;
@@ -79,14 +78,13 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
 
         });
 
-        gestureListener = new GestureListener();
+        gestureListener = new GestureListener(this);
         gestureDetector = new GestureDetector(context, gestureListener);
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent ev) {
         Log.v("FolderItemView", "  x:: y ;; " + ev.getX() + "  " + ev.getY());
-        gestureListener.setView(v);
         return gestureDetector.onTouchEvent(ev);
     }
 
@@ -175,19 +173,18 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private View view;
+        FolderItemView folderItemView;
+        GestureListener(FolderItemView folderItemView){
+            this.folderItemView=folderItemView;
+        }
 
         @Override
         public void onLongPress(MotionEvent e) {
             //  Log.v("FolderItemView ", " on long press : ");
-            launcherApplication.dragInfo = (ItemInfoModel) view.getTag();
+            launcherApplication.dragInfo = (ItemInfoModel) folderItemView.getTag();
             launcherApplication.dragInfo.setDropExternal(false);
-            launcherApplication.dragAnimation(view, new Point((int) e.getX(), (int) e.getY()));
+            launcherApplication.dragAnimation(folderItemView, new Point((int) e.getX(), (int) e.getY()));
             super.onLongPress(e);
-        }
-
-        public void setView(View view) {
-            this.view = view;
         }
 
         @Override
@@ -206,7 +203,7 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             // Log.v("FolderItemView ", " onSingleTapUp: ");
-            performClick(view);
+            performClick(folderItemView);
             return super.onSingleTapUp(e);
         }
 

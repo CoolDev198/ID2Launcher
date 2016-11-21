@@ -60,7 +60,6 @@ class PageDragListener implements View.OnDragListener {
     private ItemInfoModel dragInfo;
     private LauncherAppWidgetHostView hostView;
     private TimerTask timerTask;
-    private Bitmap outlineBmp;
     private ImageView mOutlineView;
     private int mCellPaddingLeft;
     private int mCellPaddingTop;
@@ -127,12 +126,6 @@ class PageDragListener implements View.OnDragListener {
                 int currentScreen = Integer.parseInt(cellLayout.getTag().toString());
                 launcherApplication.currentScreen = currentScreen;
 
-                if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
-                    outlineBmp = launcherApplication.getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), context));
-                else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-                    Bitmap folderBitmap = ((FolderItemView) drag_view).getBitmapFolderView();
-                    outlineBmp = launcherApplication.getOutLinerBitmap(folderBitmap);
-                }
 
                 copyActualMatricesToDragMatrices();
                 drag_view = (View) event.getLocalState();
@@ -295,7 +288,7 @@ class PageDragListener implements View.OnDragListener {
 
 
                 if (noOfAvailCells >= noOfReqCells && !isRequiredCellsCalculated) {
-                    mOutlineView.setImageBitmap(outlineBmp);
+                    mOutlineView.setImageBitmap(launcherApplication.outlineBmp);
                     mOutlineView.setVisibility(View.VISIBLE);
                     isAvailableCellsGreater = true;
                 }

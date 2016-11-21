@@ -48,6 +48,7 @@ public class LauncherApplication extends Application {
     private PageDragListener pageDragListener;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
+    public Bitmap outlineBmp;
 
     public static float getScreenDensity() {
         return density;
@@ -207,7 +208,7 @@ public class LauncherApplication extends Application {
             View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
                     view);
 
-             addExtraEmptyScreen();
+            addExtraEmptyScreen();
 
             addMargin();
 
@@ -215,6 +216,13 @@ public class LauncherApplication extends Application {
                 currentScreen = 1;
                 ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
             }
+            if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
+                outlineBmp = getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), launcher));
+            else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
+                Bitmap folderBitmap = ((FolderItemView) view).getBitmapFolderView();
+                outlineBmp = getOutLinerBitmap(folderBitmap);
+            }
+
 
             view.startDrag(data, shadowBuilder, view, 0);
 
@@ -255,6 +263,13 @@ public class LauncherApplication extends Application {
 
 
         addMargin();
+
+        if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
+            outlineBmp = getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), launcher));
+        else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
+            Bitmap folderBitmap = ((FolderItemView) view).getBitmapFolderView();
+            outlineBmp = getOutLinerBitmap(folderBitmap);
+        }
 
         view.startDrag(data, shadowBuilder, view, 0);
 
