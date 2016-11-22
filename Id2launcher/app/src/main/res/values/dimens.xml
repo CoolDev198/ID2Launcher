@@ -46,5 +46,9 @@
 
     <dimen name="wallpaper_height_after_anim">240dp</dimen>
 
+    <dimen name="workspace_cell_width">@dimen/workspace_cell_width_land</dimen>
+    <dimen name="workspace_cell_height">@dimen/workspace_cell_height_land</dimen>
+    <dimen name="workspace_cell_width_land">106dp</dimen>
+    <dimen name="workspace_cell_height_land">74dp</dimen>
 
 </resources>
