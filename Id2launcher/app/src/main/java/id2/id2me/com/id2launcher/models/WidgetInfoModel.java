@@ -17,6 +17,8 @@ public class WidgetInfoModel extends ItemInfoModel{
     private int pageId;
     private int minSpanX;
     private int minSpanY;
+    private Drawable drawableImage;
+    private Drawable widgetIcon;
 
     public WidgetInfoModel(){
         setDropExternal(true);
@@ -79,5 +81,19 @@ public class WidgetInfoModel extends ItemInfoModel{
         return minSpanY;
     }
 
+    public Drawable getDrawableImage() {
+        return drawableImage;
+    }
 
+    public void setDrawableImage(Drawable drawableImage) {
+        this.drawableImage = drawableImage;
+    }
+
+    public Drawable getWidgetIcon() {
+        return widgetIcon;
+    }
+
+    public void setWidgetIcon(Drawable widgetIcon) {
+        this.widgetIcon = widgetIcon;
+    }
 }

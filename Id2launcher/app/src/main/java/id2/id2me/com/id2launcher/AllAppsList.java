@@ -25,6 +25,8 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
 public class AllAppsList {
 
     private static final Canvas sCanvas = new Canvas();
+    static PackageManager pm;
+    static List<ResolveInfo> list;
 
     static {
         sCanvas.setDrawFilter(new PaintFlagsDrawFilter(Paint.DITHER_FLAG,
@@ -112,10 +114,10 @@ public class AllAppsList {
 
         data.clear();
 
-        PackageManager pm = context.getPackageManager();
+        pm = context.getPackageManager();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
+        list = pm.queryIntentActivities(intent, 0);
         Collections.sort(list, new ResolveInfo.DisplayNameComparator(pm));
 
         try {
@@ -137,6 +139,24 @@ public class AllAppsList {
         }
 
     }
+
+
+    public static Drawable getIconForWidget(String packageName){
+        Drawable icon = null;
+        try {
+            for (ResolveInfo rInfo : list) {
+                if(rInfo.activityInfo.packageName.equalsIgnoreCase(packageName)){
+                    icon = rInfo.loadIcon(pm);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return icon;
+    }
+
+
 
 //    /**
 //     * Add the icons for the supplied apk called packageName.
@@ -275,4 +295,6 @@ public class AllAppsList {
 //        }
 //        return null;
 //    }
+
+
 }

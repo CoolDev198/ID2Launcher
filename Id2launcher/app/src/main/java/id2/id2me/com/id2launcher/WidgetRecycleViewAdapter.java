@@ -83,8 +83,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
         holder.widget_name.setText(widgetInfo.getWidgetName());
         holder.widget_dim.setText("");
         holder.widgetInfo = widgetInfo;
-        holder.widget_preview_img.setImageDrawable(new BitmapDrawable(context.getResources(), widgetsListManager.getWidgetPreview(widgetInfo.getComponentName(), widgetInfo.getPreview(), 350,380))); //To Do
-
+        holder.widget_preview_img.setImageDrawable(new BitmapDrawable(context.getResources(),
+                widgetsListManager.getWidgetPreview(widgetInfo.getComponentName(), widgetInfo.getPreview(), 350, 380,
+                        widgetInfo.getSpanX(), widgetInfo.getSpanY()))); //To Do
     }
 
     @Override
