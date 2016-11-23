@@ -32,7 +32,7 @@ public class AppsListingFragment extends Fragment {
     private View fragmentView;
     private LauncherApplication launcherApplication;
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private AllAppAdapter adapter;
 
 
     public static AppsListingFragment newInstance() {
@@ -124,6 +124,7 @@ public class AppsListingFragment extends Fragment {
             recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
            // adapter = new AllAppAdapter(getActivity(), drawer);
             adapter = new AllAppAdapter(getActivity(), drawer);
+
             //GridLayoutManager
             //RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
             //recyclerView.setLayoutManager(mLayoutManager);

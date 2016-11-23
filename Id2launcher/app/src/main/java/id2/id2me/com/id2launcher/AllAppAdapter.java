@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
@@ -29,7 +28,8 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 /**
  * Created by Pinto on 24/09/16.
  */
-public class AllAppAdapter extends BaseAdapter implements RecyclerViewFastScroller.BubbleTextGetter, View.OnClickListener, View.OnLongClickListener {
+public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter,
+        View.OnClickListener, View.OnLongClickListener {
 
     private static LayoutInflater inflater = null;
     DrawerLayout drawerLayout;
@@ -147,14 +147,27 @@ public class AllAppAdapter extends BaseAdapter implements RecyclerViewFastScroll
 
     }
 
+
     @Override
-    public int getCount() {
-        return groupList.size();
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.drawer_grid_item, parent, false);
+        //items.add(itemView);
+        return new MyViewHolder(itemView);
     }
 
     @Override
-    public Object getItem(int i) {
-        return null;
+    public void onBindViewHolder(AllAppAdapter.MyViewHolder holder, int position) {
+       /* AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList);
+        holder.gridView.setAdapter(adapter);*/
+        groupList.get(position);
+        holder.imageView.setTag(position);
+        holder.appInfo = groupList.get(position);
+        holder.pName = groupList.get(position).getPname();
+        holder.title.setText(groupList.get(position).getAppname());
+        holder.imageView.setImageBitmap(groupList.get(position).getBitmapIcon());
+
+
     }
 
     @Override
@@ -163,39 +176,10 @@ public class AllAppAdapter extends BaseAdapter implements RecyclerViewFastScroll
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup) {
-        ViewHolder holder = null;
-        View grid = convertView;
-        try {
-            if (convertView == null) {
-                grid = inflater.inflate(R.layout.drawer_grid_item, null);
-                holder = new ViewHolder();
-                grid.setTag(holder);
-                holder.itemText = (TextView) grid.findViewById(R.id.drawer_grid_text);
-                try {
-                    holder.itemText.setTypeface(launcherApplication.getTypeFace());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                holder.itemImage = (ImageView) grid.findViewById(R.id.drawer_grid_image);
-
-                grid.setOnClickListener(this);
-                grid.setOnLongClickListener(this);
-            } else {
-                holder = (ViewHolder) grid.getTag();
-            }
-
-            groupList.get(position);
-            holder.itemImage.setTag(position);
-            holder.appInfo = groupList.get(position);
-            holder.pName = groupList.get(position).getPname();
-            holder.itemText.setText(groupList.get(position).getAppname());
-            holder.itemImage.setImageBitmap(groupList.get(position).getBitmapIcon());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return grid;
+    public int getItemCount() {
+        return 0;
     }
+
 
     @Override
     public void onClick(View v) {
@@ -250,10 +234,20 @@ public class AllAppAdapter extends BaseAdapter implements RecyclerViewFastScroll
 
     }
 
-    private static class ViewHolder {
-        public TextView itemText;
-        public ImageView itemImage;
+
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        //public TextView title, year, genre;
+        //public AppGridView gridView;
+        public TextView title;
+        public ImageView imageView;
         public String pName;
         public AppInfoModel appInfo;
+        public MyViewHolder(View view) {
+            super(view);
+            //gridView = (AppGridView) view.findViewById(R.id.grid);
+            title = (TextView) view.findViewById(R.id.drawer_grid_text);
+            imageView = (ImageView) view.findViewById(R.id.drawer_grid_image);
+        }
+
     }
 }
