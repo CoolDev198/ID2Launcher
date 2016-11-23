@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,10 +28,11 @@ public class AppsListingFragment extends Fragment {
     private static DrawerLayout drawer;
     Context context;
     private ListView navList;
-    private AllAppAdapter adapter;
+
     private View fragmentView;
     private LauncherApplication launcherApplication;
     private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
 
 
     public static AppsListingFragment newInstance() {
@@ -120,11 +122,15 @@ public class AppsListingFragment extends Fragment {
 
         try {
             recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+           // adapter = new AllAppAdapter(getActivity(), drawer);
             adapter = new AllAppAdapter(getActivity(), drawer);
-
-            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-            recyclerView.setLayoutManager(mLayoutManager);
+            //GridLayoutManager
+            //RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+            //recyclerView.setLayoutManager(mLayoutManager);
             //recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(),3);
+            recyclerView.setLayoutManager(mLayoutManager);
 
             final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
             fastScroller.setRecyclerView(recyclerView);
