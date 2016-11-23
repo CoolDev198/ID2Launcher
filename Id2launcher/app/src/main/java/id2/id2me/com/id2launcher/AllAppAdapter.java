@@ -32,7 +32,6 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
         View.OnClickListener, View.OnLongClickListener {
 
     private static LayoutInflater inflater = null;
-    DrawerLayout drawerLayout;
     ArrayList<View> items = null;
     ArrayList<AppInfoModel> groupList;
     HashMap<Integer, String> mapIndex;
@@ -42,7 +41,7 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     int NO_OF_APPS_IN_ROW = 3;
     private Context mContext;
 
-    public AllAppAdapter(Activity activity, DrawerLayout drawerLayout) {
+    public AllAppAdapter(Activity activity) {
         try {
             this.activity = activity;
             this.mContext = activity;
@@ -50,7 +49,6 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
             inflater = (LayoutInflater) activity
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            this.drawerLayout = drawerLayout;
             items = new ArrayList<View>();
 
 
@@ -126,9 +124,9 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
                         }
                     }
 
-                    if (!mapIndex.containsKey(x)) {
+
                         mapIndex.put(x, modifyChar);
-                    }
+
 
 
             } catch (Exception e) {
@@ -157,9 +155,7 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     }
 
     @Override
-    public void onBindViewHolder(AllAppAdapter.MyViewHolder holder, int position) {
-       /* AllAppsGridAdapter adapter = new AllAppsGridAdapter(activity, groupList);
-        holder.gridView.setAdapter(adapter);*/
+    public void onBindViewHolder(MyViewHolder holder, int position) {
         groupList.get(position);
         holder.imageView.setTag(position);
         holder.appInfo = groupList.get(position);
@@ -170,14 +166,10 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
 
     }
 
-    @Override
-    public long getItemId(int i) {
-        return 0;
-    }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return groupList.size();
     }
 
 

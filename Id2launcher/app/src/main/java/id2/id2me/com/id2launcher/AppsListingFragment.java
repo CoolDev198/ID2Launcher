@@ -122,22 +122,18 @@ public class AppsListingFragment extends Fragment {
 
         try {
             recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
-           // adapter = new AllAppAdapter(getActivity(), drawer);
-            adapter = new AllAppAdapter(getActivity(), drawer);
+            adapter = new AllAppAdapter(getActivity());
 
-            //GridLayoutManager
-            //RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-            //recyclerView.setLayoutManager(mLayoutManager);
-            //recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(),3);
+            recyclerView.setAdapter(adapter);
+            GridLayoutManager mLayoutManager = new GridLayoutManager(getActivity(),3);
             recyclerView.setLayoutManager(mLayoutManager);
 
             final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
             fastScroller.setRecyclerView(recyclerView);
             fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
                     R.id.fastscroller_handle);
-            recyclerView.setAdapter(adapter);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
