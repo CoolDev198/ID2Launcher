@@ -3,12 +3,10 @@ package id2.id2me.com.id2launcher;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import android.view.View;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by sunita on 10/17/16.
@@ -17,12 +15,12 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 public class CellLayout extends FrameLayout {
 
     LauncherApplication launcherApplication;
+    PageDragListener pageDragListener;
     private boolean cellsMatrix[][];
     private int cellCountY;
     private int cellCountX;
     private int height;
-    PageDragListener pageDragListener;
-    private String TAG;
+    private String TAG = "CellLayout";
     private int mCellPaddingLeft;
     private int mCellPaddingTop;
 
@@ -33,11 +31,12 @@ public class CellLayout extends FrameLayout {
         init(context);
     }
 
+    public PageDragListener getDragListener() {
+        return this.pageDragListener;
+    }
+
     public void setDragListener(PageDragListener dragListener) {
         this.pageDragListener = dragListener;
-    }
-    public PageDragListener getDragListener(){
-        return  this.pageDragListener;
     }
 
     private void setCellsMatrix(int[] matrix, boolean val) {
@@ -89,7 +88,7 @@ public class CellLayout extends FrameLayout {
     }
 
     private void setCellCountY() {
-        int countY = height/ launcherApplication.getCellHeight();
+        int countY = height / launcherApplication.getCellHeight();
         cellCountY = countY;
     }
 
@@ -135,5 +134,10 @@ public class CellLayout extends FrameLayout {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.v(TAG,"on touch");
+        return super.onTouchEvent(event);
+    }
 }
 

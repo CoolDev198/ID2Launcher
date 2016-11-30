@@ -7,6 +7,7 @@
     android:layout_weight="1"
     android:gravity="left|top"
     android:orientation="vertical"
+    android:background="@drawable/widget_container_holo"
    >
 
     <!-- The preview of the widget or shortcut. -->
@@ -19,7 +20,7 @@
         android:paddingLeft="@dimen/app_widget_preview_padding_left"
         android:paddingRight="@dimen/app_widget_preview_padding_right"
         android:scaleType="matrix"
-        android:background="@drawable/widget_container_holo" />
+         />
 
     <LinearLayout
         android:layout_width="match_parent"

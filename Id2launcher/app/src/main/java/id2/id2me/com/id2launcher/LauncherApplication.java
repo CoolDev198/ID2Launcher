@@ -44,16 +44,15 @@ public class LauncherApplication extends Application {
     public List<View> viewList;
     public boolean isDragStarted = false;
     public int Default_Screens = 5;
+    public Bitmap outlineBmp;
     String TAG = "LauncherApplication";
-    private PageDragListener pageDragListener;
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
-    public Bitmap outlineBmp;
+
 
     public static float getScreenDensity() {
         return density;
     }
-
 
     @Override
     public void onCreate() {
@@ -110,14 +109,6 @@ public class LauncherApplication extends Application {
         return null;
     }
 
-    public PageDragListener getPageDragListener() {
-        return pageDragListener;
-    }
-
-    public void setPageDragListener(PageDragListener pageDragListener) {
-        this.pageDragListener = pageDragListener;
-    }
-
 
     public int getScreenHeight() {
         int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
@@ -131,6 +122,7 @@ public class LauncherApplication extends Application {
     }
 
     public int getCellHeight() {
+
         int cellHeight = (int) getApplicationContext().getResources().getDimensionPixelSize(
                 R.dimen.cell_height);
         return cellHeight;
@@ -143,97 +135,17 @@ public class LauncherApplication extends Application {
     }
 
 
-    public float convertFromPixelToDp(int dimension) {
-        float dimensionInDp = (dimension / getScreenDensity());
-        return dimensionInDp;
+    public void prepareDrag(Bitmap bmp, Point point, int w, int h) {
+        outlineBmp = bmp;
+        ((DragView) launcher.findViewById(R.id.drag_view)).isLongClick=true;
+        ((DragView) launcher.findViewById(R.id.drag_view)).setBitmap(bmp, w, h);
+        ((ImageView) launcher.findViewById(R.id.drag_outline_img)).setImageBitmap(getOutLinerBitmap(bmp));
+        dragAnimation(point);
     }
 
-    public float convertFromDpToPixel(int resource) {
-        float dimensionInPixel = getApplicationContext().getResources().getDimensionPixelOffset(resource);
-        return dimensionInPixel;
-    }
-
-    public Bitmap getOutLinerBitmap(Bitmap bitmap) { // i 0 for App and 1 for Widget
-        Bitmap outlinerBitmap = null;
-        try {
-            final Canvas canvas = new Canvas();
-            /*if(i == 0){
-                outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
-            } else if(i == 1){
-                outlinerBitmap = createDragOutline();
-            }*/
-            outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return outlinerBitmap;
-    }
-
-    private Bitmap createDragOutline(Bitmap orig, Canvas canvas, int padding, int w, int h,
-                                     boolean clipAlpha) {
-        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
-        final Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(b);
-
-        Rect src = new Rect(0, 0, orig.getWidth(), orig.getHeight());
-        float scaleFactor = Math.min((w - padding) / (float) orig.getWidth(),
-                (h - padding) / (float) orig.getHeight());
-        int scaledWidth = (int) (scaleFactor * orig.getWidth());
-        int scaledHeight = (int) (scaleFactor * orig.getHeight());
-        Rect dst = new Rect(0, 0, scaledWidth, scaledHeight);
-
-        // center the image
-        dst.offset((w - scaledWidth) / 2, (h - scaledHeight) / 2);
-
-        canvas.drawBitmap(orig, src, dst, null);
-        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor,
-                clipAlpha);
-        canvas.setBitmap(null);
-
-        return b;
-    }
+    public void dragAnimation(Point point) {
 
 
-    public void dragAnimation(View view) {
-        try {
-
-
-            isDragStarted = true;
-            ClipData.Item item = new ClipData.Item(
-                    (CharSequence) (""));
-
-            String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-            ClipData data = new ClipData("",
-                    mimeTypes, item);
-            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
-                    view);
-
-            addExtraEmptyScreen();
-
-            addMargin();
-
-            if (dragInfo.getDropExternal()) {
-                currentScreen = 1;
-                ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
-            }
-            if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
-                outlineBmp = getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), launcher));
-            else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-                Bitmap folderBitmap = ((FolderItemView) view).getBitmapFolderView();
-                outlineBmp = getOutLinerBitmap(folderBitmap);
-            }
-
-
-            view.startDrag(data, shadowBuilder, view, 0);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void dragAnimation(View view, Point point) {
 
         isDragStarted = true;
         ClipData.Item item = new ClipData.Item(
@@ -242,9 +154,10 @@ public class LauncherApplication extends Application {
         String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
         ClipData data = new ClipData("",
                 mimeTypes, item);
-        DragShadowBuilder shadowBuilder = new DragShadowBuilder(
-                view, point);
-        view.setVisibility(View.INVISIBLE);
+
+//        DragShadowBuilder shadowBuilder = new DragShadowBuilder(
+//                view, point);
+
 
         currentScreen = dragInfo.getScreen();
 
@@ -259,19 +172,16 @@ public class LauncherApplication extends Application {
             }
 
             ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(screen).getTop() - getResources().getDimensionPixelSize(R.dimen.extra_move));
+        } else {
+            currentScreen = 1;
+            ((ObservableScrollView) desktopFragment.findViewById(R.id.scrollView)).scrollTo(0, ((LinearLayout) desktopFragment.findViewById(R.id.container)).getChildAt(0).getTop());
+
         }
 
 
         addMargin();
 
-        if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_APP)
-            outlineBmp = getOutLinerBitmap(ItemInfoModel.getIconFromCursor(dragInfo.getIcon(), launcher));
-        else if (dragInfo.getItemType() == DatabaseHandler.ITEM_TYPE_FOLDER) {
-            Bitmap folderBitmap = ((FolderItemView) view).getBitmapFolderView();
-            outlineBmp = getOutLinerBitmap(folderBitmap);
-        }
-
-        view.startDrag(data, shadowBuilder, view, 0);
+//        view.startDrag(data, shadowBuilder, view, 0);
 
     }
 
@@ -280,11 +190,11 @@ public class LauncherApplication extends Application {
 
 
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
-            desktopFragment.findViewById(R.id.drag_layer).setScaleX(0.85f);
-            desktopFragment.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
-            desktopFragment.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
-            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
-            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
+            desktopFragment.findViewById(R.id.main_layout).setScaleX(0.85f);
+            launcher.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
+            launcher.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
+            launcher.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
+            launcher.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
 
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
@@ -325,9 +235,9 @@ public class LauncherApplication extends Application {
     public void removeMargin() {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
-            desktopFragment.findViewById(R.id.drag_layer).setScaleX(1f);
-            desktopFragment.findViewById(R.id.drag_outline_img).setScaleX(1f);
-            desktopFragment.findViewById(R.id.drag_outline_img).setScaleY(1f);
+            desktopFragment.findViewById(R.id.main_layout).setScaleX(1f);
+            launcher.findViewById(R.id.drag_outline_img).setScaleX(1f);
+            launcher.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
 
@@ -408,5 +318,44 @@ public class LauncherApplication extends Application {
         }
     }
 
+    public Bitmap getOutLinerBitmap(Bitmap bitmap) { // i 0 for App and 1 for Widget
+        Bitmap outlinerBitmap = null;
+        try {
+            final Canvas canvas = new Canvas();
+            /*if(i == 0){
+                outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+            } else if(i == 1){
+                outlinerBitmap = createDragOutline();
+            }*/
+            outlinerBitmap = createDragOutline(bitmap, canvas, 2, bitmap.getWidth(), bitmap.getHeight(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return outlinerBitmap;
+    }
+
+    private Bitmap createDragOutline(Bitmap orig, Canvas canvas, int padding, int w, int h,
+                                     boolean clipAlpha) {
+        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(b);
+
+        Rect src = new Rect(0, 0, orig.getWidth(), orig.getHeight());
+        float scaleFactor = Math.min((w - padding) / (float) orig.getWidth(),
+                (h - padding) / (float) orig.getHeight());
+        int scaledWidth = (int) (scaleFactor * orig.getWidth());
+        int scaledHeight = (int) (scaleFactor * orig.getHeight());
+        Rect dst = new Rect(0, 0, scaledWidth, scaledHeight);
+
+        // center the image
+        dst.offset((w - scaledWidth) / 2, (h - scaledHeight) / 2);
+
+        canvas.drawBitmap(orig, src, dst, null);
+        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor,
+                clipAlpha);
+        canvas.setBitmap(null);
+
+        return b;
+    }
 
 }

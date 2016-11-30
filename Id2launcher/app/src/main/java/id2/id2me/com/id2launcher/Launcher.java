@@ -23,7 +23,7 @@ import java.util.List;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
-public class Launcher extends AppCompatActivity implements View.OnLongClickListener {
+public class Launcher extends AppCompatActivity implements View.OnLongClickListener,View.OnTouchListener {
     static final int APPWIDGET_HOST_ID = 1024;
     static final String TAG = "Launcher";
     private static final int REQUEST_PICK_APPWIDGET = 6;
@@ -51,7 +51,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
             launcherApplication.setLauncher(this);
 
             init();
-           // openNotificationAccess();
+          //  openNotificationAccess();
             loadDesktop();
             setStatusBarStyle();
         } catch (Exception e) {
@@ -131,11 +131,15 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         return fList;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.v(TAG, " on touch event  :: " + event.getX() + " " + event.getY());
-        return super.onTouchEvent(event);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//       // Log.i(TAG, " on touch event  :: " + event.getX() + " " + event.getY());
+//        if(((DragView)findViewById(R.id.drag_view)).isLongClick) {
+//            return findViewById(R.id.drag_layer).onTouchEvent(event);
+//        }else{
+//           return true;
+//        }
+//    }
 
     void resetPage() {
         pager.setCurrentItem(1);
@@ -179,22 +183,23 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_BIND_APPWIDGET) {
-                ((LauncherApplication) getApplication()).getPageDragListener()
-                        .askToConfigure(data);
-            }
-
-            if (requestCode == REQUEST_PICK_APPWIDGET) {
-                ((LauncherApplication) getApplication()).getPageDragListener()
-                        .askToConfigure(data);
-            } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
-                ((LauncherApplication) getApplication()).getPageDragListener().addWidgetImpl(data);
-            }
-        } else if (resultCode == RESULT_CANCELED && data != null) {
-        }
+//        if (resultCode == RESULT_OK) {
+//            if (requestCode == REQUEST_BIND_APPWIDGET) {
+//                ((LauncherApplication) getApplication()).getPageDragListener()
+//                        .askToConfigure(data);
+//            }
+//
+//            if (requestCode == REQUEST_PICK_APPWIDGET) {
+//                ((LauncherApplication) getApplication()).getPageDragListener()
+//                        .askToConfigure(data);
+//            } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
+//                ((LauncherApplication) getApplication()).getPageDragListener().addWidgetImpl(data);
+//            }
+//        } else if (resultCode == RESULT_CANCELED && data != null) {
+//        }
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -215,5 +220,16 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     @Override
     public boolean onLongClick(View v) {
         return false;
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        Log.v(TAG, " dispatch ");
+        return super.dispatchTouchEvent(ev);
     }
 }

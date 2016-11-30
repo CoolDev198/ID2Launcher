@@ -79,14 +79,14 @@ public class DesktopDragListener implements View.OnDragListener {
                 LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
                 if (launcherApplication.dragInfo.getDropExternal()) {
                     launcherApplication.dragInfo.setIsItemCanPlaced(false);
-                    PageDragListener pageDragListener = ((CellLayout) containerL.getChildAt(1)).getDragListener();
+               //     PageDragListener pageDragListener = ((CellLayout) containerL.getChildAt(1)).getDragListener();
 
-                    pageDragListener.onDropOutOfCellLayout();
+                   // pageDragListener.onDropOutOfCellLayout();
                     Toast.makeText(context, context.getResources().getString(R.string.invalid_alert), Toast.LENGTH_LONG).show();
                 } else {
-                    PageDragListener pageDragListener = ((CellLayout) containerL.getChildAt(launcherApplication.dragInfo.getScreen())).getDragListener();
+                  //  PageDragListener pageDragListener = ((CellLayout) containerL.getChildAt(launcherApplication.dragInfo.getScreen())).getDragListener();
 
-                    pageDragListener.onDrop();
+                 //   pageDragListener.onDrop();
                 }
 
             }

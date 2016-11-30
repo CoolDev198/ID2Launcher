@@ -4,9 +4,11 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Build;
-import android.support.v4.widget.DrawerLayout;
-import android.view.Gravity;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,18 +26,23 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 /**
  * Created by bliss76 on 21/06/16.
  */
-public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListener, View.OnLongClickListener{
+public class AllAppsGridAdapter extends BaseAdapter implements View.OnTouchListener {
     private final LauncherApplication launcherApplication;
+    private final GestureListener gestureListener;
+    private final GestureDetector gestureDetector;
     LayoutInflater inflater;
     ArrayList<AppInfoModel> gridList;
     private Context mContext;
+    String TAG="AllAppsGridAdapter";
 
     public AllAppsGridAdapter(Context c, ArrayList<AppInfoModel> gridList) {
         mContext = c;
-        launcherApplication= (LauncherApplication)((Activity)mContext).getApplication();
+        launcherApplication = (LauncherApplication) ((Activity) mContext).getApplication();
         inflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.gridList = gridList;
+        gestureListener = new GestureListener();
+        gestureDetector = new GestureDetector(mContext, gestureListener);
     }
 
 
@@ -54,15 +61,6 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         return 0;
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        try {
-            dragAnimation(v);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -74,6 +72,8 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                 grid = inflater.inflate(R.layout.drawer_grid_item, null);
                 holder = new ViewHolder();
                 grid.setTag(holder);
+
+                grid.setOnTouchListener(this);
                 holder.itemText = (TextView) grid.findViewById(R.id.drawer_grid_text);
                 try {
                     holder.itemText.setTypeface(launcherApplication.getTypeFace());
@@ -82,8 +82,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
                 }
                 holder.itemImage = (ImageView) grid.findViewById(R.id.drawer_grid_image);
 
-                grid.setOnClickListener(this);
-                grid.setOnLongClickListener(this);
+
             } else {
                 holder = (ViewHolder) grid.getTag();
             }
@@ -119,32 +118,13 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         }
     }
 
+
     @Override
-    public void onClick(View v) {
-        try {
-            launchApp(gridList.get(Integer.parseInt(v
-                    .findViewById(R.id.drawer_grid_image).getTag().toString())));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public boolean onTouch(View v, MotionEvent event) {
+       // Log.v(TAG," on touch");
+        gestureListener.setView(v);
+        return gestureDetector.onTouchEvent(event);
     }
-
-    private void dragAnimation(View view) {
-        try {
-
-            ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = (ItemInfoModel) gridList.get(Integer.parseInt(view
-                    .findViewById(R.id.drawer_grid_image).getTag().toString())).clone();
-
-            launcherApplication.getLauncher().resetPage();
-            launcherApplication.dragAnimation(view.findViewById(R.id.drawer_grid_image));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
 
 
     private static class ViewHolder {
@@ -152,6 +132,65 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnClickListe
         public ImageView itemImage;
         public String pName;
         public AppInfoModel appInfo;
+    }
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private View view;
+        public Bitmap getBitmapView() {
+            try {
+                view.buildDrawingCache();
+                Bitmap folderBitmap = view.getDrawingCache();
+                return folderBitmap;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            ((LauncherApplication) ((Activity) mContext).getApplication()).dragInfo = (ItemInfoModel) gridList.get(Integer.parseInt(view
+                    .findViewById(R.id.drawer_grid_image).getTag().toString())).clone();
+            launcherApplication.getLauncher().resetPage();
+            launcherApplication.prepareDrag(getBitmapView(), new Point((int) e.getX(), (int) e.getY()),view.getWidth(),view.getHeight());
+            super.onLongPress(e);
+        }
+
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            //  Log.v("AppItemView ", " onSingleTapConfirmed: ");
+            return super.onSingleTapConfirmed(e);
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+            //    Log.v("AppItemView ", " onShowPress: ");
+            super.onShowPress(e);
+        }
+
+        void setView(View view) {
+            this.view = view;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            //   Log.v("AppItemView ", " onSingleTapUp: ");
+            performClick(view);
+            return super.onSingleTapUp(e);
+        }
+
+        private void performClick(View view) {
+            launchApp((AppInfoModel) view.getTag());
+        }
+
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            //  Log.v("AppItemView ", " onDown: ");
+            return true;
+        }
     }
 
 }

@@ -3,9 +3,8 @@ package id2.id2me.com.id2launcher;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.os.Handler;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,13 +30,13 @@ public class AppItemView extends RelativeLayout implements View.OnTouchListener 
         super(context);
         this.context = context;
         launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-        inflate(getContext(),R.layout.grid_item, this);
+        inflate(getContext(), R.layout.grid_item, this);
 
-        ImageView imageView = (ImageView)findViewById(R.id.grid_image);
+        ImageView imageView = (ImageView) findViewById(R.id.grid_image);
         imageView.setImageBitmap(ItemInfoModel.getIconFromCursor(itemInfo.getIcon(), context));
         this.setOnTouchListener(this);
 
-        gestureListener = new GestureListener();
+        gestureListener = new GestureListener(this);
         gestureDetector = new GestureDetector(context, gestureListener);
 
 
@@ -45,13 +44,12 @@ public class AppItemView extends RelativeLayout implements View.OnTouchListener 
 
     @Override
     public boolean onTouch(View v, MotionEvent ev) {
-      //  Log.v("AppItemView", "  x:: y ;; " + ev.getX() + "  " + ev.getY());
-        gestureListener.setView(v);
+        //  Log.v("AppItemView", "  x:: y ;; " + ev.getX() + "  " + ev.getY());
         return gestureDetector.onTouchEvent(ev);
     }
 
     void performClick(View view) {
-       // Log.v("AppItemView ", " Click");
+        // Log.v("AppItemView ", " Click");
         ItemInfoModel itemInfoModel = (ItemInfoModel) view.getTag();
         launchApplication(itemInfoModel);
     }
@@ -79,36 +77,47 @@ public class AppItemView extends RelativeLayout implements View.OnTouchListener 
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private View view;
+        private AppItemView view;
 
+        public GestureListener(AppItemView appItemView) {
+            view = appItemView;
+        }
+
+        public Bitmap getBitmapView() {
+            try {
+                view.buildDrawingCache();
+                Bitmap folderBitmap = view.getDrawingCache();
+                return folderBitmap;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
         @Override
         public void onLongPress(MotionEvent e) {
-         //   Log.v("AppItemView ", " on long press : ");
+            //   Log.v("AppItemView ", " on long press : ");
             launcherApplication.dragInfo = (ItemInfoModel) view.getTag();
             launcherApplication.dragInfo.setDropExternal(false);
-            launcherApplication.dragAnimation(view, new Point((int) e.getX(), (int) e.getY()));
+            launcherApplication.prepareDrag(getBitmapView(), new Point((int) e.getX(), (int) e.getY()),view.getWidth(),view.getHeight());
             super.onLongPress(e);
         }
 
-        public void setView(View view) {
-            this.view = view;
-        }
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-          //  Log.v("AppItemView ", " onSingleTapConfirmed: ");
+            //  Log.v("AppItemView ", " onSingleTapConfirmed: ");
             return super.onSingleTapConfirmed(e);
         }
 
         @Override
         public void onShowPress(MotionEvent e) {
-        //    Log.v("AppItemView ", " onShowPress: ");
+            //    Log.v("AppItemView ", " onShowPress: ");
             super.onShowPress(e);
         }
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-         //   Log.v("AppItemView ", " onSingleTapUp: ");
+            //   Log.v("AppItemView ", " onSingleTapUp: ");
             performClick(view);
             return super.onSingleTapUp(e);
         }
@@ -116,7 +125,7 @@ public class AppItemView extends RelativeLayout implements View.OnTouchListener 
 
         @Override
         public boolean onDown(MotionEvent e) {
-          //  Log.v("AppItemView ", " onDown: ");
+            //  Log.v("AppItemView ", " onDown: ");
             return true;
         }
     }

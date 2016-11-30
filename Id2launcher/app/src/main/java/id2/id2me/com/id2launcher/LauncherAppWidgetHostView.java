@@ -72,7 +72,7 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
             launcherApplication.dragInfo.setDropExternal(false);
             Canvas canvas = new Canvas();
             //outlineBmp = launcherApplication.createDragOutline(launcherAppWidgetHostView );
-            launcherApplication.dragAnimation(this);
+            //launcherApplication.dragAnimation(this);
 
         } catch (Exception e) {
             e.printStackTrace();

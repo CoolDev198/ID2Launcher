@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<id2.id2me.com.id2launcher.WorkSpace xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -60,10 +60,6 @@
         android:background="@color/home_screen_color"
         android:layout_below="@id/drop_target_layout">
 
-        <id2.id2me.com.id2launcher.DragLayer
-            android:id="@+id/drag_layer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
 
             <LinearLayout
@@ -104,16 +100,12 @@
                 </RelativeLayout>
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/drag_outline_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
 
-        </id2.id2me.com.id2launcher.DragLayer>
 
     </id2.id2me.com.id2launcher.ObservableScrollView>
 
 
-</RelativeLayout>
+
+
+</id2.id2me.com.id2launcher.WorkSpace>
 

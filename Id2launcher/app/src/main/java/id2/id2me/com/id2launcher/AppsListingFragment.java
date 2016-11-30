@@ -124,7 +124,7 @@ public class AppsListingFragment extends Fragment {
 
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(mLayoutManager);
-            //recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
 
             final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
             fastScroller.setRecyclerView(recyclerView);

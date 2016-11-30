@@ -70,6 +70,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,7 +187,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         });
 
         addDefaultScreens();
-        addDragListener();
+       // addDragListener();
 
 
     }
@@ -223,13 +224,12 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     private void addDragListener() {
 
-        fragmentView.findViewById(R.id.main_layout).setOnDragListener(new DesktopDragListener(context, fragmentView));
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
         for (int i = 1; i < containerL.getChildCount(); i++) {
             CellLayout child = (CellLayout) containerL.getChildAt(i);
             child.setTag(i);
             PageDragListener pageDragListener = new PageDragListener(context, fragmentView, child);
-            child.setOnDragListener(pageDragListener);
+            //child.setOnDragListener(pageDragListener);
             child.setDragListener(pageDragListener);
         }
     }
