@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,37 +61,37 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if(((DragView)findViewById(R.id.drag_view)).isLongClick) {
-            Log.v(TAG, "  on  intercept touch");
-            int X = (int) event.getX();
-            int Y = (int) event.getY();
-            findViewById(R.id.drag_view).setVisibility(VISIBLE);
-            findViewById(R.id.drag_outline_img).setVisibility(VISIBLE);
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_DOWN:
-                    Log.v(TAG, " on ACTION_DOWN  " + event.getX() + "   " + event.getY());
-                    FrameLayout.LayoutParams lParams = (LayoutParams) findViewById(R.id.drag_view).getLayoutParams();
-                    _xDelta = X - lParams.leftMargin;
-                    _yDelta = Y - lParams.topMargin;
-                    break;
-                case MotionEvent.ACTION_UP:
-                    Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
-                    ((DragView) findViewById(R.id.drag_view)).isLongClick = false;
-                    break;
-                case MotionEvent.ACTION_POINTER_DOWN:
-                    Log.v(TAG, " ACTION_POINTER_DOWN  " + event.getX() + "   " + event.getY());
-                    break;
-                case MotionEvent.ACTION_POINTER_UP:
-                    Log.v(TAG, " ACTION_POINTER_UP  " + event.getX() + "   " + event.getY());
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    break;
-                case MotionEvent.ACTION_CANCEL:
-                    Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
-                    break;
-            }
-            return true;
-        }
+//        if(((DragView)findViewById(R.id.drag_view)).isLongClick) {
+//            Log.v(TAG, "  on  intercept touch");
+//            int X = (int) event.getX();
+//            int Y = (int) event.getY();
+//            findViewById(R.id.drag_view).setVisibility(VISIBLE);
+//            findViewById(R.id.drag_outline_img).setVisibility(VISIBLE);
+//            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+//                case MotionEvent.ACTION_DOWN:
+//                    Log.v(TAG, " on ACTION_DOWN  " + event.getX() + "   " + event.getY());
+//                    FrameLayout.LayoutParams lParams = (LayoutParams) findViewById(R.id.drag_view).getLayoutParams();
+//                    _xDelta = X - lParams.leftMargin;
+//                    _yDelta = Y - lParams.topMargin;
+//                    break;
+//                case MotionEvent.ACTION_UP:
+//                    Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
+//                 //   ((DragView) findViewById(R.id.drag_view)).isLongClick = false;
+//                    break;
+//                case MotionEvent.ACTION_POINTER_DOWN:
+//                    Log.v(TAG, " ACTION_POINTER_DOWN  " + event.getX() + "   " + event.getY());
+//                    break;
+//                case MotionEvent.ACTION_POINTER_UP:
+//                    Log.v(TAG, " ACTION_POINTER_UP  " + event.getX() + "   " + event.getY());
+//                    break;
+//                case MotionEvent.ACTION_MOVE:
+//                    break;
+//                case MotionEvent.ACTION_CANCEL:
+//                    Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
+//                    break;
+//            }
+//            return true;
+//        }
         return false;
     }
 
@@ -110,7 +111,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
                 break;
             case MotionEvent.ACTION_UP:
                 Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
-                ((DragView) findViewById(R.id.drag_view)).isLongClick = false;
+             //   ((DragView) findViewById(R.id.drag_view)).isLongClick = false;
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 Log.v(TAG, " ACTION_POINTER_DOWN  " + event.getX() + "   " + event.getY());
@@ -127,7 +128,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
                 layoutParams.topMargin = Y - _yDelta;
                 findViewById(R.id.drag_view).setLayoutParams(layoutParams);
                 findViewById(R.id.drag_outline_img).setLayoutParams(layoutparams);
-                dragController.enterScroll((int)event.getY(),(int)event.getX(),event);
+              //  dragController.enterScroll((int)event.getY(),(int)event.getX(),event);
                 break;
             case MotionEvent.ACTION_CANCEL:
                 Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
@@ -141,6 +142,53 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
     public void setDragController(DragController dragController) {
         this.dragController = dragController;
+    }
+
+    public float getLocationInDragLayer(View child, int[] loc) {
+        loc[0] = 0;
+        loc[1] = 0;
+        return getDescendantCoordRelativeToSelf(child, loc);
+    }
+
+    /**
+     * Given a coordinate relative to the descendant, find the coordinate in this DragLayer's
+     * coordinates.
+     *
+     * @param descendant The descendant to which the passed coordinate is relative.
+     * @param coord The coordinate that we want mapped.
+     * @return The factor by which this descendant is scaled relative to this DragLayer. Caution
+     *         this scale factor is assumed to be equal in X and Y, and so if at any point this
+     *         assumption fails, we will need to return a pair of scale factors.
+     */
+    public float getDescendantCoordRelativeToSelf(View descendant, int[] coord) {
+        float scale = 1.0f;
+        float[] pt = {coord[0], coord[1]};
+        descendant.getMatrix().mapPoints(pt);
+        scale *= descendant.getScaleX();
+        pt[0] += descendant.getLeft();
+        pt[1] += descendant.getTop();
+        ViewParent viewParent = descendant.getParent();
+        while (viewParent instanceof View && viewParent != this) {
+            final View view = (View)viewParent;
+            view.getMatrix().mapPoints(pt);
+            scale *= view.getScaleX();
+            pt[0] += view.getLeft() - view.getScrollX();
+            pt[1] += view.getTop() - view.getScrollY();
+            viewParent = view.getParent();
+        }
+        coord[0] = (int) Math.round(pt[0]);
+        coord[1] = (int) Math.round(pt[1]);
+        return scale;
+    }
+
+    void onEnterScrollArea(int direction) {
+        //mInScrollArea = true;
+        invalidate();
+    }
+
+    void onExitScrollArea() {
+       // mInScrollArea = false;
+        invalidate();
     }
 //
 //

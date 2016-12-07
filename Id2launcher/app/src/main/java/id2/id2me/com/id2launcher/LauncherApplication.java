@@ -20,6 +20,7 @@ import java.util.List;
 
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
+import timber.log.Timber;
 
 /**
  * Created by sunita on 7/27/16.
@@ -58,6 +59,11 @@ public class LauncherApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+            Timber.v("Inited Timber Debug Tree");
+        }
 
         mapMatrixPosToRec = new HashMap<>();
         folderFragmentsInfo = new ArrayList<>();

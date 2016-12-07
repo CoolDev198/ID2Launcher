@@ -108,7 +108,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     void init() {
-        dragController = new DragController();
+        dragController = new DragController(this);
         dragLayer = (DragLayer) findViewById(R.id.drag_layer);
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
@@ -124,7 +124,6 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         List<Fragment> fList = null;
         try {
             fList = new ArrayList<Fragment>();
-            DragController dragController = new DragController();
             dragLayer.setDragController(dragController);
             desktopFragment = DesktopFragment.newInstance(dragController);
             fList.add(DrawerFragment.newInstance());
@@ -240,5 +239,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     public DragController getDragController() {
         return dragController;
+    }
+
+    public DragLayer getDragLayer() {
+        return dragLayer;
     }
 }

@@ -49,7 +49,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     private LauncherApplication application;
     private ImageView wallpaperImg;
     private RelativeLayout wallpaperLayout;
-    private AppsListingFragment appsListingFragment;
     private DatabaseHandler db;
     private NotificationWidgetAdapter notificationWidgetAdapter;
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -121,13 +120,13 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     @Override
     public void bindAppsAdded() {
-        appsListingFragment.setListAdapter();
+       // appsListingFragment.setListAdapter();
 
     }
 
     @Override
     public void bindAppsUpdated() {
-        appsListingFragment.setListAdapter();
+     //   appsListingFragment.setListAdapter();
     }
 
     @Override
