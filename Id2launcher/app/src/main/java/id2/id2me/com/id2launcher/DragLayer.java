@@ -36,6 +36,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     ImageView mOutlineView;
     private int _xDelta;
     private int _yDelta;
+    private DragController dragController;
 
     public DragLayer(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -126,6 +127,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
                 layoutParams.topMargin = Y - _yDelta;
                 findViewById(R.id.drag_view).setLayoutParams(layoutParams);
                 findViewById(R.id.drag_outline_img).setLayoutParams(layoutparams);
+                dragController.enterScroll((int)event.getY(),(int)event.getX(),event);
                 break;
             case MotionEvent.ACTION_CANCEL:
                 Log.v(TAG, " ACTION_UP  " + event.getX() + "   " + event.getY());
@@ -135,6 +137,10 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
 
         return super.onTouchEvent(event);
+    }
+
+    public void setDragController(DragController dragController) {
+        this.dragController = dragController;
     }
 //
 //

@@ -20,10 +20,9 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
-public class Launcher extends AppCompatActivity implements View.OnLongClickListener,View.OnTouchListener {
+public class Launcher extends AppCompatActivity implements View.OnLongClickListener, View.OnTouchListener {
     static final int APPWIDGET_HOST_ID = 1024;
     static final String TAG = "Launcher";
     private static final int REQUEST_PICK_APPWIDGET = 6;
@@ -35,8 +34,10 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     HorizontalPagerAdapter pageAdapter;
     LauncherApplication launcherApplication;
     DatabaseHandler db;
+    DragLayer dragLayer;
     private LauncherAppWidgetHost mAppWidgetHost;
     private DesktopFragment desktopFragment;
+    private DragController dragController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
             launcherApplication.setLauncher(this);
 
             init();
-          //  openNotificationAccess();
+            //  openNotificationAccess();
             loadDesktop();
             setStatusBarStyle();
         } catch (Exception e) {
@@ -107,6 +108,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     void init() {
+        dragController = new DragController();
+        dragLayer = (DragLayer) findViewById(R.id.drag_layer);
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
 
@@ -121,7 +124,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         List<Fragment> fList = null;
         try {
             fList = new ArrayList<Fragment>();
-            desktopFragment = DesktopFragment.newInstance();
+            DragController dragController = new DragController();
+            dragLayer.setDragController(dragController);
+            desktopFragment = DesktopFragment.newInstance(dragController);
             fList.add(DrawerFragment.newInstance());
             fList.add(desktopFragment);
         } catch (Exception e) {
@@ -231,5 +236,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     public boolean dispatchTouchEvent(MotionEvent ev) {
         Log.v(TAG, " dispatch ");
         return super.dispatchTouchEvent(ev);
+    }
+
+    public DragController getDragController() {
+        return dragController;
     }
 }

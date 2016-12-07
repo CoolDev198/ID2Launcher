@@ -182,7 +182,7 @@ public class AllAppsGridAdapter extends BaseAdapter implements View.OnTouchListe
         }
 
         private void performClick(View view) {
-            launchApp((AppInfoModel) view.getTag());
+        //    launchApp((AppInfoModel) view.getTag());
         }
 
 

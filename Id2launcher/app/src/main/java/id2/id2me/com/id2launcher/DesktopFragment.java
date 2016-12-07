@@ -5,13 +5,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -30,16 +33,18 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
+public class DesktopFragment extends Fragment implements LauncherModel.Callbacks, DragScroller {
     private static final float MIN_SCALE = 0.75f;
+    static DragController dragController;
     final Handler handler = new Handler();
-
     String TAG = "DesktopFragment";
     //context menu ids
     TimerTask timerTask;
     List<Fragment> fragmentList;
+    ObservableScrollView scrollView;
+    int[] mTargetCell;
     private ArrayList<AppInfoModel> appInfos;
-    private  View fragmentView = null;
+    private View fragmentView = null;
     private Context context;
     private LauncherApplication application;
     private ImageView wallpaperImg;
@@ -55,11 +60,11 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         }
     };
     private LauncherModel mModel;
-    private static int mCellLayoutHeight;
+    private LinearLayout container;
 
-    public static DesktopFragment newInstance() {
+    public static DesktopFragment newInstance(DragController _dragController) {
         DesktopFragment f = new DesktopFragment();
-
+        dragController = _dragController;
         return f;
     }
 
@@ -69,7 +74,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         this.context = context;
 
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,32 +87,28 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
 
             application = (LauncherApplication) ((Activity) context).getApplication();
-            if (application.desktopFragment == null) {
 
                   /* communicator between notification service and activity*/
 
-                application.viewList = new ArrayList<>();
-                fragmentList = new ArrayList<>();
+            application.viewList = new ArrayList<>();
+            fragmentList = new ArrayList<>();
 
 
-                db = DatabaseHandler.getInstance(context);
-                mModel = application.setDeskTopFragment(this);
+            db = DatabaseHandler.getInstance(context);
+            mModel = application.setDeskTopFragment(this);
 
-                fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
-                mCellLayoutHeight = (int) getResources().getDimension(R.dimen.cell_layout_height);
+            fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
-                initViews();
-
-                application.desktopFragment = fragmentView;
-            }
+            initViews();
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        dragController.setDragScroller(this);
 
-        return application.desktopFragment;
+        return fragmentView;
 
     }
 
@@ -118,7 +118,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         notificationWidgetAdapter.notifyDataSetChanged();
 
     }
-
 
     @Override
     public void bindAppsAdded() {
@@ -169,7 +168,8 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         //  addWallpaperCropper();
 
 
-        ObservableScrollView scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+        scrollView = (ObservableScrollView) fragmentView.findViewById(R.id.scrollView);
+        container = (LinearLayout) fragmentView.findViewById(R.id.container);
         scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener() {
             @Override
             public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
@@ -187,7 +187,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         });
 
         addDefaultScreens();
-       // addDragListener();
+        // addDragListener();
 
 
     }
@@ -195,15 +195,19 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     private void addDefaultScreens() {
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
         CellLayout child;
+        int defaultScreens = application.DEFAULT_SCREENS;
+        for (int i = 0; i < defaultScreens; i++) {
+            child = new CellLayout(context);
 
-        for (int i = 0; i < application.Default_Screens; i++) {
             if (i == 0) {
-                child = new CellLayout(context, R.dimen.wallpaper_cell_layout);
                 child.setBackgroundColor(Color.BLUE);
-            } else {
-                child = new CellLayout(context, R.dimen.cell_layout_height);
-
+            } else if (i == 1) {
+                child.setBackgroundColor(Color.YELLOW);
+            } else if (i == 2) {
+                child.setBackgroundColor(Color.RED);
             }
+
+
             containerL.addView(child);
         }
     }
@@ -220,27 +224,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             }
         });
 
-    }
-
-    private void addDragListener() {
-
-        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
-        for (int i = 1; i < containerL.getChildCount(); i++) {
-            CellLayout child = (CellLayout) containerL.getChildAt(i);
-            child.setTag(i);
-            PageDragListener pageDragListener = new PageDragListener(context, fragmentView, child);
-            //child.setOnDragListener(pageDragListener);
-            child.setDragListener(pageDragListener);
-        }
-    }
-
-    private void addNotifyWidget() {
-        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        notificationRecyclerView.setLayoutManager(linearLayoutManager);
-        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
-        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
-        notifyDataInNotificationWidget();
     }
 
 //    private void populateDesktop() {
@@ -281,6 +264,14 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 //        }
 //    }
 
+    private void addNotifyWidget() {
+        RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        notificationRecyclerView.setLayoutManager(linearLayoutManager);
+        notificationWidgetAdapter = new NotificationWidgetAdapter(getActivity());
+        notificationRecyclerView.setAdapter(notificationWidgetAdapter);
+        notifyDataInNotificationWidget();
+    }
 
     @Override
     public void onDestroyView() {
@@ -288,6 +279,40 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
+    @Override
+    public void enterScrollArea(int y, int x, MotionEvent event) {
+        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
+
+        for (int i = 0; i < containerL.getChildCount(); i++) {
+            Rect rect = new Rect();
+            View cellLayout = container.getChildAt(i);
+            cellLayout.getHitRect(rect);
+
+            int xN = x + scrollView.getScrollX();
+            int yN = y + scrollView.getScrollY();
+
+            Log.v("top :: ", cellLayout.getTop() + "  " + i);
+            if (rect.contains(xN, yN)) {
+
+                //  Log.v("actual ::: ", " id :: " + i + "  x ::: y :: " + xN + "  " + yN);
+                // Log.v("actual values ::: ", " x :: y "  + (i + 1) +  " " + x + "  " + "   " + (y-(cellLayout.getTop()-scrollView.getScrollY())));
+                if (cellLayout instanceof CellLayout) {
+                    int ycalc = y - (cellLayout.getTop() - scrollView.getScrollY());
+                    mTargetCell = ((CellLayout) cellLayout).findNearestArea(x, ycalc, 1, 1, mTargetCell);
+                    Log.v("cell location  :::  id ", (i + 1) + " y ::" + ycalc + " cellx : " + mTargetCell[0] + "celly : " + mTargetCell[1]);
+
+                }
+            }
+
+        }
+
+        if (y > scrollView.getHeight() - 120) {
+            scrollView.smoothScrollBy(0, 25);
+        } else if (y < 100) {
+            scrollView.smoothScrollBy(0, -25);
+        }
+
+    }
 }
 
 

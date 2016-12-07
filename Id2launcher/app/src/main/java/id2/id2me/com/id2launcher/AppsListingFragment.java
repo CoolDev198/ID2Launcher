@@ -105,9 +105,6 @@ public class AppsListingFragment extends Fragment {
     public void setListAdapter() {
         try {
             seperateCharNumApps();
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }

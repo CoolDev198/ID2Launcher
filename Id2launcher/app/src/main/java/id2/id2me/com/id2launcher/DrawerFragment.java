@@ -53,7 +53,7 @@ public class DrawerFragment extends Fragment {
             public void onClick(View view) {
                 btnApp.setBackground(null);
                 view.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.round_transperant_border));
-                replaceView(widgetsListingFragment, "Apps");
+                replaceView(widgetsListingFragment, "Widgets");
 
             }
         });
