@@ -125,7 +125,7 @@ public class WorkSpace extends FrameLayout   implements DropTarget, DragSource, 
 
     @Override
     public void onFlingToDeleteCompleted() {
-
+//dddd
     }
 
     @Override
