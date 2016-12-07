@@ -116,10 +116,7 @@ public class WorkSpace extends FrameLayout   implements DropTarget, DragSource, 
         return b;
     }
 
-    @Override
-    public void enterScrollArea(int y, int x, MotionEvent event) {
 
-    }
 
     @Override
     public boolean supportsFlingToDelete() {
@@ -179,5 +176,25 @@ public class WorkSpace extends FrameLayout   implements DropTarget, DragSource, 
     @Override
     public void getLocationInDragLayer(int[] loc) {
 
+    }
+
+    @Override
+    public void scrollUp() {
+
+    }
+
+    @Override
+    public void scrollDown() {
+
+    }
+
+    @Override
+    public boolean onEnterScrollArea(int x, int y, int direction) {
+        return false;
+    }
+
+    @Override
+    public boolean onExitScrollArea() {
+        return false;
     }
 }
