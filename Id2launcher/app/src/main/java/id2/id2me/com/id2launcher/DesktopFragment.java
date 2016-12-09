@@ -33,7 +33,7 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements LauncherModel.Callbacks, DragScroller {
+public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
     private static final float MIN_SCALE = 0.75f;
     static DragController dragController;
     final Handler handler = new Handler();
@@ -85,18 +85,13 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         try {
             // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
 
+            fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
+            ((Launcher)context).setWokSpace((WorkSpace) fragmentView);
+
             application = (LauncherApplication) ((Activity) context).getApplication();
 
-                  /* communicator between notification service and activity*/
-
-            application.viewList = new ArrayList<>();
-            fragmentList = new ArrayList<>();
-
-
             db = DatabaseHandler.getInstance(context);
-            mModel = application.setDeskTopFragment(this);
 
-            fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
 
             initViews();
 
@@ -105,7 +100,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             e.printStackTrace();
         }
 
-        dragController.setDragScroller(this);
 
         return fragmentView;
 
@@ -197,15 +191,13 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         int defaultScreens = application.DEFAULT_SCREENS;
         for (int i = 0; i < defaultScreens; i++) {
             child = new CellLayout(context);
-
-            if (i == 0) {
-                child.setBackgroundColor(Color.BLUE);
-            } else if (i == 1) {
-                child.setBackgroundColor(Color.YELLOW);
-            } else if (i == 2) {
-                child.setBackgroundColor(Color.RED);
-            }
-
+            child.setTag(i);
+//
+//if(i==0){
+//    child.setBackgroundColor(Color.BLACK);
+//}else{
+//    child.setBackgroundColor(Color.YELLOW);
+//}
 
             containerL.addView(child);
         }
@@ -278,7 +270,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
-    @Override
+  //  @Override
     public void enterScrollArea(int y, int x, MotionEvent event) {
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
 

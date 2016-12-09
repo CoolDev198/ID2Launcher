@@ -50,6 +50,8 @@
     <dimen name="drop_target_margin">25dp</dimen>
 
 
+    <dimen name="app_icon_padding_top">8dp</dimen>
+
     <dimen name="wallpaper_height_after_anim">240dp</dimen>
 
 

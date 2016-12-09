@@ -136,8 +136,12 @@ public class DragController {
         mVibrator = (Vibrator) launcher.getSystemService(Context.VIBRATOR_SERVICE);
 
         float density = r.getDisplayMetrics().density;
-        mFlingToDeleteThresholdVelocity =
-                (int) (r.getInteger(R.integer.config_flingToDeleteMinVelocity) * density);
+        try {
+            mFlingToDeleteThresholdVelocity =
+                    (int) (r.getInteger(R.integer.config_flingToDeleteMinVelocity) * density);
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean dragging() {
@@ -336,18 +340,18 @@ public class DragController {
             boolean isDeferred = false;
             if (mDragObject.dragView != null) {
                 isDeferred = mDragObject.deferDragViewCleanupPostAnimation;
-                if (!isDeferred) {
+              //  if (!isDeferred) {
                     mDragObject.dragView.remove();
-                }
+                //}
                 mDragObject.dragView = null;
             }
 
             // Only end the drag if we are not deferred
-            if (!isDeferred) {
-                for (DragListener listener : mListeners) {
-                    listener.onDragEnd();
-                }
-            }
+//            if (!isDeferred) {
+//                for (DragListener listener : mListeners) {
+//                    listener.onDragEnd();
+//                }
+//            }
         }
 
         releaseVelocityTracker();
@@ -461,33 +465,35 @@ public class DragController {
     }
 
     private void handleMoveEvent(int x, int y) {
+
         Log.v("handleMoveEvent " , x + "   " + y);
+
         mDragObject.dragView.move(x, y);
 
         // Drop on someone?
         final int[] coordinates = mCoordinatesTemp;
-        DropTarget dropTarget = findDropTarget(x, y, coordinates);
-        mDragObject.x = coordinates[0];
-        mDragObject.y = coordinates[1];
-        if (dropTarget != null) {
-            DropTarget delegate = dropTarget.getDropTargetDelegate(mDragObject);
-            if (delegate != null) {
-                dropTarget = delegate;
-            }
+     //   DropTarget dropTarget = findDropTarget(x, y, coordinates);
+        mDragObject.x = x;//coordinates[0];
+        mDragObject.y = y;//coordinates[1];
+//        if (dropTarget != null) {
+//            DropTarget delegate = dropTarget.getDropTargetDelegate(mDragObject);
+//            if (delegate != null) {
+//                dropTarget = delegate;
+//            }
 
-            if (mLastDropTarget != dropTarget) {
-                if (mLastDropTarget != null) {
-                    mLastDropTarget.onDragExit(mDragObject);
-                }
-                dropTarget.onDragEnter(mDragObject);
-            }
-            dropTarget.onDragOver(mDragObject);
-        } else {
-            if (mLastDropTarget != null) {
-                mLastDropTarget.onDragExit(mDragObject);
-            }
-        }
-        mLastDropTarget = dropTarget;
+//            if (mLastDropTarget != dropTarget) {
+//                if (mLastDropTarget != null) {
+//                    mLastDropTarget.onDragExit(mDragObject);
+//                }
+                mLauncher.getWokSpace().onDragEnter(mDragObject);
+           // }
+            mLauncher.getWokSpace().onDragOver(mDragObject);
+//        } else {
+//            if (mLastDropTarget != null) {
+//                mLastDropTarget.onDragExit(mDragObject);
+//            }
+//        }
+        //mLastDropTarget = dropTarget;
 
         // After a scrollthe touch point will still be in the scroll region.
         // Rather than scrolling immediately, require a bit of twiddling to scroll again
@@ -498,27 +504,27 @@ public class DragController {
         mLastTouch[1] = y;
         final int delay = mDistanceSinceScroll < slop ? RESCROLL_DELAY : SCROLL_DELAY;
 
-        if (x < mScrollZone) {
-            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
-                mScrollState = SCROLL_WAITING_IN_ZONE;
-                if (mDragScroller.onEnterScrollArea(x, y, SCROLL_UP)) {
-                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_UP);
-                    mScrollRunnable.setDirection(SCROLL_UP);
-                    mHandler.postDelayed(mScrollRunnable, delay);
-                }
-            }
-        } else if (x > mScrollView.getWidth() - mScrollZone) {
-            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
-                mScrollState = SCROLL_WAITING_IN_ZONE;
-                if (mDragScroller.onEnterScrollArea(x, y, SCROLL_DOWN)) {
-                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_DOWN);
-                    mScrollRunnable.setDirection(SCROLL_DOWN);
-                    mHandler.postDelayed(mScrollRunnable, delay);
-                }
-            }
-        } else {
-            clearScrollRunnable();
-        }
+      //  if (y < mScrollZone) {
+//            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
+//                mScrollState = SCROLL_WAITING_IN_ZONE;
+//                if (mDragScroller.onEnterScrollArea(x, y, SCROLL_UP)) {
+//                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_UP);
+//                    mScrollRunnable.setDirection(SCROLL_UP);
+//                    mHandler.postDelayed(mScrollRunnable, delay);
+//                }
+//            }
+//        } else if (y > mScrollView.getWidth() - mScrollZone) {
+//            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
+//                mScrollState = SCROLL_WAITING_IN_ZONE;
+//                if (mDragScroller.onEnterScrollArea(x, y, SCROLL_DOWN)) {
+//                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_DOWN);
+//                    mScrollRunnable.setDirection(SCROLL_DOWN);
+//                    mHandler.postDelayed(mScrollRunnable, delay);
+//                }
+//            }
+//        } else {
+//            clearScrollRunnable();
+//        }
     }
 
     public void forceMoveEvent() {
@@ -641,17 +647,18 @@ public class DragController {
         final int[] coordinates = mCoordinatesTemp;
         final DropTarget dropTarget = findDropTarget((int) x, (int) y, coordinates);
 
-        mDragObject.x = coordinates[0];
-        mDragObject.y = coordinates[1];
+        mDragObject.x = (int) x;//coordinates[0];
+        mDragObject.y = (int) y;//coordinates[1];
         boolean accepted = false;
-        if (dropTarget != null) {
-            mDragObject.dragComplete = true;
-            dropTarget.onDragExit(mDragObject);
-            if (dropTarget.acceptDrop(mDragObject)) {
-                dropTarget.onDrop(mDragObject);
-                accepted = true;
-            }
-        }
+        mLauncher.getWokSpace().onDrop(mDragObject);
+//      //  if (dropTarget != null) {
+//            mDragObject.dragComplete = true;
+//            dropTarget.onDragExit(mDragObject);
+//            if (dropTarget.acceptDrop(mDragObject)) {
+//                dropTarget.onDrop(mDragObject);
+//                accepted = true;
+//            }
+//        }
         mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
     }
 

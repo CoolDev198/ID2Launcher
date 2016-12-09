@@ -38,6 +38,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     private LauncherAppWidgetHost mAppWidgetHost;
     private DesktopFragment desktopFragment;
     private DragController dragController;
+    private WorkSpace wokSpace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,15 +136,6 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         return fList;
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//       // Log.i(TAG, " on touch event  :: " + event.getX() + " " + event.getY());
-//        if(((DragView)findViewById(R.id.drag_view)).isLongClick) {
-//            return findViewById(R.id.drag_layer).onTouchEvent(event);
-//        }else{
-//           return true;
-//        }
-//    }
 
     void resetPage() {
         pager.setCurrentItem(1);
@@ -227,6 +219,11 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
+
+    @Override
     public boolean onTouch(View v, MotionEvent event) {
         return false;
     }
@@ -243,5 +240,13 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     public DragLayer getDragLayer() {
         return dragLayer;
+    }
+
+    public void setWokSpace(WorkSpace wokSpace) {
+        this.wokSpace = wokSpace;
+    }
+
+    public WorkSpace getWokSpace() {
+        return wokSpace;
     }
 }

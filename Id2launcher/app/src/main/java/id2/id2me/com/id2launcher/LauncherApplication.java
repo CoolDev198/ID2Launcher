@@ -32,7 +32,7 @@ public class LauncherApplication extends Application {
     private static float density;
     public final int CELL_COUNT_X = 4;
     public final int CELL_COUNT_Y = 5;
-    public final int DEFAULT_SCREENS = 2;
+    public final int DEFAULT_SCREENS = 4;
     private final int MIN_NO_OF_APP = 0;
     public View folderView;
     public boolean isDrawerOpen = false;
@@ -144,10 +144,10 @@ public class LauncherApplication extends Application {
 
     public void prepareDrag(Bitmap bmp, Point point, int w, int h) {
         outlineBmp = bmp;
-        ((DragView) launcher.findViewById(R.id.drag_view)).isLongClick = true;
-        ((DragView) launcher.findViewById(R.id.drag_view)).setBitmap(bmp, w, h);
-        ((ImageView) launcher.findViewById(R.id.drag_outline_img)).setImageBitmap(getOutLinerBitmap(bmp));
-        dragAnimation(point);
+//        ((DragView) launcher.findViewById(R.id.drag_view)).isLongClick = true;
+//        ((DragView) launcher.findViewById(R.id.drag_view)).setBitmap(bmp, w, h);
+//        ((ImageView) launcher.findViewById(R.id.drag_outline_img)).setImageBitmap(getOutLinerBitmap(bmp));
+//        dragAnimation(point);
     }
 
     public void dragAnimation(Point point) {
@@ -194,10 +194,10 @@ public class LauncherApplication extends Application {
 
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
             desktopFragment.findViewById(R.id.main_layout).setScaleX(0.85f);
-            launcher.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
-            launcher.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
-            launcher.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
-            launcher.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
+//            launcher.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
+//            launcher.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
+//            launcher.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
+//            launcher.findViewById(R.id.drag_outline_img).setScaleY(0.85f);
 
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
@@ -239,8 +239,8 @@ public class LauncherApplication extends Application {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
             desktopFragment.findViewById(R.id.main_layout).setScaleX(1f);
-            launcher.findViewById(R.id.drag_outline_img).setScaleX(1f);
-            launcher.findViewById(R.id.drag_outline_img).setScaleY(1f);
+         //   launcher.findViewById(R.id.drag_outline_img).setScaleX(1f);
+          //  launcher.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
 

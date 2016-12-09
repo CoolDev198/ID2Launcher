@@ -100,6 +100,14 @@ public class ItemInfoModel {
         return spanX;
     }
 
+    public int getMinSpanY(){
+        return spanY;
+    }
+
+    public int getMinSpanX(){
+        return spanX;
+    }
+
     public void setSpanX(int spanX) {
         this.spanX = spanX;
     }

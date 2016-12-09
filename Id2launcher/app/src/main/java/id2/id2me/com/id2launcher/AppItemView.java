@@ -5,59 +5,74 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import id2.id2me.com.id2launcher.models.AppInfoModel;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import timber.log.Timber;
 
 /**
  * Created by sunita on 11/2/16.
  */
 
-public class AppItemView extends RelativeLayout implements View.OnTouchListener {
+public class AppItemView extends LinearLayout implements DragSource {
 
     Context context;
     LauncherApplication launcherApplication;
+    private AppInfoModel appInfoModel;
+    Launcher launcher;
     GestureListener gestureListener;
     GestureDetector gestureDetector;
 
 
-    public AppItemView(Context context, ItemInfoModel itemInfo) {
+    public AppItemView(Context context, AppInfoModel appInfoModel) {
         super(context);
         this.context = context;
+        launcher=(Launcher)context;
         launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
         inflate(getContext(), R.layout.grid_item, this);
+        init(appInfoModel);
+    }
 
-        ImageView imageView = (ImageView) findViewById(R.id.grid_image);
-        imageView.setImageBitmap(ItemInfoModel.getIconFromCursor(itemInfo.getIcon(), context));
-        this.setOnTouchListener(this);
-
-        gestureListener = new GestureListener(this);
-        gestureDetector = new GestureDetector(context, gestureListener);
-
+    public AppItemView(Context mContext) {
+        super(mContext);
+        this.context = mContext;
+        launcher=(Launcher)context;
+        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
+        inflate(getContext(), R.layout.drawer_grid_item, this);
 
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent ev) {
-        //  Log.v("AppItemView", "  x:: y ;; " + ev.getX() + "  " + ev.getY());
-        return gestureDetector.onTouchEvent(ev);
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
     }
 
-    void performClick(View view) {
-        // Log.v("AppItemView ", " Click");
-        ItemInfoModel itemInfoModel = (ItemInfoModel) view.getTag();
-        launchApplication(itemInfoModel);
+    public void init(AppInfoModel appInfoModel){
+        this.appInfoModel=appInfoModel;
+        this.setTag(appInfoModel);
+        ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
+        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
+        textView.setText(appInfoModel.getAppname());
+        imageView.setImageBitmap(appInfoModel.getBitmapIcon());
+
+        gestureListener = new GestureListener(this);
+        gestureDetector = new GestureDetector(context, gestureListener);
     }
 
-    private void launchApplication(ItemInfoModel itemInfoModel) {
+
+    private void launchApplication() {
         try {
             Intent intent = null;
-            String pckName = itemInfoModel.getPname();
+            String pckName = appInfoModel.getPname();
 
             if (pckName != null) {
                 intent = context.getPackageManager()
@@ -75,59 +90,63 @@ public class AppItemView extends RelativeLayout implements View.OnTouchListener 
         }
     }
 
+
+
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private AppItemView view;
-
-        public GestureListener(AppItemView appItemView) {
-            view = appItemView;
+        AppItemView v;
+        GestureListener(AppItemView appItemView){
+            this.v=appItemView;
         }
 
-        public Bitmap getBitmapView() {
-            try {
-                view.buildDrawingCache();
-                Bitmap folderBitmap = view.getDrawingCache();
-                return folderBitmap;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
         @Override
         public void onLongPress(MotionEvent e) {
-            //   Log.v("AppItemView ", " on long press : ");
-            launcherApplication.dragInfo = (ItemInfoModel) view.getTag();
+            launcherApplication.dragInfo = appInfoModel;
             launcherApplication.dragInfo.setDropExternal(false);
-            launcherApplication.prepareDrag(getBitmapView(), new Point((int) e.getX(), (int) e.getY()),view.getWidth(),view.getHeight());
+            launcher.resetPage();
+            launcher.getWokSpace().onDragStartedWithItem(v);
+            launcher.getWokSpace().beginDragShared(v,AppItemView.this);
             super.onLongPress(e);
         }
 
-
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            //  Log.v("AppItemView ", " onSingleTapConfirmed: ");
             return super.onSingleTapConfirmed(e);
         }
 
         @Override
         public void onShowPress(MotionEvent e) {
-            //    Log.v("AppItemView ", " onShowPress: ");
+
             super.onShowPress(e);
         }
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            //   Log.v("AppItemView ", " onSingleTapUp: ");
-            performClick(view);
+            launchApplication();
             return super.onSingleTapUp(e);
         }
 
 
         @Override
         public boolean onDown(MotionEvent e) {
-            //  Log.v("AppItemView ", " onDown: ");
             return true;
         }
+    }
+
+
+    @Override
+    public boolean supportsFlingToDelete() {
+        return false;
+    }
+
+    @Override
+    public void onFlingToDeleteCompleted() {
+
+    }
+
+    @Override
+    public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
+
     }
 
 
