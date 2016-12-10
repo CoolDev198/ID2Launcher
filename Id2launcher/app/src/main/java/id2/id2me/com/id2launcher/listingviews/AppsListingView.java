@@ -2,27 +2,16 @@ package id2.id2me.com.id2launcher.listingviews;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.AllAppAdapter;
+import id2.id2me.com.id2launcher.DragSource;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
@@ -32,36 +21,40 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
  * Created by sunita on 8/2/16.
  */
 public class AppsListingView extends RelativeLayout {
+
     private  ArrayList<AppInfoModel> appInfos;
     private RecyclerView recyclerView;
     private AllAppAdapter adapter;
-    Context context;
+    DragSource dragSource;
 
     public AppsListingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context=context;
         appInfos = ((LauncherApplication)((Activity)context).getApplication()).mModel.mBgAllAppsList.data;
         drawerAppsListing();
     }
+
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new AllAppAdapter(context);
+        adapter = new AllAppAdapter(getContext(),dragSource);
         recyclerView.setAdapter(adapter);
-        GridLayoutManager mLayoutManager = new GridLayoutManager(context,3);
+        GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(),3);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
 
         final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller)findViewById(R.id.fastscroller);
         fastScroller.setRecyclerView(recyclerView);
-        fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
+        fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller, R.id.fastscroller_bubble,
                 R.id.fastscroller_handle);
     }
 
-    public void drawerAppsListing() {
+    public void setDragSource(DragSource dragSource){
+        this.dragSource=dragSource;
+    }
+    private void drawerAppsListing() {
         try {
             setListAdapter();
         } catch (Exception e) {
@@ -104,7 +97,7 @@ public class AppsListingView extends RelativeLayout {
     }
 
 
-    public void setListAdapter() {
+    private void setListAdapter() {
         try {
             seperateCharNumApps();
         } catch (Exception e) {

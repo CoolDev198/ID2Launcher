@@ -104,7 +104,7 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
 
         AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
         appGridView.setNumColumns(3);
-        FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
+        FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.app_item_view, appGridView);
         appGridView.setAdapter(adapter);
     }
 

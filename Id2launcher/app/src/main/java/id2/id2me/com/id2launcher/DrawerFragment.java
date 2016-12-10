@@ -19,9 +19,8 @@ import id2.id2me.com.id2launcher.listingviews.WidgetsListingView;
  * Created by sunita on 10/13/16.
  */
 
-public class DrawerFragment extends Fragment implements  DragSource {
+public class DrawerFragment extends Fragment implements  DragSource  {
 
-    private Context context;
     private View fragmentView;
     Button btnApp,btnWidget;
 
@@ -37,8 +36,11 @@ public class DrawerFragment extends Fragment implements  DragSource {
         fragmentView = inflater.inflate(R.layout.drawer_fragment, container, false);
         btnApp = (Button) fragmentView.findViewById(R.id.btnApps);
         btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
-        final View appsListingView =fragmentView.findViewById(R.id.app_listing_view);
-        final View widgetsListingView =fragmentView.findViewById(R.id.widget_listing_view);
+        final AppsListingView appsListingView = (AppsListingView) fragmentView.findViewById(R.id.app_listing_view);
+        final WidgetsListingView widgetsListingView = (WidgetsListingView) fragmentView.findViewById(R.id.widget_listing_view);
+
+
+        appsListingView.setDragSource(this);
 
         btnApp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +67,6 @@ public class DrawerFragment extends Fragment implements  DragSource {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.context = context;
     }
 
 

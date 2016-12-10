@@ -26,15 +26,11 @@ import id2.id2me.com.id2launcher.models.WidgetInfoModel;
 public class WidgetsListingView extends FrameLayout {
 
     Context context;
-    final String TAG = "WidgetsListingFragment";
-    ArrayList<WidgetInfoModel> widgetInfos;
     private RecyclerView recyclerView;
 
     public WidgetsListingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context=context;
-        widgetInfos = new ArrayList<>();
-
     }
 
     @Override

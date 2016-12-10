@@ -27,13 +27,13 @@ import timber.log.Timber;
  */
 public class LauncherApplication extends Application {
 
+    public static final int DEFAULT_SCREENS = 2;
     public static ImageView wallpaperImg;
     public static List<NotificationWidgetModel> notificationWidgetModels;
+    static LauncherApplication launcherApplication;
     private static float density;
     public final int CELL_COUNT_X = 4;
     public final int CELL_COUNT_Y = 5;
-    public final int DEFAULT_SCREENS = 4;
-    private final int MIN_NO_OF_APP = 0;
     public View folderView;
     public boolean isDrawerOpen = false;
     public ArrayList<ItemInfoModel> folderFragmentsInfo;
@@ -43,14 +43,14 @@ public class LauncherApplication extends Application {
     public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
     public int currentScreen = 1;
-    public boolean isTimerTaskCompleted = true;
-    public List<View> viewList;
     public boolean isDragStarted = false;
     public Bitmap outlineBmp;
-    String TAG = "LauncherApplication";
     private Launcher launcher;
     private HolographicOutlineHelper mOutlineHelper;
 
+    public static LauncherApplication getApp() {
+        return launcherApplication;
+    }
 
     public static float getScreenDensity() {
         return density;
@@ -60,6 +60,7 @@ public class LauncherApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        launcherApplication = this;
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
             Timber.v("Inited Timber Debug Tree");
@@ -239,8 +240,8 @@ public class LauncherApplication extends Application {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
             desktopFragment.findViewById(R.id.main_layout).setScaleX(1f);
-         //   launcher.findViewById(R.id.drag_outline_img).setScaleX(1f);
-          //  launcher.findViewById(R.id.drag_outline_img).setScaleY(1f);
+            //   launcher.findViewById(R.id.drag_outline_img).setScaleX(1f);
+            //  launcher.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);
 
 

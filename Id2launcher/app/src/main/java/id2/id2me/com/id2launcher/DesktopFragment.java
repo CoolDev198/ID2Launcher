@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,8 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
 
 import id2.id2me.com.id2launcher.models.AppInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
@@ -34,23 +31,20 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
  * Created by bliss76 on 26/05/16.
  */
 public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
-    private static final float MIN_SCALE = 0.75f;
+
+
     static DragController dragController;
-    final Handler handler = new Handler();
-    String TAG = "DesktopFragment";
-    //context menu ids
-    TimerTask timerTask;
-    List<Fragment> fragmentList;
+
+    Launcher launcher;
     ObservableScrollView scrollView;
     int[] mTargetCell;
-    private ArrayList<AppInfoModel> appInfos;
     private View fragmentView = null;
     private Context context;
-    private LauncherApplication application;
     private ImageView wallpaperImg;
     private RelativeLayout wallpaperLayout;
     private DatabaseHandler db;
     private NotificationWidgetAdapter notificationWidgetAdapter;
+
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -58,7 +52,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             notifyDataInNotificationWidget();
         }
     };
-    private LauncherModel mModel;
     private LinearLayout container;
 
     public static DesktopFragment newInstance(DragController _dragController) {
@@ -86,20 +79,15 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
 
             fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
-            ((Launcher)context).setWokSpace((WorkSpace) fragmentView);
-
-            application = (LauncherApplication) ((Activity) context).getApplication();
-
+            launcher = (Launcher) getActivity();
+            launcher.setWokSpace((WorkSpace) fragmentView);
             db = DatabaseHandler.getInstance(context);
-
-
             initViews();
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         return fragmentView;
 
@@ -114,13 +102,13 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     @Override
     public void bindAppsAdded() {
-       // appsListingFragment.setListAdapter();
+        // appsListingFragment.setListAdapter();
 
     }
 
     @Override
     public void bindAppsUpdated() {
-     //   appsListingFragment.setListAdapter();
+        //   appsListingFragment.setListAdapter();
     }
 
     @Override
@@ -186,9 +174,10 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
     private void addDefaultScreens() {
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
         CellLayout child;
-        int defaultScreens = application.DEFAULT_SCREENS;
+        int defaultScreens = launcherApplication.DEFAULT_SCREENS;
         for (int i = 0; i < defaultScreens; i++) {
             child = new CellLayout(context);
             child.setTag(i);
@@ -270,7 +259,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
-  //  @Override
+    //  @Override
     public void enterScrollArea(int y, int x, MotionEvent event) {
         LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
 

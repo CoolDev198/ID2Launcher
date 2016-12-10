@@ -1,23 +1,16 @@
 package id2.id2me.com.id2launcher;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
-import timber.log.Timber;
 
 /**
  * Created by sunita on 11/2/16.
@@ -26,46 +19,26 @@ import timber.log.Timber;
 public class AppItemView extends LinearLayout  {
 
     Context context;
-    LauncherApplication launcherApplication;
     private AppInfoModel appInfoModel;
-    Launcher launcher;
     GestureListener gestureListener;
     GestureDetector gestureDetector;
+    DragSource dragSource;
 
-
-    public AppItemView(Context context, AppInfoModel appInfoModel) {
-        super(context);
+    public AppItemView(Context context, AttributeSet attrs) {
+        super(context, attrs);
         this.context = context;
-        launcher=(Launcher)context;
-        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-        inflate(getContext(), R.layout.grid_item, this);
-        init(appInfoModel);
+        gestureListener = new GestureListener();
+        gestureDetector = new GestureDetector(context, gestureListener);
     }
 
-    public AppItemView(Context mContext) {
-        super(mContext);
-        this.context = mContext;
-        launcher=(Launcher)context;
-        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-        inflate(getContext(), R.layout.drawer_grid_item, this);
-
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
-    }
-
-    public void init(AppInfoModel appInfoModel){
-        this.appInfoModel=appInfoModel;
-        this.setTag(appInfoModel);
-        ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
-        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
-        textView.setText(appInfoModel.getAppname());
-        imageView.setImageBitmap(appInfoModel.getBitmapIcon());
-
-        gestureListener = new GestureListener(this);
-        gestureDetector = new GestureDetector(context, gestureListener);
     }
 
 
@@ -91,21 +64,32 @@ public class AppItemView extends LinearLayout  {
     }
 
 
+    public void setAppInfoModel(AppInfoModel appInfoModel) {
+        this.appInfoModel = appInfoModel;
+        ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
+        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
+        if(textView!=null)
+        textView.setText(appInfoModel.getAppname());
+        if(imageView!=null)
+        imageView.setImageBitmap(appInfoModel.getBitmapIcon());
+    }
+
+    public void setDragSource(DragSource dragSource) {
+        this.dragSource = dragSource;
+    }
+
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        AppItemView v;
-        GestureListener(AppItemView appItemView){
-            this.v=appItemView;
-        }
 
         @Override
         public void onLongPress(MotionEvent e) {
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
             launcherApplication.dragInfo = appInfoModel;
             launcherApplication.dragInfo.setDropExternal(false);
-            launcher.resetPage();
-            launcher.getWokSpace().onDragStartedWithItem(v);
-            launcher.getWokSpace().beginDragShared(v,null);
+            launcherApplication.getLauncher().resetPage();
+            launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(AppItemView.this);
+            launcherApplication.getLauncher().getWokSpace().beginDragShared(AppItemView.this,dragSource);
             super.onLongPress(e);
         }
 
@@ -116,7 +100,6 @@ public class AppItemView extends LinearLayout  {
 
         @Override
         public void onShowPress(MotionEvent e) {
-
             super.onShowPress(e);
         }
 

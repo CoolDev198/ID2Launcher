@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<id2.id2me.com.id2launcher.AppItemView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
+
 
     <ImageView
         android:id="@+id/drawer_grid_image"
@@ -22,4 +23,5 @@
         android:ellipsize="end"
         android:gravity="center"
         android:textSize="14sp" />
-</LinearLayout>
+
+</id2.id2me.com.id2launcher.AppItemView>

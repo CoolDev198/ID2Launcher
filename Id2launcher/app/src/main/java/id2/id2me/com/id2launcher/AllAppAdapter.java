@@ -24,14 +24,16 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
  */
 public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter{
 
-    ArrayList<AppInfoModel> groupList;
-    HashMap<Integer, String> mapIndex;
+    private ArrayList<AppInfoModel> groupList;
+    private HashMap<Integer, String> mapIndex;
     private LauncherApplication launcherApplication;
     private Context mContext;
+    private DragSource dragSource;
 
-    public AllAppAdapter(Context context) {
+    public AllAppAdapter(Context context, DragSource dragSource) {
         try {
             this.mContext = context;
+            this.dragSource=dragSource;
             launcherApplication = (LauncherApplication)((Activity)context).getApplication();
             this.groupList = launcherApplication.mModel.mBgAllAppsList.data;
             makeSections();
@@ -81,13 +83,16 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new MyViewHolder(new AppItemView(mContext));
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.app_item_view, parent, false);
+        return new MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         AppInfoModel appInfoModel = groupList.get(position);
-        ((AppItemView) holder.itemView).init(appInfoModel);
+        ((AppItemView) holder.itemView).setAppInfoModel(appInfoModel);
+        ((AppItemView) holder.itemView).setDragSource(dragSource);
     }
 
 
