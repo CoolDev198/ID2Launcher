@@ -25,7 +25,7 @@ import jp.wasabeef.blurry.Blurry;
  * Created by CrazyInnoTech on 11-11-2016.
  */
 
-public class FolderItemView extends LinearLayout implements View.OnTouchListener {
+public class FolderItemView extends LinearLayout implements DragSource, View.OnTouchListener {
 
     Context context;
     LauncherApplication launcherApplication;
@@ -169,6 +169,36 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
     public void addedToExistingFolder(){
         this.setFolderView();
         this.updateFoldersFragment();
+    }
+
+    @Override
+    public boolean supportsFlingToDelete() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsAppInfoDropTarget() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsDeleteDropTarget() {
+        return false;
+    }
+
+    @Override
+    public float getIntrinsicIconScaleFactor() {
+        return 0;
+    }
+
+    @Override
+    public void onFlingToDeleteCompleted() {
+
+    }
+
+    @Override
+    public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
+
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {

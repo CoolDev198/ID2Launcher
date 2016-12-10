@@ -12,39 +12,40 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import id2.id2me.com.id2launcher.listingviews.AppsListingView;
+import id2.id2me.com.id2launcher.listingviews.WidgetsListingView;
+
 /**
  * Created by sunita on 10/13/16.
  */
 
-public class DrawerFragment extends Fragment {
+public class DrawerFragment extends Fragment implements  DragSource {
 
-    private static AppsListingFragment appsListingFragment;
-    private static WidgetsListingFragment widgetsListingFragment;
     private Context context;
-    private LauncherApplication application;
     private View fragmentView;
     Button btnApp,btnWidget;
+
     public static DrawerFragment newInstance() {
         DrawerFragment f = new DrawerFragment();
-        appsListingFragment = AppsListingFragment.newInstance();
-        widgetsListingFragment = WidgetsListingFragment.newInstance();
         return f;
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         fragmentView = inflater.inflate(R.layout.drawer_fragment, container, false);
-        application = (LauncherApplication) ((Activity) context).getApplication();
         btnApp = (Button) fragmentView.findViewById(R.id.btnApps);
         btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
+        final View appsListingView =fragmentView.findViewById(R.id.app_listing_view);
+        final View widgetsListingView =fragmentView.findViewById(R.id.widget_listing_view);
 
         btnApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btnWidget.setBackground(null);
-                view.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.round_transperant_border));
-                replaceView(appsListingFragment, "Apps");
+                widgetsListingView.setVisibility(View.GONE);
+                appsListingView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -52,28 +53,13 @@ public class DrawerFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 btnApp.setBackground(null);
-                view.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.round_transperant_border));
-                replaceView(widgetsListingFragment, "Widgets");
+                appsListingView.setVisibility(View.GONE);
+                widgetsListingView.setVisibility(View.VISIBLE);
 
             }
         });
 
-        replaceView(appsListingFragment, "Apps");
-
         return fragmentView;
-    }
-
-    void replaceView(Fragment fragment, String tag) {
-        try {
-            FragmentTransaction ft = getChildFragmentManager()
-                    .beginTransaction();
-            ft.replace(R.id.fragment_container, fragment, tag);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.addToBackStack(tag);
-            ft.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -83,4 +69,33 @@ public class DrawerFragment extends Fragment {
     }
 
 
+    @Override
+    public boolean supportsFlingToDelete() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsAppInfoDropTarget() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsDeleteDropTarget() {
+        return false;
+    }
+
+    @Override
+    public float getIntrinsicIconScaleFactor() {
+        return 0;
+    }
+
+    @Override
+    public void onFlingToDeleteCompleted() {
+
+    }
+
+    @Override
+    public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
+
+    }
 }

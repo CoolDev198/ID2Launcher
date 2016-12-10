@@ -1,5 +1,6 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.listingviews;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,55 +10,56 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.AllAppAdapter;
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 /**
  * Created by sunita on 8/2/16.
  */
-public class AppsListingFragment extends Fragment {
-    private static DrawerLayout drawer;
-    Context context;
-    private ListView navList;
-
-    private View fragmentView;
-    private LauncherApplication launcherApplication;
+public class AppsListingView extends RelativeLayout {
+    private  ArrayList<AppInfoModel> appInfos;
     private RecyclerView recyclerView;
     private AllAppAdapter adapter;
+    Context context;
 
-
-    public static AppsListingFragment newInstance() {
-        AppsListingFragment f = new AppsListingFragment();
-        return f;
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        launcherApplication = (LauncherApplication) getActivity().getApplication();
-        fragmentView = inflater.inflate(R.layout.apps_listing_fragment, container, false);
-
-
+    public AppsListingView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.context=context;
+        appInfos = ((LauncherApplication)((Activity)context).getApplication()).mModel.mBgAllAppsList.data;
         drawerAppsListing();
-        return fragmentView;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        adapter = new AllAppAdapter(context);
+        recyclerView.setAdapter(adapter);
+        GridLayoutManager mLayoutManager = new GridLayoutManager(context,3);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+
+        final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller)findViewById(R.id.fastscroller);
+        fastScroller.setRecyclerView(recyclerView);
+        fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
+                R.id.fastscroller_handle);
+    }
 
     public void drawerAppsListing() {
         try {
@@ -70,8 +72,6 @@ public class AppsListingFragment extends Fragment {
 
     private void seperateCharNumApps() {
         try {
-            ArrayList<AppInfoModel> appInfos = launcherApplication.mModel.mBgAllAppsList.data;
-
             ArrayList<AppInfoModel> listDigitAppInfo = new ArrayList<>();
             ArrayList<AppInfoModel> listAppInfo = new ArrayList<>();
             for (int i = 0; i < appInfos.size(); i++) {
@@ -111,35 +111,5 @@ public class AppsListingFragment extends Fragment {
             e.printStackTrace();
         }
 
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        try {
-            recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
-            adapter = new AllAppAdapter(getActivity());
-
-
-            recyclerView.setAdapter(adapter);
-            GridLayoutManager mLayoutManager = new GridLayoutManager(getActivity(),3);
-            recyclerView.setLayoutManager(mLayoutManager);
-            recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-
-            final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) fragmentView.findViewById(R.id.fastscroller);
-            fastScroller.setRecyclerView(recyclerView);
-            fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble,
-                    R.id.fastscroller_handle);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 }

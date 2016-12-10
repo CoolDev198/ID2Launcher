@@ -18,16 +18,30 @@ package id2.id2me.com.id2launcher;
 
 import android.view.View;
 
-
 /**
  * Interface defining an object that can originate a drag.
- *
  */
 public interface DragSource {
     /**
      * @return whether items dragged from this source supports
      */
     boolean supportsFlingToDelete();
+
+    /**
+     * @return whether items dragged from this source supports 'App Info'
+     */
+    boolean supportsAppInfoDropTarget();
+
+    /**
+     * @return whether items dragged from this source supports 'Delete' drop target (e.g. to remove
+     * a shortcut.
+     */
+    boolean supportsDeleteDropTarget();
+
+    /*
+     * @return the scale of the icons over the workspace icon size
+     */
+    float getIntrinsicIconScaleFactor();
 
     /**
      * A callback specifically made back to the source after an item from this source has been flung
@@ -42,3 +56,4 @@ public interface DragSource {
      */
     void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success);
 }
+

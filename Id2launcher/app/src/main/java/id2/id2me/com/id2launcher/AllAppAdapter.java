@@ -29,10 +29,10 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     private LauncherApplication launcherApplication;
     private Context mContext;
 
-    public AllAppAdapter(Activity activity) {
+    public AllAppAdapter(Context context) {
         try {
-            this.mContext = activity;
-            launcherApplication = (LauncherApplication) activity.getApplication();
+            this.mContext = context;
+            launcherApplication = (LauncherApplication)((Activity)context).getApplication();
             this.groupList = launcherApplication.mModel.mBgAllAppsList.data;
             makeSections();
         } catch (Exception e) {

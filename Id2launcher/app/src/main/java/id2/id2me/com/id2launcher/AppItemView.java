@@ -23,7 +23,7 @@ import timber.log.Timber;
  * Created by sunita on 11/2/16.
  */
 
-public class AppItemView extends LinearLayout implements DragSource {
+public class AppItemView extends LinearLayout  {
 
     Context context;
     LauncherApplication launcherApplication;
@@ -105,7 +105,7 @@ public class AppItemView extends LinearLayout implements DragSource {
             launcherApplication.dragInfo.setDropExternal(false);
             launcher.resetPage();
             launcher.getWokSpace().onDragStartedWithItem(v);
-            launcher.getWokSpace().beginDragShared(v,AppItemView.this);
+            launcher.getWokSpace().beginDragShared(v,null);
             super.onLongPress(e);
         }
 
@@ -133,21 +133,6 @@ public class AppItemView extends LinearLayout implements DragSource {
         }
     }
 
-
-    @Override
-    public boolean supportsFlingToDelete() {
-        return false;
-    }
-
-    @Override
-    public void onFlingToDeleteCompleted() {
-
-    }
-
-    @Override
-    public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
-
-    }
 
 
 }

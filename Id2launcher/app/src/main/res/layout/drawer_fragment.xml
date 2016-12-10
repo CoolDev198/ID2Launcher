@@ -31,11 +31,14 @@
             android:text="@string/drawerTitleWidgets" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <include layout="@layout/app_listing_view"
+        android:id="@+id/app_listing_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <include layout="@layout/widget_listing_view"
+        android:id="@+id/widget_listing_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-       >
-
-    </FrameLayout>
+        />
 </LinearLayout>

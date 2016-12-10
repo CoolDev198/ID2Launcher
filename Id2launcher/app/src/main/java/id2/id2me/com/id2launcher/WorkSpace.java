@@ -290,6 +290,21 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
     }
 
     @Override
+    public boolean supportsAppInfoDropTarget() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsDeleteDropTarget() {
+        return false;
+    }
+
+    @Override
+    public float getIntrinsicIconScaleFactor() {
+        return 0;
+    }
+
+    @Override
     public void onFlingToDeleteCompleted() {
     }
 
