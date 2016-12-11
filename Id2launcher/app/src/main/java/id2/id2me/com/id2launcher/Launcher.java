@@ -137,7 +137,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
 
-    void resetPage() {
+   public void resetPage() {
         pager.setCurrentItem(1);
     }
 
@@ -244,6 +244,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
+        dragController.addDropTarget(wokSpace);
     }
 
     public WorkSpace getWokSpace() {

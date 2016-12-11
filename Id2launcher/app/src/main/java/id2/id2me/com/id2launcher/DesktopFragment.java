@@ -80,7 +80,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
             fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
             launcher = (Launcher) getActivity();
-            launcher.setWokSpace((WorkSpace) fragmentView);
+            launcher.setWokSpace((WorkSpace) fragmentView.findViewById(R.id.container));
             db = DatabaseHandler.getInstance(context);
             initViews();
 

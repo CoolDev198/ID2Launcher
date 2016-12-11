@@ -2,22 +2,18 @@ package id2.id2me.com.id2launcher;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
+import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by Pinto on 24/09/16.
@@ -30,10 +26,9 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     private Context mContext;
     private DragSource dragSource;
 
-    public AllAppAdapter(Context context, DragSource dragSource) {
+    public AllAppAdapter(Context context) {
         try {
             this.mContext = context;
-            this.dragSource=dragSource;
             launcherApplication = (LauncherApplication)((Activity)context).getApplication();
             this.groupList = launcherApplication.mModel.mBgAllAppsList.data;
             makeSections();
@@ -42,6 +37,9 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
         }
     }
 
+    public void setDragSource(DragSource dragSource) {
+        this.dragSource = dragSource;
+    }
 
     private void makeSections() {
         mapIndex = new LinkedHashMap<Integer, String>();

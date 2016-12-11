@@ -21,11 +21,12 @@ import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
+
+import id2.id2me.com.id2launcher.itemviews.AppItemView;
 
 /**
  * Created by sunita on 10/17/16.

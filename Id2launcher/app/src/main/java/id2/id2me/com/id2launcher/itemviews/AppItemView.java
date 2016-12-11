@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.itemviews;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import id2.id2me.com.id2launcher.DragSource;
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 /**
@@ -18,15 +21,13 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 public class AppItemView extends LinearLayout  {
 
-    Context context;
     private AppInfoModel appInfoModel;
     GestureListener gestureListener;
     GestureDetector gestureDetector;
-    DragSource dragSource;
+    private DragSource dragSource;
 
-    public AppItemView(Context context, AttributeSet attrs) {
+     AppItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context = context;
         gestureListener = new GestureListener();
         gestureDetector = new GestureDetector(context, gestureListener);
     }
@@ -41,6 +42,11 @@ public class AppItemView extends LinearLayout  {
         return gestureDetector.onTouchEvent(event);
     }
 
+    public void setTextVisibility(int value){
+        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
+        if(textView!=null)
+            textView.setVisibility(value);
+    }
 
     private void launchApplication() {
         try {
@@ -48,14 +54,14 @@ public class AppItemView extends LinearLayout  {
             String pckName = appInfoModel.getPname();
 
             if (pckName != null) {
-                intent = context.getPackageManager()
+                intent = getContext().getPackageManager()
                         .getLaunchIntentForPackage(pckName);
 
-                context.startActivity(intent);
+                getContext().startActivity(intent);
 
             } else {
-                Toast.makeText(context,
-                        context.getResources().getText(R.string.appNotFound),
+                Toast.makeText(getContext(),
+                        getContext().getResources().getText(R.string.appNotFound),
                         Toast.LENGTH_SHORT).show();
             }
         } catch (Exception ex) {
@@ -72,6 +78,7 @@ public class AppItemView extends LinearLayout  {
         textView.setText(appInfoModel.getAppname());
         if(imageView!=null)
         imageView.setImageBitmap(appInfoModel.getBitmapIcon());
+        this.setTag(appInfoModel);
     }
 
     public void setDragSource(DragSource dragSource) {
@@ -88,7 +95,6 @@ public class AppItemView extends LinearLayout  {
             launcherApplication.dragInfo = appInfoModel;
             launcherApplication.dragInfo.setDropExternal(false);
             launcherApplication.getLauncher().resetPage();
-            launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(AppItemView.this);
             launcherApplication.getLauncher().getWokSpace().beginDragShared(AppItemView.this,dragSource);
             super.onLongPress(e);
         }

@@ -194,7 +194,6 @@ public class LauncherApplication extends Application {
 
 
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.VISIBLE);
-            desktopFragment.findViewById(R.id.main_layout).setScaleX(0.85f);
 //            launcher.findViewById(R.id.drag_outline_img).setPivotY(0.5f);
 //            launcher.findViewById(R.id.drag_outline_img).setPivotX(0.5f);
 //            launcher.findViewById(R.id.drag_outline_img).setScaleX(0.98f);
@@ -239,7 +238,6 @@ public class LauncherApplication extends Application {
     public void removeMargin() {
         try {
             desktopFragment.findViewById(R.id.drop_target_layout).setVisibility(View.GONE);
-            desktopFragment.findViewById(R.id.main_layout).setScaleX(1f);
             //   launcher.findViewById(R.id.drag_outline_img).setScaleX(1f);
             //  launcher.findViewById(R.id.drag_outline_img).setScaleY(1f);
             LinearLayout containerL = (LinearLayout) desktopFragment.findViewById(R.id.container);

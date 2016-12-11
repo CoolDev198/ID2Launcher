@@ -9,25 +9,24 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
+import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by sunita on 11/29/16.
  */
 
-public class WorkSpace extends FrameLayout implements DropTarget, DragSource, DragScroller {
+public class WorkSpace extends LinearLayout implements DropTarget, DragSource, DragScroller {
     public static final int DRAG_BITMAP_PADDING = 2;
+    private static final Rect sTempRect = new Rect();
     private final HolographicOutlineHelper mOutlineHelper = new HolographicOutlineHelper();
-    private final Rect mTempRect = new Rect();
     private final int[] mTempXY = new int[2];
     Launcher launcher;
     private Bitmap mDragOutline = null;
@@ -72,6 +71,10 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
 
     public void beginDragShared(View child, DragSource dragSource) {
         Resources r = getResources();
+        final Canvas canvas = new Canvas();
+
+        // The outline is used to visualize where the item will land if dropped
+        mDragOutline = createDragOutline(child, canvas, DRAG_BITMAP_PADDING);
 
         // The drag bitmap follows the touch point around on the screen
         final Bitmap b = createDragBitmap(child, new Canvas(), DRAG_BITMAP_PADDING);
@@ -80,6 +83,7 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
         final int bmpHeight = b.getHeight();
 
         float scale = launcher.getDragLayer().getLocationInDragLayer(child, mTempXY);
+
         int dragLayerX =
                 Math.round(mTempXY[0] - (bmpWidth - scale * child.getWidth()) / 2);
         int dragLayerY =
@@ -88,37 +92,27 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
 
         Point dragVisualizeOffset = null;
         Rect dragRect = null;
+
         if (child instanceof AppItemView) {
             int iconSize = r.getDimensionPixelSize(R.dimen.app_icon_size);
-            //  int iconPaddingTop = r.getDimensionPixelSize(R.dimen.app_icon_padding_top);
-            int top = 0;//child.getPaddingTop();
+            int top = child.getPaddingTop();
             int left = (bmpWidth - iconSize) / 2;
             int right = left + iconSize;
             int bottom = top + iconSize;
             dragLayerY += top;
+
+
             // Note: The drag region is used to calculate drag layer offsets, but the
             // dragVisualizeOffset in addition to the dragRect (the size) to position the outline.
-//            dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2,
-//                    iconPaddingTop - DRAG_BITMAP_PADDING / 2);
-            dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
-            dragRect = new Rect(left, top, right, bottom);
-        } else if (child instanceof FolderItemView) {
-//            int previewSize = r.getDimensionPixelSize(R.dimen.folder_preview_size);
-//            dragRect = new Rect(0, 0, child.getWidth(), previewSize);
-        }
+           dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
+           dragRect = new Rect(left, top, right, bottom);
 
-//        // Clear the pressed state if necessary
-//        if (child instanceof BubbleTextView) {
-//            BubbleTextView icon = (BubbleTextView) child;
-//            icon.clearPressedOrFocusedBackground();
-//        }
+        } else if (child instanceof FolderItemView) {}
 
         launcher.getDragController().startDrag(b, dragLayerX, dragLayerY, dragSource, child.getTag(),
                 DragController.DRAG_ACTION_MOVE, dragVisualizeOffset, dragRect, scale);
         b.recycle();
 
-        // Show the scrolling indicator when you pick up an item
-        //showScrollingIndicator(false);
     }
         /*
     *
@@ -135,16 +129,13 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
      * Responsibility for the bitmap is transferred to the caller.
      */
     public Bitmap createDragBitmap(View v, Canvas canvas, int padding) {
-        Bitmap b;
+        Bitmap b = null;
 
-        if (v instanceof TextView) {
-            Drawable d = ((TextView) v).getCompoundDrawables()[1];
-            b = Bitmap.createBitmap(d.getIntrinsicWidth() + padding,
-                    d.getIntrinsicHeight() + padding, Bitmap.Config.ARGB_8888);
-        } else {
+        if (v instanceof AppItemView) {
+            View icon = v.findViewById(R.id.drawer_grid_image);
             b = Bitmap.createBitmap(
-                    v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
-        }
+                    icon.getWidth() + padding, icon.getHeight() + padding, Bitmap.Config.ARGB_8888);
+        } else {}
 
         canvas.setBitmap(b);
         drawDragView(v, canvas, padding, true);
@@ -184,14 +175,6 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
 //        }
 //    }
 
-    public void onDragStartedWithItem(View v) {
-
-        final Canvas canvas = new Canvas();
-
-        // The outline is used to visualize where the item will land if droppedx
-        mDragOutline = createDragOutline(v, canvas, DRAG_BITMAP_PADDING);
-
-    }
 
     /**
      * Returns a new bitmap to be used as the object outline, e.g. to visualize the drop location.
@@ -217,42 +200,18 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
      * @param padding    the horizontal and vertical padding to use when drawing
      */
     private void drawDragView(View v, Canvas destCanvas, int padding, boolean pruneToDrawable) {
-        final Rect clipRect = mTempRect;
+        final Rect clipRect = sTempRect;
         v.getDrawingRect(clipRect);
-
-        boolean textVisible = false;
-
         destCanvas.save();
-        if (v instanceof TextView && pruneToDrawable) {
-            Drawable d = ((TextView) v).getCompoundDrawables()[1];
-            clipRect.set(0, 0, d.getIntrinsicWidth() + padding, d.getIntrinsicHeight() + padding);
-            destCanvas.translate(padding / 2, padding / 2);
-            d.draw(destCanvas);
-        } else {
-            if (v instanceof FolderItemView) {
-                // For FolderIcons the text can bleed into the icon area, and so we need to
-                // hide the text completely (which can't be achieved by clipping).
-//                if (((FolderIcon) v).getTextVisible()) {
-//                    ((FolderIcon) v).setTextVisible(false);
-//                    textVisible = true;
-//                }
-            } else if (v instanceof AppItemView) {
-                final AppItemView tv = (AppItemView) v;
-
-//                clipRect.bottom = tv.getExtendedPaddingTop() - (int) BubbleTextView.PADDING_V +
-//                        tv.getLayout().getLineTop(0);
-            }
-
+        if (v instanceof AppItemView) {
             View icon = v.findViewById(R.id.drawer_grid_image);
-            destCanvas.translate(-v.getScrollX() + padding / 2, -v.getScrollY() + padding / 2);
+            destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
             destCanvas.clipRect(clipRect, Region.Op.REPLACE);
             icon.draw(destCanvas);
+        } else if (v instanceof FolderItemView) {
 
-            // Restore text visibility of FolderIcon if necessary
-//            if (textVisible) {
-//                ((FolderIcon) v).setTextVisible(true);
-//            }
         }
+
         destCanvas.restore();
     }
 
@@ -353,13 +312,13 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
 
     @Override
     public boolean isDropEnabled() {
-        return false;
+        return true;
     }
 
     @Override
     public void onDrop(DragObject d) {
-        if(mDragTargetLayout!=null)
-        mDragTargetLayout.onDragExit();
+        if (mDragTargetLayout != null)
+            mDragTargetLayout.onDragExit();
 //        mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
 //                mDragViewVisualCenter);
 //
@@ -1025,7 +984,7 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
     *
     */
     private CellLayout findMatchingPageForDragOver(LinearLayout containerL, ScrollView scrollView, int x, int y) {
-        for (int i = 1; i < containerL.getChildCount(); i++) {
+        for (int i = 0; i < containerL.getChildCount(); i++) {
             Rect rect = new Rect();
             View cellLayout = containerL.getChildAt(i);
             cellLayout.getHitRect(rect);
@@ -1128,7 +1087,7 @@ public class WorkSpace extends FrameLayout implements DropTarget, DragSource, Dr
 
     @Override
     public void getLocationInDragLayer(int[] loc) {
-
+        launcher.getDragLayer().getLocationInDragLayer(this, loc);
     }
 
     @Override

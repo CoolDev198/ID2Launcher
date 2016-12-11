@@ -34,9 +34,7 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChangeListener {
 
     String TAG = "DragLayer";
-    ImageView mOutlineView;
-    private int _xDelta;
-    private int _yDelta;
+
     private DragController dragController;
 
     public DragLayer(Context context, AttributeSet attrs) {

@@ -22,14 +22,14 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
  */
 public class AppsListingView extends RelativeLayout {
 
-    private  ArrayList<AppInfoModel> appInfos;
+    private ArrayList<AppInfoModel> appInfos;
     private RecyclerView recyclerView;
     private AllAppAdapter adapter;
-    DragSource dragSource;
+
 
     public AppsListingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        appInfos = ((LauncherApplication)((Activity)context).getApplication()).mModel.mBgAllAppsList.data;
+        appInfos = ((LauncherApplication) ((Activity) context).getApplication()).mModel.mBgAllAppsList.data;
         drawerAppsListing();
     }
 
@@ -37,23 +37,22 @@ public class AppsListingView extends RelativeLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+    }
+
+    public void setDragSource(DragSource dragSource) {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new AllAppAdapter(getContext(),dragSource);
+        adapter = new AllAppAdapter(getContext());
         recyclerView.setAdapter(adapter);
-        GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(),3);
+        GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-
-        final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller)findViewById(R.id.fastscroller);
+        adapter.setDragSource(dragSource);
+        final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) findViewById(R.id.fastscroller);
         fastScroller.setRecyclerView(recyclerView);
         fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller, R.id.fastscroller_bubble,
                 R.id.fastscroller_handle);
     }
 
-    public void setDragSource(DragSource dragSource){
-        this.dragSource=dragSource;
-    }
     private void drawerAppsListing() {
         try {
             setListAdapter();
