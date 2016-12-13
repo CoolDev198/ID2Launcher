@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -180,13 +181,14 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         int defaultScreens = launcherApplication.DEFAULT_SCREENS;
         for (int i = 0; i < defaultScreens; i++) {
             child = new CellLayout(context);
+
             child.setTag(i);
-//
-//if(i==0){
-//    child.setBackgroundColor(Color.BLACK);
-//}else{
-//    child.setBackgroundColor(Color.YELLOW);
-//}
+
+if(i==0){
+    child.setBackgroundColor(Color.BLACK);
+}else{
+    child.setBackgroundColor(Color.YELLOW);
+}
 
             containerL.addView(child);
         }

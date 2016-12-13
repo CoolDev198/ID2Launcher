@@ -64,19 +64,19 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         this.addView(inflate(getContext(), R.layout.folder_view, null));
         this.addView(inflate(getContext(), R.layout.folder_view, null));
 
-        blur_relative = launcherApplication.desktopFragment.findViewById(R.id.blur_relative);
-        blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
+       // blur_relative = launcherApplication.desktopFragment.findViewById(R.id.blur_relative);
+       // blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
         container = (ObservableScrollView) launcherApplication.desktopFragment.findViewById(R.id.scrollView);
-        blur_relative.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                blur_relative.setVisibility(View.GONE);
-                container.setVisibility(View.VISIBLE);
-                return false;
-
-            }
-
-        });
+//        blur_relative.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                blur_relative.setVisibility(View.GONE);
+//                container.setVisibility(View.VISIBLE);
+//                return false;
+//
+//            }
+//
+//        });
 
         gestureListener = new GestureListener(this);
         gestureDetector = new GestureDetector(context, gestureListener);

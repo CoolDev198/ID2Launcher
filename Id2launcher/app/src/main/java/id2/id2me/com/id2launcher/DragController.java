@@ -594,18 +594,18 @@ public class DragController {
         final int[] coordinates = mCoordinatesTemp;
         final DropTarget dropTarget = findDropTarget((int) x, (int) y, coordinates);
 
-        mDragObject.x = (int) x;//coordinates[0];
-        mDragObject.y = (int) y;//coordinates[1];
+        mDragObject.x = (int) coordinates[0];
+        mDragObject.y = (int) coordinates[1];
         boolean accepted = false;
         mLauncher.getWokSpace().onDrop(mDragObject);
-//      //  if (dropTarget != null) {
-//            mDragObject.dragComplete = true;
-//            dropTarget.onDragExit(mDragObject);
-//            if (dropTarget.acceptDrop(mDragObject)) {
-//                dropTarget.onDrop(mDragObject);
-//                accepted = true;
-//            }
-//        }
+     if (dropTarget != null) {
+            mDragObject.dragComplete = true;
+            dropTarget.onDragExit(mDragObject);
+            if (dropTarget.acceptDrop(mDragObject)) {
+                dropTarget.onDrop(mDragObject);
+                accepted = true;
+            }
+        }
 //        mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
     }
 
@@ -618,12 +618,11 @@ public class DragController {
             DropTarget target = dropTargets.get(i);
             if (!target.isDropEnabled())
                 continue;
-
             target.getHitRect(r);
 
             // Convert the hit rect to DragLayer coordinates
-            target.getLocationInDragLayer(dropCoordinates);
-            r.offset(dropCoordinates[0] - target.getLeft(), dropCoordinates[1] - target.getTop());
+          //  target.getLocationInDragLayer(dropCoordinates);
+          //  r.offset(dropCoordinates[0] - target.getLeft(), dropCoordinates[1] - target.getTop());
 
             mDragObject.x = x;
             mDragObject.y = y;
@@ -636,14 +635,15 @@ public class DragController {
                 }
 
                 // Make dropCoordinates relative to the DropTarget
-                dropCoordinates[0] = x - dropCoordinates[0];
-                dropCoordinates[1] = y - dropCoordinates[1];
+                dropCoordinates[0] = x;// - dropCoordinates[0];
+                dropCoordinates[1] = y ;//- dropCoordinates[1];
 
                 return target;
             }
         }
         return null;
     }
+
 
     public void setDragScoller(DragScroller scroller) {
         mDragScroller = scroller;

@@ -11,8 +11,8 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -58,9 +58,15 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
      */
     private CellLayout.CellInfo mDragInfo;
 
+    private Point mDisplaySize = new Point();
+
+    ObservableScrollView scrollView;
+
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
         launcher = (Launcher) context;
+        Display display = launcher.getWindowManager().getDefaultDisplay();
+        display.getSize(mDisplaySize);
     }
 
     static private float squaredDistance(float[] point1, float[] point2) {
@@ -69,9 +75,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         return distanceX * distanceX + distanceY * distanceY;
     }
 
+
     public void beginDragShared(View child, DragSource dragSource) {
         Resources r = getResources();
         final Canvas canvas = new Canvas();
+
+        scrollView= (ObservableScrollView) ((View) getParent());
+
 
         // The outline is used to visualize where the item will land if dropped
         mDragOutline = createDragOutline(child, canvas, DRAG_BITMAP_PADDING);
@@ -104,10 +114,11 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
             // Note: The drag region is used to calculate drag layer offsets, but the
             // dragVisualizeOffset in addition to the dragRect (the size) to position the outline.
-           dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
-           dragRect = new Rect(left, top, right, bottom);
+            dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
+            dragRect = new Rect(left, top, right, bottom);
 
-        } else if (child instanceof FolderItemView) {}
+        } else if (child instanceof FolderItemView) {
+        }
 
         launcher.getDragController().startDrag(b, dragLayerX, dragLayerY, dragSource, child.getTag(),
                 DragController.DRAG_ACTION_MOVE, dragVisualizeOffset, dragRect, scale);
@@ -134,8 +145,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         if (v instanceof AppItemView) {
             View icon = v.findViewById(R.id.drawer_grid_image);
             b = Bitmap.createBitmap(
-                    icon.getWidth() + padding, icon.getHeight() + padding, Bitmap.Config.ARGB_8888);
-        } else {}
+                    v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
+        } else {
+        }
 
         canvas.setBitmap(b);
         drawDragView(v, canvas, padding, true);
@@ -319,29 +331,29 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     public void onDrop(DragObject d) {
         if (mDragTargetLayout != null)
             mDragTargetLayout.onDragExit();
-//        mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
-//                mDragViewVisualCenter);
+        mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
+                mDragViewVisualCenter);
+
+        CellLayout dropTargetLayout = mDropToLayout;
+
+        // We want the point to be mapped to the dragTarget.
+        if (dropTargetLayout != null) {
+//            if (launcher.isHotseatLayout(dropTargetLayout)) {
+//                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
+//            } else {
+                mapPointFromSelfToChild(dropTargetLayout, mDragViewVisualCenter, null);
+           // }
+        }
 //
-//        CellLayout dropTargetLayout = mDropToLayout;
-//
-//        // We want the point to be mapped to the dragTarget.
-//        if (dropTargetLayout != null) {
-////            if (launcher.isHotseatLayout(dropTargetLayout)) {
-////                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
-////            } else {
-//                mapPointFromSelfToChild(dropTargetLayout, mDragViewVisualCenter, null);
-//           // }
-//        }
-//
-//        int snapScreen = -1;
-//        boolean resizeOnDrop = false;
-//        if (d.dragSource != this) {
-//            final int[] touchXY = new int[] { (int) mDragViewVisualCenter[0],
-//                    (int) mDragViewVisualCenter[1] };
-//            onDropExternal(touchXY, d.dragInfo, dropTargetLayout, false, d);
-//        } else if (mDragInfo != null) {
-//            final View cell = mDragInfo.cell;
-//
+        int snapScreen = -1;
+        boolean resizeOnDrop = false;
+        if (d.dragSource != this) {
+            final int[] touchXY = new int[] { (int) mDragViewVisualCenter[0],
+                    (int) mDragViewVisualCenter[1] };
+            onDropExternal(touchXY, d.dragInfo, dropTargetLayout, false, d);
+        } else if (mDragInfo != null) {
+            final View cell = mDragInfo.cell;
+
 //            Runnable resizeRunnable = null;
 //            if (dropTargetLayout != null) {
 //                // Move internally
@@ -503,7 +515,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
     private void onDropExternal(int[] touchXY, Object dragInfo,
                                 CellLayout cellLayout, boolean insertAtFirst) {
-        // onDropExternal(touchXY, dragInfo, cellLayout, insertAtFirst, null);
+         onDropExternal(touchXY, dragInfo, cellLayout, insertAtFirst, null);
     }
 
     /**
@@ -835,7 +847,6 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     @Override
     public void onDragOver(DragObject d) {
 
-        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
 
         Rect r = new Rect();
         CellLayout layout = null;
@@ -849,7 +860,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
 
         if (layout == null) {
-            layout = findMatchingPageForDragOver((LinearLayout) findViewById(R.id.container), (ObservableScrollView) findViewById(R.id.scrollView), d.x, d.y);
+            layout = findMatchingPageForDragOver( scrollView, d.x, d.y);
         }
 
         if (d.y > scrollView.getHeight() - 150) {
@@ -860,7 +871,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
         if (layout != mDragTargetLayout) {
             setCurrentDropLayout(layout);
-            // setCurrentDragOverlappingLayout(layout);
+            setCurrentDragOverlappingLayout(layout);
         }
         // Handle the drag over
         if (mDragTargetLayout != null) {
@@ -877,7 +888,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             int ycalc = d.y - (mDragTargetLayout.getTop() - scrollView.getScrollY());
             mDragViewVisualCenter = getDragViewVisualCenter(d.x, ycalc, d.xOffset, d.yOffset,
                     d.dragView, mDragViewVisualCenter);
-            mTargetCell = ((CellLayout) mDragTargetLayout).findNearestArea(d.x, ycalc, 1, 1, mTargetCell);
+            mTargetCell = ((CellLayout) mDragTargetLayout).findNearestArea(d.x, d.y, 1, 1, mTargetCell);
 
             Log.v(" targetcell :: ", mTargetCell[0] + "  " + mTargetCell[1]);
             setCurrentDropOverCell(mTargetCell[0], mTargetCell[1]);
@@ -885,8 +896,8 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             float targetCellDistance = mDragTargetLayout.getDistanceFromCell(
                     mDragViewVisualCenter[0], mDragViewVisualCenter[1], mTargetCell);
 
-//            final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0],
-//                    mTargetCell[1]);
+         //  final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0],
+             //      mTargetCell[1]);
 
 //            manageFolderFeedback(info, mDragTargetLayout, mTargetCell,
 //                    targetCellDistance, dragOverView);
@@ -983,18 +994,21 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     * Return null if no CellLayout is currently being dragged over
     *
     */
-    private CellLayout findMatchingPageForDragOver(LinearLayout containerL, ScrollView scrollView, int x, int y) {
-        for (int i = 0; i < containerL.getChildCount(); i++) {
+
+    private CellLayout findMatchingPageForDragOver(ScrollView scrollView, int x, int y) {
+        for (int i = 0; i < getChildCount(); i++) {
             Rect rect = new Rect();
-            View cellLayout = containerL.getChildAt(i);
+            View cellLayout = getChildAt(i);
             cellLayout.getHitRect(rect);
 
+            int scrollx =scrollView.getScrollX();
+            int scrolly=scrollView.getScrollY();
             int xN = x + scrollView.getScrollX();
             int yN = y + scrollView.getScrollY();
 
 
-            if (rect.contains(xN, yN)) {
-                Log.v("top :: ", cellLayout.getTop() + "  " + i);
+            if (rect.contains(xN, yN) && cellLayout instanceof CellLayout) {
+                Log.v("top :: ", cellLayout.getTop()+   "  "  +cellLayout.getBottom() +"  "+ i);
                 return (CellLayout) cellLayout;
             }
 
@@ -1008,7 +1022,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             cachedInverseMatrix = mTempInverseMatrix;
         }
 
-        int scrollY = ((ObservableScrollView) findViewById(R.id.scrollView)).getScrollY();
+        int scrollY = scrollView.getScrollY();
 
         xy[1] = xy[1] + scrollY - v.getTop();
         xy[0] = xy[0] + getScrollX() - v.getLeft();
@@ -1109,4 +1123,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     public boolean onExitScrollArea() {
         return false;
     }
+
+
+    @Override
+    public void getHitRect(Rect outRect) {
+        // We want the workspace to have the whole area of the display (it will find the correct
+        // cell layout to drop to in the existing drag/drop logic.
+        outRect.set(0, 0, mDisplaySize.x, mDisplaySize.y);
+    }
+
 }

@@ -798,8 +798,8 @@ public class CellLayout extends ViewGroup {
                 if (dragOffset != null && dragRegion != null) {
                     // Center the drag region *horizontally* in the cell and apply a drag
                     // outline offset
-                    left += dragOffset.x;// + ((cellWidth * spanX) + ((spanX - 1) * mWidthGap)
-                          //  - dragRegion.width()) / 2;
+                    left -= dragOffset.x + ((cellWidth * spanX) + ((spanX - 1) * mWidthGap) -
+                             dragRegion.width()) / 2;
                     top += dragOffset.y;
                 } else {
                     // Center the drag outline in the cell
