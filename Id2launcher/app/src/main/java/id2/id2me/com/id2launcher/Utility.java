@@ -1,6 +1,8 @@
 package id2.id2me.com.id2launcher;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
@@ -49,5 +51,9 @@ public class Utility {
         }
 
 
+    }
+
+    public static Bitmap createIconBitmap(Drawable fullResIcon, LauncherApplication mContext) {
+        return null;
     }
 }

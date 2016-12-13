@@ -1,5 +1,6 @@
 package id2.id2me.com.id2launcher;
 
+import android.appwidget.AppWidgetHostView;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -13,10 +14,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.models.AppInfoModel;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
@@ -29,6 +32,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     private final HolographicOutlineHelper mOutlineHelper = new HolographicOutlineHelper();
     private final int[] mTempXY = new int[2];
     Launcher launcher;
+    ObservableScrollView scrollView;
     private Bitmap mDragOutline = null;
     private float[] mDragViewVisualCenter = new float[2];
     private Matrix mTempInverseMatrix = new Matrix();
@@ -44,23 +48,20 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
      * The CellLayout that is currently being dragged over
      */
     private CellLayout mDragTargetLayout = null;
-    /**
-     * The CellLayout that we will show as glowing
-     */
-    private CellLayout mDragOverlappingLayout = null;
 
     /**
      * The CellLayout which will be dropped to
      */
-
+    /**
+     * The CellLayout that we will show as glowing
+     */
+    private CellLayout mDragOverlappingLayout = null;
     /**
      * CellInfo for the cell that is currently being dragged
      */
     private CellLayout.CellInfo mDragInfo;
-
     private Point mDisplaySize = new Point();
-
-    ObservableScrollView scrollView;
+    private int currentPage = 0;
 
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -80,7 +81,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         Resources r = getResources();
         final Canvas canvas = new Canvas();
 
-        scrollView= (ObservableScrollView) ((View) getParent());
+        scrollView = (ObservableScrollView) ((View) getParent());
 
 
         // The outline is used to visualize where the item will land if dropped
@@ -255,6 +256,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         return b;
     }
 
+
     @Override
     public boolean supportsFlingToDelete() {
         return false;
@@ -334,22 +336,22 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
 
-        CellLayout dropTargetLayout = mDropToLayout;
+        CellLayout dropTargetLayout = mDragTargetLayout;// mDropToLayout;
 
         // We want the point to be mapped to the dragTarget.
         if (dropTargetLayout != null) {
 //            if (launcher.isHotseatLayout(dropTargetLayout)) {
 //                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
 //            } else {
-                mapPointFromSelfToChild(dropTargetLayout, mDragViewVisualCenter, null);
-           // }
+            mapPointFromSelfToChild(dropTargetLayout, mDragViewVisualCenter, null);
+            // }
         }
 //
         int snapScreen = -1;
         boolean resizeOnDrop = false;
         if (d.dragSource != this) {
-            final int[] touchXY = new int[] { (int) mDragViewVisualCenter[0],
-                    (int) mDragViewVisualCenter[1] };
+            final int[] touchXY = new int[]{(int) mDragViewVisualCenter[0],
+                    (int) mDragViewVisualCenter[1]};
             onDropExternal(touchXY, d.dragInfo, dropTargetLayout, false, d);
         } else if (mDragInfo != null) {
             final View cell = mDragInfo.cell;
@@ -510,12 +512,12 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                cell.setVisibility(VISIBLE);
 //            }
 //            parent.onDropChild(cell);
-//        }
-    }
+        }
+        }
 
     private void onDropExternal(int[] touchXY, Object dragInfo,
                                 CellLayout cellLayout, boolean insertAtFirst) {
-         onDropExternal(touchXY, dragInfo, cellLayout, insertAtFirst, null);
+        onDropExternal(touchXY, dragInfo, cellLayout, insertAtFirst, null);
     }
 
     /**
@@ -526,32 +528,21 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
      * NOTE: This can also be called when we are outside of a drag event, when we want
      * to add an item to one of the workspace screens.
      */
-//    private void onDropExternal(final int[] touchXY, final Object dragInfo,
-//                                final CellLayout cellLayout, boolean insertAtFirst, DragObject d) {
-//        final Runnable exitSpringLoadedRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                mLauncher.exitSpringLoadedDragModeDelayed(true, false, null);
-//            }
-//        };
-//
-//        ItemInfo info = (ItemInfo) dragInfo;
-//        int spanX = info.spanX;
-//        int spanY = info.spanY;
-//        if (mDragInfo != null) {
-//            spanX = mDragInfo.spanX;
-//            spanY = mDragInfo.spanY;
-//        }
-//
-//        final long container = mLauncher.isHotseatLayout(cellLayout) ?
-//                LauncherSettings.Favorites.CONTAINER_HOTSEAT :
-//                LauncherSettings.Favorites.CONTAINER_DESKTOP;
-//        final int screen = indexOfChild(cellLayout);
-//        if (!mLauncher.isHotseatLayout(cellLayout) && screen != mCurrentPage
-//                && mState != State.SPRING_LOADED) {
-//            snapToPage(screen);
-//        }
-//
+    private void onDropExternal(final int[] touchXY, final Object dragInfo,
+                                final CellLayout cellLayout, boolean insertAtFirst, DragObject d) {
+
+        ItemInfoModel info = (ItemInfoModel) dragInfo;
+        int spanX = info.getSpanX();
+        int spanY = info.getSpanY();
+        if (mDragInfo != null) {
+            spanX = mDragInfo.spanX;
+            spanY = mDragInfo.spanY;
+        }
+
+        final long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
+        final int screen = indexOfChild(cellLayout);
+
+
 //        if (info instanceof PendingAddItemInfo) {
 //            final PendingAddItemInfo pendingInfo = (PendingAddItemInfo) dragInfo;
 //
@@ -561,21 +552,21 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                        cellLayout, mTargetCell);
 //                float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
 //                        mDragViewVisualCenter[1], mTargetCell);
-//                if (willCreateUserFolder((ItemInfo) d.dragInfo, cellLayout, mTargetCell,
-//                        distance, true) || willAddToExistingUserFolder((ItemInfo) d.dragInfo,
-//                        cellLayout, mTargetCell, distance)) {
-//                    findNearestVacantCell = false;
-//                }
+////                if (willCreateUserFolder((ItemInfo) d.dragInfo, cellLayout, mTargetCell,
+////                        distance, true) || willAddToExistingUserFolder((ItemInfo) d.dragInfo,
+////                        cellLayout, mTargetCell, distance)) {
+////                    findNearestVacantCell = false;
+////                }
 //            }
 //
-//            final ItemInfo item = (ItemInfo) d.dragInfo;
+//            final ItemInfoModel item = (ItemInfoModel) d.dragInfo;
 //            boolean updateWidgetSize = false;
 //            if (findNearestVacantCell) {
-//                int minSpanX = item.spanX;
-//                int minSpanY = item.spanY;
-//                if (item.minSpanX > 0 && item.minSpanY > 0) {
-//                    minSpanX = item.minSpanX;
-//                    minSpanY = item.minSpanY;
+//                int minSpanX = item.getSpanX();
+//                int minSpanY = item.getSpanY();
+//                if (item.getMinSpanX() > 0 && item.getMinSpanY() > 0) {
+//                    minSpanX = item.getMinSpanX();
+//                    minSpanY = item.getMinSpanY();
 //                }
 //                int[] resultSpan = new int[2];
 //                mTargetCell = cellLayout.createArea((int) mDragViewVisualCenter[0],
@@ -621,43 +612,45 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                        item.spanY);
 //            }
 //
-//            int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
-//            if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET &&
-//                    ((PendingAddWidgetInfo) pendingInfo).info.configure != null) {
-//                animationStyle = ANIMATE_INTO_POSITION_AND_REMAIN;
-//            }
-//            animateWidgetDrop(info, cellLayout, d.dragView, onAnimationCompleteRunnable,
-//                    animationStyle, finalView, true);
+////            int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
+////            if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET &&
+////                    ((PendingAddWidgetInfo) pendingInfo).info.configure != null) {
+////                animationStyle = ANIMATE_INTO_POSITION_AND_REMAIN;
+////            }
+////            animateWidgetDrop(info, cellLayout, d.dragView, onAnimationCompleteRunnable,
+////                    animationStyle, finalView, true);
 //        } else {
-//            // This is for other drag/drop cases, like dragging from All Apps
-//            View view = null;
-//
-//            switch (info.itemType) {
-//                case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-//                case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-//                    if (info.container == NO_ID && info instanceof ApplicationInfo) {
-//                        // Came from all apps -- make a copy
-//                        info = new ShortcutInfo((ApplicationInfo) info);
-//                    }
-//                    view = mLauncher.createShortcut(R.layout.application, cellLayout,
-//                            (ShortcutInfo) info);
-//                    break;
+            // This is for other drag/drop cases, like dragging from All Apps
+            View view = null;
+
+            switch (info.getItemType()) {
+                case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
+                case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
+                    if (info instanceof AppInfoModel) {
+                        // Came from all apps -- make a copy
+                        info = new ShortcutInfo((AppInfoModel) info);
+                    }
+
+                    view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
+                            (ShortcutInfo) info);
+                    break;
 //                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
 //                    view = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, cellLayout,
 //                            (FolderInfo) info, mIconCache);
 //                    break;
-//                default:
-//                    throw new IllegalStateException("Unknown item type: " + info.itemType);
-//            }
-//
-//            // First we find the cell nearest to point at which the item is
-//            // dropped, without any consideration to whether there is an item there.
-//            if (touchXY != null) {
-//                mTargetCell = findNearestArea((int) touchXY[0], (int) touchXY[1], spanX, spanY,
-//                        cellLayout, mTargetCell);
-//                float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
-//                        mDragViewVisualCenter[1], mTargetCell);
-//                d.postAnimationRunnable = exitSpringLoadedRunnable;
+                default:
+                    throw new IllegalStateException("Unknown item type: " + info.itemType);
+            }
+
+            // First we find the cell nearest to point at which the item is
+            // dropped, without any consideration to whether there is an item there.
+            if (touchXY != null) {
+                mTargetCell = findNearestArea((int) touchXY[0], (int) touchXY[1], spanX, spanY,
+                        cellLayout, mTargetCell);
+                float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
+                        mDragViewVisualCenter[1], mTargetCell);
+
+                //d.postAnimationRunnable = exitSpringLoadedRunnable;
 //                if (createUserFolderIfNecessary(view, container, cellLayout, mTargetCell, distance,
 //                        true, d.dragView, d.postAnimationRunnable)) {
 //                    return;
@@ -666,37 +659,124 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                        true)) {
 //                    return;
 //                }
-//            }
-//
-//            if (touchXY != null) {
-//                // when dragging and dropping, just find the closest free spot
-//                mTargetCell = cellLayout.createArea((int) mDragViewVisualCenter[0],
-//                        (int) mDragViewVisualCenter[1], 1, 1, 1, 1,
-//                        null, mTargetCell, null, CellLayout.MODE_ON_DROP_EXTERNAL);
-//            } else {
-//                cellLayout.findCellForSpan(mTargetCell, 1, 1);
-//            }
-//            addInScreen(view, container, screen, mTargetCell[0], mTargetCell[1], info.spanX,
-//                    info.spanY, insertAtFirst);
-//            cellLayout.onDropChild(view);
-//            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
-//            cellLayout.getShortcutsAndWidgets().measureChild(view);
-//
-//
+            }
+
+            if (touchXY != null) {
+                // when dragging and dropping, just find the closest free spot
+                mTargetCell = cellLayout.createArea((int) mDragViewVisualCenter[0],
+                        (int) mDragViewVisualCenter[1], 1, 1, 1, 1,
+                        null, mTargetCell, null, CellLayout.MODE_ON_DROP_EXTERNAL);
+            } else {
+                cellLayout.findCellForSpan(mTargetCell, 1, 1);
+            }
+
+            addInScreen(view, container, screen, mTargetCell[0], mTargetCell[1], info.spanX,
+                    info.spanY, insertAtFirst);
+
+            cellLayout.onDropChild(view);
+            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
+            cellLayout.getShortcutsAndWidgets().measureChild(view);
+
+
 //            LauncherModel.addOrMoveItemInDatabase(mLauncher, info, container, screen,
 //                    lp.cellX, lp.cellY);
-//
-//            if (d.dragView != null) {
-//                // We wrap the animation call in the temporary set and reset of the current
-//                // cellLayout to its final transform -- this means we animate the drag view to
-//                // the correct final location.
+
+            if (d.dragView != null) {
+                // We wrap the animation call in the temporary set and reset of the current
+                // cellLayout to its final transform -- this means we animate the drag view to
+                // the correct final location.
 //                setFinalTransitionTransform(cellLayout);
 //                mLauncher.getDragLayer().animateViewIntoPosition(d.dragView, view,
 //                        exitSpringLoadedRunnable);
-//                resetTransitionTransform(cellLayout);
-//            }
-//        }
-//    }
+               // resetTransitionTransform(cellLayout);
+            }
+       // }
+    }
+
+    /**
+     * Adds the specified child in the specified screen. The position and dimension of
+     * the child are defined by x, y, spanX and spanY.
+     *
+     * @param child The child to add in one of the workspace's screens.
+     * @param screen The screen in which to add the child.
+     * @param x The X position of the child in the screen's grid.
+     * @param y The Y position of the child in the screen's grid.
+     * @param spanX The number of cells spanned horizontally by the child.
+     * @param spanY The number of cells spanned vertically by the child.
+     * @param insert When true, the child is inserted at the beginning of the children list.
+     */
+    void addInScreen(View child, long container, int screen, int x, int y, int spanX, int spanY,
+                     boolean insert) {
+        if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+            if (screen < 0 || screen >= getChildCount()) {
+                Log.e(TAG, "The screen must be >= 0 and < " + getChildCount()
+                        + " (was " + screen + "); skipping child");
+                return;
+            }
+        }
+
+        final CellLayout layout;
+        if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
+            layout = mLauncher.getHotseat().getLayout();
+            child.setOnKeyListener(null);
+
+            // Hide folder title in the hotseat
+            if (child instanceof FolderIcon) {
+                ((FolderIcon) child).setTextVisible(false);
+            }
+
+            if (screen < 0) {
+                screen = mLauncher.getHotseat().getOrderInHotseat(x, y);
+            } else {
+                // Note: We do this to ensure that the hotseat is always laid out in the orientation
+                // of the hotseat in order regardless of which orientation they were added
+                x = mLauncher.getHotseat().getCellXFromOrder(screen);
+                y = mLauncher.getHotseat().getCellYFromOrder(screen);
+            }
+        } else {
+            // Show folder title if not in the hotseat
+            if (child instanceof FolderIcon) {
+                ((FolderIcon) child).setTextVisible(true);
+            }
+
+            layout = (CellLayout) getChildAt(screen);
+           // child.setOnKeyListener(new IconKeyEventListener());
+        }
+
+        ViewGroup.LayoutParams genericLp = child.getLayoutParams();
+        CellLayout.LayoutParams lp;
+        if (genericLp == null || !(genericLp instanceof CellLayout.LayoutParams)) {
+            lp = new CellLayout.LayoutParams(x, y, spanX, spanY);
+        } else {
+            lp = (CellLayout.LayoutParams) genericLp;
+            lp.cellX = x;
+            lp.cellY = y;
+            lp.cellHSpan = spanX;
+            lp.cellVSpan = spanY;
+        }
+
+        if (spanX < 0 && spanY < 0) {
+            lp.isLockedToGrid = false;
+        }
+
+        // Get the canonical child id to uniquely represent this view in this screen
+        int childId = LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
+        boolean markCellsAsOccupied = !(child instanceof FolderItemView);
+        if (!layout.addViewToCellLayout(child, insert ? 0 : -1, childId, lp, markCellsAsOccupied)) {
+            // TODO: This branch occurs when the workspace is adding views
+            // outside of the defined grid
+            // maybe we should be deleting these items from the LauncherModel?
+            Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
+        }
+
+        if (!(child instanceof FolderItemView)) {
+            child.setHapticFeedbackEnabled(false);
+          //  child.setOnLongClickListener(mLongClickListener);
+        }
+        if (child instanceof DropTarget) {
+            launcher.getDragController().addDropTarget((DropTarget) child);
+        }
+    }
 //    boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
 //            distance, boolean considerTimeout) {
 //        if (distance > mMaxDistanceForFolderCreation) return false;
@@ -860,7 +940,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
 
         if (layout == null) {
-            layout = findMatchingPageForDragOver( scrollView, d.x, d.y);
+            layout = findMatchingPageForDragOver(scrollView, d.x, d.y);
         }
 
         if (d.y > scrollView.getHeight() - 150) {
@@ -896,8 +976,8 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             float targetCellDistance = mDragTargetLayout.getDistanceFromCell(
                     mDragViewVisualCenter[0], mDragViewVisualCenter[1], mTargetCell);
 
-         //  final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0],
-             //      mTargetCell[1]);
+            //  final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0],
+            //      mTargetCell[1]);
 
 //            manageFolderFeedback(info, mDragTargetLayout, mTargetCell,
 //                    targetCellDistance, dragOverView);
@@ -1001,14 +1081,14 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             View cellLayout = getChildAt(i);
             cellLayout.getHitRect(rect);
 
-            int scrollx =scrollView.getScrollX();
-            int scrolly=scrollView.getScrollY();
+            int scrollx = scrollView.getScrollX();
+            int scrolly = scrollView.getScrollY();
             int xN = x + scrollView.getScrollX();
             int yN = y + scrollView.getScrollY();
 
 
             if (rect.contains(xN, yN) && cellLayout instanceof CellLayout) {
-                Log.v("top :: ", cellLayout.getTop()+   "  "  +cellLayout.getBottom() +"  "+ i);
+                Log.v("top :: ", cellLayout.getTop() + "  " + cellLayout.getBottom() + "  " + i);
                 return (CellLayout) cellLayout;
             }
 

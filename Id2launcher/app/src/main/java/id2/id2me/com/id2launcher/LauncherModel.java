@@ -1,8 +1,10 @@
 package id2.id2me.com.id2launcher;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -35,6 +37,14 @@ public class LauncherModel extends BroadcastReceiver {
 //        synchronized (mLock) {
 //            mCallbacks = new WeakReference<Callbacks>(callbacks);
 //        }
+    }
+
+    public static ComponentName getComponentNameFromResolveInfo(ResolveInfo info) {
+        return  null;
+    }
+
+    public static int getCellLayoutChildId(long container, int screen, int x, int y, int spanX, int spanY) {
+        return 0;
     }
 
     public interface Callbacks {

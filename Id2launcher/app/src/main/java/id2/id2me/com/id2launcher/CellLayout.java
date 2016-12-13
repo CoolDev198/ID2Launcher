@@ -218,6 +218,85 @@ public class CellLayout extends ViewGroup {
         return false;
     }
 
+    /**
+     * Finds the upper-left coordinate of the first rectangle in the grid that can
+     * hold a cell of the specified dimensions. If intersectX and intersectY are not -1,
+     * then this method will only return coordinates for rectangles that contain the cell
+     * (intersectX, intersectY)
+     *
+     * @param cellXY The array that will contain the position of a vacant cell if such a cell
+     *               can be found.
+     * @param spanX The horizontal span of the cell we want to find.
+     * @param spanY The vertical span of the cell we want to find.
+     *
+     * @return True if a vacant cell of the specified dimension was found, false otherwise.
+     */
+    boolean findCellForSpan(int[] cellXY, int spanX, int spanY) {
+        return findCellForSpanThatIntersectsIgnoring(cellXY, spanX, spanY, -1, -1, null, mOccupied);
+    }
+    /**
+     * The superset of the above two methods
+     */
+    boolean findCellForSpanThatIntersectsIgnoring(int[] cellXY, int spanX, int spanY,
+                                                  int intersectX, int intersectY, View ignoreView, boolean occupied[][]) {
+        // mark space take by ignoreView as available (method checks if ignoreView is null)
+        markCellsAsUnoccupiedForView(ignoreView, occupied);
+
+        boolean foundCell = false;
+        while (true) {
+            int startX = 0;
+            if (intersectX >= 0) {
+                startX = Math.max(startX, intersectX - (spanX - 1));
+            }
+            int endX = cellCountX - (spanX - 1);
+            if (intersectX >= 0) {
+                endX = Math.min(endX, intersectX + (spanX - 1) + (spanX == 1 ? 1 : 0));
+            }
+            int startY = 0;
+            if (intersectY >= 0) {
+                startY = Math.max(startY, intersectY - (spanY - 1));
+            }
+            int endY = cellCountY - (spanY - 1);
+            if (intersectY >= 0) {
+                endY = Math.min(endY, intersectY + (spanY - 1) + (spanY == 1 ? 1 : 0));
+            }
+
+            for (int y = startY; y < endY && !foundCell; y++) {
+                inner:
+                for (int x = startX; x < endX; x++) {
+                    for (int i = 0; i < spanX; i++) {
+                        for (int j = 0; j < spanY; j++) {
+                            if (occupied[x + i][y + j]) {
+                                // small optimization: we can skip to after the column we just found
+                                // an occupied cell
+                                x += i;
+                                continue inner;
+                            }
+                        }
+                    }
+                    if (cellXY != null) {
+                        cellXY[0] = x;
+                        cellXY[1] = y;
+                    }
+                    foundCell = true;
+                    break;
+                }
+            }
+            if (intersectX == -1 && intersectY == -1) {
+                break;
+            } else {
+                // if we failed to find anything, try again but without any requirements of
+                // intersecting
+                intersectX = -1;
+                intersectY = -1;
+                continue;
+            }
+        }
+
+        // re-mark space taken by ignoreView as occupied
+        markCellsAsOccupiedForView(ignoreView, occupied);
+        return foundCell;
+    }
 
     public void markCellsAsOccupiedForView(View view) {
         markCellsAsOccupiedForView(view, mOccupied);
@@ -346,6 +425,91 @@ public class CellLayout extends ViewGroup {
             return (ShortcutAndWidgetContainer) getChildAt(0);
         }
         return null;
+    }
+
+    int[] createArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
+                     View dragView, int[] result, int resultSpan[], int mode) {
+        // First we determine if things have moved enough to cause a different layout
+        result = findNearestArea(pixelX, pixelY, spanX, spanY, result);
+
+        if (resultSpan == null) {
+            resultSpan = new int[2];
+        }
+
+        // When we are checking drop validity or actually dropping, we don't recompute the
+        // direction vector, since we want the solution to match the preview, and it's possible
+        // that the exact position of the item has changed to result in a new reordering outcome.
+        if ((mode == MODE_ON_DROP || mode == MODE_ON_DROP_EXTERNAL || mode == MODE_ACCEPT_DROP)
+                && mPreviousReorderDirection[0] != INVALID_DIRECTION) {
+            mDirectionVector[0] = mPreviousReorderDirection[0];
+            mDirectionVector[1] = mPreviousReorderDirection[1];
+            // We reset this vector after drop
+            if (mode == MODE_ON_DROP || mode == MODE_ON_DROP_EXTERNAL) {
+                mPreviousReorderDirection[0] = INVALID_DIRECTION;
+                mPreviousReorderDirection[1] = INVALID_DIRECTION;
+            }
+        } else {
+            getDirectionVectorForDrop(pixelX, pixelY, spanX, spanY, dragView, mDirectionVector);
+            mPreviousReorderDirection[0] = mDirectionVector[0];
+            mPreviousReorderDirection[1] = mDirectionVector[1];
+        }
+
+        ItemConfiguration swapSolution = simpleSwap(pixelX, pixelY, minSpanX, minSpanY,
+                spanX,  spanY, mDirectionVector, dragView,  true,  new ItemConfiguration());
+
+        // We attempt the approach which doesn't shuffle views at all
+        ItemConfiguration noShuffleSolution = findConfigurationNoShuffle(pixelX, pixelY, minSpanX,
+                minSpanY, spanX, spanY, dragView, new ItemConfiguration());
+
+        ItemConfiguration finalSolution = null;
+        if (swapSolution.isSolution && swapSolution.area() >= noShuffleSolution.area()) {
+            finalSolution = swapSolution;
+        } else if (noShuffleSolution.isSolution) {
+            finalSolution = noShuffleSolution;
+        }
+
+        boolean foundSolution = true;
+        if (!DESTRUCTIVE_REORDER) {
+            setUseTempCoords(true);
+        }
+
+        if (finalSolution != null) {
+            result[0] = finalSolution.dragViewX;
+            result[1] = finalSolution.dragViewY;
+            resultSpan[0] = finalSolution.dragViewSpanX;
+            resultSpan[1] = finalSolution.dragViewSpanY;
+
+            // If we're just testing for a possible location (MODE_ACCEPT_DROP), we don't bother
+            // committing anything or animating anything as we just want to determine if a solution
+            // exists
+            if (mode == MODE_DRAG_OVER || mode == MODE_ON_DROP || mode == MODE_ON_DROP_EXTERNAL) {
+                if (!DESTRUCTIVE_REORDER) {
+                    copySolutionToTempState(finalSolution, dragView);
+                }
+                setItemPlacementDirty(true);
+                animateItemsToSolution(finalSolution, dragView, mode == MODE_ON_DROP);
+
+                if (!DESTRUCTIVE_REORDER &&
+                        (mode == MODE_ON_DROP || mode == MODE_ON_DROP_EXTERNAL)) {
+                    commitTempPlacement();
+                    completeAndClearReorderHintAnimations();
+                    setItemPlacementDirty(false);
+                } else {
+                    beginOrAdjustHintAnimations(finalSolution, dragView,
+                            REORDER_ANIMATION_DURATION);
+                }
+            }
+        } else {
+            foundSolution = false;
+            result[0] = result[1] = resultSpan[0] = resultSpan[1] = -1;
+        }
+
+        if ((mode == MODE_ON_DROP || !foundSolution) && !DESTRUCTIVE_REORDER) {
+            setUseTempCoords(false);
+        }
+
+        mShortcutsAndWidgets.requestLayout();
+        return result;
     }
 
 

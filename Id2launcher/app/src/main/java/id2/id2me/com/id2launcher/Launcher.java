@@ -250,4 +250,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     public WorkSpace getWokSpace() {
         return wokSpace;
     }
+
+    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info) {
+        return null;
+    }
 }
