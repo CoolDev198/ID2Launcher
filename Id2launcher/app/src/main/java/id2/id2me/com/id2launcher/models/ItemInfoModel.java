@@ -3,6 +3,7 @@ package id2.id2me.com.id2launcher.models;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import id2.id2me.com.id2launcher.AllAppsList;
 import id2.id2me.com.id2launcher.DatabaseHandler;
 import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.ShortcutInfo;
 
 public class ItemInfoModel {
 
@@ -23,16 +25,16 @@ public class ItemInfoModel {
     long id = NO_ID;
     private long container = NO_ID;
 
-    private int cellX = NO_ID;
-    private int cellY = NO_ID;
+    public int cellX = NO_ID;
+    public int cellY = NO_ID;
 
     private byte[] icon;
-    private String intent = "";
-    private int spanX = 1;
-    private int spanY = 1;
+    public String intent = "";
+     public int spanX = 1;
+     public int spanY = 1;
     private int appWidgetId = NO_ID;
-    private String title = "";
-    private int itemType = DatabaseHandler.ITEM_TYPE_APP;
+    public String title = "";
+     protected int itemType = DatabaseHandler.ITEM_TYPE_APP;
     private int iconType = 0;
     private String pname = "";
     private boolean dropExternal;
@@ -43,6 +45,19 @@ public class ItemInfoModel {
     private ComponentName componentName;
     private AppWidgetProviderInfo appWidgetProviderInfo;
     private int screen;
+    public boolean requiresDbUpdate;
+
+    public ItemInfoModel(AppInfoModel info) {
+
+
+    }
+
+    public ItemInfoModel() {
+    }
+
+    public ItemInfoModel(ShortcutInfo info) {
+
+    }
 
     public int getTmpCellY() {
         return tempCellY;
@@ -265,5 +280,9 @@ public class ItemInfoModel {
 
     public int getScreen() {
         return screen;
+    }
+
+    public String getPackageName(Intent intent) {
+        return null;
     }
 }

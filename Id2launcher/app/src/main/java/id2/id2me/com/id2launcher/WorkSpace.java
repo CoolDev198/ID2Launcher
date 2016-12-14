@@ -639,7 +639,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                            (FolderInfo) info, mIconCache);
 //                    break;
                 default:
-                    throw new IllegalStateException("Unknown item type: " + info.itemType);
+                    //throw new IllegalStateException("Unknown item type: " + info.itemType);
             }
 
             // First we find the cell nearest to point at which the item is
@@ -716,32 +716,14 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
 
         final CellLayout layout;
-        if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            layout = mLauncher.getHotseat().getLayout();
-            child.setOnKeyListener(null);
-
-            // Hide folder title in the hotseat
-            if (child instanceof FolderIcon) {
-                ((FolderIcon) child).setTextVisible(false);
-            }
-
-            if (screen < 0) {
-                screen = mLauncher.getHotseat().getOrderInHotseat(x, y);
-            } else {
-                // Note: We do this to ensure that the hotseat is always laid out in the orientation
-                // of the hotseat in order regardless of which orientation they were added
-                x = mLauncher.getHotseat().getCellXFromOrder(screen);
-                y = mLauncher.getHotseat().getCellYFromOrder(screen);
-            }
-        } else {
             // Show folder title if not in the hotseat
-            if (child instanceof FolderIcon) {
-                ((FolderIcon) child).setTextVisible(true);
+            if (child instanceof FolderItemView) {
+               // ((FolderItemView) child).setTextVisible(true);
             }
 
             layout = (CellLayout) getChildAt(screen);
            // child.setOnKeyListener(new IconKeyEventListener());
-        }
+
 
         ViewGroup.LayoutParams genericLp = child.getLayoutParams();
         CellLayout.LayoutParams lp;

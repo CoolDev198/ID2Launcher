@@ -30,7 +30,7 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 /**
  * Represents a launchable icon on the workspaces and in folders.
  */
-class ShortcutInfo extends ItemInfoModel {
+public class ShortcutInfo extends ItemInfoModel {
 
     /**
      * The intent used to start the application.
