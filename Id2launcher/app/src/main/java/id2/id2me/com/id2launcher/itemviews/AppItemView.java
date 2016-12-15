@@ -93,7 +93,7 @@ public class AppItemView extends LinearLayout  {
         if(textView!=null)
             textView.setText(shortCutModel.getTitle());
         if(imageView!=null)
-            imageView.setImageResource(R.drawable.ic_dialer);
+            imageView.setImageBitmap(shortCutModel.getIcon(LauncherApplication.getApp().mIconCache));
         this.setTag(shortCutModel);
     }
 

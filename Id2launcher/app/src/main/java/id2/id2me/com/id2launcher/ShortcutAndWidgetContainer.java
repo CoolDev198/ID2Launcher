@@ -43,7 +43,6 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
     public ShortcutAndWidgetContainer(Context context) {
         super(context);
-        setBackgroundColor(Color.CYAN);
         mWallpaperManager = WallpaperManager.getInstance(context);
     }
 

@@ -182,9 +182,9 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
             child.setTag(i);
 
             if (i == 0) {
-                child.setBackgroundColor(Color.BLACK);
+                //child.setBackgroundColor(Color.BLACK);
             } else {
-                child.setBackgroundColor(Color.YELLOW);
+                //child.setBackgroundColor(Color.YELLOW);
             }
 
             containerL.addView(child);

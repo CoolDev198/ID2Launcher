@@ -203,7 +203,12 @@ public class CellLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            child.layout(getPaddingLeft(), getPaddingTop(),
+                    r - l - getPaddingRight(), b - t - getPaddingBottom());
+        }
     }
 
     public boolean addViewToCellLayout(View child, int index, int childId, LayoutParams params,
