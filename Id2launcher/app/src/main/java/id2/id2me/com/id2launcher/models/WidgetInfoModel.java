@@ -19,8 +19,6 @@ public class WidgetInfoModel extends ItemInfoModel{
     private int minSpanY;
 
     public WidgetInfoModel(){
-        setDropExternal(true);
-        setIsItemCanPlaced(false);
         setItemType(DatabaseHandler.ITEM_TYPE_APPWIDGET);
     }
     public String getWidgetName() {

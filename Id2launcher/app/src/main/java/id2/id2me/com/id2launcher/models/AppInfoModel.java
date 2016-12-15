@@ -15,8 +15,6 @@ public class AppInfoModel extends ItemInfoModel implements  Cloneable {
     private String className = "";
 
     public AppInfoModel(){
-        setDropExternal(true);
-        setIsItemCanPlaced(false);
         setSpanX(1);
         setSpanY(1);
         setItemType(DatabaseHandler.ITEM_TYPE_APP);

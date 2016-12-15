@@ -115,7 +115,6 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
             MyViewHolder holder=((MyViewHolder) view.getTag());
             ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = holder.widgetInfo;
             launcherApplication.getLauncher().resetPage();
-            launcherApplication.prepareDrag(getBitmapView(), new Point((int) e.getX(), (int) e.getY()), preview.getWidth(), preview.getHeight());
             super.onLongPress(e);
         }
 

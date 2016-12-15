@@ -108,8 +108,6 @@ public class AppItemView extends LinearLayout  {
         @Override
         public void onLongPress(MotionEvent e) {
             LauncherApplication launcherApplication = LauncherApplication.getApp();
-            launcherApplication.dragInfo = (ItemInfoModel) AppItemView.this.getTag();
-            launcherApplication.dragInfo.setDropExternal(false);
             launcherApplication.getLauncher().resetPage();
             launcherApplication.getLauncher().getWokSpace().beginDragShared(AppItemView.this,dragSource);
             super.onLongPress(e);

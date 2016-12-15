@@ -212,7 +212,6 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         public void onLongPress(MotionEvent e) {
             //  Log.v("FolderItemView ", " on long press : ");
             launcherApplication.dragInfo = (ItemInfoModel) folderItemView.getTag();
-            launcherApplication.dragInfo.setDropExternal(false);
            // launcherApplication.dragAnimation(folderItemView, new Point((int) e.getX(), (int) e.getY()));
             super.onLongPress(e);
         }

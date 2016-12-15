@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -32,9 +31,10 @@ public class ItemInfoModel {
     public String intent = "";
      public int spanX = 1;
      public int spanY = 1;
+
     private int appWidgetId = NO_ID;
     public String title = "";
-     protected int itemType = DatabaseHandler.ITEM_TYPE_APP;
+     public int itemType = DatabaseHandler.ITEM_TYPE_APP;
     private int iconType = 0;
     private String pname = "";
     private boolean dropExternal;
@@ -46,6 +46,8 @@ public class ItemInfoModel {
     private AppWidgetProviderInfo appWidgetProviderInfo;
     private int screen;
     public boolean requiresDbUpdate;
+    public int minSpanX=1;
+    public int minSpanY=1;
 
     public ItemInfoModel(AppInfoModel info) {
 
@@ -167,30 +169,6 @@ public class ItemInfoModel {
         this.pname = pname;
     }
 
-    public void setIsExisitingFolder(boolean isExisitingFolder){
-        this.isExisitingFolder=isExisitingFolder;
-    }
-
-    public boolean getIsExisitingFolder() {
-        return isExisitingFolder;
-    }
-
-    public void setDropExternal(boolean dropExternal) {
-        this.dropExternal = dropExternal;
-    }
-
-    public boolean getDropExternal() {
-        return dropExternal;
-    }
-
-
-    public boolean getIsItemCanPlaced() {
-        return isItemCanPlaced;
-    }
-
-    public void setIsItemCanPlaced(boolean isItemCanPlaced) {
-        this.isItemCanPlaced = isItemCanPlaced;
-    }
 
 
     public static Bitmap createIconBitmap(Bitmap icon, Context context) {

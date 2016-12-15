@@ -180,7 +180,9 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
         addView(mShortcutsAndWidgets);
     }
-
+    public void prepareChildForDrag(View child) {
+        markCellsAsUnoccupiedForView(child);
+    }
     public void setGridSize(int x, int y) {
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];

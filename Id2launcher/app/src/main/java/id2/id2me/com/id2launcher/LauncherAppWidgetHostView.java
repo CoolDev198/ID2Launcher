@@ -69,7 +69,6 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
         try {
             launcherApplication.dragInfo = (ItemInfoModel) this.getTag();
 
-            launcherApplication.dragInfo.setDropExternal(false);
             Canvas canvas = new Canvas();
             //outlineBmp = launcherApplication.createDragOutline(launcherAppWidgetHostView );
             //launcherApplication.dragAnimation(this);
