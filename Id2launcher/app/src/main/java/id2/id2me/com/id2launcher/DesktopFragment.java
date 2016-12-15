@@ -1,13 +1,11 @@
 package id2.id2me.com.id2launcher;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,7 +21,6 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.models.AppInfoModel;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 
@@ -184,11 +181,11 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
             child.setTag(i);
 
-if(i==0){
-    child.setBackgroundColor(Color.BLACK);
-}else{
-    child.setBackgroundColor(Color.YELLOW);
-}
+            if (i == 0) {
+                child.setBackgroundColor(Color.BLACK);
+            } else {
+                child.setBackgroundColor(Color.YELLOW);
+            }
 
             containerL.addView(child);
         }

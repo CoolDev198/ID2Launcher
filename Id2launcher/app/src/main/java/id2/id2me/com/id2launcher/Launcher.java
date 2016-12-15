@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -20,6 +21,7 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
 public class Launcher extends AppCompatActivity implements View.OnLongClickListener, View.OnTouchListener {
@@ -39,6 +41,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     private DesktopFragment desktopFragment;
     private DragController dragController;
     private WorkSpace wokSpace;
+    private LayoutInflater mInflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         try {
 
             db = DatabaseHandler.getInstance(this);
+            mInflater = getLayoutInflater();
             setContentView(R.layout.activity_home);
             setTranslucentStatus(true);
             launcherApplication = ((LauncherApplication) getApplication());
@@ -252,6 +256,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     }
 
     public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info) {
-        return null;
+        AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
+        favorite.setShortCutModel(info);
+        return favorite;
     }
 }

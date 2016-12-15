@@ -28,6 +28,7 @@ import java.util.Stack;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import timber.log.Timber;
 
 /**
  * Created by sunita on 10/17/16.
@@ -41,8 +42,18 @@ public class CellLayout extends ViewGroup {
     private final int[] mTmpXY = new int[2];
     private final Stack<Rect> mTempRectStack = new Stack<Rect>();
     LauncherApplication launcherApplication;
-    private int cellCountY;
-    private int cellCountX;
+
+    private int mCellWidth;
+    private int mCellHeight;
+
+    private int mCountX;
+    private int mCountY;
+
+    private int mOriginalWidthGap;
+    private int mOriginalHeightGap;
+    private int mWidthGap;
+    private int mHeightGap;
+    private int mMaxGap;
     int[] mTempLocation = new int[2];
     public static final int MODE_DRAG_OVER = 0;
     public static final int MODE_ON_DROP = 1;
@@ -55,7 +66,6 @@ public class CellLayout extends ViewGroup {
     private boolean[][] mOccupied;
     private static final boolean DESTRUCTIVE_REORDER = false;
     boolean[][] mTmpOccupied;
-    private int cellWidth, cellHeight,mWidthGap,mHeightGap;
     // These arrays are used to implement the drag visualization on x-large screens.
     // They are used as circular arrays, indexed by mDragOutlineCurrent.
     private Rect[] mDragOutlines = new Rect[4];
@@ -92,13 +102,17 @@ public class CellLayout extends ViewGroup {
         super(context);
         launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
 
-        cellWidth = getResources().getDimensionPixelSize(R.dimen.cell_width);
-        cellHeight = getResources().getDimensionPixelSize(R.dimen.cell_height);
-        mWidthGap=getResources().getDimensionPixelSize(R.dimen.workspace_width_gap_port);
-        mWidthGap=getResources().getDimensionPixelSize(R.dimen.workspace_height_gap_port);
-        cellCountX = launcherApplication.CELL_COUNT_X;
-        cellCountY = launcherApplication.CELL_COUNT_Y;
-        mOccupied = new boolean[cellCountX][cellCountY];
+        mCellWidth = getResources().getDimensionPixelSize(R.dimen.cell_width);
+        mCellHeight = getResources().getDimensionPixelSize(R.dimen.cell_height);
+        mWidthGap=mOriginalWidthGap=getResources().getDimensionPixelSize(R.dimen.workspace_width_gap_port);
+        mWidthGap=mOriginalHeightGap=getResources().getDimensionPixelSize(R.dimen.workspace_height_gap_port);
+        mMaxGap=0;
+        mCountX = launcherApplication.CELL_COUNT_X;
+        mCountY = launcherApplication.CELL_COUNT_Y;
+        mOccupied = new boolean[mCountX][mCountY];
+        mTmpOccupied = new boolean[mCountX][mCountY];
+        mPreviousReorderDirection[0] = INVALID_DIRECTION;
+        mPreviousReorderDirection[1] = INVALID_DIRECTION;
 
         mDragEnforcer = new DropTarget.DragEnforcer(context);
 
@@ -109,6 +123,9 @@ public class CellLayout extends ViewGroup {
         // Set up all the animations that are used to implement this fading.
 
         setWillNotDraw(false);
+
+        setAlwaysDrawnWithCacheEnabled(false);
+
         mReorderHintAnimationMagnitude = (REORDER_HINT_MAGNITUDE *
                 getResources().getDimensionPixelSize(R.dimen.app_icon_size));
 
@@ -160,13 +177,13 @@ public class CellLayout extends ViewGroup {
         }
 
         mShortcutsAndWidgets = new ShortcutAndWidgetContainer(context);
-        mShortcutsAndWidgets.setCellDimensions(cellWidth, cellHeight, mWidthGap, mHeightGap);
+        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
         addView(mShortcutsAndWidgets);
     }
 
     public void setGridSize(int x, int y) {
-        mOccupied = new boolean[cellCountX][cellCountY];
-        mTmpOccupied = new boolean[cellCountX][cellCountY];
+        mOccupied = new boolean[mCountX][mCountY];
+        mTmpOccupied = new boolean[mCountX][mCountY];
         mTempRectStack.clear();
         requestLayout();
     }
@@ -210,13 +227,13 @@ public class CellLayout extends ViewGroup {
 
         // Generate an id for each view, this assumes we have at most 256x256 cells
         // per workspace screen
-        if (lp.cellX >= 0 && lp.cellX <= cellCountX - 1 && lp.cellY >= 0 && lp.cellY <= cellCountY - 1) {
+        if (lp.cellX >= 0 && lp.cellX <= mCountX - 1 && lp.cellY >= 0 && lp.cellY <= mCountY - 1) {
             // If the horizontal or vertical span is set to -1, it is taken to
             // mean that it spans the extent of the CellLayout
-            if (lp.cellHSpan < 0) lp.cellHSpan = cellCountX;
-            if (lp.cellVSpan < 0) lp.cellVSpan = cellCountY;
+            if (lp.cellHSpan < 0) lp.cellHSpan = mCountX;
+            if (lp.cellVSpan < 0) lp.cellVSpan = mCountY;
 
-            child.setId(childId);
+           // child.setId(childId);
 
             mShortcutsAndWidgets.addView(child, index, lp);
 
@@ -257,7 +274,7 @@ public class CellLayout extends ViewGroup {
             if (intersectX >= 0) {
                 startX = Math.max(startX, intersectX - (spanX - 1));
             }
-            int endX = cellCountX - (spanX - 1);
+            int endX = mCountX - (spanX - 1);
             if (intersectX >= 0) {
                 endX = Math.min(endX, intersectX + (spanX - 1) + (spanX == 1 ? 1 : 0));
             }
@@ -265,7 +282,7 @@ public class CellLayout extends ViewGroup {
             if (intersectY >= 0) {
                 startY = Math.max(startY, intersectY - (spanY - 1));
             }
-            int endY = cellCountY - (spanY - 1);
+            int endY = mCountY - (spanY - 1);
             if (intersectY >= 0) {
                 endY = Math.min(endY, intersectY + (spanY - 1) + (spanY == 1 ? 1 : 0));
             }
@@ -312,8 +329,8 @@ public class CellLayout extends ViewGroup {
     }
 
     private void clearOccupiedCells() {
-        for (int x = 0; x < cellCountX; x++) {
-            for (int y = 0; y < cellCountY; y++) {
+        for (int x = 0; x < mCountX; x++) {
+            for (int y = 0; y < mCountY; y++) {
                 mOccupied[x][y] = false;
             }
         }
@@ -382,8 +399,8 @@ public class CellLayout extends ViewGroup {
     private void markCellsForView(int cellX, int cellY, int spanX, int spanY, boolean[][] occupied,
                                   boolean value) {
         if (cellX < 0 || cellY < 0) return;
-        for (int x = cellX; x < cellX + spanX && x < cellCountX; x++) {
-            for (int y = cellY; y < cellY + spanY && y < cellCountY; y++) {
+        for (int x = cellX; x < cellX + spanX && x < mCountX; x++) {
+            for (int y = cellY; y < cellY + spanY && y < mCountY; y++) {
                 occupied[x][y] = value;
             }
         }
@@ -521,8 +538,8 @@ public class CellLayout extends ViewGroup {
         return result;
     }
     private void commitTempPlacement() {
-        for (int i = 0; i < cellCountX; i++) {
-            for (int j = 0; j < cellCountY; j++) {
+        for (int i = 0; i < mCountX; i++) {
+            for (int j = 0; j < mCountY; j++) {
                 mOccupied[i][j] = mTmpOccupied[i][j];
             }
         }
@@ -588,8 +605,8 @@ public class CellLayout extends ViewGroup {
     }
 
     private void copySolutionToTempState(ItemConfiguration solution, View dragView) {
-        for (int i = 0; i < cellCountX; i++) {
-            for (int j = 0; j < cellCountY; j++) {
+        for (int i = 0; i < mCountX; i++) {
+            for (int j = 0; j < mCountY; j++) {
                 mTmpOccupied[i][j] = false;
             }
         }
@@ -616,8 +633,8 @@ public class CellLayout extends ViewGroup {
             commitDragView) {
 
         boolean[][] occupied = DESTRUCTIVE_REORDER ? mOccupied : mTmpOccupied;
-        for (int i = 0; i < cellCountX; i++) {
-            for (int j = 0; j < cellCountY; j++) {
+        for (int i = 0; i < mCountX; i++) {
+            for (int j = 0; j < mCountY; j++) {
                 occupied[i][j] = false;
             }
         }
@@ -761,10 +778,14 @@ public class CellLayout extends ViewGroup {
     }
 
     private void copyOccupiedArray(boolean[][] occupied) {
-        for (int i = 0; i < cellCountX; i++) {
-            for (int j = 0; j < cellCountY; j++) {
-                occupied[i][j] = mOccupied[i][j];
+        try {
+            for (int i = 0; i < mCountX; i++) {
+                for (int j = 0; j < mCountY; j++) {
+                    occupied[i][j] = mOccupied[i][j];
+                }
             }
+        } catch (Exception e) {
+            Timber.e(e);
         }
     }
 
@@ -774,6 +795,8 @@ public class CellLayout extends ViewGroup {
         copyCurrentStateToSolution(solution, false);
         // Copy the current occupied array into the temporary occupied array. This array will be
         // manipulated as necessary to find a solution.
+
+
         copyOccupiedArray(mTmpOccupied);
 
         // We find the nearest cell into which we would place the dragged item, assuming there's
@@ -1072,8 +1095,8 @@ public class CellLayout extends ViewGroup {
         float bestDistance = Float.MAX_VALUE;
         int bestDirectionScore = Integer.MIN_VALUE;
 
-        final int countX = cellCountX;
-        final int countY = cellCountY;
+        final int countX = mCountX;
+        final int countY = mCountY;
 
         for (int y = 0; y < countY - (spanY - 1); y++) {
             inner:
@@ -1241,7 +1264,7 @@ public class CellLayout extends ViewGroup {
         // This will only incrememnet one of x or y based on the assertion above
         int x = cellX + direction[0];
         int y = cellY + direction[1];
-        while (x >= 0 && x + spanX <= cellCountX && y >= 0 && y + spanY <= cellCountY) {
+        while (x >= 0 && x + spanX <= mCountX && y >= 0 && y + spanY <= mCountY) {
             boolean fail = false;
             for (int i = 0; i < spanX; i++) {
                 for (int j = 0; j < spanY; j++) {
@@ -1294,10 +1317,10 @@ public class CellLayout extends ViewGroup {
         int deltaX = (dropRegionRect.centerX() - dragViewCenterX) / spanX;
         int deltaY = (dropRegionRect.centerY() - dragViewCenterY) / spanY;
 
-        if (dropRegionSpanX == cellCountX || spanX == cellCountX) {
+        if (dropRegionSpanX == mCountX || spanX == mCountX) {
             deltaX = 0;
         }
-        if (dropRegionSpanY == cellCountY || spanY == cellCountY) {
+        if (dropRegionSpanY == mCountY || spanY == mCountY) {
             deltaY = 0;
         }
 
@@ -1319,10 +1342,10 @@ public class CellLayout extends ViewGroup {
     void regionToRect(int cellX, int cellY, int spanX, int spanY, Rect result) {
         final int hStartPadding = getPaddingLeft();
         final int vStartPadding = getPaddingTop();
-        final int left = hStartPadding + cellX * (cellWidth + mWidthGap);
-        final int top = vStartPadding + cellY * (cellHeight + mHeightGap);
-        result.set(left, top, left + (spanX * cellWidth + (spanX - 1) * mWidthGap),
-                top + (spanY * cellHeight + (spanY - 1) * mHeightGap));
+        final int left = hStartPadding + cellX * (mCellWidth + mWidthGap);
+        final int top = vStartPadding + cellY * (mCellHeight + mHeightGap);
+        result.set(left, top, left + (spanX * mCellWidth + (spanX - 1) * mWidthGap),
+                top + (spanY * mCellHeight + (spanY - 1) * mHeightGap));
     }
     /*
      * Returns a pair (x, y), where x,y are in {-1, 0, 1} corresponding to vector between
@@ -1557,11 +1580,11 @@ public class CellLayout extends ViewGroup {
         final int hStartPadding = getPaddingLeft();
         final int vStartPadding = getPaddingTop();
 
-        result[0] = (x - hStartPadding) / (cellWidth + mWidthGap);
-        result[1] = (y - vStartPadding) / (cellHeight + mHeightGap);
+        result[0] = (x - hStartPadding) / (mCellWidth + mWidthGap);
+        result[1] = (y - vStartPadding) / (mCellHeight + mHeightGap);
 
-        final int xAxis = cellCountX;
-        final int yAxis = cellCountY;
+        final int xAxis = mCountX;
+        final int yAxis = mCountY;
 
         if (result[0] < 0) result[0] = 0;
         if (result[0] >= xAxis) result[0] = xAxis - 1;
@@ -1596,8 +1619,8 @@ public class CellLayout extends ViewGroup {
 //    private void markCellsForView(int cellX, int cellY, int spanX, int spanY, boolean[][] occupied,
 //                                  boolean value) {
 //        if (cellX < 0 || cellY < 0) return;
-//        for (int x = cellX; x < cellX + spanX && x < cellCountX; x++) {
-//            for (int y = cellY; y < cellY + spanY && y < cellCountY; y++) {
+//        for (int x = cellX; x < cellX + spanX && x < mCountX; x++) {
+//            for (int y = cellY; y < cellY + spanY && y < mCountY; y++) {
 //                occupied[x][y] = value;
 //            }
 //        }
@@ -1748,8 +1771,54 @@ public class CellLayout extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
-        int height = cellHeight * cellCountY;
-        int width = cellWidth * cellCountX;
+        int height = mCellHeight * mCountY;
+        int width = mCellWidth * mCountX;
+//        int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+//        int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+//
+//        int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+//        int heightSpecSize =  MeasureSpec.getSize(heightMeasureSpec);
+//
+//        if (widthSpecMode == MeasureSpec.UNSPECIFIED || heightSpecMode == MeasureSpec.UNSPECIFIED) {
+//            throw new RuntimeException("CellLayout cannot have UNSPECIFIED dimensions");
+//        }
+//
+//        int numWidthGaps = mCountX - 1;
+//        int numHeightGaps = mCountY - 1;
+//
+//        if (mOriginalWidthGap < 0 || mOriginalHeightGap < 0) {
+//            int hSpace = widthSpecSize - getPaddingLeft() - getPaddingRight();
+//            int vSpace = heightSpecSize - getPaddingTop() - getPaddingBottom();
+//            int hFreeSpace = hSpace - (mCountX * mCellWidth);
+//            int vFreeSpace = vSpace - (mCountY * mCellHeight);
+//            mWidthGap = Math.min(mMaxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
+//            mHeightGap = Math.min(mMaxGap,numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
+//            mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
+//        } else {
+//            mWidthGap = mOriginalWidthGap;
+//            mHeightGap = mOriginalHeightGap;
+//        }
+//
+//        // Initial values correspond to widthSpecMode == MeasureSpec.EXACTLY
+//        int newWidth = widthSpecSize;
+//        int newHeight = heightSpecSize;
+//        if (widthSpecMode == MeasureSpec.AT_MOST) {
+//            newWidth = getPaddingLeft() + getPaddingRight() + (mCountX * mCellWidth) +
+//                    ((mCountX - 1) * mWidthGap);
+//            newHeight = getPaddingTop() + getPaddingBottom() + (mCountY * mCellHeight) +
+//                    ((mCountY - 1) * mHeightGap);
+//            setMeasuredDimension(newWidth, newHeight);
+//        }
+
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width - getPaddingLeft() -
+                    getPaddingRight(), MeasureSpec.EXACTLY);
+            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(height - getPaddingTop() -
+                    getPaddingBottom(), MeasureSpec.EXACTLY);
+            child.measure(childWidthMeasureSpec, childheightMeasureSpec);
+        }
         setMeasuredDimension(width, height);
     }
     /**
@@ -1764,8 +1833,8 @@ public class CellLayout extends ViewGroup {
         final int hStartPadding = getPaddingLeft();
         final int vStartPadding = getPaddingTop();
 
-        result[0] = hStartPadding + cellX * (cellWidth + mWidthGap);
-        result[1] = vStartPadding + cellY * (cellHeight + mHeightGap);
+        result[0] = hStartPadding + cellX * (mCellWidth + mWidthGap);
+        result[1] = vStartPadding + cellY * (mCellHeight + mHeightGap);
     }
 
     void visualizeDropLocation(View v, Bitmap dragOutline, int originX, int originY, int cellX,
@@ -1805,20 +1874,20 @@ public class CellLayout extends ViewGroup {
                 // outside the bounds of the view.
                 top += (v.getHeight() - dragOutline.getHeight()) / 2;
                 // We center about the x axis
-                left += ((cellWidth * spanX) + ((spanX - 1) * mWidthGap)
+                left += ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap)
                         - dragOutline.getWidth()) / 2;
             } else {
                 if (dragOffset != null && dragRegion != null) {
                     // Center the drag region *horizontally* in the cell and apply a drag
                     // outline offset
-                    left -= dragOffset.x + ((cellWidth * spanX) + ((spanX - 1) * mWidthGap) -
+                    left -= dragOffset.x + ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap) -
                              dragRegion.width()) / 2;
                     top += dragOffset.y;
                 } else {
                     // Center the drag outline in the cell
-                    left += ((cellWidth * spanX) + ((spanX - 1) * mWidthGap)
+                    left += ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap)
                             - dragOutline.getWidth()) / 2;
-                    top += ((cellHeight * spanY) + ((spanY - 1) * mHeightGap)
+                    top += ((mCellHeight * spanY) + ((spanY - 1) * mHeightGap)
                             - dragOutline.getHeight()) / 2;
                 }
             }
@@ -1859,11 +1928,11 @@ public class CellLayout extends ViewGroup {
         final int hStartPadding = getPaddingLeft();
         final int vStartPadding = getPaddingTop();
 
-        int width = cellHSpan * cellWidth + ((cellHSpan - 1) * mWidthGap);
-        int height = cellVSpan * cellHeight + ((cellVSpan - 1) * mHeightGap);
+        int width = cellHSpan * mCellWidth + ((cellHSpan - 1) * mWidthGap);
+        int height = cellVSpan * mCellHeight + ((cellVSpan - 1) * mHeightGap);
 
-        int x = hStartPadding + cellX * (cellWidth + mWidthGap);
-        int y = vStartPadding + cellY * (cellHeight + mHeightGap);
+        int x = hStartPadding + cellX * (mCellWidth + mWidthGap);
+        int y = vStartPadding + cellY * (mCellHeight + mHeightGap);
 
         resultRect.set(x, y, x + width, y + height);
     }
@@ -1877,7 +1946,7 @@ public class CellLayout extends ViewGroup {
 
     private void lazyInitTempRectStack() {
         if (mTempRectStack.isEmpty()) {
-            for (int i = 0; i < cellCountX * cellCountY; i++) {
+            for (int i = 0; i < mCountX * mCountY; i++) {
                 mTempRectStack.push(new Rect());
             }
         }
@@ -1948,8 +2017,8 @@ public class CellLayout extends ViewGroup {
         // For items with a spanX / spanY > 1, the passed in point (pixelX, pixelY) corresponds
         // to the center of the item, but we are searching based on the top-left cell, so
         // we translate the point over to correspond to the top-left.
-        pixelX -= (cellWidth) * (spanX - 1) / 2f;
-        pixelY -= (cellHeight) * (spanY - 1) / 2f;
+        pixelX -= (mCellWidth) * (spanX - 1) / 2f;
+        pixelY -= (mCellHeight) * (spanY - 1) / 2f;
 
         // Keep track of best-scoring drop area
         final int[] bestXY = result != null ? result : new int[2];
@@ -1957,8 +2026,8 @@ public class CellLayout extends ViewGroup {
         final Rect bestRect = new Rect(-1, -1, -1, -1);
         final Stack<Rect> validRegions = new Stack<Rect>();
 
-        final int countX = cellCountX;
-        final int countY = cellCountY;
+        final int countX = mCountX;
+        final int countY = mCountY;
 
         if (minSpanX <= 0 || minSpanY <= 0 || spanX <= 0 || spanY <= 0 ||
                 spanX < minSpanX || spanY < minSpanY) {
@@ -2082,24 +2151,24 @@ public class CellLayout extends ViewGroup {
     void regionToCenterPoint(int cellX, int cellY, int spanX, int spanY, int[] result) {
         final int hStartPadding = getPaddingLeft();
         final int vStartPadding = getPaddingTop();
-        result[0] = hStartPadding + cellX * (cellWidth) +
-                (spanX * cellWidth) / 2;
-        result[1] = vStartPadding + cellY * (cellHeight) +
-                (spanY * cellHeight) / 2;
+        result[0] = hStartPadding + cellX * (mCellWidth) +
+                (spanX * mCellWidth) / 2;
+        result[1] = vStartPadding + cellY * (mCellHeight) +
+                (spanY * mCellHeight) / 2;
     }
 
 
     void init(Context context) {
 
-       // cellsMatrix = new boolean[cellCountX][cellCountY];
+       // cellsMatrix = new boolean[mCountX][mCountY];
         setMotionEventSplittingEnabled(false);
         setChildrenDrawingOrderEnabled(true);
 
 
         int appIconSize = (int) context.getResources().getDimension(R.dimen.app_icon_size);
 
-//        mCellPaddingLeft = (cellWidth - appIconSize) / 2;
-//        mCellPaddingTop = (cellHeight - appIconSize) / 2;
+//        mCellPaddingLeft = (mCellWidth - appIconSize) / 2;
+//        mCellPaddingTop = (mCellHeight - appIconSize) / 2;
     }
 
 
@@ -2242,7 +2311,7 @@ public class CellLayout extends ViewGroup {
             this.cellVSpan = cellVSpan;
         }
 
-        public void setup(int cellWidth, int cellHeight, int widthGap, int heightGap) {
+        public void setup(int cellWidth, int mCellHeight, int widthGap, int heightGap) {
             if (isLockedToGrid) {
                 final int myCellHSpan = cellHSpan;
                 final int myCellVSpan = cellVSpan;
@@ -2251,10 +2320,10 @@ public class CellLayout extends ViewGroup {
 
                 width = myCellHSpan * cellWidth + ((myCellHSpan - 1) * widthGap) -
                         leftMargin - rightMargin;
-                height = myCellVSpan * cellHeight + ((myCellVSpan - 1) * heightGap) -
+                height = myCellVSpan * mCellHeight + ((myCellVSpan - 1) * heightGap) -
                         topMargin - bottomMargin;
                 x = (int) (myCellX * (cellWidth + widthGap) + leftMargin);
-                y = (int) (myCellY * (cellHeight + heightGap) + topMargin);
+                y = (int) (myCellY * (mCellHeight + heightGap) + topMargin);
             }
         }
 

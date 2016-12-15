@@ -56,10 +56,13 @@ public class LauncherApplication extends Application {
         return density;
     }
 
+    public IconCache mIconCache;
+
     @Override
     public void onCreate() {
         super.onCreate();
 
+        mIconCache = new IconCache(this);
         launcherApplication = this;
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());

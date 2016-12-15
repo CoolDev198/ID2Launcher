@@ -13,7 +13,9 @@ import android.widget.Toast;
 import id2.id2me.com.id2launcher.DragSource;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.ShortcutInfo;
 import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfoModel;
 
 /**
  * Created by sunita on 11/2/16.
@@ -21,7 +23,6 @@ import id2.id2me.com.id2launcher.models.AppInfoModel;
 
 public class AppItemView extends LinearLayout  {
 
-    private AppInfoModel appInfoModel;
     GestureListener gestureListener;
     GestureDetector gestureDetector;
     private DragSource dragSource;
@@ -51,7 +52,14 @@ public class AppItemView extends LinearLayout  {
     private void launchApplication() {
         try {
             Intent intent = null;
-            String pckName = appInfoModel.getPname();
+            String pckName=null;
+            if(this.getTag() instanceof  AppInfoModel) {
+                AppInfoModel appInfoModel = (AppInfoModel) this.getTag();
+                 pckName = appInfoModel.getPname();
+            }else{
+                ShortcutInfo shortcutInfo =(ShortcutInfo)this.getTag();
+                 pckName = shortcutInfo.getPname();
+            }
 
             if (pckName != null) {
                 intent = getContext().getPackageManager()
@@ -71,7 +79,6 @@ public class AppItemView extends LinearLayout  {
 
 
     public void setAppInfoModel(AppInfoModel appInfoModel) {
-        this.appInfoModel = appInfoModel;
         ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
         TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
         if(textView!=null)
@@ -79,6 +86,15 @@ public class AppItemView extends LinearLayout  {
         if(imageView!=null)
         imageView.setImageBitmap(appInfoModel.getBitmapIcon());
         this.setTag(appInfoModel);
+    }
+    public void setShortCutModel(ShortcutInfo shortCutModel) {
+        ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
+        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
+        if(textView!=null)
+            textView.setText(shortCutModel.getTitle());
+        if(imageView!=null)
+            imageView.setImageResource(R.drawable.ic_dialer);
+        this.setTag(shortCutModel);
     }
 
     public void setDragSource(DragSource dragSource) {
@@ -92,7 +108,7 @@ public class AppItemView extends LinearLayout  {
         @Override
         public void onLongPress(MotionEvent e) {
             LauncherApplication launcherApplication = LauncherApplication.getApp();
-            launcherApplication.dragInfo = appInfoModel;
+            launcherApplication.dragInfo = (ItemInfoModel) AppItemView.this.getTag();
             launcherApplication.dragInfo.setDropExternal(false);
             launcherApplication.getLauncher().resetPage();
             launcherApplication.getLauncher().getWokSpace().beginDragShared(AppItemView.this,dragSource);

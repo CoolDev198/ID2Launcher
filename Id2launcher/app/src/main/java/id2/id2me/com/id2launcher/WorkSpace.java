@@ -742,7 +742,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
 
         // Get the canonical child id to uniquely represent this view in this screen
-        int childId = LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
+        int childId = 0;//LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
         boolean markCellsAsOccupied = !(child instanceof FolderItemView);
         if (!layout.addViewToCellLayout(child, insert ? 0 : -1, childId, lp, markCellsAsOccupied)) {
             // TODO: This branch occurs when the workspace is adding views
@@ -751,13 +751,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
-        if (!(child instanceof FolderItemView)) {
-            child.setHapticFeedbackEnabled(false);
-          //  child.setOnLongClickListener(mLongClickListener);
-        }
-        if (child instanceof DropTarget) {
-            launcher.getDragController().addDropTarget((DropTarget) child);
-        }
+//        if (!(child instanceof FolderItemView)) {
+//            child.setHapticFeedbackEnabled(false);
+//          //  child.setOnLongClickListener(mLongClickListener);
+//        }
+//        if (child instanceof DropTarget) {
+//            launcher.getDragController().addDropTarget((DropTarget) child);
+//        }
     }
 //    boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
 //            distance, boolean considerTimeout) {

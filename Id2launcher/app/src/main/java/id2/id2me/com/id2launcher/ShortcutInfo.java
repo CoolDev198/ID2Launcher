@@ -82,6 +82,7 @@ public class ShortcutInfo extends ItemInfoModel {
         super(info);
         title = info.title.toString();
         intent = new Intent(info.intent);
+        mIcon=info.getBitmapIcon();
         customIcon = false;
     }
 

@@ -19,10 +19,12 @@ package id2.id2me.com.id2launcher;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 public class ShortcutAndWidgetContainer extends ViewGroup {
     static final String TAG = "CellLayoutChildren";
@@ -41,6 +43,7 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
     public ShortcutAndWidgetContainer(Context context) {
         super(context);
+        setBackgroundColor(Color.CYAN);
         mWallpaperManager = WallpaperManager.getInstance(context);
     }
 
