@@ -82,9 +82,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         Resources r = getResources();
         final Canvas canvas = new Canvas();
 
-        if (dragSource != this) {
-             mDragInfo = (CellLayout.CellInfo)child.getTag();
-             child = mDragInfo.cell;
+        if (dragSource == this) {
+            mDragInfo= new CellLayout.CellInfo();
+            ShortcutInfo shortcutInfo = (ShortcutInfo) child.getTag();
+            mDragInfo.cell = child;
+            mDragInfo.spanX = shortcutInfo.spanX;
+            mDragInfo.spanY = shortcutInfo.spanY;
+            mDragInfo.screen = shortcutInfo.getScreen();
 
             // Make sure the drag was started by a long press as opposed to a long click.
             if (!child.isInTouchMode()) {
@@ -316,7 +320,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         ArrayList<CellLayout> layouts = new ArrayList<CellLayout>();
         int screenCount = getChildCount();
         for (int screen = 0; screen < screenCount; screen++) {
-            layouts.add(((CellLayout) getChildAt(screen)));
+            View layout=getChildAt(screen);
+            if(layout instanceof  CellLayout)
+            layouts.add(((CellLayout)layout ));
         }
         return layouts;
     }
@@ -521,7 +527,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //            };
             // mAnimatingViewIntoPlace = true;
             if (d.dragView.hasDrawn()) {
-//                final ItemInfoModel info = (ItemInfoModel) cell.getTag();
+               final ItemInfoModel info = (ItemInfoModel) cell.getTag();
 //                if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {
 //                    int animationType = resizeOnDrop ? ANIMATE_INTO_POSITION_AND_RESIZE :
 //                            ANIMATE_INTO_POSITION_AND_DISAPPEAR;
@@ -667,7 +673,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
                 }
 
                 view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
-                        (ShortcutInfo) info);
+                        (ShortcutInfo) info, this);
                 break;
 //                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
 //                    view = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, cellLayout,

@@ -255,8 +255,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         return wokSpace;
     }
 
-    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info) {
+    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info,DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
+        favorite.setDragSource(dragSource);
         favorite.setShortCutModel(info);
         return favorite;
     }
