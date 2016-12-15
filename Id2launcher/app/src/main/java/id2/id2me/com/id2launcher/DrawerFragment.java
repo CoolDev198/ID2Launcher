@@ -46,6 +46,7 @@ public class DrawerFragment extends Fragment implements  DragSource  {
             @Override
             public void onClick(View view) {
                 btnWidget.setBackground(null);
+                btnApp.setBackgroundResource(R.drawable.round_transperant_border);
                 widgetsListingView.setVisibility(View.GONE);
                 appsListingView.setVisibility(View.VISIBLE);
             }
@@ -55,6 +56,7 @@ public class DrawerFragment extends Fragment implements  DragSource  {
             @Override
             public void onClick(View view) {
                 btnApp.setBackground(null);
+                btnWidget.setBackgroundResource(R.drawable.round_transperant_border);
                 appsListingView.setVisibility(View.GONE);
                 widgetsListingView.setVisibility(View.VISIBLE);
 
