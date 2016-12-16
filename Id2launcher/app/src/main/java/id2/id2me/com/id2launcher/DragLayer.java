@@ -1,5 +1,7 @@
 package id2.id2me.com.id2launcher;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -48,6 +50,9 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     private int mAnchorViewInitialScrollX = 0;
     private DragController dragController;
     private View mAnchorView = null;
+    // Variables relating to animation of views after drop
+    private ValueAnimator mDropAnim = null;
+    private ValueAnimator mFadeOutAnim = null;
 
     public DragLayer(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -155,15 +160,15 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         final float dist = (float) Math.sqrt(Math.pow(to.left - from.left, 2) +
                 Math.pow(to.top - from.top, 2));
         final Resources res = getResources();
-        final float maxDist = (float) res.getInteger(R.integer.config_dropAnimMaxDist);
+        final float maxDist =800;// (float) res.getInteger(R.integer.config_dropAnimMaxDist);
 
         // If duration < 0, this is a cue to compute the duration based on the distance
         if (duration < 0) {
-            duration = res.getInteger(R.integer.config_dropAnimMaxDuration);
+            duration = 500;//res.getInteger(R.integer.config_dropAnimMaxDuration);
             if (dist < maxDist) {
                 duration *= mCubicEaseOutInterpolator.getInterpolation(dist / maxDist);
             }
-            duration = Math.max(duration, res.getInteger(R.integer.config_dropAnimMinDuration));
+            duration = 100;//Math.max(duration, res.getInteger(R.integer.config_dropAnimMinDuration));
         }
 
         // Fall back to cubic ease out interpolator for the animation if none is specified
@@ -210,8 +215,86 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
                 mDropView.setAlpha(alpha);
             }
         };
-//        animateView(view, updateCb, duration, interpolator, onCompleteRunnable, animationEndStyle,
-//                anchorView);
+       animateView(view, updateCb, duration, interpolator, onCompleteRunnable, animationEndStyle,
+                anchorView);
+    }
+    public void animateView(final DragView view, ValueAnimator.AnimatorUpdateListener updateCb, int duration,
+                            TimeInterpolator interpolator, final Runnable onCompleteRunnable,
+                            final int animationEndStyle, View anchorView) {
+        // Clean up the previous animations
+        if (mDropAnim != null) mDropAnim.cancel();
+        if (mFadeOutAnim != null) mFadeOutAnim.cancel();
+
+        // Show the drop view if it was previously hidden
+        mDropView = view;
+        mDropView.cancelAnimation();
+        mDropView.resetLayoutParams();
+
+        // Set the anchor view if the page is scrolling
+        if (anchorView != null) {
+            mAnchorViewInitialScrollX = anchorView.getScrollX();
+        }
+        mAnchorView = anchorView;
+
+        // Create and start the animation
+        mDropAnim = new ValueAnimator();
+        mDropAnim.setInterpolator(interpolator);
+        mDropAnim.setDuration(duration);
+        mDropAnim.setFloatValues(0f, 1f);
+        mDropAnim.addUpdateListener(updateCb);
+        mDropAnim.addListener(new AnimatorListenerAdapter() {
+            public void onAnimationEnd(Animator animation) {
+                if (onCompleteRunnable != null) {
+                    onCompleteRunnable.run();
+                }
+                switch (animationEndStyle) {
+                    case ANIMATION_END_DISAPPEAR:
+                        clearAnimatedView();
+                        break;
+                    case ANIMATION_END_FADE_OUT:
+                        fadeOutDragView();
+                        break;
+                    case ANIMATION_END_REMAIN_VISIBLE:
+                        break;
+                }
+            }
+        });
+        mDropAnim.start();
+    }
+    private void fadeOutDragView() {
+        mFadeOutAnim = new ValueAnimator();
+        mFadeOutAnim.setDuration(150);
+        mFadeOutAnim.setFloatValues(0f, 1f);
+        mFadeOutAnim.removeAllUpdateListeners();
+        mFadeOutAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float percent = (Float) animation.getAnimatedValue();
+
+                float alpha = 1 - percent;
+                mDropView.setAlpha(alpha);
+            }
+        });
+        mFadeOutAnim.addListener(new AnimatorListenerAdapter() {
+            public void onAnimationEnd(Animator animation) {
+                if (mDropView != null) {
+                    dragController.onDeferredEndDrag(mDropView);
+                }
+                mDropView = null;
+                invalidate();
+            }
+        });
+        mFadeOutAnim.start();
+    }
+
+    public void clearAnimatedView() {
+        if (mDropAnim != null) {
+            mDropAnim.cancel();
+        }
+        if (mDropView != null) {
+            dragController.onDeferredEndDrag(mDropView);
+        }
+        mDropView = null;
+        invalidate();
     }
 
 

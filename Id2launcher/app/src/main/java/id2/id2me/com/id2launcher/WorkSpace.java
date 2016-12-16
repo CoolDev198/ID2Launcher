@@ -39,6 +39,10 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     private Matrix mTempInverseMatrix = new Matrix();
     private float[] mTempCellLayoutCenterCoordinates = new float[2];
     private float[] mTempDragBottomRightCoordinates = new float[2];
+    private static final int BACKGROUND_FADE_OUT_DURATION = 350;
+    private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
+    private static final int FLING_THRESHOLD_VELOCITY = 500;
+    boolean mAnimatingViewIntoPlace = false;
     /**
      * Target drop area calculated during last acceptDrop call.
      */
@@ -515,16 +519,16 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             final Runnable finalResizeRunnable = resizeRunnable;
             // Prepare it to be animated into its new position
             // This must be called after the view has been re-parented
-//            final Runnable onCompleteRunnable = new Runnable() {
-//                @Override
-//                public void run() {
-//                    mAnimatingViewIntoPlace = false;
+            final Runnable onCompleteRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mAnimatingViewIntoPlace = false;
 //                    updateChildrenLayersEnabled(false);
 //                    if (finalResizeRunnable != null) {
 //                        finalResizeRunnable.run();
 //                    }
-//                }
-//            };
+                }
+            };
             // mAnimatingViewIntoPlace = true;
             if (d.dragView.hasDrawn()) {
                final ItemInfoModel info = (ItemInfoModel) cell.getTag();
@@ -534,10 +538,10 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                    animateWidgetDrop(info, parent, d.dragView,
 //                            onCompleteRunnable, animationType, cell, false);
 //                } else {
-//                    int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
-//                    launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
-//                            onCompleteRunnable, this);
-//                }
+                   int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
+                    launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
+                            onCompleteRunnable, this);
+               // }
             } else {
                 //   d.deferDragViewCleanupPostAnimation = false;
                 cell.setVisibility(VISIBLE);
