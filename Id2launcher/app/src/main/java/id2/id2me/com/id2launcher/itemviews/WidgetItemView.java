@@ -8,7 +8,7 @@ import android.widget.LinearLayout;
 import id2.id2me.com.id2launcher.R;
 
 /**
- * Created by CrazyInnoTech on 15-12-2016.
+ * Created by CrazyInnoTech on 15-12-2016.s
  */
 
 public class WidgetItemView extends LinearLayout {

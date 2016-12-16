@@ -69,5 +69,8 @@
           should be. If 0, it will not be scaled at all. -->
     <dimen name="dragViewScale">12dp</dimen>
 
+    <!-- Folders -->
+    <dimen name="folder_preview_size">62dp</dimen>
+
 
 </resources>
