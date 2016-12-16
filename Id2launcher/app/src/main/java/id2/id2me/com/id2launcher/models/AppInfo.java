@@ -1,5 +1,6 @@
 package id2.id2me.com.id2launcher.models;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 
 import id2.id2me.com.id2launcher.DatabaseHandler;
@@ -11,7 +12,10 @@ public class AppInfo extends ItemInfo implements  Cloneable {
     private String appname = "";
     private String pname = "";
     private Bitmap icon;
-    private String className = "";
+    /**
+     * The intent used to start the application.
+     */
+    public Intent intent;
 
     public AppInfo(){
         setSpanX(1);
@@ -25,7 +29,7 @@ public class AppInfo extends ItemInfo implements  Cloneable {
         {
             return super.clone();
         }
-        catch( CloneNotSupportedException e )
+        catch(CloneNotSupportedException e )
         {
             return null;
         }
@@ -54,10 +58,6 @@ public class AppInfo extends ItemInfo implements  Cloneable {
     public void setBitmapIcon(Bitmap icon) {
         this.icon = icon;
         setIcon(writeBitmap(icon));
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
 }

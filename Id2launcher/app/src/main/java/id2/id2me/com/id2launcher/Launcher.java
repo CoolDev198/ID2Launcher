@@ -49,6 +49,9 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
     private DragController dragController;
     private WorkSpace wokSpace;
     private LayoutInflater mInflater;
+    // The Intent extra that defines whether to ignore the launch animation
+    static final String INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION =
+            "com.android.launcher.intent.extra.shortcut.INGORE_LAUNCH_ANIMATION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,10 +257,10 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         return favorite;
     }
 
-    boolean startActivitySafely(View v, Intent intent, Object tag) {
+   public boolean startActivitySafely(View v, Intent intent, Object tag) {
         boolean success = false;
         try {
-            success = start(v, intent, tag);
+            success = startActivity(v, intent, tag);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
             Timber.e( "Unable to launch. tag=" + tag + " intent=" + intent, e);
