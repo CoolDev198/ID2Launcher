@@ -1,7 +1,5 @@
 package id2.id2me.com.id2launcher;
 
-import android.app.Activity;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,23 +11,23 @@ import java.util.LinkedHashMap;
 
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 
 /**
  * Created by Pinto on 24/09/16.
  */
-public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter{
+public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter, View.OnLongClickListener {
 
     private ArrayList<AppInfo> groupList;
     private HashMap<Integer, String> mapIndex;
     private LauncherApplication launcherApplication;
-    private Context mContext;
-    private DragSource dragSource;
+    private ListingContainerView listeners;
 
-    public AllAppAdapter(Context context) {
+    public AllAppAdapter(ListingContainerView listeners) {
         try {
-            this.mContext = context;
-            launcherApplication = (LauncherApplication)((Activity)context).getApplication();
+            this.listeners = listeners;
+            launcherApplication = LauncherApplication.getApp();
             this.groupList = launcherApplication.mModel.mBgAllAppsList.data;
             makeSections();
         } catch (Exception e) {
@@ -37,9 +35,6 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
         }
     }
 
-    public void setDragSource(DragSource dragSource) {
-        this.dragSource = dragSource;
-    }
 
     private void makeSections() {
         mapIndex = new LinkedHashMap<Integer, String>();
@@ -83,6 +78,8 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.app_item_view, parent, false);
+        itemView.setOnLongClickListener(listeners);
+        itemView.setOnClickListener(listeners);
         return new MyViewHolder(itemView);
     }
 
@@ -90,13 +87,17 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     public void onBindViewHolder(MyViewHolder holder, int position) {
         AppInfo appInfoModel = groupList.get(position);
         ((AppItemView) holder.itemView).setAppInfoModel(appInfoModel);
-        ((AppItemView) holder.itemView).setDragSource(dragSource);
     }
 
 
     @Override
     public int getItemCount() {
         return groupList.size();
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
     }
 
 

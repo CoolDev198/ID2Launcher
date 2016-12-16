@@ -6,6 +6,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
@@ -20,33 +21,28 @@ import id2.id2me.com.id2launcher.models.AppInfo;
 /**
  * Created by sunita on 8/2/16.
  */
-public class AppsListingView extends RelativeLayout {
+public class AppsListingView extends ListingContainerView {
 
     private ArrayList<AppInfo> appInfos;
     private RecyclerView recyclerView;
     private AllAppAdapter adapter;
 
-
     public AppsListingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        appInfos = ((LauncherApplication) ((Activity) context).getApplication()).mModel.mBgAllAppsList.data;
-        drawerAppsListing();
+
     }
-
-
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-    }
 
-    public void setDragSource(DragSource dragSource) {
+        appInfos =LauncherApplication.getApp().mModel.mBgAllAppsList.data;
+        drawerAppsListing();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new AllAppAdapter(getContext());
+        adapter = new AllAppAdapter(this);
         recyclerView.setAdapter(adapter);
         GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(), 3);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        adapter.setDragSource(dragSource);
         final RecyclerViewFastScroller fastScroller = (RecyclerViewFastScroller) findViewById(R.id.fastscroller);
         fastScroller.setRecyclerView(recyclerView);
         fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller, R.id.fastscroller_bubble,
@@ -104,4 +100,6 @@ public class AppsListingView extends RelativeLayout {
         }
 
     }
+
+
 }

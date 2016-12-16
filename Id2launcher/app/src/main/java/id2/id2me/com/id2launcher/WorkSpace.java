@@ -31,19 +31,19 @@ import id2.id2me.com.id2launcher.models.ShortcutInfo;
 public class WorkSpace extends LinearLayout implements DropTarget, DragSource, DragScroller {
     public static final int DRAG_BITMAP_PADDING = 2;
     private static final Rect sTempRect = new Rect();
+    private static final int BACKGROUND_FADE_OUT_DURATION = 350;
+    private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
+    private static final int FLING_THRESHOLD_VELOCITY = 500;
     private final HolographicOutlineHelper mOutlineHelper = new HolographicOutlineHelper();
     private final int[] mTempXY = new int[2];
     Launcher launcher;
     ObservableScrollView scrollView;
+    boolean mAnimatingViewIntoPlace = false;
     private Bitmap mDragOutline = null;
     private float[] mDragViewVisualCenter = new float[2];
     private Matrix mTempInverseMatrix = new Matrix();
     private float[] mTempCellLayoutCenterCoordinates = new float[2];
     private float[] mTempDragBottomRightCoordinates = new float[2];
-    private static final int BACKGROUND_FADE_OUT_DURATION = 350;
-    private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
-    private static final int FLING_THRESHOLD_VELOCITY = 500;
-    boolean mAnimatingViewIntoPlace = false;
     /**
      * Target drop area calculated during last acceptDrop call.
      */
@@ -83,27 +83,29 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     }
 
 
+    void startDrag(View child) {
+        mDragInfo = new CellLayout.CellInfo();
+        ShortcutInfo shortcutInfo = (ShortcutInfo) child.getTag();
+        mDragInfo.cell = child;
+        mDragInfo.spanX = shortcutInfo.spanX;
+        mDragInfo.spanY = shortcutInfo.spanY;
+        mDragInfo.screen = shortcutInfo.getScreen();
+
+        // Make sure the drag was started by a long press as opposed to a long click.
+        if (!child.isInTouchMode()) {
+            return;
+        }
+
+        child.setVisibility(INVISIBLE);
+        CellLayout layout = (CellLayout) child.getParent().getParent();
+        layout.prepareChildForDrag(child);
+        beginDragShared(child, this);
+    }
+
     public void beginDragShared(View child, DragSource dragSource) {
         Resources r = getResources();
         final Canvas canvas = new Canvas();
 
-        if (dragSource == this) {
-            mDragInfo= new CellLayout.CellInfo();
-            ShortcutInfo shortcutInfo = (ShortcutInfo) child.getTag();
-            mDragInfo.cell = child;
-            mDragInfo.spanX = shortcutInfo.spanX;
-            mDragInfo.spanY = shortcutInfo.spanY;
-            mDragInfo.screen = shortcutInfo.getScreen();
-
-            // Make sure the drag was started by a long press as opposed to a long click.
-            if (!child.isInTouchMode()) {
-                return;
-            }
-
-            child.setVisibility(INVISIBLE);
-            CellLayout layout = (CellLayout) child.getParent().getParent();
-            layout.prepareChildForDrag(child);
-        }
 
         scrollView = (ObservableScrollView) ((View) getParent());
 
@@ -325,9 +327,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         ArrayList<CellLayout> layouts = new ArrayList<CellLayout>();
         int screenCount = getChildCount();
         for (int screen = 0; screen < screenCount; screen++) {
-            View layout=getChildAt(screen);
-            if(layout instanceof  CellLayout)
-            layouts.add(((CellLayout)layout ));
+            View layout = getChildAt(screen);
+            if (layout instanceof CellLayout)
+                layouts.add(((CellLayout) layout));
         }
         return layouts;
     }
@@ -532,17 +534,17 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             };
             // mAnimatingViewIntoPlace = true;
             if (d.dragView.hasDrawn()) {
-               final ItemInfo info = (ItemInfo) cell.getTag();
+                final ItemInfo info = (ItemInfo) cell.getTag();
 //                if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {
 //                    int animationType = resizeOnDrop ? ANIMATE_INTO_POSITION_AND_RESIZE :
 //                            ANIMATE_INTO_POSITION_AND_DISAPPEAR;
 //                    animateWidgetDrop(info, parent, d.dragView,
 //                            onCompleteRunnable, animationType, cell, false);
 //                } else {
-                   int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
-                    launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
-                            onCompleteRunnable, this);
-               // }
+                int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
+                launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
+                        onCompleteRunnable, this);
+                // }
             } else {
                 //   d.deferDragViewCleanupPostAnimation = false;
                 cell.setVisibility(VISIBLE);

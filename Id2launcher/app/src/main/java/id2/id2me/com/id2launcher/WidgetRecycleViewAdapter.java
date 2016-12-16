@@ -16,39 +16,26 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 
 /**
  * Created by sunita on 8/9/16.
  */
-public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycleViewAdapter.MyViewHolder> implements View.OnTouchListener {
+public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycleViewAdapter.MyViewHolder>  {
 
 
-    private final GestureListener gestureListener;
-    private final GestureDetector gestureDetector;
     Context context;
-    RecyclerView recycleView;
     LauncherApplication launcherApplication;
     private List<PendingAddItemInfo> widgetInfoList;
     private WidgetsListManager widgetsListManager;
     private PendingAddItemInfo widgetInfo;
+    private ListingContainerView listeners;
 
-    public WidgetRecycleViewAdapter(Context context, RecyclerView recycleView) {
-        this.recycleView = recycleView;
-
-        this.context = context;
-        gestureListener = new GestureListener();
-        gestureDetector = new GestureDetector(context, gestureListener);
-        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
+    public WidgetRecycleViewAdapter(ListingContainerView listeners) {
+        this.listeners=listeners;
+        launcherApplication = LauncherApplication.getApp();
         loadWidgets();
-
-
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        gestureListener.setView(v);
-        return gestureDetector.onTouchEvent(event);
     }
 
     private void loadWidgets() {
@@ -60,6 +47,8 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.widget_listing_item, parent, false);
+        itemView.setOnLongClickListener(listeners);
+        itemView.setOnClickListener(listeners);
         MyViewHolder myViewHolder = new MyViewHolder(itemView);
         itemView.setTag(myViewHolder);
         return myViewHolder;
@@ -68,7 +57,6 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         widgetInfo = widgetInfoList.get(position);
-        holder.itemView.setOnTouchListener(this);
         holder.widget_name.setText("");
         holder.widget_dim.setText("");
         holder.widgetInfo = widgetInfo;
@@ -90,45 +78,6 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
             widget_dim = (TextView) view.findViewById(R.id.widget_dims);
             widget_name = (TextView) view.findViewById(R.id.widget_name);
             widget_preview_img = (ImageView) view.findViewById(R.id.widget_preview);
-        }
-    }
-
-    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        private View view;
-        private View preview;
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-
-            MyViewHolder holder=((MyViewHolder) view.getTag());
-            ((LauncherApplication) ((Activity) context).getApplication()).dragInfo = holder.widgetInfo;
-            launcherApplication.getLauncher().resetPage();
-            super.onLongPress(e);
-        }
-
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            //  Log.v("AppItemView ", " onSingleTapConfirmed: ");
-            return super.onSingleTapConfirmed(e);
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-            //    Log.v("AppItemView ", " onShowPress: ");
-            super.onShowPress(e);
-        }
-
-        void setView(View view) {
-            this.view = view;
-            this.preview=view.findViewById(R.id.widget_preview);
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            //  Log.v("AppItemView ", " onDown: ");
-            return true;
         }
     }
 

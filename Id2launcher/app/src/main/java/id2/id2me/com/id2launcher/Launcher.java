@@ -1,7 +1,9 @@
 package id2.id2me.com.id2launcher;
 
+import android.app.ActivityOptions;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,19 +17,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
+import timber.log.Timber;
 
-public class Launcher extends AppCompatActivity implements View.OnLongClickListener, View.OnTouchListener {
+public class Launcher extends AppCompatActivity implements View.OnLongClickListener//, View.OnTouchListener
+{
     static final int APPWIDGET_HOST_ID = 1024;
-    static final String TAG = "Launcher";
     private static final int REQUEST_PICK_APPWIDGET = 6;
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_BIND_APPWIDGET = 11;
@@ -176,7 +182,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         try {
             mAppWidgetHost.stopListening();
         } catch (NullPointerException ex) {
-            Log.w(TAG, "problem while stopping AppWidgetHost during Launcher destruction", ex);
+            Timber.e("problem while stopping AppWidgetHost during Launcher destruction", ex);
         }
     }
 
@@ -220,23 +226,8 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     @Override
     public boolean onLongClick(View v) {
-        return false;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        Log.v(TAG, " dispatch ");
-        return super.dispatchTouchEvent(ev);
+        getWokSpace().startDrag(v);
+        return true;
     }
 
     public DragController getDragController() {
@@ -258,8 +249,46 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
     public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
-        favorite.setDragSource(dragSource);
+        favorite.setOnLongClickListener(this);
         favorite.setShortCutModel(info);
         return favorite;
     }
+
+    boolean startActivitySafely(View v, Intent intent, Object tag) {
+        boolean success = false;
+        try {
+            success = start(v, intent, tag);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+            Timber.e( "Unable to launch. tag=" + tag + " intent=" + intent, e);
+        }
+        return success;
+    }
+    boolean startActivity(View v, Intent intent, Object tag) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            // Only launch using the new animation if the shortcut has not opted out (this is a
+            // private contract between launcher and may be ignored in the future).
+            boolean useLaunchAnimation = (v != null) &&
+                    !intent.hasExtra(INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION);
+            if (useLaunchAnimation) {
+                ActivityOptions opts = ActivityOptions.makeScaleUpAnimation(v, 0, 0,
+                        v.getMeasuredWidth(), v.getMeasuredHeight());
+
+                startActivity(intent, opts.toBundle());
+            } else {
+                startActivity(intent);
+            }
+            return true;
+        } catch (SecurityException e) {
+            Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+            Timber.e( "Launcher does not have the permission to launch " + intent +
+                    ". Make sure to create a MAIN intent-filter for the corresponding activity " +
+                    "or use the exported attribute for this activity. "
+                    + "tag="+ tag + " intent=" + intent, e);
+        }
+        return false;
+    }
+
 }

@@ -13,23 +13,22 @@ import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
 /**
  * Created by sunita on 8/2/16.
  */
-public class WidgetsListingView extends FrameLayout {
+public class WidgetsListingView extends ListingContainerView {
 
     Context context;
     private RecyclerView recyclerView;
 
     public WidgetsListingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.context=context;
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        recyclerView = (RecyclerView) findViewById(R.id.widget_recycle_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recycle_view);
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         recyclerView.setLayoutManager(manager);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new WidgetRecycleViewAdapter(context,recyclerView));
+        recyclerView.setAdapter(new WidgetRecycleViewAdapter(this));
     }
 }

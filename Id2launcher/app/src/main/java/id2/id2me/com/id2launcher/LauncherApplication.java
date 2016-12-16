@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.ButterKnife;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
 import timber.log.Timber;
@@ -52,6 +53,7 @@ public class LauncherApplication extends Application {
 
         mIconCache = new IconCache(this);
         launcherApplication = this;
+        ButterKnife.setDebug(true);
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
             Timber.v("Inited Timber Debug Tree");
