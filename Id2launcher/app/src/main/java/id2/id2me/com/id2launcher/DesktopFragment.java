@@ -116,7 +116,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 //            for (int i = 0; i < parentLayout.getChildCount(); i++) {
 //
 //                View child = parentLayout.getChildAt(i);
-//                ItemInfoModel cellInfo = (ItemInfoModel) child.getTag();
+//                ItemInfo cellInfo = (ItemInfo) child.getTag();
 //                if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
 //
 //                    if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
@@ -126,8 +126,8 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 //                    }
 //
 //                } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
-//                    FolderInfoModel folderInfo = cellInfo.getFolderInfo();
-////                    ArrayList<AppInfoModel> applicationInfos = folderInfo.getAppInfos();
+//                    FolderInfo folderInfo = cellInfo.getFolderInfo();
+////                    ArrayList<AppInfo> applicationInfos = folderInfo.getAppInfos();
 ////                    for (int j = 0; j < applicationInfos.size(); i++) {
 ////                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
 ////                            folderInfo.deleteAppInfo(applicationInfos.get(j));
@@ -206,10 +206,10 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
     }
 
 //    private void populateDesktop() {
-//        HashMap<Long, FolderInfoModel> folderInfoHashMap = new HashMap<>();
+//        HashMap<Long, FolderInfo> folderInfoHashMap = new HashMap<>();
 //
 //        for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
-//            ItemInfoModel itemInfo = DatabaseHandler.itemInfosList.get(i);
+//            ItemInfo itemInfo = DatabaseHandler.itemInfosList.get(i);
 //            int type = itemInfo.getItemType();
 //
 //            int width = application.getCellWidth() * itemInfo.getSpanX();
@@ -227,12 +227,12 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 //                case DatabaseHandler.ITEM_TYPE_APP:
 //
 //                    if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
-//                        application.getPageDragListener().addAppToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+//                        application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
 //                    }
 //                    break;
 //                case DatabaseHandler.ITEM_TYPE_FOLDER:
 //
-//                    application.getPageDragListener().addFolderToPage(ItemInfoModel.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
+//                    application.getPageDragListener().addFolderToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
 //
 //                    break;
 //                case DatabaseHandler.ITEM_TYPE_APPWIDGET:

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 
 public class Launcher extends AppCompatActivity implements View.OnLongClickListener, View.OnTouchListener {
@@ -255,7 +256,7 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         return wokSpace;
     }
 
-    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info,DragSource dragSource) {
+    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
         favorite.setDragSource(dragSource);
         favorite.setShortCutModel(info);

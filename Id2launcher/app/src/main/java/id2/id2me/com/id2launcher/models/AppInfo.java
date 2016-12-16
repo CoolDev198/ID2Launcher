@@ -1,20 +1,19 @@
 package id2.id2me.com.id2launcher.models;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 
 import id2.id2me.com.id2launcher.DatabaseHandler;
 
 /**
  * Created by bliss76 on 27/05/16.
  */
-public class AppInfoModel extends ItemInfoModel implements  Cloneable {
+public class AppInfo extends ItemInfo implements  Cloneable {
     private String appname = "";
     private String pname = "";
     private Bitmap icon;
     private String className = "";
 
-    public AppInfoModel(){
+    public AppInfo(){
         setSpanX(1);
         setSpanY(1);
         setItemType(DatabaseHandler.ITEM_TYPE_APP);

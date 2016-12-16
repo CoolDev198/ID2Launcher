@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfo;
 
 /**
  * Created by sunita on 10/7/16.
@@ -32,7 +32,7 @@ public class Utility {
         }
     }
 
-    public static void setFolderView(Context context, View view, ArrayList<ItemInfoModel> itemInfoModels) {
+    public static void setFolderView(Context context, View view, ArrayList<ItemInfo> itemInfoModels) {
 
         setFolderImagesList((LinearLayout) view);
 
@@ -40,7 +40,7 @@ public class Utility {
 
             if (i < itemInfoModels.size()) {
                 folderImgs.get(i).setBackground(null);
-                folderImgs.get(i).setImageBitmap(ItemInfoModel.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
+                folderImgs.get(i).setImageBitmap(ItemInfo.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
                 folderImgs.get(i).setVisibility(View.VISIBLE);
             } else {
                 //folderImgs.get(i).setVisibility(View.INVISIBLE);

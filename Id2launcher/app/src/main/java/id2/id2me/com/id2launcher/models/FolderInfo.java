@@ -5,33 +5,33 @@ import java.util.ArrayList;
 /**
  * Created by bliss105 on 14/07/16.
  */
-public class FolderInfoModel extends ItemInfoModel{
+public class FolderInfo extends ItemInfo {
 
     private String folderName = "";
     private int pageId;
-    private ArrayList<ItemInfoModel> appInfos;
+    private ArrayList<ItemInfo> appInfos;
 
-    public FolderInfoModel(ItemInfoModel dragPosApp, ItemInfoModel targetPosApp) {
+    public FolderInfo(ItemInfo dragPosApp, ItemInfo targetPosApp) {
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
         appInfos.add(dragPosApp);
         appInfos.add(targetPosApp);
     }
-    public FolderInfoModel(){
+    public FolderInfo(){
 
     }
-    public void addNewItemInfo(ItemInfoModel dragPosApp){
+    public void addNewItemInfo(ItemInfo dragPosApp){
         if (appInfos == null) {
             appInfos = new ArrayList<>();
         }
         appInfos.add(dragPosApp);
     }
 
-    public ArrayList<ItemInfoModel> getAppInfos(){
+    public ArrayList<ItemInfo> getAppInfos(){
         return appInfos;
     }
-    public void setAppInfos(ArrayList<ItemInfoModel> appInfos){
+    public void setAppInfos(ArrayList<ItemInfo> appInfos){
         this.appInfos=appInfos;
     }
     public String getFolderName() {
@@ -51,7 +51,7 @@ public class FolderInfoModel extends ItemInfoModel{
         this.pageId = pageId;
     }
 
-    public void  deleteAppInfo(AppInfoModel appInfo) {
+    public void  deleteAppInfo(AppInfo appInfo) {
         appInfos.remove(appInfo);
     }
 

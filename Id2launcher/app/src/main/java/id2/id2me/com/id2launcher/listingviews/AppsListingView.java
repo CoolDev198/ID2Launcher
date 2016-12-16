@@ -15,14 +15,14 @@ import id2.id2me.com.id2launcher.DragSource;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
-import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.AppInfo;
 
 /**
  * Created by sunita on 8/2/16.
  */
 public class AppsListingView extends RelativeLayout {
 
-    private ArrayList<AppInfoModel> appInfos;
+    private ArrayList<AppInfo> appInfos;
     private RecyclerView recyclerView;
     private AllAppAdapter adapter;
 
@@ -64,8 +64,8 @@ public class AppsListingView extends RelativeLayout {
 
     private void seperateCharNumApps() {
         try {
-            ArrayList<AppInfoModel> listDigitAppInfo = new ArrayList<>();
-            ArrayList<AppInfoModel> listAppInfo = new ArrayList<>();
+            ArrayList<AppInfo> listDigitAppInfo = new ArrayList<>();
+            ArrayList<AppInfo> listAppInfo = new ArrayList<>();
             for (int i = 0; i < appInfos.size(); i++) {
                 char ch = appInfos.get(i).getAppname().toString().charAt(0);
                 if (ch >= 'A' && ch <= 'Z') {

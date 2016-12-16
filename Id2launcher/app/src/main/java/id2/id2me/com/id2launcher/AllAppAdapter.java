@@ -13,14 +13,14 @@ import java.util.LinkedHashMap;
 
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
-import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.AppInfo;
 
 /**
  * Created by Pinto on 24/09/16.
  */
 public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter{
 
-    private ArrayList<AppInfoModel> groupList;
+    private ArrayList<AppInfo> groupList;
     private HashMap<Integer, String> mapIndex;
     private LauncherApplication launcherApplication;
     private Context mContext;
@@ -88,7 +88,7 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        AppInfoModel appInfoModel = groupList.get(position);
+        AppInfo appInfoModel = groupList.get(position);
         ((AppItemView) holder.itemView).setAppInfoModel(appInfoModel);
         ((AppItemView) holder.itemView).setDragSource(dragSource);
     }

@@ -30,7 +30,7 @@ import android.graphics.drawable.Drawable;
 
 import java.util.HashMap;
 
-import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.AppInfo;
 
 /**
  * Cache of application icons.  Icons can be made from any thread.
@@ -151,7 +151,7 @@ public class IconCache {
     /**
      * Fill in "application" with the icon and label for "info."
      */
-    public void getTitleAndIcon(AppInfoModel application, ResolveInfo info,
+    public void getTitleAndIcon(AppInfo application, ResolveInfo info,
                                 HashMap<Object, CharSequence> labelCache) {
         synchronized (mCache) {
            // CacheEntry entry = cacheLocked(application.componentName, info, labelCache);

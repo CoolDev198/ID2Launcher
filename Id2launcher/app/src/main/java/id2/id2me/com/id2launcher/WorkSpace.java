@@ -20,8 +20,9 @@ import android.widget.ScrollView;
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
-import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.models.ItemInfo;
+import id2.id2me.com.id2launcher.models.ShortcutInfo;
 
 /**
  * Created by sunita on 11/29/16.
@@ -425,7 +426,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
                 // Aside from the special case where we're dropping a shortcut onto a shortcut,
                 // we need to find the nearest cell location that is vacant
-                ItemInfoModel item = (ItemInfoModel) d.dragInfo;
+                ItemInfo item = (ItemInfo) d.dragInfo;
                 int minSpanX = item.spanX;
                 int minSpanY = item.spanY;
                 if (item.minSpanX > 0 && item.minSpanY > 0) {
@@ -457,7 +458,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                }
 
                 if (foundCell) {
-                    final ItemInfoModel info = (ItemInfoModel) cell.getTag();
+                    final ItemInfo info = (ItemInfo) cell.getTag();
                     if (hasMovedLayouts) {
                         // Reparent the view
                         getParentCellLayoutForView(cell).removeView(cell);
@@ -531,7 +532,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             };
             // mAnimatingViewIntoPlace = true;
             if (d.dragView.hasDrawn()) {
-               final ItemInfoModel info = (ItemInfoModel) cell.getTag();
+               final ItemInfo info = (ItemInfo) cell.getTag();
 //                if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {
 //                    int animationType = resizeOnDrop ? ANIMATE_INTO_POSITION_AND_RESIZE :
 //                            ANIMATE_INTO_POSITION_AND_DISAPPEAR;
@@ -576,7 +577,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     private void onDropExternal(final int[] touchXY, final Object dragInfo,
                                 final CellLayout cellLayout, boolean insertAtFirst, DragObject d) {
 
-        ItemInfoModel info = (ItemInfoModel) dragInfo;
+        ItemInfo info = (ItemInfo) dragInfo;
         int spanX = info.getSpanX();
         int spanY = info.getSpanY();
         if (mDragInfo != null) {
@@ -604,7 +605,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 ////                }
 //            }
 //
-//            final ItemInfoModel item = (ItemInfoModel) d.dragInfo;
+//            final ItemInfo item = (ItemInfo) d.dragInfo;
 //            boolean updateWidgetSize = false;
 //            if (findNearestVacantCell) {
 //                int minSpanX = item.getSpanX();
@@ -671,9 +672,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         switch (info.getItemType()) {
             case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
             case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                if (info instanceof AppInfoModel) {
+                if (info instanceof AppInfo) {
                     // Came from all apps -- make a copy
-                    info = new ShortcutInfo((AppInfoModel) info);
+                    info = new ShortcutInfo((AppInfo) info);
                 }
 
                 view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
@@ -958,7 +959,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
         Rect r = new Rect();
         CellLayout layout = null;
-        ItemInfoModel item = (ItemInfoModel) d.dragInfo;
+        ItemInfo item = (ItemInfo) d.dragInfo;
         // Ensure that we have proper spans for the item that we are dropping
         if (item.getSpanY() < 0 || item.getSpanX() < 0)
             throw new RuntimeException("Improper spans found");
@@ -990,7 +991,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             mapPointFromSelfToChild(mDragTargetLayout, mDragViewVisualCenter, null);
             // }
 
-            ItemInfoModel info = (ItemInfoModel) d.dragInfo;
+            ItemInfo info = (ItemInfo) d.dragInfo;
 
 
             int ycalc = d.y - (mDragTargetLayout.getTop() - scrollView.getScrollY());

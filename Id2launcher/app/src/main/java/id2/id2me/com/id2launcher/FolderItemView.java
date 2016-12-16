@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -14,11 +12,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfo;
 import jp.wasabeef.blurry.Blurry;
 
 /**
@@ -90,7 +87,7 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
 
     void performClick(View view) {
         // Log.v("FolderItemView ", " Click");
-        ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(folderId);
+        ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
         container.setVisibility(View.GONE);
         blur_relative.setVisibility(View.VISIBLE);
 
@@ -126,12 +123,12 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
 
         try {
             ArrayList<ImageView> folderImgs = setFolderImagesList();
-            ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(folderId);
+            ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
 
             for (int i = 0; i < folderImgs.size(); i++) {
                 if (i < itemInfoModels.size()) {
                     folderImgs.get(i).setBackground(null);
-                    folderImgs.get(i).setImageBitmap(ItemInfoModel.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
+                    folderImgs.get(i).setImageBitmap(ItemInfo.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
                     folderImgs.get(i).setVisibility(View.VISIBLE);
                 } else {
                     folderImgs.get(i).setBackground(ContextCompat.getDrawable(context, R.drawable.folder_empty_icon));
@@ -211,7 +208,7 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         @Override
         public void onLongPress(MotionEvent e) {
             //  Log.v("FolderItemView ", " on long press : ");
-            launcherApplication.dragInfo = (ItemInfoModel) folderItemView.getTag();
+            launcherApplication.dragInfo = (ItemInfo) folderItemView.getTag();
            // launcherApplication.dragAnimation(folderItemView, new Point((int) e.getX(), (int) e.getY()));
             super.onLongPress(e);
         }

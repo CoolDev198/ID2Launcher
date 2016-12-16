@@ -16,9 +16,8 @@ import java.io.IOException;
 import id2.id2me.com.id2launcher.AllAppsList;
 import id2.id2me.com.id2launcher.DatabaseHandler;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.ShortcutInfo;
 
-public class ItemInfoModel {
+public class ItemInfo {
 
     public static final int NO_ID = -1; /*The id in the settings database for this item */
     long id = NO_ID;
@@ -49,15 +48,15 @@ public class ItemInfoModel {
     public int minSpanX=1;
     public int minSpanY=1;
 
-    public ItemInfoModel(AppInfoModel info) {
+    public ItemInfo(AppInfo info) {
 
 
     }
 
-    public ItemInfoModel() {
+    public ItemInfo() {
     }
 
-    public ItemInfoModel(ShortcutInfo info) {
+    public ItemInfo(ShortcutInfo info) {
 
     }
 
@@ -225,7 +224,7 @@ public class ItemInfoModel {
 
     public static Bitmap getIconFromCursor(byte[] data,Context context) {
         try {
-            return ItemInfoModel.createIconBitmap(
+            return ItemInfo.createIconBitmap(
                     BitmapFactory.decodeByteArray(data, 0, data.length), context);
         } catch (Exception e) {
             return null;

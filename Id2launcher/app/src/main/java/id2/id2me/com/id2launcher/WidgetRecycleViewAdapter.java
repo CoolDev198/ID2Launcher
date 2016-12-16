@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import id2.id2me.com.id2launcher.models.WidgetInfoModel;
+import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 
 /**
  * Created by sunita on 8/9/16.
@@ -29,9 +29,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     Context context;
     RecyclerView recycleView;
     LauncherApplication launcherApplication;
-    private List<WidgetInfoModel> widgetInfoList;
+    private List<PendingAddItemInfo> widgetInfoList;
     private WidgetsListManager widgetsListManager;
-    private WidgetInfoModel widgetInfo;
+    private PendingAddItemInfo widgetInfo;
 
     public WidgetRecycleViewAdapter(Context context, RecyclerView recycleView) {
         this.recycleView = recycleView;
@@ -69,10 +69,9 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         widgetInfo = widgetInfoList.get(position);
         holder.itemView.setOnTouchListener(this);
-        holder.widget_name.setText(widgetInfo.getWidgetName());
+        holder.widget_name.setText("");
         holder.widget_dim.setText("");
         holder.widgetInfo = widgetInfo;
-        holder.widget_preview_img.setImageDrawable(new BitmapDrawable(context.getResources(), widgetsListManager.getWidgetPreview(widgetInfo.getComponentName(), widgetInfo.getPreview(), 350, 380))); //To Do
 
     }
 
@@ -84,7 +83,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView widget_name, widget_dim;
         ImageView widget_preview_img;
-        WidgetInfoModel widgetInfo;
+        PendingAddItemInfo widgetInfo;
 
         private MyViewHolder(View view) {
             super(view);
@@ -97,17 +96,7 @@ public class WidgetRecycleViewAdapter extends RecyclerView.Adapter<WidgetRecycle
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         private View view;
-      private View preview;
-        public Bitmap getBitmapView() {
-            try {
-                preview.buildDrawingCache();
-                Bitmap folderBitmap = preview.getDrawingCache();
-                return folderBitmap;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
+        private View preview;
 
         @Override
         public void onLongPress(MotionEvent e) {

@@ -16,14 +16,13 @@
 
 package id2.id2me.com.id2launcher;
 
-import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
  * Settings related utilities.
  */
-class LauncherSettings {
-    static interface BaseLauncherColumns extends BaseColumns {
+public class LauncherSettings {
+    public static interface BaseLauncherColumns extends BaseColumns {
         /**
          * Descriptive name of the gesture that can be displayed to the user.
          * <P>Type: TEXT</P>

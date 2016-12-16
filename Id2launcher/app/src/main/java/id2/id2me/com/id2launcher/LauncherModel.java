@@ -11,7 +11,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.models.AppInfoModel;
+import id2.id2me.com.id2launcher.models.AppInfo;
 
 /**
  * Created by bliss76 on 23/06/16.
@@ -51,11 +51,11 @@ public class LauncherModel extends BroadcastReceiver {
         //        public boolean setLoadOnResume();
 //        public int getCurrentWorkspaceScreen();
 //        public void startBinding();
-//        public void bindItems(ArrayList<ItemInfoModel> shortcuts, int start, int end);
-//        public void bindFolders(HashMap<Long,FolderInfoModel> folders);
+//        public void bindItems(ArrayList<ItemInfo> shortcuts, int start, int end);
+//        public void bindFolders(HashMap<Long,FolderInfo> folders);
 //        public void finishBindingItems();
 //        public void bindAppWidget(LauncherAppWidgetInfo info);
-//        public void bindAllApplications(ArrayList<AppInfoModel> apps);
+//        public void bindAllApplications(ArrayList<AppInfo> apps);
         public void bindAppsAdded();
 
         public void bindAppsUpdated();
@@ -151,13 +151,13 @@ public class LauncherModel extends BroadcastReceiver {
             final String[] packages = mPackages;
             final int N = packages.length;
 
-            ArrayList<AppInfoModel> added = null;
-            ArrayList<AppInfoModel> modified = null;
+            ArrayList<AppInfo> added = null;
+            ArrayList<AppInfo> modified = null;
             final ArrayList<String> removedPackageNames = new ArrayList<String>();
 
             switch (mOp) {
                 case OP_ADD:
-                    added = new ArrayList<AppInfoModel>();
+                    added = new ArrayList<AppInfo>();
                     for (int i = 0; i < N; i++) {
                         if (DEBUG_LOADERS) Log.v(TAG, "mAllAppsList.addPackage " + packages[i]);
                         mBgAllAppsList.getVisibleInstalledApps(context);
@@ -165,7 +165,7 @@ public class LauncherModel extends BroadcastReceiver {
 
                     break;
                 case OP_UPDATE:
-                    modified = new ArrayList<AppInfoModel>();
+                    modified = new ArrayList<AppInfo>();
                     for (int i = 0; i < N; i++) {
                         if (DEBUG_LOADERS) Log.v(TAG, "mAllAppsList.updatePackage " + packages[i]);
                         mBgAllAppsList.getVisibleInstalledApps(context);

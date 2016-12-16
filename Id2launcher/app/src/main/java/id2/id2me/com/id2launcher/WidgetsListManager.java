@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.models.WidgetInfoModel;
+import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 
 /**
  * Created by sunita on 8/2/16.
@@ -35,9 +35,9 @@ public class WidgetsListManager {
         getInstalledWidgets();
     }
 
-    public ArrayList<WidgetInfoModel> getInstalledWidgets() {
+    public ArrayList<PendingAddItemInfo> getInstalledWidgets() {
 
-        ArrayList<WidgetInfoModel> widgetInfos = null;
+        ArrayList<PendingAddItemInfo> widgetInfos = null;
         try {
             widgetInfos = new ArrayList<>();
             PackageManager mPackageManager = context.getPackageManager();
@@ -55,16 +55,12 @@ public class WidgetsListManager {
 
 //                    if (minSpanX <= ((LauncherApplication) ((Activity) context).getApplication()).getCellCountX() &&
 //                            minSpanY <=  ((LauncherApplication) ((Activity) context).getApplication()).getCellCountY()) {
-                        WidgetInfoModel widgetInfo = new WidgetInfoModel();
+                        PendingAddItemInfo widgetInfo = new PendingAddItemInfo();
                         widgetInfo.setPname(widget.provider.getPackageName());
                         widgetInfo.setSpanX(spanXY[0]);
                         widgetInfo.setSpanY(spanXY[1]);
                         widgetInfo.setComponentName(widget.provider);
                         widgetInfo.setAppWidgetProviderInfo(widget);
-                        widgetInfo.setPreview(widget.previewImage);
-                        widgetInfo.setMinSpanX(minSpanXY[0]);
-                        widgetInfo.setMinSpanY(minSpanXY[1]);
-                        widgetInfo.setWidgetName(widget.loadLabel(mPackageManager));
                         widgetInfos.add(widgetInfo);
                   //  }
 
@@ -77,12 +73,7 @@ public class WidgetsListManager {
             e.printStackTrace();
         }
 
-        Collections.sort(widgetInfos, new Comparator<WidgetInfoModel>() {
-            @Override
-            public int compare(WidgetInfoModel widgetInfoModel, WidgetInfoModel t1) {
-                return widgetInfoModel.getWidgetName().compareToIgnoreCase(t1.getWidgetName());
-            }
-        });
+
         return widgetInfos;
     }
 
