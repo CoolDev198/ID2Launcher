@@ -235,8 +235,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             while (res.isAfterLast() == false) {
 
                 ItemInfo itemInfo = new ItemInfo();
-                itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
-                itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
+                //itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
+               // itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
                 itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
                 itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
                 itemInfo.setScreen(res.getInt(res.getColumnIndex(COLUMN_SCREEN)));
@@ -270,15 +270,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_CONTAINER, itemInfo.getContainer());
             values.put(COLUMN_CELLX, itemInfo.getCellX());
             values.put(COLUMN_CELLY, itemInfo.getCellY());
-            values.put(COLUMN_ICON, itemInfo.getIcon());
-            values.put(COLUMN_INTENT, itemInfo.getIntent());
+            //values.put(COLUMN_ICON, itemInfo.getIcon());
+            //values.put(COLUMN_INTENT, itemInfo.getIntent());
             values.put(COLUMN_SPANX, itemInfo.getSpanX());
             values.put(COLUMN_SPANY, itemInfo.getSpanY());
-            values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
-            values.put(COLUMN_TITLE, itemInfo.getTitle());
+            //values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
+            //values.put(COLUMN_TITLE, itemInfo.getTitle());
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
-            values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
-            values.put(COLUMN_PNAME, itemInfo.getPname());
+            //values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
+            //values.put(COLUMN_PNAME, itemInfo.getPname());
             values.put(COLUMN_SCREEN,itemInfo.getScreen());
             db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
@@ -341,8 +341,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             res.moveToFirst();
             while (!res.isAfterLast()) {
                 ItemInfo itemInfo = new ItemInfo();
-                itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
-                itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
+                //itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
+                //itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
                 itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
                 itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
                 itemInfo.setContainer(res.getInt(res.getColumnIndex(COLUMN_CONTAINER)));
@@ -374,15 +374,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_CONTAINER, itemInfo.getContainer());
             values.put(COLUMN_CELLX, itemInfo.getCellX());
             values.put(COLUMN_CELLY, itemInfo.getCellY());
-            values.put(COLUMN_ICON, itemInfo.getIcon());
-            values.put(COLUMN_INTENT, itemInfo.getIntent());
+           // values.put(COLUMN_ICON, itemInfo.getIcon());
+            //values.put(COLUMN_INTENT, itemInfo.getIntent());
             values.put(COLUMN_SPANX, itemInfo.getSpanX());
             values.put(COLUMN_SPANY, itemInfo.getSpanY());
-            values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
-            values.put(COLUMN_TITLE, itemInfo.getTitle());
+           // values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
+           // values.put(COLUMN_TITLE, itemInfo.getTitle());
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
-            values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
-            values.put(COLUMN_PNAME, itemInfo.getPname());
+           // values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
+           // values.put(COLUMN_PNAME, itemInfo.getPname());
             values.put(COLUMN_SCREEN,itemInfo.getScreen());
             db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
@@ -398,14 +398,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ItemInfo itemInfoModel = new ItemInfo();
         itemInfoModel.setCellX(dragInfo.getCellX());
         itemInfoModel.setCellY(dragInfo.getCellY());
-        itemInfoModel.setTempCellX(dragInfo.getCellX());
-        itemInfoModel.setTempCellY(dragInfo.getCellY());
+       // itemInfoModel.setTempCellX(dragInfo.getCellX());
+        //itemInfoModel.setTempCellY(dragInfo.getCellY());
         itemInfoModel.setSpanX(dragInfo.getSpanX());
         itemInfoModel.setSpanY(dragInfo.getSpanY());
         itemInfoModel.setItemType(DatabaseHandler.ITEM_TYPE_FOLDER);
         itemInfoModel.setTitle("");
         itemInfoModel.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
-        itemInfoModel.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(ContextCompat.getDrawable(context, R.mipmap.folder_icon), context)));
+        //itemInfoModel.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(ContextCompat.getDrawable(context, R.mipmap.folder_icon), context)));
         return itemInfoModel;
     }
 }

@@ -1,59 +1,96 @@
 package id2.id2me.com.id2launcher.models;
 
+import android.content.ContentValues;
+
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.LauncherSettings;
+
+
 /**
- * Created by bliss105 on 14/07/16.
+ * Represents a folder containing shortcuts or apps.
  */
-public class FolderInfo extends ItemInfo {
+class FolderInfo extends ItemInfo {
 
-    private String folderName = "";
-    private int pageId;
-    private ArrayList<ItemInfo> appInfos;
+    /**
+     * Whether this folder has been opened
+     */
+    boolean opened;
 
-    public FolderInfo(ItemInfo dragPosApp, ItemInfo targetPosApp) {
-        if (appInfos == null) {
-            appInfos = new ArrayList<>();
+    /**
+     * The apps and shortcuts
+     */
+    ArrayList<ShortcutInfo> contents = new ArrayList<ShortcutInfo>();
+
+    ArrayList<FolderListener> listeners = new ArrayList<FolderListener>();
+
+    FolderInfo() {
+        itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_FOLDER;
+    }
+
+    /**
+     * Add an app or shortcut
+     *
+     * @param item
+     */
+    public void add(ShortcutInfo item) {
+        contents.add(item);
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).onAdd(item);
         }
-        appInfos.add(dragPosApp);
-        appInfos.add(targetPosApp);
+        itemsChanged();
     }
-    public FolderInfo(){
 
-    }
-    public void addNewItemInfo(ItemInfo dragPosApp){
-        if (appInfos == null) {
-            appInfos = new ArrayList<>();
+    /**
+     * Remove an app or shortcut. Does not change the DB.
+     *
+     * @param item
+     */
+    public void remove(ShortcutInfo item) {
+        contents.remove(item);
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).onRemove(item);
         }
-        appInfos.add(dragPosApp);
+        itemsChanged();
     }
 
-    public ArrayList<ItemInfo> getAppInfos(){
-        return appInfos;
-    }
-    public void setAppInfos(ArrayList<ItemInfo> appInfos){
-        this.appInfos=appInfos;
-    }
-    public String getFolderName() {
-        return folderName;
-    }
-
-    public void setFolderName(String folderName) {
-        this.folderName = folderName;
+    public void setTitle(CharSequence title) {
+        this.title = title;
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).onTitleChanged(title);
+        }
     }
 
 
-    public int getPageId() {
-        return pageId;
+    void addListener(FolderListener listener) {
+        listeners.add(listener);
     }
 
-    public void setPageId(int pageId) {
-        this.pageId = pageId;
+    void removeListener(FolderListener listener) {
+        if (listeners.contains(listener)) {
+            listeners.remove(listener);
+        }
     }
 
-    public void  deleteAppInfo(AppInfo appInfo) {
-        appInfos.remove(appInfo);
+    void itemsChanged() {
+        for (int i = 0; i < listeners.size(); i++) {
+            listeners.get(i).onItemsChanged();
+        }
     }
 
+    @Override
+    void unbind() {
+        super.unbind();
+        listeners.clear();
+    }
 
+    interface FolderListener {
+        public void onAdd(ShortcutInfo item);
+
+        public void onRemove(ShortcutInfo item);
+
+        public void onTitleChanged(CharSequence title);
+
+        public void onItemsChanged();
+    }
 }

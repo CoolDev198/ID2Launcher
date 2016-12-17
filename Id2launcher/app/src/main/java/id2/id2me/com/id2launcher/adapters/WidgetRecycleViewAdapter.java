@@ -1,14 +1,8 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.adapters;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,6 +10,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.WidgetsListManager;
 import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 

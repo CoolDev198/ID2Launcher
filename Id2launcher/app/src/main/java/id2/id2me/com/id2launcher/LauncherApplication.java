@@ -29,11 +29,9 @@ public class LauncherApplication extends Application {
     public final int CELL_COUNT_X = 4;
     public final int CELL_COUNT_Y = 5;
     public boolean isDrawerOpen = false;
-    public ArrayList<ItemInfo> folderFragmentsInfo;
     public ItemInfo dragInfo;
     public LauncherAppWidgetHost mAppWidgetHost;
     public LauncherModel mModel;
-    public HashMap<ArrayList<Integer>, Rect> mapMatrixPosToRec;
     public View desktopFragment;
     private Launcher launcher;
 
@@ -51,23 +49,18 @@ public class LauncherApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        mIconCache = new IconCache(this);
-        launcherApplication = this;
         ButterKnife.setDebug(true);
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
             Timber.v("Inited Timber Debug Tree");
         }
 
-        mapMatrixPosToRec = new HashMap<>();
-        folderFragmentsInfo = new ArrayList<>();
+        launcherApplication = this;
 
-
-        mModel = new LauncherModel(this);
-        density = getResources().getDisplayMetrics().density;
-
+        mIconCache = new IconCache(this);
+        mModel = new LauncherModel(mIconCache);
         addBroadCastReceiver();
-
+        density = getResources().getDisplayMetrics().density;
     }
 
     private void addBroadCastReceiver() {
@@ -95,8 +88,10 @@ public class LauncherApplication extends Application {
         return launcher;
     }
 
-    public void setLauncher(Launcher launcher) {
+    public LauncherModel setLauncher(Launcher launcher) {
         this.launcher = launcher;
+        mModel.initialize(launcher);
+        return mModel;
     }
 
     public int getCellHeight() {

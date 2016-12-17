@@ -4,10 +4,9 @@ import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
 
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
+import id2.id2me.com.id2launcher.adapters.WidgetRecycleViewAdapter;
 
 
 /**

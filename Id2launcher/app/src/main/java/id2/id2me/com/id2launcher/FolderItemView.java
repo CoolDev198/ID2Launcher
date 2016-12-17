@@ -84,26 +84,26 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         Log.v("FolderItemView", "  x:: y ;; " + ev.getX() + "  " + ev.getY());
         return gestureDetector.onTouchEvent(ev);
     }
-
-    void performClick(View view) {
-        // Log.v("FolderItemView ", " Click");
-        ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
-        container.setVisibility(View.GONE);
-        blur_relative.setVisibility(View.VISIBLE);
-
-        Blurry.with(context)
-                .radius(25)
-                .sampling(1)
-                .color(Color.argb(66, 255, 255, 255))
-                .async()
-                .capture(launcherApplication.desktopFragment.findViewById(R.id.scrollView))
-                .into(blur_relative);
-
-        AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
-        appGridView.setNumColumns(3);
-        FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.app_item_view, appGridView);
-        appGridView.setAdapter(adapter);
-    }
+//
+//    void performClick(View view) {
+//        // Log.v("FolderItemView ", " Click");
+//        ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
+//        container.setVisibility(View.GONE);
+//        blur_relative.setVisibility(View.VISIBLE);
+//
+//        Blurry.with(context)
+//                .radius(25)
+//                .sampling(1)
+//                .color(Color.argb(66, 255, 255, 255))
+//                .async()
+//                .capture(launcherApplication.desktopFragment.findViewById(R.id.scrollView))
+//                .into(blur_relative);
+//
+//        AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
+//        appGridView.setNumColumns(3);
+//        FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.app_item_view, appGridView);
+//        appGridView.setAdapter(adapter);
+//    }
 
 
     private ArrayList setFolderImagesList() {
@@ -128,7 +128,7 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
             for (int i = 0; i < folderImgs.size(); i++) {
                 if (i < itemInfoModels.size()) {
                     folderImgs.get(i).setBackground(null);
-                    folderImgs.get(i).setImageBitmap(ItemInfo.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
+                   // folderImgs.get(i).setImageBitmap(ItemInfo.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
                     folderImgs.get(i).setVisibility(View.VISIBLE);
                 } else {
                     folderImgs.get(i).setBackground(ContextCompat.getDrawable(context, R.drawable.folder_empty_icon));
@@ -229,7 +229,7 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             // Log.v("FolderItemView ", " onSingleTapUp: ");
-            performClick(folderItemView);
+            //performClick(folderItemView);
             return super.onSingleTapUp(e);
         }
 

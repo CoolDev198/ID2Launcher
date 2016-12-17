@@ -23,7 +23,7 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
     int layout;
     Context context;
 
-    public FolderGridAdapter(ArrayList<ItemInfo> appInfos, Context context, int layout, AppGridView appGridView) {
+    public FolderGridAdapter(ArrayList<ItemInfo> appInfos, Context context, int layout) {
         this.layout = layout;
         this.context = context;
         if(appInfos==null){
@@ -33,7 +33,7 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
         }
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        appGridView.setOnItemClickListener(this);
+        //appGridView.setOnItemClickListener(this);
 
     }
 
@@ -72,8 +72,8 @@ public class FolderGridAdapter extends BaseAdapter implements AdapterView.OnItem
 
             holder.itemInfoModel=appInfos.get(position);
             holder.itemImage.setTag(position);
-            holder.pName = appInfos.get(position).getPname();
-            holder.itemImage.setImageBitmap(ItemInfo.getIconFromCursor(appInfos.get(position).getIcon(),context));
+          //  holder.pName = appInfos.get(position).getPname();
+           // holder.itemImage.setImageBitmap(ItemInfo.getIconFromCursor(appInfos.get(position).getIcon(),context));
 
 
         } catch (Exception e) {

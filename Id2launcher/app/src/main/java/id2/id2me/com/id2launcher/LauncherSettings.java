@@ -44,6 +44,8 @@ public class LauncherSettings {
          */
         static final String ITEM_TYPE = "itemType";
 
+        static final int ITEM_TYPE_FOLDER = 2;
+
         /**
          * The gesture is an application
          */

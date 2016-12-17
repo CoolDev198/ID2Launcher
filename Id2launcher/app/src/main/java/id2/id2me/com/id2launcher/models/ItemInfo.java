@@ -2,51 +2,89 @@ package id2.id2me.com.id2launcher.models;
 
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import id2.id2me.com.id2launcher.AllAppsList;
 import id2.id2me.com.id2launcher.DatabaseHandler;
-import id2.id2me.com.id2launcher.R;
 
 public class ItemInfo {
 
-    public static final int NO_ID = -1; /*The id in the settings database for this item */
+    public static final int NO_ID = -1;
+
+    /**
+     * The id in the settings database for this item
+     */
     long id = NO_ID;
-    private long container = NO_ID;
 
-    public int cellX = NO_ID;
-    public int cellY = NO_ID;
+    /**
+     * One of {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
+     * {@link LauncherSettings.Favorites#ITEM_TYPE_SHORTCUT},
+     * {@link LauncherSettings.Favorites#ITEM_TYPE_FOLDER}, or
+     * {@link LauncherSettings.Favorites#ITEM_TYPE_APPWIDGET}.
+     */
+    public int itemType;
 
-    private byte[] icon;
-    public String intent = "";
-     public int spanX = 1;
-     public int spanY = 1;
+    /**
+     * The id of the container that holds this item. For the desktop, this will be
+     * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. For the all applications folder it
+     * will be {@link #NO_ID} (since it is not stored in the settings DB). For user folders
+     * it will be the id of the folder.
+     */
+    public long container = NO_ID;
 
-    private int appWidgetId = NO_ID;
-    public String title = "";
-     public int itemType = DatabaseHandler.ITEM_TYPE_APP;
-    private int iconType = 0;
-    private String pname = "";
-    private boolean dropExternal;
-    private boolean isItemCanPlaced;
-    private int tempCellX=NO_ID;
-    private int tempCellY=NO_ID;
-    private boolean isExisitingFolder;
-    private ComponentName componentName;
-    private AppWidgetProviderInfo appWidgetProviderInfo;
-    private int screen;
-    public boolean requiresDbUpdate;
-    public int minSpanX=1;
-    public int minSpanY=1;
+    /**
+     * Iindicates the screen in which the shortcut appears.
+     */
+    public int screen = -1;
+
+    /**
+     * Indicates the X position of the associated cell.
+     */
+    public int cellX = -1;
+
+    /**
+     * Indicates the Y position of the associated cell.
+     */
+    public int cellY = -1;
+
+    /**
+     * Indicates the X cell span.
+     */
+    public int spanX = 1;
+
+    /**
+     * Indicates the Y cell span.
+     */
+   public int spanY = 1;
+
+    /**
+     * Indicates the minimum X cell span.
+     */
+   public int minSpanX = 1;
+
+    /**
+     * Indicates the minimum Y cell span.
+     */
+   public int minSpanY = 1;
+
+    /**
+     * Indicates that this item needs to be updated in the db
+     */
+    public boolean requiresDbUpdate = false;
+
+    /**
+     * Title of the item
+     */
+    public  CharSequence title;
+
+    /**
+     * The position of the item in a drag-and-drop operation.
+     */
+    int[] dropPos = null;
 
     public ItemInfo(AppInfo info) {
 
@@ -60,12 +98,35 @@ public class ItemInfo {
 
     }
 
-    public int getTmpCellY() {
-        return tempCellY;
+    static byte[] flattenBitmap(Bitmap bitmap) {
+        int size = bitmap.getWidth() * bitmap.getHeight() * 4;
+        ByteArrayOutputStream out = new ByteArrayOutputStream(size);
+        try {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+            return out.toByteArray();
+        } catch (IOException e) {
+            Log.w("Favorite", "Could not write icon");
+            return null;
+        }
     }
 
-    public int getTmpCellX() {
-        return tempCellX;
+    public static byte[] writeBitmap(Bitmap bitmap) {
+        byte[] data = null;
+        if (bitmap != null) {
+            data = flattenBitmap(bitmap);
+        }
+        return data;
+    }
+
+    /**
+     * It is very important that sub-classes implement this if they contain any references
+     * to the activity (anything in the view hierarchy etc.). If not, leaks can result since
+     * ItemInfo objects persist across rotation and can hence leak by holding stale references
+     * to the old view hierarchy / activity.
+     */
+    void unbind() {
     }
 
     public long getId() {
@@ -100,32 +161,20 @@ public class ItemInfo {
         this.cellY = cellY;
     }
 
-    public byte[] getIcon() {
-        return icon;
-    }
-
-    public void setIcon(byte[] icon) {
-        this.icon = icon;
-    }
-
-    public String getIntent() {
-        return intent;
-    }
-
     public int getSpanX() {
-        return spanX;
-    }
-
-    public int getMinSpanY(){
-        return spanY;
-    }
-
-    public int getMinSpanX(){
         return spanX;
     }
 
     public void setSpanX(int spanX) {
         this.spanX = spanX;
+    }
+
+    public int getMinSpanY() {
+        return spanY;
+    }
+
+    public int getMinSpanX() {
+        return spanX;
     }
 
     public int getSpanY() {
@@ -136,13 +185,6 @@ public class ItemInfo {
         this.spanY = spanY;
     }
 
-    public int getAppWidgetId() {
-        return appWidgetId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -156,110 +198,21 @@ public class ItemInfo {
         this.itemType = itemType;
     }
 
-    public int getIconType() {
-        return iconType;
-    }
-
-    public String getPname() {
-        return pname;
-    }
-
-    public void setPname(String pname) {
-        this.pname = pname;
-    }
-
-
-
-    public static Bitmap createIconBitmap(Bitmap icon, Context context) {
-        int textureWidth = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
-        int textureHeight = context.getResources().getDimensionPixelSize(R.dimen.app_icon_size);
-        int sourceWidth = icon.getWidth();
-        int sourceHeight = icon.getHeight();
-        if (sourceWidth > textureWidth && sourceHeight > textureHeight) {
-            // Icon is bigger than it should be; clip it (solves the GB->ICS migration case)
-            return Bitmap.createBitmap(icon,
-                    (sourceWidth - textureWidth) / 2,
-                    (sourceHeight - textureHeight) / 2,
-                    textureWidth, textureHeight);
-        } else if (sourceWidth == textureWidth && sourceHeight == textureHeight) {
-            // Icon is the right size, no need to change it
-            return icon;
-        } else {
-            // Icon is too small, render to a larger bitmap
-            final Resources resources = context.getResources();
-            return AllAppsList.createIconBitmap(new BitmapDrawable(resources, icon), context);
-        }
-    }
-
-    static byte[] flattenBitmap(Bitmap bitmap) {
-        int size = bitmap.getWidth() * bitmap.getHeight() * 4;
-        ByteArrayOutputStream out = new ByteArrayOutputStream(size);
-        try {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-            return out.toByteArray();
-        } catch (IOException e) {
-            Log.w("Favorite", "Could not write icon");
-            return null;
-        }
-    }
-
-  public   static byte[] writeBitmap(Bitmap bitmap) {
-        byte[] data = null;
-        if (bitmap != null) {
-            data = flattenBitmap(bitmap);
-        }
-        return data;
-    }
-
-    public void setTempCellX(int tempCellX) {
-        this.tempCellX = tempCellX;
-    }
-
-
-    public void setTempCellY(int tempCellY) {
-        this.tempCellY = tempCellY;
-    }
-
-    public static Bitmap getIconFromCursor(byte[] data,Context context) {
-        try {
-            return ItemInfo.createIconBitmap(
-                    BitmapFactory.decodeByteArray(data, 0, data.length), context);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public void setAppWidgetId(int appWidgetId) {
-        this.appWidgetId = appWidgetId;
-    }
-
-    public ComponentName getComponentName() {
-        return componentName;
-    }
-
-    public void setComponentName(ComponentName componentName) {
-        this.componentName = componentName;
-    }
-
-    public AppWidgetProviderInfo getAppWidgetProviderInfo() {
-        return appWidgetProviderInfo;
-    }
-
-    public void setAppWidgetProviderInfo(AppWidgetProviderInfo appWidgetProviderInfo) {
-        this.appWidgetProviderInfo = appWidgetProviderInfo;
+    public int getScreen() {
+        return screen;
     }
 
     public void setScreen(int screen) {
         this.screen = screen;
     }
 
-    public int getScreen() {
-        return screen;
-    }
-
     public String getPackageName(Intent intent) {
         return null;
+    }
+    @Override
+    public String toString() {
+        return "Item(id=" + this.id + " type=" + this.itemType + " container=" + this.container
+                + " screen=" + screen + " cellX=" + cellX + " cellY=" + cellY + " spanX=" + spanX
+                + " spanY=" + spanY + " dropPos=" + dropPos + ")";
     }
 }

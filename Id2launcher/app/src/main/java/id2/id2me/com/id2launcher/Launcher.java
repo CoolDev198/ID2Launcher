@@ -11,9 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -24,14 +22,13 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 import timber.log.Timber;
 
-public class Launcher extends AppCompatActivity implements View.OnLongClickListener//, View.OnTouchListener
+public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener
 {
     static final int APPWIDGET_HOST_ID = 1024;
     private static final int REQUEST_PICK_APPWIDGET = 6;
@@ -60,12 +57,12 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
 
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
-            setContentView(R.layout.activity_home);
-            setTranslucentStatus(true);
             launcherApplication = ((LauncherApplication) getApplication());
+            LauncherModel mModel=launcherApplication.setLauncher(this);
+            mModel.startLoader(true, -1);
+            setTranslucentStatus(true);
             getSupportActionBar().hide();
-            launcherApplication.setLauncher(this);
-
+            setContentView(R.layout.activity_home);
             init();
             //  openNotificationAccess();
             loadDesktop();
@@ -294,4 +291,23 @@ public class Launcher extends AppCompatActivity implements View.OnLongClickListe
         return false;
     }
 
+    @Override
+    public void bindAllApplications(ArrayList<AppInfo> apps) {
+
+    }
+
+    @Override
+    public void bindAppsAdded(ArrayList<AppInfo> added) {
+
+    }
+
+    @Override
+    public void bindAppsUpdated() {
+
+    }
+
+    @Override
+    public void bindAppsRemoved(ArrayList<String> packageNames) {
+
+    }
 }

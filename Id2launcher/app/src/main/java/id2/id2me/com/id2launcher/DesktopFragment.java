@@ -3,7 +3,6 @@ package id2.id2me.com.id2launcher;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +20,7 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 
@@ -28,7 +28,7 @@ import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 /**
  * Created by bliss76 on 26/05/16.
  */
-public class DesktopFragment extends Fragment implements LauncherModel.Callbacks {
+public class DesktopFragment extends Fragment  {
 
 
     static DragController dragController;
@@ -98,47 +98,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     }
 
-    @Override
-    public void bindAppsAdded() {
-        // appsListingFragment.setListAdapter();
-
-    }
-
-    @Override
-    public void bindAppsUpdated() {
-        //   appsListingFragment.setListAdapter();
-    }
-
-    @Override
-    public void bindAppsRemoved(ArrayList<String> packageNames) {
-//        appsListingFragment.setListAdapter();
-//        for (int k = 0; k < packageNames.size(); k++) {
-//            for (int i = 0; i < parentLayout.getChildCount(); i++) {
-//
-//                View child = parentLayout.getChildAt(i);
-//                ItemInfo cellInfo = (ItemInfo) child.getTag();
-//                if (cellInfo.getIsAppOrFolderOrWidget() == 1) {
-//
-//                    if (cellInfo.getAppInfo().getPname().equalsIgnoreCase(packageNames.get(k))) {
-//                        parentLayout.removeView(child);
-//                        application.getPageDragListener().unMarkCells(cellInfo.getMatrixCells());
-//                        break;
-//                    }
-//
-//                } else if (cellInfo.getIsAppOrFolderOrWidget() == 2) {
-//                    FolderInfo folderInfo = cellInfo.getFolderInfo();
-////                    ArrayList<AppInfo> applicationInfos = folderInfo.getAppInfos();
-////                    for (int j = 0; j < applicationInfos.size(); i++) {
-////                        if (applicationInfos.get(j).getPname().equalsIgnoreCase(packageNames.get(k))) {
-////                            folderInfo.deleteAppInfo(applicationInfos.get(j));
-////                            break;
-////                        }
-////
-////                    }
-//                }
-//            }
-//        }
-    }
 
     private void initViews() {
 
@@ -166,7 +125,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         });
 
         addDefaultScreens();
-        // addDragListener();
 
 
     }
@@ -205,44 +163,6 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
 
     }
 
-//    private void populateDesktop() {
-//        HashMap<Long, FolderInfo> folderInfoHashMap = new HashMap<>();
-//
-//        for (int i = 0; i < DatabaseHandler.itemInfosList.size(); i++) {
-//            ItemInfo itemInfo = DatabaseHandler.itemInfosList.get(i);
-//            int type = itemInfo.getItemType();
-//
-//            int width = application.getCellWidth() * itemInfo.getSpanX();
-//            int height = application.getCellHeight() * itemInfo.getSpanY();
-//
-//
-//            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-//            int leftMargin = itemInfo.getCellX() * application.getCellWidth();
-//            int topMargin = itemInfo.getCellY() * application.getCellWidth();
-//            layoutParams.setMargins(leftMargin, topMargin, 0, 0);
-//
-//
-//            switch (type) {
-//
-//                case DatabaseHandler.ITEM_TYPE_APP:
-//
-//                    if (itemInfo.getContainer() == DatabaseHandler.CONTAINER_DESKTOP) {
-//                        application.getPageDragListener().addAppToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
-//                    }
-//                    break;
-//                case DatabaseHandler.ITEM_TYPE_FOLDER:
-//
-//                    application.getPageDragListener().addFolderToPage(ItemInfo.createIconBitmap(BitmapFactory.decodeByteArray(itemInfo.getIcon(), 0, itemInfo.getIcon().length), context), itemInfo, layoutParams);
-//
-//                    break;
-//                case DatabaseHandler.ITEM_TYPE_APPWIDGET:
-//                    application.getPageDragListener().addWidgetToPage(itemInfo.getAppWidgetId(), itemInfo, layoutParams);
-//
-//                    break;
-//            }
-//        }
-//    }
-
     private void addNotifyWidget() {
         RecyclerView notificationRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.noti_widget);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
@@ -258,40 +178,7 @@ public class DesktopFragment extends Fragment implements LauncherModel.Callbacks
         super.onDestroyView();
     }
 
-    //  @Override
-    public void enterScrollArea(int y, int x, MotionEvent event) {
-        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
 
-        for (int i = 0; i < containerL.getChildCount(); i++) {
-            Rect rect = new Rect();
-            View cellLayout = container.getChildAt(i);
-            cellLayout.getHitRect(rect);
-
-            int xN = x + scrollView.getScrollX();
-            int yN = y + scrollView.getScrollY();
-
-            Log.v("top :: ", cellLayout.getTop() + "  " + i);
-            if (rect.contains(xN, yN)) {
-
-                //  Log.v("actual ::: ", " id :: " + i + "  x ::: y :: " + xN + "  " + yN);
-                // Log.v("actual values ::: ", " x :: y "  + (i + 1) +  " " + x + "  " + "   " + (y-(cellLayout.getTop()-scrollView.getScrollY())));
-                if (cellLayout instanceof CellLayout) {
-                    int ycalc = y - (cellLayout.getTop() - scrollView.getScrollY());
-                    mTargetCell = ((CellLayout) cellLayout).findNearestArea(x, ycalc, 1, 1, mTargetCell);
-                    Log.v("cell location  :::  id ", (i + 1) + " y ::" + ycalc + " cellx : " + mTargetCell[0] + "celly : " + mTargetCell[1]);
-
-                }
-            }
-
-        }
-
-        if (y > scrollView.getHeight() - 120) {
-            scrollView.smoothScrollBy(0, 25);
-        } else if (y < 100) {
-            scrollView.smoothScrollBy(0, -25);
-        }
-
-    }
 }
 
 

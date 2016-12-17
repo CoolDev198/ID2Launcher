@@ -154,10 +154,10 @@ public class IconCache {
     public void getTitleAndIcon(AppInfo application, ResolveInfo info,
                                 HashMap<Object, CharSequence> labelCache) {
         synchronized (mCache) {
-           // CacheEntry entry = cacheLocked(application.componentName, info, labelCache);
+            CacheEntry entry = cacheLocked(application.componentName, info, labelCache);
 
-           // application.title = entry.title;
-            //application.iconBitmap = entry.icon;
+            application.title = entry.title;
+            application.iconBitmap = entry.icon;
         }
     }
 
@@ -212,7 +212,7 @@ public class IconCache {
                 entry.title = info.activityInfo.name;
             }
 
-            entry.icon = Utility.createIconBitmap(
+            entry.icon = Utilities.createIconBitmap(
                     getFullResIcon(info), mContext);
         }
         return entry;

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import id2.id2me.com.id2launcher.DragSource;
+import id2.id2me.com.id2launcher.IconCache;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
@@ -44,18 +45,19 @@ public class AppItemView extends LinearLayout  {
         ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
         TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
         if(textView!=null)
-        textView.setText(appInfoModel.getAppname());
+        textView.setText(appInfoModel.title);
         if(imageView!=null)
-        imageView.setImageBitmap(appInfoModel.getBitmapIcon());
+        imageView.setImageBitmap(appInfoModel.iconBitmap);
         this.setTag(appInfoModel);
     }
     public void setShortCutModel(ShortcutInfo shortCutModel) {
+        LauncherApplication launcherApplication=LauncherApplication.getApp();
         ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
         TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
         if(textView!=null)
-            textView.setText(shortCutModel.getTitle());
+            textView.setText(shortCutModel.title);
         if(imageView!=null)
-            imageView.setImageBitmap(shortCutModel.getIcon(LauncherApplication.getApp().mIconCache));
+            imageView.setImageBitmap(shortCutModel.getIcon(launcherApplication.mIconCache));
         this.setTag(shortCutModel);
     }
 

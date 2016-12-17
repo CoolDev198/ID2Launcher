@@ -32,7 +32,7 @@ public class WidgetsListManager {
 
     public WidgetsListManager(Context context) {
         this.context = context;
-        getInstalledWidgets();
+        //getInstalledWidgets();
     }
 
     public ArrayList<PendingAddItemInfo> getInstalledWidgets() {
@@ -56,11 +56,11 @@ public class WidgetsListManager {
 //                    if (minSpanX <= ((LauncherApplication) ((Activity) context).getApplication()).getCellCountX() &&
 //                            minSpanY <=  ((LauncherApplication) ((Activity) context).getApplication()).getCellCountY()) {
                         PendingAddItemInfo widgetInfo = new PendingAddItemInfo();
-                        widgetInfo.setPname(widget.provider.getPackageName());
+                      //  widgetInfo.setPname(widget.provider.getPackageName());
                         widgetInfo.setSpanX(spanXY[0]);
                         widgetInfo.setSpanY(spanXY[1]);
-                        widgetInfo.setComponentName(widget.provider);
-                        widgetInfo.setAppWidgetProviderInfo(widget);
+                      //  widgetInfo.setComponentName(widget.provider);
+                       // widgetInfo.setAppWidgetProviderInfo(widget);
                         widgetInfos.add(widgetInfo);
                   //  }
 

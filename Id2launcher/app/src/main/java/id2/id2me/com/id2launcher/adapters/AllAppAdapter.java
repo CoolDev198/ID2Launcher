@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
@@ -29,47 +31,15 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
             this.listeners = listeners;
             launcherApplication = LauncherApplication.getApp();
             this.groupList = launcherApplication.mModel.mBgAllAppsList.data;
-            makeSections();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    private void makeSections() {
-        mapIndex = new LinkedHashMap<Integer, String>();
-        for (int x = 0; x < groupList.size(); x++) {
-            try {
-                String modifyChar;
-
-                char ch = groupList.get(x).getAppname().charAt(0);
-                if (ch >= 'A' && ch <= 'Z') {
-                    modifyChar = Character.toString(ch).toUpperCase();
-
-                } else {
-                    if (ch >= 'a' && ch <= 'z') {
-                        modifyChar = Character.toString(ch).toUpperCase();
-                    } else {
-                        modifyChar = "#";
-                    }
-                }
-
-                mapIndex.put(x, modifyChar);
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @Override
     public String getTextToShowInBubble(int pos) {
-        if (mapIndex.containsKey(pos)) {
-            return mapIndex.get(pos);
-        } else {
-            return "";
-        }
+        return  groupList.get(pos).toString().toUpperCase().substring(0,0);
 
     }
 
