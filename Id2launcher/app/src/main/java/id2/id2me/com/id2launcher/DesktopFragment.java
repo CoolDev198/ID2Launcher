@@ -135,8 +135,8 @@ public class DesktopFragment extends Fragment  {
         CellLayout child;
         int defaultScreens = launcherApplication.DEFAULT_SCREENS;
         for (int i = 0; i < defaultScreens; i++) {
-            child = new CellLayout(context);
-
+            child = (CellLayout)
+                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
             child.setTag(i);
 
             if (i == 0) {

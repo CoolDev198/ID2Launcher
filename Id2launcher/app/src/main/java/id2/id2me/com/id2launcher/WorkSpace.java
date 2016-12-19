@@ -23,6 +23,7 @@ import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
+import timber.log.Timber;
 
 /**
  * Created by sunita on 11/29/16.
@@ -103,6 +104,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     }
 
     public void beginDragShared(View child, DragSource dragSource) {
+        addExtraEmptyScreen();
         Resources r = getResources();
         final Canvas canvas = new Canvas();
 
@@ -371,6 +373,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
     @Override
     public void onDrop(DragObject d) {
+
         if (mDragTargetLayout != null)
             mDragTargetLayout.onDragExit();
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
@@ -551,6 +554,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             }
             parent.onDropChild(cell);
         }
+        removeExtraEmptyScreen();
     }
 
     /**
@@ -975,9 +979,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
 
         if (d.y > scrollView.getHeight() - 150) {
-            scrollView.smoothScrollBy(0, 20);
-        } else if (d.y < 200) {
-            scrollView.smoothScrollBy(0, -20);
+            scrollView.smoothScrollBy(0, 15);
+        } else if (d.y < 300) {
+            scrollView.smoothScrollBy(0, -15);
         }
 
         if (layout != mDragTargetLayout) {
@@ -1241,6 +1245,33 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         // We want the workspace to have the whole area of the display (it will find the correct
         // cell layout to drop to in the existing drag/drop logic.
         outRect.set(0, 0, mDisplaySize.x, mDisplaySize.y);
+    }
+
+    void addExtraEmptyScreen(){
+        View newScreen = null;
+
+        try {
+            newScreen = (CellLayout)
+                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
+            
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+        this.addView(newScreen);
+    }
+
+    void removeExtraEmptyScreen(){
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        int screenCount = getChildCount()-1;
+        if(screenCount>launcherApplication.DEFAULT_SCREENS) {
+            for (int i = 1; i <=screenCount;i++){
+                CellLayout cellLayout= (CellLayout) getChildAt(i);
+                ShortcutAndWidgetContainer shortcutAndWidgetContainer  = (ShortcutAndWidgetContainer) cellLayout.getChildAt(0);
+                if(shortcutAndWidgetContainer.getChildCount()<1) {
+                    removeView(getChildAt(i));
+                }
+            }
+        }
     }
 
 }

@@ -62,7 +62,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             mModel.startLoader(true, -1);
             setTranslucentStatus(true);
             getSupportActionBar().hide();
-            setContentView(R.layout.activity_home);
+            setContentView(R.layout.activity_launcher);
             init();
             //  openNotificationAccess();
             loadDesktop();
