@@ -12,6 +12,4 @@
         android:layout_height="@dimen/folder_preview_size"
         android:src="@color/white"/>
 
-
-
 </id2.id2me.com.id2launcher.itemviews.FolderIcon>

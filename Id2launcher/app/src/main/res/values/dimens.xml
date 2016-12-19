@@ -70,7 +70,10 @@
     <dimen name="dragViewScale">12dp</dimen>
 
     <!-- Folders -->
+    <!-- The size of the image which sits behind the preview of the folder contents -->
     <dimen name="folder_preview_size">62dp</dimen>
+    <!-- The amount that the preview contents are inset from the preview background -->
+    <dimen name="folder_preview_padding">4dp</dimen>
 
 
 </resources>
