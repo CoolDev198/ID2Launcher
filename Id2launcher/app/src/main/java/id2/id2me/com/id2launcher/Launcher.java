@@ -20,10 +20,14 @@ import android.widget.Toast;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.models.FolderInfo;
+import id2.id2me.com.id2launcher.models.ItemInfo;
+import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 import timber.log.Timber;
@@ -292,6 +296,41 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     }
 
     @Override
+    public boolean setLoadOnResume() {
+        return false;
+    }
+
+    @Override
+    public int getCurrentWorkspaceScreen() {
+        return 0;
+    }
+
+    @Override
+    public void startBinding() {
+
+    }
+
+    @Override
+    public void bindItems(ArrayList<ItemInfo> shortcuts, int start, int end) {
+
+    }
+
+    @Override
+    public void bindFolders(HashMap<Long, FolderInfo> folders) {
+
+    }
+
+    @Override
+    public void finishBindingItems() {
+
+    }
+
+    @Override
+    public void bindAppWidget(LauncherAppWidgetInfo info) {
+
+    }
+
+    @Override
     public void bindAllApplications(ArrayList<AppInfo> apps) {
 
     }
@@ -302,12 +341,39 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     }
 
     @Override
-    public void bindAppsUpdated() {
+    public void bindAppsUpdated(ArrayList<AppInfo> apps) {
 
     }
 
     @Override
-    public void bindAppsRemoved(ArrayList<String> packageNames) {
+    public void bindAppsRemoved(ArrayList<String> packageNames, boolean permanent) {
 
     }
+
+    @Override
+    public void bindPackagesUpdated() {
+
+    }
+
+    @Override
+    public boolean isAllAppsVisible() {
+        return false;
+    }
+
+    @Override
+    public boolean isAllAppsButtonRank(int rank) {
+        return false;
+    }
+
+    @Override
+    public void bindSearchablesChanged() {
+
+    }
+
+    @Override
+    public void onPageBoundSynchronously(int page) {
+
+    }
+
+
 }

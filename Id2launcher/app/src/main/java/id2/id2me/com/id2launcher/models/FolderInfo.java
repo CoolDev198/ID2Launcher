@@ -10,7 +10,7 @@ import id2.id2me.com.id2launcher.LauncherSettings;
 /**
  * Represents a folder containing shortcuts or apps.
  */
-class FolderInfo extends ItemInfo {
+public class FolderInfo extends ItemInfo {
 
     /**
      * Whether this folder has been opened
@@ -24,7 +24,7 @@ class FolderInfo extends ItemInfo {
 
     ArrayList<FolderListener> listeners = new ArrayList<FolderListener>();
 
-    FolderInfo() {
+    public FolderInfo() {
         itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_FOLDER;
     }
 

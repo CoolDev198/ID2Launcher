@@ -36,8 +36,6 @@ import id2.id2me.com.id2launcher.models.AppInfo;
  * Cache of application icons.  Icons can be made from any thread.
  */
 public class IconCache {
-    @SuppressWarnings("unused")
-    private static final String TAG = "Launcher.IconCache";
 
     private static final int INITIAL_ICON_CACHE_CAPACITY = 50;
 

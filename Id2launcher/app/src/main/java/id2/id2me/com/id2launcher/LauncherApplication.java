@@ -3,17 +3,14 @@ package id2.id2me.com.id2launcher;
 import android.app.Application;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Rect;
 import android.view.View;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import id2.id2me.com.id2launcher.models.ItemInfo;
-import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
+import id2.id2me.com.id2launcher.models.NotificationWidgetInfo;
 import timber.log.Timber;
 
 /**
@@ -23,7 +20,7 @@ public class LauncherApplication extends Application {
 
     public static final int DEFAULT_SCREENS = 1;
     public static ImageView wallpaperImg;
-    public static List<NotificationWidgetModel> notificationWidgetModels;
+    public static List<NotificationWidgetInfo> notificationWidgetModels;
     static LauncherApplication launcherApplication;
     private static float density;
     public final int CELL_COUNT_X = 4;

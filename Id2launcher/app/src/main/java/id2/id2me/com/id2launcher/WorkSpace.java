@@ -1248,7 +1248,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     }
 
     void addExtraEmptyScreen(){
-        View newScreen = null;
+        CellLayout newScreen = null;
 
         try {
             newScreen = (CellLayout)
@@ -1266,9 +1266,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         if(screenCount>launcherApplication.DEFAULT_SCREENS) {
             for (int i = 1; i <=screenCount;i++){
                 CellLayout cellLayout= (CellLayout) getChildAt(i);
-                ShortcutAndWidgetContainer shortcutAndWidgetContainer  = (ShortcutAndWidgetContainer) cellLayout.getChildAt(0);
-                if(shortcutAndWidgetContainer.getChildCount()<1) {
-                    removeView(getChildAt(i));
+                try {
+                    ShortcutAndWidgetContainer shortcutAndWidgetContainer  = (ShortcutAndWidgetContainer) cellLayout.getChildAt(0);
+                    if(shortcutAndWidgetContainer.getChildCount()<1) {
+                        removeView(getChildAt(i));
+                    }
+                } catch (Exception e) {
+                    Timber.e(e);
                 }
             }
         }

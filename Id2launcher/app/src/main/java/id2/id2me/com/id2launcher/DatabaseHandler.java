@@ -6,13 +6,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.models.ItemInfo;
-import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
+import id2.id2me.com.id2launcher.models.NotificationWidgetInfo;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -297,7 +296,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     public void getNotificationData() {
-        ArrayList<NotificationWidgetModel> notificationWidgetModels = null;
+        ArrayList<NotificationWidgetInfo> notificationWidgetModels = null;
         Cursor cursor = null;
         SQLiteDatabase db = null;
         try {
@@ -310,7 +309,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor = db.query(TABLE_NOTI_WIDGET, null, COLUMN_NOTI_COUNT + ">?", new String[]{"0"}, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                NotificationWidgetModel notificationWidgetModel = new NotificationWidgetModel();
+                NotificationWidgetInfo notificationWidgetModel = new NotificationWidgetInfo();
                 notificationWidgetModel.setPname(cursor.getString(0));
                 notificationWidgetModel.setAppName(cursor.getString(1));
                 notificationWidgetModel.setCount(cursor.getInt(2));

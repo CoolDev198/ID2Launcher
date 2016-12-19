@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.models.FolderInfo;
+import id2.id2me.com.id2launcher.models.ItemInfo;
+import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
+import timber.log.Timber;
 
 /**
  * Created by bliss76 on 23/06/16.
@@ -57,8 +61,7 @@ public class LauncherModel extends BroadcastReceiver {
         mBgAllAppsList = new AllAppsList(iconCache);
         mIconCache = iconCache;
         mApp = LauncherApplication.getApp();
-        final Resources res = mApp.getResources();
-
+        Resources res = mApp.getResources();
         mAllAppsLoadDelay = res.getInteger(R.integer.config_allAppsBatchLoadDelay);
         mBatchSize = res.getInteger(R.integer.config_allAppsBatchSize);
     }
@@ -97,12 +100,6 @@ public class LauncherModel extends BroadcastReceiver {
                 isLaunching = isLaunching || stopLoaderLocked();
                 mLoaderTask = new LoaderTask(mApp, isLaunching);
                 mLoaderTask.run();
-//                if (synchronousBindPage > -1 && mAllAppsLoade){//&& mWorkspaceLoaded) {
-//                    mLoaderTask.runBindSynchronousPage(synchronousBindPage);
-//                } else {
-//                    sWorkerThread.setPriority(Thread.NORM_PRIORITY);
-//                    sWorker.post(mLoaderTask);
-//                }
             }
         }
     }
@@ -182,27 +179,22 @@ public class LauncherModel extends BroadcastReceiver {
 
 
     public interface Callbacks {
-        //        public boolean setLoadOnResume();
-//        public int getCurrentWorkspaceScreen();
-//        public void startBinding();
-//        public void bindItems(ArrayList<ItemInfo> shortcuts, int start, int end);
-//        public void bindFolders(HashMap<Long,FolderInfo> folders);
-//        public void finishBindingItems();
-//        public void bindAppWidget(LauncherAppWidgetInfo info);
+        public boolean setLoadOnResume();
+        public int getCurrentWorkspaceScreen();
+        public void startBinding();
+        public void bindItems(ArrayList<ItemInfo> shortcuts, int start, int end);
+        public void bindFolders(HashMap<Long,FolderInfo> folders);
+        public void finishBindingItems();
+        public void bindAppWidget(LauncherAppWidgetInfo info);
         public void bindAllApplications(ArrayList<AppInfo> apps);
-
-        public void bindAppsAdded(ArrayList<AppInfo> added);
-
-        public void bindAppsUpdated();
-
-        public void bindAppsRemoved(ArrayList<String> packageNames);
-
-
-//        public void bindPackagesUpdated();
-//        public boolean isAllAppsVisible();
-//        public boolean isAllAppsButtonRank(int rank);
-//        public void bindSearchablesChanged();
-//        public void onPageBoundSynchronously(int page);
+        public void bindAppsAdded(ArrayList<AppInfo> apps);
+        public void bindAppsUpdated(ArrayList<AppInfo> apps);
+        public void bindAppsRemoved(ArrayList<String> packageNames, boolean permanent);
+        public void bindPackagesUpdated();
+        public boolean isAllAppsVisible();
+        public boolean isAllAppsButtonRank(int rank);
+        public void bindSearchablesChanged();
+        public void onPageBoundSynchronously(int page);
     }
 
     public static class ShortcutNameComparator implements Comparator<ResolveInfo> {
@@ -317,7 +309,7 @@ public class LauncherModel extends BroadcastReceiver {
             final Callbacks oldCallbacks = mCallbacks.get();
             if (oldCallbacks == null) {
                 // This launcher has exited and nobody bothered to tell us.  Just bail.
-                Log.w(TAG, "LoaderTask running with no launcher (loadAllAppsByBatch)");
+                Timber.v("LoaderTask running with no launcher (loadAllAppsByBatch)");
                 return;
             }
 
@@ -338,7 +330,7 @@ public class LauncherModel extends BroadcastReceiver {
                     final long qiaTime = DEBUG_LOADERS ? SystemClock.uptimeMillis() : 0;
                     apps = packageManager.queryIntentActivities(mainIntent, 0);
                     if (DEBUG_LOADERS) {
-                        Log.d(TAG, "queryIntentActivities took "
+                        Timber.d(TAG, "queryIntentActivities took "
                                 + (SystemClock.uptimeMillis() - qiaTime) + "ms");
                     }
                     if (apps == null) {
