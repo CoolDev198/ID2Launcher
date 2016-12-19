@@ -17,6 +17,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
+import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener
@@ -57,8 +59,8 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
 
+            Fabric.with(this,new Crashlytics());
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
             launcherApplication = ((LauncherApplication) getApplication());
@@ -71,9 +73,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             //  openNotificationAccess();
             loadDesktop();
             setStatusBarStyle();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
     }
 

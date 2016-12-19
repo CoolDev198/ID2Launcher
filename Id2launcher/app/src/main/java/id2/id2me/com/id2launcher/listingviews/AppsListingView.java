@@ -8,8 +8,7 @@ import android.util.AttributeSet;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.adapters.AllAppAdapter;
-import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.AllAppAdapter;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.models.AppInfo;

@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.adapters.WidgetRecycleViewAdapter;
+import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
 
 
 /**

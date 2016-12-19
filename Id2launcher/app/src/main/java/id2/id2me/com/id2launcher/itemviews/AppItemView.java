@@ -23,9 +23,21 @@ import id2.id2me.com.id2launcher.models.AppInfo;
 
 public class AppItemView extends LinearLayout  {
 
-     AppItemView(Context context, AttributeSet attrs) {
-        super(context, attrs);
 
+    public AppItemView(Context context) {
+        super(context);
+    }
+
+    public AppItemView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AppItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public AppItemView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     @Override

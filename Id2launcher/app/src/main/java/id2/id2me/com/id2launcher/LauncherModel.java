@@ -244,7 +244,7 @@ public class LauncherModel extends BroadcastReceiver {
      *   - widgets
      *   - all apps icons
      */
-    private class LoaderTask implements Runnable {
+     class LoaderTask implements Runnable {
         private Context mContext;
         private boolean mIsLaunching;
         private boolean mIsLoadingAndBindingWorkspace;
@@ -258,13 +258,13 @@ public class LauncherModel extends BroadcastReceiver {
             mIsLaunching = isLaunching;
             mLabelCache = new HashMap<Object, CharSequence>();
         }
+
+
         boolean isLaunching() {
             return mIsLaunching;
         }
 
-        public void run() {
-            loadAllAppsByBatch();
-        }
+
         public void stopLocked() {
             synchronized (LoaderTask.this) {
                 mStopped = true;
@@ -416,6 +416,10 @@ public class LauncherModel extends BroadcastReceiver {
             }
         }
 
+        @Override
+        public void run() {
+            loadAllAppsByBatch();
+        }
     }
 
         private class PackageUpdatedTask implements Runnable {
