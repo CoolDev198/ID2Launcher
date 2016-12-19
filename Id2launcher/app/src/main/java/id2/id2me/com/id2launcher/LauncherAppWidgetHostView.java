@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfo;
 
 
 /**
@@ -67,9 +67,8 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
     private void onDragWidget() {
 
         try {
-            launcherApplication.dragInfo = (ItemInfoModel) this.getTag();
+            launcherApplication.dragInfo = (ItemInfo) this.getTag();
 
-            launcherApplication.dragInfo.setDropExternal(false);
             Canvas canvas = new Canvas();
             //outlineBmp = launcherApplication.createDragOutline(launcherAppWidgetHostView );
             //launcherApplication.dragAnimation(this);

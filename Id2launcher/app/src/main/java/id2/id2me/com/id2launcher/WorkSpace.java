@@ -1,6 +1,5 @@
 package id2.id2me.com.id2launcher;
 
-import android.appwidget.AppWidgetHostView;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -18,9 +17,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+import java.util.ArrayList;
+
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
-import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.models.ItemInfo;
+import id2.id2me.com.id2launcher.models.ShortcutInfo;
+import timber.log.Timber;
 
 /**
  * Created by sunita on 11/29/16.
@@ -29,10 +32,14 @@ import id2.id2me.com.id2launcher.models.ItemInfoModel;
 public class WorkSpace extends LinearLayout implements DropTarget, DragSource, DragScroller {
     public static final int DRAG_BITMAP_PADDING = 2;
     private static final Rect sTempRect = new Rect();
+    private static final int BACKGROUND_FADE_OUT_DURATION = 350;
+    private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
+    private static final int FLING_THRESHOLD_VELOCITY = 500;
     private final HolographicOutlineHelper mOutlineHelper = new HolographicOutlineHelper();
     private final int[] mTempXY = new int[2];
     Launcher launcher;
     ObservableScrollView scrollView;
+    boolean mAnimatingViewIntoPlace = false;
     private Bitmap mDragOutline = null;
     private float[] mDragViewVisualCenter = new float[2];
     private Matrix mTempInverseMatrix = new Matrix();
@@ -77,9 +84,30 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     }
 
 
+    void startDrag(View child) {
+        mDragInfo = new CellLayout.CellInfo();
+        ShortcutInfo shortcutInfo = (ShortcutInfo) child.getTag();
+        mDragInfo.cell = child;
+        mDragInfo.spanX = shortcutInfo.spanX;
+        mDragInfo.spanY = shortcutInfo.spanY;
+        mDragInfo.screen = shortcutInfo.getScreen();
+
+        // Make sure the drag was started by a long press as opposed to a long click.
+        if (!child.isInTouchMode()) {
+            return;
+        }
+
+        child.setVisibility(INVISIBLE);
+        CellLayout layout = (CellLayout) child.getParent().getParent();
+        layout.prepareChildForDrag(child);
+        beginDragShared(child, this);
+    }
+
     public void beginDragShared(View child, DragSource dragSource) {
+        addExtraEmptyScreen();
         Resources r = getResources();
         final Canvas canvas = new Canvas();
+
 
         scrollView = (ObservableScrollView) ((View) getParent());
 
@@ -285,13 +313,27 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
      * Returns a specific CellLayout
      */
     CellLayout getParentCellLayoutForView(View v) {
-//        ArrayList<CellLayout> layouts = getWorkspaceAndHotseatCellLayouts();
-//        for (CellLayout layout : layouts) {
-//            if (layout.getShortcutsAndWidgets().indexOfChild(v) > -1) {
-//                return layout;
-//            }
-//        }
+        ArrayList<CellLayout> layouts = getWorkspaceAndHotseatCellLayouts();
+        for (CellLayout layout : layouts) {
+            if (layout.getShortcutsAndWidgets().indexOfChild(v) > -1) {
+                return layout;
+            }
+        }
         return null;
+    }
+
+    /**
+     * Returns a list of all the CellLayouts in the workspace.
+     */
+    ArrayList<CellLayout> getWorkspaceAndHotseatCellLayouts() {
+        ArrayList<CellLayout> layouts = new ArrayList<CellLayout>();
+        int screenCount = getChildCount();
+        for (int screen = 0; screen < screenCount; screen++) {
+            View layout = getChildAt(screen);
+            if (layout instanceof CellLayout)
+                layouts.add(((CellLayout) layout));
+        }
+        return layouts;
     }
 
     @Override
@@ -331,6 +373,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
     @Override
     public void onDrop(DragObject d) {
+
         if (mDragTargetLayout != null)
             mDragTargetLayout.onDragExit();
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
@@ -356,28 +399,26 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         } else if (mDragInfo != null) {
             final View cell = mDragInfo.cell;
 
-//            Runnable resizeRunnable = null;
-//            if (dropTargetLayout != null) {
-//                // Move internally
-//                boolean hasMovedLayouts = (getParentCellLayoutForView(cell) != dropTargetLayout);
-//                boolean hasMovedIntoHotseat = mLauncher.isHotseatLayout(dropTargetLayout);
-//                long container = hasMovedIntoHotseat ?
-//                        LauncherSettings.Favorites.CONTAINER_HOTSEAT :
-//                        LauncherSettings.Favorites.CONTAINER_DESKTOP;
-//                int screen = (mTargetCell[0] < 0) ?
-//                        mDragInfo.screen : indexOfChild(dropTargetLayout);
-//                int spanX = mDragInfo != null ? mDragInfo.spanX : 1;
-//                int spanY = mDragInfo != null ? mDragInfo.spanY : 1;
-//                // First we find the cell nearest to point at which the item is
-//                // dropped, without any consideration to whether there is an item there.
-//
-//                mTargetCell = findNearestArea((int) mDragViewVisualCenter[0], (int)
-//                        mDragViewVisualCenter[1], spanX, spanY, dropTargetLayout, mTargetCell);
-//                float distance = dropTargetLayout.getDistanceFromCell(mDragViewVisualCenter[0],
-//                        mDragViewVisualCenter[1], mTargetCell);
-//
-//                // If the item being dropped is a shortcut and the nearest drop
-//                // cell also contains a shortcut, then create a folder with the two shortcuts.
+            Runnable resizeRunnable = null;
+            if (dropTargetLayout != null) {
+                // Move internally
+                boolean hasMovedLayouts = (getParentCellLayoutForView(cell) != dropTargetLayout);
+
+                long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
+                int screen = (mTargetCell[0] < 0) ?
+                        mDragInfo.screen : indexOfChild(dropTargetLayout);
+                int spanX = mDragInfo != null ? mDragInfo.spanX : 1;
+                int spanY = mDragInfo != null ? mDragInfo.spanY : 1;
+                // First we find the cell nearest to point at which the item is
+                // dropped, without any consideration to whether there is an item there.
+
+                mTargetCell = findNearestArea((int) mDragViewVisualCenter[0], (int)
+                        mDragViewVisualCenter[1], spanX, spanY, dropTargetLayout, mTargetCell);
+                float distance = dropTargetLayout.getDistanceFromCell(mDragViewVisualCenter[0],
+                        mDragViewVisualCenter[1], mTargetCell);
+
+                // If the item being dropped is a shortcut and the nearest drop
+                // cell also contains a shortcut, then create a folder with the two shortcuts.
 //                if (!mInScrollArea && createUserFolderIfNecessary(cell, container,
 //                        dropTargetLayout, mTargetCell, distance, false, d.dragView, null)) {
 //                    return;
@@ -387,25 +428,25 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                        distance, d, false)) {
 //                    return;
 //                }
-//
-//                // Aside from the special case where we're dropping a shortcut onto a shortcut,
-//                // we need to find the nearest cell location that is vacant
-//                ItemInfo item = (ItemInfo) d.dragInfo;
-//                int minSpanX = item.spanX;
-//                int minSpanY = item.spanY;
-//                if (item.minSpanX > 0 && item.minSpanY > 0) {
-//                    minSpanX = item.minSpanX;
-//                    minSpanY = item.minSpanY;
-//                }
-//
-//                int[] resultSpan = new int[2];
-//                mTargetCell = dropTargetLayout.createArea((int) mDragViewVisualCenter[0],
-//                        (int) mDragViewVisualCenter[1], minSpanX, minSpanY, spanX, spanY, cell,
-//                        mTargetCell, resultSpan, CellLayout.MODE_ON_DROP);
-//
-//                boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
-//
-//                // if the widget resizes on drop
+
+                // Aside from the special case where we're dropping a shortcut onto a shortcut,
+                // we need to find the nearest cell location that is vacant
+                ItemInfo item = (ItemInfo) d.dragInfo;
+                int minSpanX = item.spanX;
+                int minSpanY = item.spanY;
+                if (item.minSpanX > 0 && item.minSpanY > 0) {
+                    minSpanX = item.minSpanX;
+                    minSpanY = item.minSpanY;
+                }
+
+                int[] resultSpan = new int[2];
+                mTargetCell = dropTargetLayout.createArea((int) mDragViewVisualCenter[0],
+                        (int) mDragViewVisualCenter[1], minSpanX, minSpanY, spanX, spanY, cell,
+                        mTargetCell, resultSpan, CellLayout.MODE_ON_DROP);
+
+                boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
+
+                // if the widget resizes on drop
 //                if (foundCell && (cell instanceof AppWidgetHostView) &&
 //                        (resultSpan[0] != item.spanX || resultSpan[1] != item.spanY)) {
 //                    resizeOnDrop = true;
@@ -415,31 +456,31 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                    AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, mLauncher, resultSpan[0],
 //                            resultSpan[1]);
 //                }
-//
+
 //                if (mCurrentPage != screen && !hasMovedIntoHotseat) {
 //                    snapScreen = screen;
 //                    snapToPage(screen);
 //                }
-//
-//                if (foundCell) {
-//                    final ItemInfo info = (ItemInfo) cell.getTag();
-//                    if (hasMovedLayouts) {
-//                        // Reparent the view
-//                        getParentCellLayoutForView(cell).removeView(cell);
-//                        addInScreen(cell, container, screen, mTargetCell[0], mTargetCell[1],
-//                                info.spanX, info.spanY);
-//                    }
-//
-//                    // update the item's position after drop
-//                    CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
-//                    lp.cellX = lp.tmpCellX = mTargetCell[0];
-//                    lp.cellY = lp.tmpCellY = mTargetCell[1];
-//                    lp.cellHSpan = item.spanX;
-//                    lp.cellVSpan = item.spanY;
-//                    lp.isLockedToGrid = true;
-//                    cell.setId(LauncherModel.getCellLayoutChildId(container, mDragInfo.screen,
-//                            mTargetCell[0], mTargetCell[1], mDragInfo.spanX, mDragInfo.spanY));
-//
+
+                if (foundCell) {
+                    final ItemInfo info = (ItemInfo) cell.getTag();
+                    if (hasMovedLayouts) {
+                        // Reparent the view
+                        getParentCellLayoutForView(cell).removeView(cell);
+                        addInScreen(cell, container, screen, mTargetCell[0], mTargetCell[1],
+                                info.spanX, info.spanY);
+                    }
+
+                    // update the item's position after drop
+                    CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
+                    lp.cellX = lp.tmpCellX = mTargetCell[0];
+                    lp.cellY = lp.tmpCellY = mTargetCell[1];
+                    lp.cellHSpan = item.spanX;
+                    lp.cellVSpan = item.spanY;
+                    lp.isLockedToGrid = true;
+                    cell.setId(LauncherModel.getCellLayoutChildId(container, mDragInfo.screen,
+                            mTargetCell[0], mTargetCell[1], mDragInfo.spanX, mDragInfo.spanY));
+
 //                    if (container != LauncherSettings.Favorites.CONTAINER_HOTSEAT &&
 //                            cell instanceof LauncherAppWidgetHostView) {
 //                        final CellLayout cellLayout = dropTargetLayout;
@@ -467,57 +508,68 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                            });
 //                        }
 //                    }
-//
-//                    LauncherModel.moveItemInDatabase(mLauncher, info, container, screen, lp.cellX,
-//                            lp.cellY);
-//                } else {
-//                    // If we can't find a drop location, we return the item to its original position
-//                    CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
-//                    mTargetCell[0] = lp.cellX;
-//                    mTargetCell[1] = lp.cellY;
-//                    CellLayout layout = (CellLayout) cell.getParent().getParent();
-//                    layout.markCellsAsOccupiedForView(cell);
-//                }
-//            }
-//
-//            final CellLayout parent = (CellLayout) cell.getParent().getParent();
-//            final Runnable finalResizeRunnable = resizeRunnable;
-//            // Prepare it to be animated into its new position
-//            // This must be called after the view has been re-parented
-//            final Runnable onCompleteRunnable = new Runnable() {
-//                @Override
-//                public void run() {
-//                    mAnimatingViewIntoPlace = false;
+
+                    //  LauncherModel.moveItemInDatabase(mLauncher, info, container, screen, lp.cellX,
+                    //lp.cellY);
+                } else {
+                    // If we can't find a drop location, we return the item to its original position
+                    CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
+                    mTargetCell[0] = lp.cellX;
+                    mTargetCell[1] = lp.cellY;
+                    CellLayout layout = (CellLayout) cell.getParent().getParent();
+                    layout.markCellsAsOccupiedForView(cell);
+                }
+            }
+
+            final CellLayout parent = (CellLayout) cell.getParent().getParent();
+            final Runnable finalResizeRunnable = resizeRunnable;
+            // Prepare it to be animated into its new position
+            // This must be called after the view has been re-parented
+            final Runnable onCompleteRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mAnimatingViewIntoPlace = false;
 //                    updateChildrenLayersEnabled(false);
 //                    if (finalResizeRunnable != null) {
 //                        finalResizeRunnable.run();
 //                    }
-//                }
-//            };
-//            mAnimatingViewIntoPlace = true;
-//            if (d.dragView.hasDrawn()) {
-//                final ItemInfo info = (ItemInfo) cell.getTag();
+                }
+            };
+            // mAnimatingViewIntoPlace = true;
+            if (d.dragView.hasDrawn()) {
+                final ItemInfo info = (ItemInfo) cell.getTag();
 //                if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {
 //                    int animationType = resizeOnDrop ? ANIMATE_INTO_POSITION_AND_RESIZE :
 //                            ANIMATE_INTO_POSITION_AND_DISAPPEAR;
 //                    animateWidgetDrop(info, parent, d.dragView,
 //                            onCompleteRunnable, animationType, cell, false);
 //                } else {
-//                    int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
-//                    mLauncher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
-//                            onCompleteRunnable, this);
-//                }
-//            } else {
-//                d.deferDragViewCleanupPostAnimation = false;
-//                cell.setVisibility(VISIBLE);
-//            }
-//            parent.onDropChild(cell);
+                int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
+                launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
+                        onCompleteRunnable, this);
+                // }
+            } else {
+                //   d.deferDragViewCleanupPostAnimation = false;
+                cell.setVisibility(VISIBLE);
+            }
+            parent.onDropChild(cell);
         }
-        }
+        removeExtraEmptyScreen();
+    }
 
-    private void onDropExternal(int[] touchXY, Object dragInfo,
-                                CellLayout cellLayout, boolean insertAtFirst) {
-        onDropExternal(touchXY, dragInfo, cellLayout, insertAtFirst, null);
+    /**
+     * Adds the specified child in the specified screen. The position and dimension of
+     * the child are defined by x, y, spanX and spanY.
+     *
+     * @param child  The child to add in one of the workspace's screens.
+     * @param screen The screen in which to add the child.
+     * @param x      The X position of the child in the screen's grid.
+     * @param y      The Y position of the child in the screen's grid.
+     * @param spanX  The number of cells spanned horizontally by the child.
+     * @param spanY  The number of cells spanned vertically by the child.
+     */
+    void addInScreen(View child, long container, int screen, int x, int y, int spanX, int spanY) {
+        addInScreen(child, container, screen, x, y, spanX, spanY, false);
     }
 
     /**
@@ -531,7 +583,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     private void onDropExternal(final int[] touchXY, final Object dragInfo,
                                 final CellLayout cellLayout, boolean insertAtFirst, DragObject d) {
 
-        ItemInfoModel info = (ItemInfoModel) dragInfo;
+        ItemInfo info = (ItemInfo) dragInfo;
         int spanX = info.getSpanX();
         int spanY = info.getSpanY();
         if (mDragInfo != null) {
@@ -559,7 +611,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 ////                }
 //            }
 //
-//            final ItemInfoModel item = (ItemInfoModel) d.dragInfo;
+//            final ItemInfo item = (ItemInfo) d.dragInfo;
 //            boolean updateWidgetSize = false;
 //            if (findNearestVacantCell) {
 //                int minSpanX = item.getSpanX();
@@ -620,37 +672,37 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 ////            animateWidgetDrop(info, cellLayout, d.dragView, onAnimationCompleteRunnable,
 ////                    animationStyle, finalView, true);
 //        } else {
-            // This is for other drag/drop cases, like dragging from All Apps
-            View view = null;
+        // This is for other drag/drop cases, like dragging from All Apps
+        View view = null;
 
-            switch (info.getItemType()) {
-                case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                    if (info instanceof AppInfoModel) {
-                        // Came from all apps -- make a copy
-                        info = new ShortcutInfo((AppInfoModel) info);
-                    }
+        switch (info.getItemType()) {
+            case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
+            case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
+                if (info instanceof AppInfo) {
+                    // Came from all apps -- make a copy
+                    info = new ShortcutInfo((AppInfo) info);
+                }
 
-                    view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
-                            (ShortcutInfo) info);
-                    break;
+                view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
+                        (ShortcutInfo) info, this);
+                break;
 //                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
 //                    view = FolderIcon.fromXml(R.layout.folder_icon, mLauncher, cellLayout,
 //                            (FolderInfo) info, mIconCache);
 //                    break;
-                default:
-                    //throw new IllegalStateException("Unknown item type: " + info.itemType);
-            }
+            default:
+                //throw new IllegalStateException("Unknown item type: " + info.itemType);
+        }
 
-            // First we find the cell nearest to point at which the item is
-            // dropped, without any consideration to whether there is an item there.
-            if (touchXY != null) {
-                mTargetCell = findNearestArea((int) touchXY[0], (int) touchXY[1], spanX, spanY,
-                        cellLayout, mTargetCell);
-                float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
-                        mDragViewVisualCenter[1], mTargetCell);
+        // First we find the cell nearest to point at which the item is
+        // dropped, without any consideration to whether there is an item there.
+        if (touchXY != null) {
+            mTargetCell = findNearestArea((int) touchXY[0], (int) touchXY[1], spanX, spanY,
+                    cellLayout, mTargetCell);
+            float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
+                    mDragViewVisualCenter[1], mTargetCell);
 
-                //d.postAnimationRunnable = exitSpringLoadedRunnable;
+            //d.postAnimationRunnable = exitSpringLoadedRunnable;
 //                if (createUserFolderIfNecessary(view, container, cellLayout, mTargetCell, distance,
 //                        true, d.dragView, d.postAnimationRunnable)) {
 //                    return;
@@ -659,50 +711,50 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                        true)) {
 //                    return;
 //                }
-            }
+        }
 
-            if (touchXY != null) {
-                // when dragging and dropping, just find the closest free spot
-                mTargetCell = cellLayout.createArea((int) mDragViewVisualCenter[0],
-                        (int) mDragViewVisualCenter[1], 1, 1, 1, 1,
-                        null, mTargetCell, null, CellLayout.MODE_ON_DROP_EXTERNAL);
-            } else {
-                cellLayout.findCellForSpan(mTargetCell, 1, 1);
-            }
+        if (touchXY != null) {
+            // when dragging and dropping, just find the closest free spot
+            mTargetCell = cellLayout.createArea((int) mDragViewVisualCenter[0],
+                    (int) mDragViewVisualCenter[1], 1, 1, 1, 1,
+                    null, mTargetCell, null, CellLayout.MODE_ON_DROP_EXTERNAL);
+        } else {
+            cellLayout.findCellForSpan(mTargetCell, 1, 1);
+        }
 
-            addInScreen(view, container, screen, mTargetCell[0], mTargetCell[1], info.spanX,
-                    info.spanY, insertAtFirst);
+        addInScreen(view, container, screen, mTargetCell[0], mTargetCell[1], info.spanX,
+                info.spanY, insertAtFirst);
 
-            cellLayout.onDropChild(view);
-            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
-            cellLayout.getShortcutsAndWidgets().measureChild(view);
+        cellLayout.onDropChild(view);
+        CellLayout.LayoutParams lp = (CellLayout.LayoutParams) view.getLayoutParams();
+        cellLayout.getShortcutsAndWidgets().measureChild(view);
 
 
 //            LauncherModel.addOrMoveItemInDatabase(mLauncher, info, container, screen,
 //                    lp.cellX, lp.cellY);
 
-            if (d.dragView != null) {
-                // We wrap the animation call in the temporary set and reset of the current
-                // cellLayout to its final transform -- this means we animate the drag view to
-                // the correct final location.
+        if (d.dragView != null) {
+            // We wrap the animation call in the temporary set and reset of the current
+            // cellLayout to its final transform -- this means we animate the drag view to
+            // the correct final location.
 //                setFinalTransitionTransform(cellLayout);
 //                mLauncher.getDragLayer().animateViewIntoPosition(d.dragView, view,
 //                        exitSpringLoadedRunnable);
-               // resetTransitionTransform(cellLayout);
-            }
-       // }
+            // resetTransitionTransform(cellLayout);
+        }
+        // }
     }
 
     /**
      * Adds the specified child in the specified screen. The position and dimension of
      * the child are defined by x, y, spanX and spanY.
      *
-     * @param child The child to add in one of the workspace's screens.
+     * @param child  The child to add in one of the workspace's screens.
      * @param screen The screen in which to add the child.
-     * @param x The X position of the child in the screen's grid.
-     * @param y The Y position of the child in the screen's grid.
-     * @param spanX The number of cells spanned horizontally by the child.
-     * @param spanY The number of cells spanned vertically by the child.
+     * @param x      The X position of the child in the screen's grid.
+     * @param y      The Y position of the child in the screen's grid.
+     * @param spanX  The number of cells spanned horizontally by the child.
+     * @param spanY  The number of cells spanned vertically by the child.
      * @param insert When true, the child is inserted at the beginning of the children list.
      */
     void addInScreen(View child, long container, int screen, int x, int y, int spanX, int spanY,
@@ -716,13 +768,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
 
         final CellLayout layout;
-            // Show folder title if not in the hotseat
-            if (child instanceof FolderItemView) {
-               // ((FolderItemView) child).setTextVisible(true);
-            }
+        // Show folder title if not in the hotseat
+        if (child instanceof FolderItemView) {
+            // ((FolderItemView) child).setTextVisible(true);
+        }
 
-            layout = (CellLayout) getChildAt(screen);
-           // child.setOnKeyListener(new IconKeyEventListener());
+        layout = (CellLayout) getChildAt(screen);
+        // child.setOnKeyListener(new IconKeyEventListener());
 
 
         ViewGroup.LayoutParams genericLp = child.getLayoutParams();
@@ -759,7 +811,8 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //            launcher.getDragController().addDropTarget((DropTarget) child);
 //        }
     }
-//    boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
+
+    //    boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
 //            distance, boolean considerTimeout) {
 //        if (distance > mMaxDistanceForFolderCreation) return false;
 //        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
@@ -912,7 +965,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
         Rect r = new Rect();
         CellLayout layout = null;
-        ItemInfoModel item = (ItemInfoModel) d.dragInfo;
+        ItemInfo item = (ItemInfo) d.dragInfo;
         // Ensure that we have proper spans for the item that we are dropping
         if (item.getSpanY() < 0 || item.getSpanX() < 0)
             throw new RuntimeException("Improper spans found");
@@ -926,9 +979,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
 
         if (d.y > scrollView.getHeight() - 150) {
-            scrollView.smoothScrollBy(0, 20);
-        } else if (d.y < 200) {
-            scrollView.smoothScrollBy(0, -20);
+            scrollView.smoothScrollBy(0, 15);
+        } else if (d.y < 300) {
+            scrollView.smoothScrollBy(0, -15);
         }
 
         if (layout != mDragTargetLayout) {
@@ -944,7 +997,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             mapPointFromSelfToChild(mDragTargetLayout, mDragViewVisualCenter, null);
             // }
 
-            ItemInfoModel info = (ItemInfoModel) d.dragInfo;
+            ItemInfo info = (ItemInfo) d.dragInfo;
 
 
             int ycalc = d.y - (mDragTargetLayout.getTop() - scrollView.getScrollY());
@@ -1192,6 +1245,37 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         // We want the workspace to have the whole area of the display (it will find the correct
         // cell layout to drop to in the existing drag/drop logic.
         outRect.set(0, 0, mDisplaySize.x, mDisplaySize.y);
+    }
+
+    void addExtraEmptyScreen(){
+        CellLayout newScreen = null;
+
+        try {
+            newScreen = (CellLayout)
+                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
+            
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+        this.addView(newScreen);
+    }
+
+    void removeExtraEmptyScreen(){
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        int screenCount = getChildCount()-1;
+        if(screenCount>launcherApplication.DEFAULT_SCREENS) {
+            for (int i = 1; i <=screenCount;i++){
+                CellLayout cellLayout= (CellLayout) getChildAt(i);
+                try {
+                    ShortcutAndWidgetContainer shortcutAndWidgetContainer  = (ShortcutAndWidgetContainer) cellLayout.getChildAt(0);
+                    if(shortcutAndWidgetContainer.getChildCount()<1) {
+                        removeView(getChildAt(i));
+                    }
+                } catch (Exception e) {
+                    Timber.e(e);
+                }
+            }
+        }
     }
 
 }
