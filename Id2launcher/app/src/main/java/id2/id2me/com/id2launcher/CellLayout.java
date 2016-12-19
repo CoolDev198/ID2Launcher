@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfo;
 import timber.log.Timber;
 
 /**
@@ -99,8 +99,17 @@ public class CellLayout extends ViewGroup {
     private int[] mDirectionVector = new int[2];
 
     public CellLayout(Context context) {
-        super(context);
-        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
+        this(context, null);
+    }
+
+    public CellLayout(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public CellLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        launcherApplication = LauncherApplication.getApp();
 
         mCellWidth = getResources().getDimensionPixelSize(R.dimen.cell_width);
         mCellHeight = getResources().getDimensionPixelSize(R.dimen.cell_height);
@@ -123,8 +132,6 @@ public class CellLayout extends ViewGroup {
         // Set up all the animations that are used to implement this fading.
 
         setWillNotDraw(false);
-
-        setAlwaysDrawnWithCacheEnabled(false);
 
         mReorderHintAnimationMagnitude = (REORDER_HINT_MAGNITUDE *
                 getResources().getDimensionPixelSize(R.dimen.app_icon_size));
@@ -181,6 +188,10 @@ public class CellLayout extends ViewGroup {
         addView(mShortcutsAndWidgets);
     }
 
+
+    public void prepareChildForDrag(View child) {
+        markCellsAsUnoccupiedForView(child);
+    }
     public void setGridSize(int x, int y) {
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];
@@ -552,7 +563,7 @@ public class CellLayout extends ViewGroup {
         for (int i = 0; i < childCount; i++) {
             View child = mShortcutsAndWidgets.getChildAt(i);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            ItemInfoModel info = (ItemInfoModel) child.getTag();
+            ItemInfo info = (ItemInfo) child.getTag();
             // We do a null check here because the item info can be null in the case of the
             // AllApps button in the hotseat.
             if (info != null) {
@@ -694,7 +705,7 @@ public class CellLayout extends ViewGroup {
 
         if (clc.indexOfChild(child) != -1) {
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            final ItemInfoModel info = (ItemInfoModel) child.getTag();
+            final ItemInfo info = (ItemInfo) child.getTag();
 
             // We cancel any existing animations
             if (mReorderAnimators.containsKey(lp)) {

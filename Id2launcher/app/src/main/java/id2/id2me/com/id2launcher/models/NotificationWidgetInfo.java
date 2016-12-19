@@ -3,7 +3,7 @@ package id2.id2me.com.id2launcher.models;
 /**
  * Created by apple on 23/02/16.
  */
-public class NotificationWidgetModel {
+public class NotificationWidgetInfo {
 
     private String pName;
     private String appName;

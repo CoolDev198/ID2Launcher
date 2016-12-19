@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.models.AppInfoModel;
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.IconCache;
+import id2.id2me.com.id2launcher.LauncherSettings;
 
 /**
  * Represents a launchable icon on the workspaces and in folders.
  */
-public class ShortcutInfo extends ItemInfoModel {
+public class ShortcutInfo extends ItemInfo {
 
     /**
      * The intent used to start the application.
@@ -78,11 +77,10 @@ public class ShortcutInfo extends ItemInfoModel {
     }
 
     /** TODO: Remove this.  It's only called by ApplicationInfo.makeShortcut. */
-    public ShortcutInfo(AppInfoModel info) {
+    public ShortcutInfo(AppInfo info) {
         super(info);
         title = info.title.toString();
         intent = new Intent(info.intent);
-        mIcon=info.getBitmapIcon();
         customIcon = false;
     }
 

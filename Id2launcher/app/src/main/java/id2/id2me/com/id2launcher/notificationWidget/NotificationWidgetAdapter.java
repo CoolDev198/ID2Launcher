@@ -14,7 +14,7 @@ import android.widget.TextView;
 import id2.id2me.com.id2launcher.DatabaseHandler;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
+import id2.id2me.com.id2launcher.models.NotificationWidgetInfo;
 
 /**
  * Created by apple on 23/02/16.
@@ -40,7 +40,7 @@ public class NotificationWidgetAdapter extends RecyclerView.Adapter<Notification
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        final NotificationWidgetModel model = LauncherApplication.notificationWidgetModels.get(position);
+        final NotificationWidgetInfo model = LauncherApplication.notificationWidgetModels.get(position);
         holder.appImage.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(model.getAppImageName(), "drawable", context.getPackageName())));
         holder.notificationCount.setText(model.getCount() + "");
 

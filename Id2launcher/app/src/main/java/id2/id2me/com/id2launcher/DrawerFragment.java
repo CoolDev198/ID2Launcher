@@ -1,28 +1,29 @@
 package id2.id2me.com.id2launcher;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 
 import id2.id2me.com.id2launcher.listingviews.AppsListingView;
 import id2.id2me.com.id2launcher.listingviews.WidgetsListingView;
+import timber.log.Timber;
 
 /**
  * Created by sunita on 10/13/16.
  */
 
-public class DrawerFragment extends Fragment implements  DragSource  {
+public class DrawerFragment extends Fragment   {
 
+    Button btnApp, btnWidget;
+    AppsListingView appsListingView;
+    WidgetsListingView widgetsListingView;
     private View fragmentView;
-    Button btnApp,btnWidget;
 
     public static DrawerFragment newInstance() {
         DrawerFragment f = new DrawerFragment();
@@ -36,11 +37,8 @@ public class DrawerFragment extends Fragment implements  DragSource  {
         fragmentView = inflater.inflate(R.layout.drawer_fragment, container, false);
         btnApp = (Button) fragmentView.findViewById(R.id.btnApps);
         btnWidget = (Button) fragmentView.findViewById(R.id.btnWidget);
-        final AppsListingView appsListingView = (AppsListingView) fragmentView.findViewById(R.id.app_listing_view);
-        final WidgetsListingView widgetsListingView = (WidgetsListingView) fragmentView.findViewById(R.id.widget_listing_view);
-
-
-        appsListingView.setDragSource(this);
+        appsListingView = (AppsListingView) fragmentView.findViewById(R.id.app_listing_view);
+        widgetsListingView = (WidgetsListingView) fragmentView.findViewById(R.id.widget_listing_view);
 
         btnApp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,34 +69,8 @@ public class DrawerFragment extends Fragment implements  DragSource  {
         super.onAttach(context);
     }
 
-
     @Override
-    public boolean supportsFlingToDelete() {
-        return false;
-    }
-
-    @Override
-    public boolean supportsAppInfoDropTarget() {
-        return false;
-    }
-
-    @Override
-    public boolean supportsDeleteDropTarget() {
-        return false;
-    }
-
-    @Override
-    public float getIntrinsicIconScaleFactor() {
-        return 0;
-    }
-
-    @Override
-    public void onFlingToDeleteCompleted() {
-
-    }
-
-    @Override
-    public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
-
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
     }
 }
