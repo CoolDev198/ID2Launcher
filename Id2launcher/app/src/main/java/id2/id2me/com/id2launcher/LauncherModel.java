@@ -63,12 +63,21 @@ public class LauncherModel extends BroadcastReceiver {
         mBatchSize = res.getInteger(R.integer.config_allAppsBatchSize);
     }
 
-    public static ComponentName getComponentNameFromResolveInfo(ResolveInfo info) {
-        return null;
+    static ComponentName getComponentNameFromResolveInfo(ResolveInfo info) {
+        if (info.activityInfo != null) {
+            return new ComponentName(info.activityInfo.packageName, info.activityInfo.name);
+        } else {
+            return new ComponentName(info.serviceInfo.packageName, info.serviceInfo.name);
+        }
     }
 
-    public static int getCellLayoutChildId(long container, int screen, int x, int y, int spanX, int spanY) {
-        return 0;
+    /**
+     * Creates a new unique child id, for a given cell span across all layouts.
+     */
+    static int getCellLayoutChildId(
+            long container, int screen, int localCellX, int localCellY, int spanX, int spanY) {
+        return (((int) container & 0xFF) << 24)
+                | (screen & 0xFF) << 16 | (localCellX & 0xFF) << 8 | (localCellY & 0xFF);
     }
 
     public void startLoader(boolean isLaunching, int synchronousBindPage) {
@@ -362,7 +371,7 @@ public class LauncherModel extends BroadcastReceiver {
 
                 startIndex = i;
                 for (int j = 0; i < N && j < batchSize; j++) {
-                    // This builds the icon bitmaps.
+                    // This builds the icon bitma®ps.
                     mBgAllAppsList.add(new AppInfo(packageManager, apps.get(i),
                             mIconCache, mLabelCache));
                     i++;

@@ -53,9 +53,7 @@ public class AppItemView extends LinearLayout  {
     public void setShortCutModel(ShortcutInfo shortCutModel) {
         LauncherApplication launcherApplication=LauncherApplication.getApp();
         ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
-        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
-        if(textView!=null)
-            textView.setText(shortCutModel.title);
+        setTextVisibility(GONE);
         if(imageView!=null)
             imageView.setImageBitmap(shortCutModel.getIcon(launcherApplication.mIconCache));
         this.setTag(shortCutModel);
