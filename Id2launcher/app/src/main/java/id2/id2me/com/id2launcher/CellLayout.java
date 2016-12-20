@@ -97,6 +97,8 @@ public class CellLayout extends ViewGroup {
     private Rect mOccupiedRect = new Rect();
     private boolean mDragging = false;
     private int[] mDirectionVector = new int[2];
+    private boolean mLastDownOnOccupiedCell = false;
+    private OnTouchListener mInterceptTouchListener;
 
     public CellLayout(Context context) {
         this(context, null);
@@ -125,7 +127,8 @@ public class CellLayout extends ViewGroup {
 
         mDragEnforcer = new DropTarget.DragEnforcer(context);
 
-        init(context);
+        setMotionEventSplittingEnabled(false);
+        setChildrenDrawingOrderEnabled(true);
         // When dragging things around the home screens, we show a green outline of
         // where the item will land. The outlines gradually fade out, leaving a trail
         // behind the drag path.
@@ -1380,6 +1383,15 @@ public class CellLayout extends ViewGroup {
         }
     }
 
+    public void showFolderAccept(FolderIcon.FolderRingAnimator mDragFolderRingAnimator) {
+
+
+    }
+
+    public void setOnInterceptTouchListener(View.OnTouchListener onInterceptTouchListener) {
+        this.mInterceptTouchListener = onInterceptTouchListener;
+    }
+
     private class ItemConfiguration {
         HashMap<View, CellAndSpan> map = new HashMap<View, CellAndSpan>();
         boolean isSolution = false;
@@ -1405,89 +1417,7 @@ public class CellLayout extends ViewGroup {
         return mShortcutsAndWidgets.getChildAt(x, y);
     }
 
-//    public boolean animateChildToPosition(final View child, int cellX, int cellY, int duration,
-//                                          int delay, boolean permanent, boolean adjustOccupied) {
-//        ShortcutAndWidgetContainer clc = getShortcutsAndWidgets();
-//        boolean[][] occupied = mOccupied;
-//        if (!permanent) {
-//            occupied = mTmpOccupied;
-//        }
-//
-//        if (clc.indexOfChild(child) != -1) {
-//            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-//            final ItemInfo info = (ItemInfo) child.getTag();
-//
-//            // We cancel any existing animations
-//            if (mReorderAnimators.containsKey(lp)) {
-//                mReorderAnimators.get(lp).cancel();
-//                mReorderAnimators.remove(lp);
-//            }
-//
-//            final int oldX = lp.x;
-//            final int oldY = lp.y;
-//            if (adjustOccupied) {
-//                occupied[lp.cellX][lp.cellY] = false;
-//                occupied[cellX][cellY] = true;
-//            }
-//            lp.isLockedToGrid = true;
-//            if (permanent) {
-//                lp.cellX = info.cellX = cellX;
-//                lp.cellY = info.cellY = cellY;
-//            } else {
-//                lp.tmpCellX = cellX;
-//                lp.tmpCellY = cellY;
-//            }
-//            clc.setupLp(lp);
-//            lp.isLockedToGrid = false;
-//            final int newX = lp.x;
-//            final int newY = lp.y;
-//
-//            lp.x = oldX;
-//            lp.y = oldY;
-//
-//            // Exit early if we're not actually moving the view
-//            if (oldX == newX && oldY == newY) {
-//                lp.isLockedToGrid = true;
-//                return true;
-//            }
-//
-//            ValueAnimator va = LauncherAnimUtils.ofFloat(0f, 1f);
-//            va.setDuration(duration);
-//            mReorderAnimators.put(lp, va);
-//
-//            va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//                @Override
-//                public void onAnimationUpdate(ValueAnimator animation) {
-//                    float r = ((Float) animation.getAnimatedValue()).floatValue();
-//                    lp.x = (int) ((1 - r) * oldX + r * newX);
-//                    lp.y = (int) ((1 - r) * oldY + r * newY);
-//                    child.requestLayout();
-//                }
-//            });
-//            va.addListener(new AnimatorListenerAdapter() {
-//                boolean cancelled = false;
-//                public void onAnimationEnd(Animator animation) {
-//                    // If the animation was cancelled, it means that another animation
-//                    // has interrupted this one, and we don't want to lock the item into
-//                    // place just yet.
-//                    if (!cancelled) {
-//                        lp.isLockedToGrid = true;
-//                        child.requestLayout();
-//                    }
-//                    if (mReorderAnimators.containsKey(lp)) {
-//                        mReorderAnimators.remove(lp);
-//                    }
-//                }
-//                public void onAnimationCancel(Animator animation) {
-//                    cancelled = true;
-//                }
-//            });
-//            va.setStartDelay(delay);
-//            va.start();
-//            return true;
-//        }
-//        return false;
-//    }
+
     void revertTempState() {
         if (!isItemPlacementDirty() || DESTRUCTIVE_REORDER) return;
         final int count = mShortcutsAndWidgets.getChildCount();
@@ -1497,8 +1427,8 @@ public class CellLayout extends ViewGroup {
             if (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.cellY) {
                 lp.tmpCellX = lp.cellX;
                 lp.tmpCellY = lp.cellY;
-//                animateChildToPosition(child, lp.cellX, lp.cellY, REORDER_ANIMATION_DURATION,
-//                        0, false, false);
+                animateChildToPosition(child, lp.cellX, lp.cellY, REORDER_ANIMATION_DURATION,
+                        0, false, false);
             }
         }
         completeAndClearReorderHintAnimations();
@@ -1571,7 +1501,7 @@ public class CellLayout extends ViewGroup {
             }
         }
 
-        //mLastDownOnOccupiedCell = found;
+        mLastDownOnOccupiedCell = found;
 
         if (!found) {
             final int cellXY[] = mTmpXY;
@@ -1629,18 +1559,11 @@ public class CellLayout extends ViewGroup {
     public void markCellsAsOccupiedForView(View view, boolean[][] occupied) {
         if (view == null || view.getParent() != mShortcutsAndWidgets) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
-      //  markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, occupied, true);
+         markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, occupied, true);
     }
 
-//    private void markCellsForView(int cellX, int cellY, int spanX, int spanY, boolean[][] occupied,
-//                                  boolean value) {
-//        if (cellX < 0 || cellY < 0) return;
-//        for (int x = cellX; x < cellX + spanX && x < mCountX; x++) {
-//            for (int y = cellY; y < cellY + spanY && y < mCountY; y++) {
-//                occupied[x][y] = value;
-//            }
-//        }
-//    }
+
+
     // Class which represents the reorder hint animations. These animations show that an item is
     // in a temporary state, and hint at where the item will return to.
     class ReorderHintAnimation {
@@ -2028,7 +1951,7 @@ public class CellLayout extends ViewGroup {
                           boolean[][] occupied) {
         lazyInitTempRectStack();
         // mark space take by ignoreView as available (method checks if ignoreView is null)
-        //  markCellsAsUnoccupiedForView(ignoreView, occupied);
+          markCellsAsUnoccupiedForView(ignoreView, occupied);
 
         // For items with a spanX / spanY > 1, the passed in point (pixelX, pixelY) corresponds
         // to the center of the item, but we are searching based on the top-left cell, so
@@ -2136,7 +2059,7 @@ public class CellLayout extends ViewGroup {
             }
         }
         // re-mark space taken by ignoreView as occupied
-        // markCellsAsOccupiedForView(ignoreView, occupied);
+         markCellsAsOccupiedForView(ignoreView, occupied);
 
         // Return -1, -1 if no suitable location found
         if (bestDistance == Double.MAX_VALUE) {
@@ -2174,27 +2097,39 @@ public class CellLayout extends ViewGroup {
     }
 
 
-    void init(Context context) {
-
-       // cellsMatrix = new boolean[mCountX][mCountY];
-        setMotionEventSplittingEnabled(false);
-        setChildrenDrawingOrderEnabled(true);
-
-
-        int appIconSize = (int) context.getResources().getDimension(R.dimen.app_icon_size);
-
-//        mCellPaddingLeft = (mCellWidth - appIconSize) / 2;
-//        mCellPaddingTop = (mCellHeight - appIconSize) / 2;
-    }
-
-
-
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        Log.v(TAG, "on touch x:: y " + event.getX() + "  " + event.getY());
-        return super.onInterceptTouchEvent(event);
+        Timber.v( "on touch x:: y " + event.getX() + "  " + event.getY());
+        // First we clear the tag to ensure that on every touch down we start with a fresh slate,
+        // even in the case where we return early. Not clearing here was causing bugs whereby on
+        // long-press we'd end up picking up an item from a previous drag operation.
+        final int action = event.getAction();
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            clearTagCellInfo();
+        }
+
+        if (mInterceptTouchListener != null && mInterceptTouchListener.onTouch(this, event)) {
+            return true;
+        }
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            setTagToCellInfoForPoint((int) event.getX(), (int) event.getY());
+        }
+
+        return false;
     }
+
+    private void clearTagCellInfo() {
+        final CellInfo cellInfo = mCellInfo;
+        cellInfo.cell = null;
+        cellInfo.cellX = -1;
+        cellInfo.cellY = -1;
+        cellInfo.spanX = 0;
+        cellInfo.spanY = 0;
+        setTag(cellInfo);
+    }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
