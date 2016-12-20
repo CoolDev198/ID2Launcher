@@ -84,7 +84,7 @@ public class FolderInfo extends ItemInfo {
         listeners.clear();
     }
 
-    interface FolderListener {
+   public interface FolderListener {
         public void onAdd(ShortcutInfo item);
 
         public void onRemove(ShortcutInfo item);
@@ -92,5 +92,8 @@ public class FolderInfo extends ItemInfo {
         public void onTitleChanged(CharSequence title);
 
         public void onItemsChanged();
-    }
+
+       void addItem(ShortcutInfo destInfo);
+
+   }
 }

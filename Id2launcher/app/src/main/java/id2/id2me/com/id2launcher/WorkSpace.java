@@ -1,5 +1,7 @@
 package id2.id2me.com.id2launcher;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -9,9 +11,14 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.graphics.drawable.Drawable;
+import android.os.IBinder;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -29,22 +36,76 @@ import timber.log.Timber;
  * Created by sunita on 11/29/16.
  */
 
-public class WorkSpace extends LinearLayout implements DropTarget, DragSource, DragScroller {
+public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChangeListener, DropTarget, DragSource, DragScroller, DragController.DragListener, View.OnTouchListener {
     public static final int DRAG_BITMAP_PADDING = 2;
-    private static final Rect sTempRect = new Rect();
+    // Relating to the animation of items being dropped externally
+    public static final int ANIMATE_INTO_POSITION_AND_DISAPPEAR = 0;
+    public static final int ANIMATE_INTO_POSITION_AND_REMAIN = 1;
+    public static final int ANIMATE_INTO_POSITION_AND_RESIZE = 2;
+    public static final int COMPLETE_TWO_STAGE_WIDGET_DROP_ANIMATION = 3;
+    public static final int CANCEL_TWO_STAGE_WIDGET_DROP_ANIMATION = 4;
+    final static float START_DAMPING_TOUCH_SLOP_ANGLE = (float) Math.PI / 6;
+    final static float MAX_SWIPE_ANGLE = (float) Math.PI / 3;
+    final static float TOUCH_SLOP_DAMPING_FACTOR = 4;
+    // Y rotation to apply to the workspace screens
+    private static final float WORKSPACE_OVERSCROLL_ROTATION = 24f;
+    private static final int CHILDREN_OUTLINE_FADE_OUT_DELAY = 0;
+    private static final int CHILDREN_OUTLINE_FADE_OUT_DURATION = 375;
+    private static final int CHILDREN_OUTLINE_FADE_IN_DURATION = 100;
     private static final int BACKGROUND_FADE_OUT_DURATION = 350;
     private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
     private static final int FLING_THRESHOLD_VELOCITY = 500;
+    private static final Rect sTempRect = new Rect();
+    private static final float WALLPAPER_SCREENS_SPAN = 2f;
+    private static final int DEFAULT_CELL_COUNT_X = 4;
+    private static final int DEFAULT_CELL_COUNT_Y = 4;
+    // Variables relating to the creation of user folders by hovering shortcuts over shortcuts
+    private static final int FOLDER_CREATION_TIMEOUT = 0;
+    private static final int REORDER_TIMEOUT = 250;
+    // Related to dragging, folder creation and reordering
+    private static final int DRAG_MODE_NONE = 0;
+    private static final int DRAG_MODE_CREATE_FOLDER = 1;
+    private static final int DRAG_MODE_ADD_TO_FOLDER = 2;
+    private static final int DRAG_MODE_REORDER = 3;
+    static Rect mLandscapeCellLayoutMetrics = null;
+    static Rect mPortraitCellLayoutMetrics = null;
+    private final Launcher launcher;
     private final HolographicOutlineHelper mOutlineHelper = new HolographicOutlineHelper();
+    private final Rect mTempRect = new Rect();
     private final int[] mTempXY = new int[2];
-    Launcher launcher;
-    ObservableScrollView scrollView;
+    private final Alarm mFolderCreationAlarm = new Alarm();
+    private final Alarm mReorderAlarm = new Alarm();
+    private final ArrayList<Integer> mRestoredPages = new ArrayList<Integer>();
+    boolean mDrawBackground = true;
     boolean mAnimatingViewIntoPlace = false;
-    private Bitmap mDragOutline = null;
-    private float[] mDragViewVisualCenter = new float[2];
-    private Matrix mTempInverseMatrix = new Matrix();
-    private float[] mTempCellLayoutCenterCoordinates = new float[2];
-    private float[] mTempDragBottomRightCoordinates = new float[2];
+    boolean mIsDragOccuring = false;
+    boolean mChildrenLayersEnabled = true;
+    int mWallpaperWidth;
+    int mWallpaperHeight;
+    boolean mUpdateWallpaperOffsetImmediately = false;
+    // These animators are used to fade the children's outlines
+    private ObjectAnimator mChildrenOutlineFadeInAnimation;
+    private ObjectAnimator mChildrenOutlineFadeOutAnimation;
+    private float mChildrenOutlineAlpha = 0;
+    // These properties refer to the background protection gradient used for AllApps and Customize
+    private ValueAnimator mBackgroundFadeInAnimation;
+    private ValueAnimator mBackgroundFadeOutAnimation;
+    private Drawable mBackground;
+    private float mBackgroundAlpha = 0;
+    private float mOverScrollMaxBackgroundAlpha = 0.0f;
+
+    // State variable that indicates whether the pages are small (ie when you're
+    // in all apps or customize mode)
+    private float mWallpaperScrollRatio = 1.0f;
+
+    ;
+    private int mOriginalPageSpacing;
+    private IBinder mWindowToken;
+    private int mDefaultPage;
+    /**
+     * CellInfo for the cell that is currently being dragged
+     */
+    private CellLayout.CellInfo mDragInfo;
     /**
      * Target drop area calculated during last acceptDrop call.
      */
@@ -55,26 +116,91 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
      * The CellLayout that is currently being dragged over
      */
     private CellLayout mDragTargetLayout = null;
-
-    /**
-     * The CellLayout which will be dropped to
-     */
     /**
      * The CellLayout that we will show as glowing
      */
     private CellLayout mDragOverlappingLayout = null;
     /**
-     * CellInfo for the cell that is currently being dragged
+     * The CellLayout which will be dropped to
      */
-    private CellLayout.CellInfo mDragInfo;
+    private CellLayout mDropToLayout = null;
+    private Launcher mLauncher;
+    private IconCache mIconCache;
+    private DragController mDragController;
+    // These are temporary variables to prevent having to allocate a new object just to
+    // return an (x, y) value from helper functions. Do NOT use them to maintain other state.
+    private int[] mTempCell = new int[2];
+    private int[] mTempEstimate = new int[2];
+    private float[] mDragViewVisualCenter = new float[2];
+
+    ;
+    private float[] mTempDragCoordinates = new float[2];
+    private float[] mTempCellLayoutCenterCoordinates = new float[2];
+    private float[] mTempDragBottomRightCoordinates = new float[2];
+    private Matrix mTempInverseMatrix = new Matrix();
+    private float mSpringLoadedShrinkFactor;
+    private ObservableScrollView scrollView;
+    private State mState = State.NORMAL;
+    private boolean mIsSwitchingState = false;
+    /**
+     * Is the user is dragging an item near the edge of a page?
+     */
+    private boolean mInScrollArea = false;
+    private Bitmap mDragOutline = null;
+    private int[] mTempVisiblePagesRange = new int[2];
+    private float mOverscrollFade = 0;
+    private boolean mOverscrollTransformsSet;
+    private boolean mWorkspaceFadeInAdjacentScreens;
+    private Runnable mDelayedResizeRunnable;
+    private Runnable mDelayedSnapToPageRunnable;
     private Point mDisplaySize = new Point();
-    private int currentPage = 0;
+    private boolean mIsStaticWallpaper;
+    private int mWallpaperTravelWidth;
+    private int mSpringLoadedPageSpacing;
+    private int mCameraDistance;
+    private FolderIcon.FolderRingAnimator mDragFolderRingAnimator = null;
+    private FolderIcon mDragOverFolderIcon = null;
+    private boolean mCreateUserFolderOnDrop = false;
+    private boolean mAddToExistingFolderOnDrop = false;
+    private DropTarget.DragEnforcer mDragEnforcer;
+    private float mMaxDistanceForFolderCreation;
+    // Variables relating to touch disambiguation (scrolling workspace vs. scrolling a widget)
+    private float mXDown;
+    private float mYDown;
+    private int mDragMode = DRAG_MODE_NONE;
+    private int mLastReorderX = -1;
+    private int mLastReorderY = -1;
+    private SparseArray<Parcelable> mSavedStates;
+    // These variables are used for storing the initial and final values during workspace animations
+    private int mSavedScrollX;
+    private float mSavedRotationY;
+    private float mSavedTranslationX;
+    private float mCurrentScaleX;
+    private float mCurrentScaleY;
+    private float mCurrentRotationY;
+    private float mCurrentTranslationX;
+    private float mCurrentTranslationY;
+    private float[] mOldTranslationXs;
+    private float[] mOldTranslationYs;
+    private float[] mOldScaleXs;
+    private float[] mOldScaleYs;
+    private float[] mOldBackgroundAlphas;
+    private float[] mOldAlphas;
+    private float[] mNewTranslationXs;
+    private float[] mNewTranslationYs;
+    private float[] mNewScaleXs;
+    private float[] mNewScaleYs;
+    private float[] mNewBackgroundAlphas;
+    private float[] mNewAlphas;
+    private float[] mNewRotationYs;
+    private float mTransitionProgress;
 
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
         launcher = (Launcher) context;
         Display display = launcher.getWindowManager().getDefaultDisplay();
         display.getSize(mDisplaySize);
+        mDragEnforcer = new DropTarget.DragEnforcer(context);
     }
 
     static private float squaredDistance(float[] point1, float[] point2) {
@@ -83,6 +209,30 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         return distanceX * distanceX + distanceY * distanceY;
     }
 
+    @Override
+    public void onDragStart(DragSource source, Object info, int dragAction) {
+        Timber.v("onDrag Start");
+    }
+
+    @Override
+    public void onDragEnd() {
+
+    }
+
+    @Override
+    public void onChildViewAdded(View parent, View child) {
+        if (child instanceof CellLayout) {
+            Timber.v("Child Cell Layout Added");
+            CellLayout cl = ((CellLayout) child);
+            cl.setOnInterceptTouchListener(this);
+            cl.setClickable(true);
+        }
+    }
+
+    @Override
+    public void onChildViewRemoved(View parent, View child) {
+
+    }
 
     void startDrag(View child) {
         mDragInfo = new CellLayout.CellInfo();
@@ -154,15 +304,6 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         b.recycle();
 
     }
-        /*
-    *
-    * We call these methods (onDragStartedWithItemSpans/onDragStartedWithSize) whenever we
-    * start a drag in Launcher, regardless of whether the drag has ever entered the Workspace
-    *
-    * These methods mark the appropriate pages as accepting drops (which alters their visual
-    * appearance).
-    *
-    */
 
     /**
      * Returns a new bitmap to show when the given View is being dragged around.
@@ -183,6 +324,54 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         canvas.setBitmap(null);
 
         return b;
+    }
+
+    /**
+     * Returns a new bitmap to be used as the object outline, e.g. to visualize the drop location.
+     * Responsibility for the bitmap is transferred to the caller.
+     */
+
+    private Bitmap createDragOutline(View v, Canvas canvas, int padding) {
+        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final Bitmap b = Bitmap.createBitmap(v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
+
+        canvas.setBitmap(b);
+        drawDragView(v, canvas, padding, true);
+        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor);
+        canvas.setBitmap(null);
+        return b;
+    }
+        /*
+    *
+    * We call these methods (onDragStartedWithItemSpans/onDragStartedWithSize) whenever we
+    * start a drag in Launcher, regardless of whether the drag has ever entered the Workspace
+    *
+    * These methods mark the appropriate pages as accepting drops (which alters their visual
+    * appearance).
+    *
+    */
+
+    /**
+     * Draw the View v into the given Canvas.
+     *
+     * @param v          the view to draw
+     * @param destCanvas the canvas to draw on
+     * @param padding    the horizontal and vertical padding to use when drawing
+     */
+    private void drawDragView(View v, Canvas destCanvas, int padding, boolean pruneToDrawable) {
+        final Rect clipRect = sTempRect;
+        v.getDrawingRect(clipRect);
+        destCanvas.save();
+        if (v instanceof AppItemView) {
+            View icon = v.findViewById(R.id.drawer_grid_image);
+            destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
+            destCanvas.clipRect(clipRect, Region.Op.REPLACE);
+            icon.draw(destCanvas);
+        } else if (v instanceof FolderItemView) {
+
+        }
+
+        destCanvas.restore();
     }
 
 //    public void onDragStartedWithItem(PendingAddItemInfo info, Bitmap b, boolean clipAlpha) {
@@ -216,46 +405,6 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //        }
 //    }
 
-
-    /**
-     * Returns a new bitmap to be used as the object outline, e.g. to visualize the drop location.
-     * Responsibility for the bitmap is transferred to the caller.
-     */
-
-    private Bitmap createDragOutline(View v, Canvas canvas, int padding) {
-        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
-        final Bitmap b = Bitmap.createBitmap(v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
-
-        canvas.setBitmap(b);
-        drawDragView(v, canvas, padding, true);
-        mOutlineHelper.applyMediumExpensiveOutlineWithBlur(b, canvas, outlineColor, outlineColor);
-        canvas.setBitmap(null);
-        return b;
-    }
-
-    /**
-     * Draw the View v into the given Canvas.
-     *
-     * @param v          the view to draw
-     * @param destCanvas the canvas to draw on
-     * @param padding    the horizontal and vertical padding to use when drawing
-     */
-    private void drawDragView(View v, Canvas destCanvas, int padding, boolean pruneToDrawable) {
-        final Rect clipRect = sTempRect;
-        v.getDrawingRect(clipRect);
-        destCanvas.save();
-        if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.drawer_grid_image);
-            destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
-            destCanvas.clipRect(clipRect, Region.Op.REPLACE);
-            icon.draw(destCanvas);
-        } else if (v instanceof FolderItemView) {
-
-        }
-
-        destCanvas.restore();
-    }
-
     /**
      * Returns a new bitmap to be used as the object outline, e.g. to visualize the drop location.
      * Responsibility for the bitmap is transferred to the caller.
@@ -283,7 +432,6 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
         return b;
     }
-
 
     @Override
     public boolean supportsFlingToDelete() {
@@ -419,15 +567,15 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 
                 // If the item being dropped is a shortcut and the nearest drop
                 // cell also contains a shortcut, then create a folder with the two shortcuts.
-//                if (!mInScrollArea && createUserFolderIfNecessary(cell, container,
-//                        dropTargetLayout, mTargetCell, distance, false, d.dragView, null)) {
-//                    return;
-//                }
-//
-//                if (addToExistingFolderIfNecessary(cell, dropTargetLayout, mTargetCell,
-//                        distance, d, false)) {
-//                    return;
-//                }
+                if (createUserFolderIfNecessary(cell, container,
+                        dropTargetLayout, mTargetCell, distance, false, d.dragView, null)) {
+                    return;
+                }
+
+                if (addToExistingFolderIfNecessary(cell, dropTargetLayout, mTargetCell,
+                        distance, d, false)) {
+                    return;
+                }
 
                 // Aside from the special case where we're dropping a shortcut onto a shortcut,
                 // we need to find the nearest cell location that is vacant
@@ -535,7 +683,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //                    }
                 }
             };
-            // mAnimatingViewIntoPlace = true;
+            mAnimatingViewIntoPlace = true;
             if (d.dragView.hasDrawn()) {
                 final ItemInfo info = (ItemInfo) cell.getTag();
 //                if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {
@@ -549,7 +697,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
                         onCompleteRunnable, this);
                 // }
             } else {
-                //   d.deferDragViewCleanupPostAnimation = false;
+                  d.deferDragViewCleanupPostAnimation = false;
                 cell.setVisibility(VISIBLE);
             }
             parent.onDropChild(cell);
@@ -807,141 +955,142 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
 //            child.setHapticFeedbackEnabled(false);
 //          //  child.setOnLongClickListener(mLongClickListener);
 //        }
-//        if (child instanceof DropTarget) {
-//            launcher.getDragController().addDropTarget((DropTarget) child);
-//        }
+        if (child instanceof DropTarget) {
+            launcher.getDragController().addDropTarget((DropTarget) child);
+        }
     }
 
-    //    boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
-//            distance, boolean considerTimeout) {
-//        if (distance > mMaxDistanceForFolderCreation) return false;
-//        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
-//
-//        if (dropOverView != null) {
-//            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) dropOverView.getLayoutParams();
-//            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.tmpCellY)) {
-//                return false;
-//            }
-//        }
-//
-//        boolean hasntMoved = false;
-//        if (mDragInfo != null) {
-//            hasntMoved = dropOverView == mDragInfo.cell;
-//        }
-//
-//        if (dropOverView == null || hasntMoved || (considerTimeout && !mCreateUserFolderOnDrop)) {
-//            return false;
-//        }
-//
-//        boolean aboveShortcut = (dropOverView.getTag() instanceof ShortcutInfo);
-//        boolean willBecomeShortcut =
-//                (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION ||
-//                        info.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT);
-//
-//        return (aboveShortcut && willBecomeShortcut);
-//    }
-//
-//    boolean willAddToExistingUserFolder(Object dragInfo, CellLayout target, int[] targetCell,
-//                                        float distance) {
-//        if (distance > mMaxDistanceForFolderCreation) return false;
-//        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
-//
-//        if (dropOverView != null) {
-//            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) dropOverView.getLayoutParams();
-//            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.tmpCellY)) {
-//                return false;
-//            }
-//        }
-//
-//        if (dropOverView instanceof FolderIcon) {
-//            FolderIcon fi = (FolderIcon) dropOverView;
-//            if (fi.acceptDrop(dragInfo)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    boolean createUserFolderIfNecessary(View newView, long container, CellLayout target,
-//                                        int[] targetCell, float distance, boolean external, DragView dragView,
-//                                        Runnable postAnimationRunnable) {
-//        if (distance > mMaxDistanceForFolderCreation) return false;
-//        View v = target.getChildAt(targetCell[0], targetCell[1]);
-//
-//        boolean hasntMoved = false;
-//        if (mDragInfo != null) {
-//            CellLayout cellParent = getParentCellLayoutForView(mDragInfo.cell);
-//            hasntMoved = (mDragInfo.cellX == targetCell[0] &&
-//                    mDragInfo.cellY == targetCell[1]) && (cellParent == target);
-//        }
-//
-//        if (v == null || hasntMoved || !mCreateUserFolderOnDrop) return false;
-//        mCreateUserFolderOnDrop = false;
-//        final int screen = (targetCell == null) ? mDragInfo.screen : indexOfChild(target);
-//
-//        boolean aboveShortcut = (v.getTag() instanceof ShortcutInfo);
-//        boolean willBecomeShortcut = (newView.getTag() instanceof ShortcutInfo);
-//
-//        if (aboveShortcut && willBecomeShortcut) {
-//            ShortcutInfo sourceInfo = (ShortcutInfo) newView.getTag();
-//            ShortcutInfo destInfo = (ShortcutInfo) v.getTag();
-//            // if the drag started here, we need to remove it from the workspace
-//            if (!external) {
-//                getParentCellLayoutForView(mDragInfo.cell).removeView(mDragInfo.cell);
-//            }
-//
-//            Rect folderLocation = new Rect();
-//            float scale = mLauncher.getDragLayer().getDescendantRectRelativeToSelf(v, folderLocation);
-//            target.removeView(v);
-//
-//            FolderIcon fi =
-//                    mLauncher.addFolder(target, container, screen, targetCell[0], targetCell[1]);
-//            destInfo.cellX = -1;
-//            destInfo.cellY = -1;
-//            sourceInfo.cellX = -1;
-//            sourceInfo.cellY = -1;
-//
-//            // If the dragView is null, we can't animate
-//            boolean animate = dragView != null;
-//            if (animate) {
-//                fi.performCreateAnimation(destInfo, v, sourceInfo, dragView, folderLocation, scale,
-//                        postAnimationRunnable);
-//            } else {
-//                fi.addItem(destInfo);
-//                fi.addItem(sourceInfo);
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    boolean addToExistingFolderIfNecessary(View newView, CellLayout target, int[] targetCell,
-//                                           float distance, DragObject d, boolean external) {
-//        if (distance > mMaxDistanceForFolderCreation) return false;
-//
-//        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
-//        if (!mAddToExistingFolderOnDrop) return false;
-//        mAddToExistingFolderOnDrop = false;
-//
-//        if (dropOverView instanceof FolderIcon) {
-//            FolderIcon fi = (FolderIcon) dropOverView;
-//            if (fi.acceptDrop(d.dragInfo)) {
-//                fi.onDrop(d);
-//
-//                // if the drag started here, we need to remove it from the workspace
-//                if (!external) {
-//                    getParentCellLayoutForView(mDragInfo.cell).removeView(mDragInfo.cell);
-//                }
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
+            distance, boolean considerTimeout) {
+        if (distance > mMaxDistanceForFolderCreation) return false;
+        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
+
+        if (dropOverView != null) {
+            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) dropOverView.getLayoutParams();
+            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.tmpCellY)) {
+                return false;
+            }
+        }
+
+        boolean hasntMoved = false;
+        if (mDragInfo != null) {
+            hasntMoved = dropOverView == mDragInfo.cell;
+        }
+
+        if (dropOverView == null || hasntMoved || (considerTimeout && !mCreateUserFolderOnDrop)) {
+            return false;
+        }
+
+        boolean aboveShortcut = (dropOverView.getTag() instanceof ShortcutInfo);
+        boolean willBecomeShortcut =
+                (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION ||
+                        info.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT);
+
+        return (aboveShortcut && willBecomeShortcut);
+    }
+
+    boolean willAddToExistingUserFolder(Object dragInfo, CellLayout target, int[] targetCell,
+                                        float distance) {
+        if (distance > mMaxDistanceForFolderCreation) return false;
+        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
+
+        if (dropOverView != null) {
+            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) dropOverView.getLayoutParams();
+            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.tmpCellY)) {
+                return false;
+            }
+        }
+
+        if (dropOverView instanceof FolderIcon) {
+            FolderIcon fi = (FolderIcon) dropOverView;
+            if (fi.acceptDrop(dragInfo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean createUserFolderIfNecessary(View newView, long container, CellLayout target,
+                                        int[] targetCell, float distance, boolean external, DragView dragView,
+                                        Runnable postAnimationRunnable) {
+        if (distance > mMaxDistanceForFolderCreation) return false;
+        View v = target.getChildAt(targetCell[0], targetCell[1]);
+
+        boolean hasntMoved = false;
+        if (mDragInfo != null) {
+            CellLayout cellParent = getParentCellLayoutForView(mDragInfo.cell);
+            hasntMoved = (mDragInfo.cellX == targetCell[0] &&
+                    mDragInfo.cellY == targetCell[1]) && (cellParent == target);
+        }
+
+        if (v == null || hasntMoved || !mCreateUserFolderOnDrop) return false;
+        mCreateUserFolderOnDrop = false;
+        final int screen = (targetCell == null) ? mDragInfo.screen : indexOfChild(target);
+
+        boolean aboveShortcut = (v.getTag() instanceof ShortcutInfo);
+        boolean willBecomeShortcut = (newView.getTag() instanceof ShortcutInfo);
+
+        if (aboveShortcut && willBecomeShortcut) {
+            ShortcutInfo sourceInfo = (ShortcutInfo) newView.getTag();
+            ShortcutInfo destInfo = (ShortcutInfo) v.getTag();
+            // if the drag started here, we need to remove it from the workspace
+            if (!external) {
+                getParentCellLayoutForView(mDragInfo.cell).removeView(mDragInfo.cell);
+            }
+
+            Rect folderLocation = new Rect();
+            float scale = mLauncher.getDragLayer().getDescendantRectRelativeToSelf(v, folderLocation);
+            target.removeView(v);
+
+            FolderIcon fi =
+                    mLauncher.addFolder(target, container, screen, targetCell[0], targetCell[1]);
+            destInfo.cellX = -1;
+            destInfo.cellY = -1;
+            sourceInfo.cellX = -1;
+            sourceInfo.cellY = -1;
+
+            // If the dragView is null, we can't animate
+            boolean animate = dragView != null;
+            if (animate) {
+                fi.performCreateAnimation(destInfo, v, sourceInfo, dragView, folderLocation, scale,
+                        postAnimationRunnable);
+            } else {
+                fi.addItem(destInfo);
+                fi.addItem(sourceInfo);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    boolean addToExistingFolderIfNecessary(View newView, CellLayout target, int[] targetCell,
+                                           float distance, DragObject d, boolean external) {
+        if (distance > mMaxDistanceForFolderCreation) return false;
+
+        View dropOverView = target.getChildAt(targetCell[0], targetCell[1]);
+        if (!mAddToExistingFolderOnDrop) return false;
+        mAddToExistingFolderOnDrop = false;
+
+        if (dropOverView instanceof FolderIcon) {
+            FolderIcon fi = (FolderIcon) dropOverView;
+            if (fi.acceptDrop(d.dragInfo)) {
+                fi.onDrop(d);
+
+                // if the drag started here, we need to remove it from the workspace
+                if (!external) {
+                    getParentCellLayoutForView(mDragInfo.cell).removeView(mDragInfo.cell);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onDragEnter(DragObject dragObject) {
-//        mDragEnforcer.onDragEnter();
-//        mCreateUserFolderOnDrop = false;
-//        mAddToExistingFolderOnDrop = false;
+        mDragEnforcer.onDragEnter();
+        mCreateUserFolderOnDrop = false;
+        mAddToExistingFolderOnDrop = false;
 //
 
 
@@ -990,15 +1139,9 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
         // Handle the drag over
         if (mDragTargetLayout != null) {
-            // We want the point to be mapped to the dragTarget.
-//            if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
-//                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
-//            } else {
             mapPointFromSelfToChild(mDragTargetLayout, mDragViewVisualCenter, null);
-            // }
 
             ItemInfo info = (ItemInfo) d.dragInfo;
-
 
             int ycalc = d.y - (mDragTargetLayout.getTop() - scrollView.getScrollY());
             mDragViewVisualCenter = getDragViewVisualCenter(d.x, ycalc, d.xOffset, d.yOffset,
@@ -1011,11 +1154,11 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             float targetCellDistance = mDragTargetLayout.getDistanceFromCell(
                     mDragViewVisualCenter[0], mDragViewVisualCenter[1], mTargetCell);
 
-            //  final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0],
-            //      mTargetCell[1]);
+            final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0],
+                    mTargetCell[1]);
 
-//            manageFolderFeedback(info, mDragTargetLayout, mTargetCell,
-//                    targetCellDistance, dragOverView);
+            manageFolderFeedback(info, mDragTargetLayout, mTargetCell,
+                    targetCellDistance, dragOverView);
 
             int minSpanX = item.getSpanX();
             int minSpanY = item.getSpanY();
@@ -1033,26 +1176,24 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
                         (int) mDragViewVisualCenter[0], (int) mDragViewVisualCenter[1],
                         mTargetCell[0], mTargetCell[1], item.getSpanX(), item.getSpanY(), false,
                         d.dragView.getDragVisualizeOffset(), d.dragView.getDragRegion());
+            } else if ((mDragMode == DRAG_MODE_NONE || mDragMode == DRAG_MODE_REORDER)
+                    && !mReorderAlarm.alarmPending() && (mLastReorderX != mTargetCell[0] ||
+                    mLastReorderY != mTargetCell[1])) {
+
+                // Otherwise, if we aren't adding to or creating a folder and there's no pending
+                // reorder, then we schedule a reorder
+                ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
+                        minSpanX, minSpanY, item.spanX, item.spanY, d.dragView, child);
+                mReorderAlarm.setOnAlarmListener(listener);
+                mReorderAlarm.setAlarm(REORDER_TIMEOUT);
             }
 
-//            else if ((mDragMode == DRAG_MODE_NONE || mDragMode == DRAG_MODE_REORDER)
-//                    && !mReorderAlarm.alarmPending() && (mLastReorderX != mTargetCell[0] ||
-//                    mLastReorderY != mTargetCell[1])) {
-//
-//                // Otherwise, if we aren't adding to or creating a folder and there's no pending
-//                // reorder, then we schedule a reorder
-//                ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
-//                        minSpanX, minSpanY, item.spanX, item.spanY, d.dragView, child);
-//                mReorderAlarm.setOnAlarmListener(listener);
-//                mReorderAlarm.setAlarm(REORDER_TIMEOUT);
-//            }
-
-//            if (mDragMode == DRAG_MODE_CREATE_FOLDER || mDragMode == DRAG_MODE_ADD_TO_FOLDER ||
-//                    !nearestDropOccupied) {
-//                if (mDragTargetLayout != null) {
-//                    mDragTargetLayout.revertTempState();
-//                }
-//            }
+            if (mDragMode == DRAG_MODE_CREATE_FOLDER || mDragMode == DRAG_MODE_ADD_TO_FOLDER ||
+                    !nearestDropOccupied) {
+                if (mDragTargetLayout != null) {
+                    mDragTargetLayout.revertTempState();
+                }
+            }
         }
     }
 
@@ -1060,7 +1201,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         if (x != mDragOverX || y != mDragOverY) {
             mDragOverX = x;
             mDragOverY = y;
-            //setDragMode(DRAG_MODE_NONE);
+            setDragMode(DRAG_MODE_NONE);
         }
     }
 
@@ -1084,31 +1225,21 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         if (mDragTargetLayout != null) {
             mDragTargetLayout.onDragEnter();
         }
-//        cleanupReorder(true);
-//        cleanupFolderCreation();
+        cleanupReorder(true);
+        cleanupFolderCreation();
         setCurrentDropOverCell(-1, -1);
     }
 
     void setCurrentDragOverlappingLayout(CellLayout layout) {
         if (mDragOverlappingLayout != null) {
-            // mDragOverlappingLayout.setIsDragOverlapping(false);
+            mDragOverlappingLayout.setIsDragOverlapping(false);
         }
         mDragOverlappingLayout = layout;
         if (mDragOverlappingLayout != null) {
-            //   mDragOverlappingLayout.setIsDragOverlapping(true);
+            mDragOverlappingLayout.setIsDragOverlapping(true);
         }
         invalidate();
     }
-
-    /*
-    *
-    * This method returns the CellLayout that is currently being dragged to. In order to drag
-    * to a CellLayout, either the touch point must be directly over the CellLayout, or as a second
-    * strategy, we see if the dragView is overlapping any CellLayout and choose the closest one
-    *
-    * Return null if no CellLayout is currently being dragged over
-    *
-    */
 
     private CellLayout findMatchingPageForDragOver(ScrollView scrollView, int x, int y) {
         for (int i = 0; i < getChildCount(); i++) {
@@ -1144,6 +1275,15 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         cachedInverseMatrix.mapPoints(xy);
     }
 
+    /*
+    *
+    * This method returns the CellLayout that is currently being dragged to. In order to drag
+    * to a CellLayout, either the touch point must be directly over the CellLayout, or as a second
+    * strategy, we see if the dragView is overlapping any CellLayout and choose the closest one
+    *
+    * Return null if no CellLayout is currently being dragged over
+    *
+    */
 
     /*
  *
@@ -1160,7 +1300,6 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         xy[0] -= (getScrollX() - v.getLeft());
         xy[1] -= (scrollY - v.getTop());
     }
-
 
     // This is used to compute the visual center of the dragView. This point is then
     // used to visualize drop locations and determine where to drop an item. The idea is that
@@ -1239,7 +1378,6 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         return false;
     }
 
-
     @Override
     public void getHitRect(Rect outRect) {
         // We want the workspace to have the whole area of the display (it will find the correct
@@ -1247,28 +1385,28 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         outRect.set(0, 0, mDisplaySize.x, mDisplaySize.y);
     }
 
-    void addExtraEmptyScreen(){
+    void addExtraEmptyScreen() {
         CellLayout newScreen = null;
 
         try {
             newScreen = (CellLayout)
                     launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
-            
+
         } catch (Exception e) {
             Timber.e(e);
         }
         this.addView(newScreen);
     }
 
-    void removeExtraEmptyScreen(){
+    void removeExtraEmptyScreen() {
         LauncherApplication launcherApplication = LauncherApplication.getApp();
-        int screenCount = getChildCount()-1;
-        if(screenCount>launcherApplication.DEFAULT_SCREENS) {
-            for (int i = 1; i <=screenCount;i++){
-                CellLayout cellLayout= (CellLayout) getChildAt(i);
+        int screenCount = getChildCount() - 1;
+        if (screenCount > launcherApplication.DEFAULT_SCREENS) {
+            for (int i = 1; i <= screenCount; i++) {
+                CellLayout cellLayout = (CellLayout) getChildAt(i);
                 try {
-                    ShortcutAndWidgetContainer shortcutAndWidgetContainer  = (ShortcutAndWidgetContainer) cellLayout.getChildAt(0);
-                    if(shortcutAndWidgetContainer.getChildCount()<1) {
+                    ShortcutAndWidgetContainer shortcutAndWidgetContainer = (ShortcutAndWidgetContainer) cellLayout.getChildAt(0);
+                    if (shortcutAndWidgetContainer.getChildCount() < 1) {
                         removeView(getChildAt(i));
                     }
                 } catch (Exception e) {
@@ -1277,5 +1415,162 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
             }
         }
     }
+
+    private void manageFolderFeedback(ItemInfo info, CellLayout targetLayout,
+                                      int[] targetCell, float distance, View dragOverView) {
+        boolean userFolderPending = willCreateUserFolder(info, targetLayout, targetCell, distance,
+                false);
+
+        if (mDragMode == DRAG_MODE_NONE && userFolderPending &&
+                !mFolderCreationAlarm.alarmPending()) {
+            mFolderCreationAlarm.setOnAlarmListener(new
+                    FolderCreationAlarmListener(targetLayout, targetCell[0], targetCell[1]));
+            mFolderCreationAlarm.setAlarm(FOLDER_CREATION_TIMEOUT);
+            return;
+        }
+
+        boolean willAddToFolder =
+                willAddToExistingUserFolder(info, targetLayout, targetCell, distance);
+
+        if (willAddToFolder && mDragMode == DRAG_MODE_NONE) {
+            mDragOverFolderIcon = ((FolderIcon) dragOverView);
+            mDragOverFolderIcon.onDragEnter(info);
+            if (targetLayout != null) {
+                targetLayout.clearDragOutlines();
+            }
+            setDragMode(DRAG_MODE_ADD_TO_FOLDER);
+            return;
+        }
+
+        if (mDragMode == DRAG_MODE_ADD_TO_FOLDER && !willAddToFolder) {
+            setDragMode(DRAG_MODE_NONE);
+        }
+        if (mDragMode == DRAG_MODE_CREATE_FOLDER && !userFolderPending) {
+            setDragMode(DRAG_MODE_NONE);
+        }
+
+        return;
+    }
+
+    void setDragMode(int dragMode) {
+        if (dragMode != mDragMode) {
+            if (dragMode == DRAG_MODE_NONE) {
+                cleanupAddToFolder();
+                // We don't want to cancel the re-order alarm every time the target cell changes
+                // as this feels to slow / unresponsive.
+                cleanupReorder(false);
+                cleanupFolderCreation();
+            } else if (dragMode == DRAG_MODE_ADD_TO_FOLDER) {
+                cleanupReorder(true);
+                cleanupFolderCreation();
+            } else if (dragMode == DRAG_MODE_CREATE_FOLDER) {
+                cleanupAddToFolder();
+                cleanupReorder(true);
+            } else if (dragMode == DRAG_MODE_REORDER) {
+                cleanupAddToFolder();
+                cleanupFolderCreation();
+            }
+            mDragMode = dragMode;
+        }
+    }
+
+    private void cleanupFolderCreation() {
+        if (mDragFolderRingAnimator != null) {
+            mDragFolderRingAnimator.animateToNaturalState();
+        }
+        mFolderCreationAlarm.cancelAlarm();
+    }
+
+    private void cleanupAddToFolder() {
+        if (mDragOverFolderIcon != null) {
+            mDragOverFolderIcon.onDragExit(null);
+            mDragOverFolderIcon = null;
+        }
+    }
+
+    private void cleanupReorder(boolean cancelAlarm) {
+        // Any pending reorders are canceled
+        if (cancelAlarm) {
+            mReorderAlarm.cancelAlarm();
+        }
+        mLastReorderX = -1;
+        mLastReorderY = -1;
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return false;
+    }
+
+    enum State {NORMAL, SPRING_LOADED, SMALL}
+
+    enum WallpaperVerticalOffset {TOP, MIDDLE, BOTTOM}
+
+    class FolderCreationAlarmListener implements OnAlarmListener {
+        CellLayout layout;
+        int cellX;
+        int cellY;
+
+        public FolderCreationAlarmListener(CellLayout layout, int cellX, int cellY) {
+            this.layout = layout;
+            this.cellX = cellX;
+            this.cellY = cellY;
+        }
+
+        public void onAlarm(Alarm alarm) {
+            if (mDragFolderRingAnimator == null) {
+                mDragFolderRingAnimator = new FolderIcon.FolderRingAnimator(mLauncher, null);
+            }
+            mDragFolderRingAnimator.setCell(cellX, cellY);
+            mDragFolderRingAnimator.setCellLayout(layout);
+            mDragFolderRingAnimator.animateToAcceptState();
+            layout.showFolderAccept(mDragFolderRingAnimator);
+            layout.clearDragOutlines();
+            setDragMode(DRAG_MODE_CREATE_FOLDER);
+        }
+    }
+
+    class ReorderAlarmListener implements OnAlarmListener {
+        float[] dragViewCenter;
+        int minSpanX, minSpanY, spanX, spanY;
+        DragView dragView;
+        View child;
+
+        public ReorderAlarmListener(float[] dragViewCenter, int minSpanX, int minSpanY, int spanX,
+                                    int spanY, DragView dragView, View child) {
+            this.dragViewCenter = dragViewCenter;
+            this.minSpanX = minSpanX;
+            this.minSpanY = minSpanY;
+            this.spanX = spanX;
+            this.spanY = spanY;
+            this.child = child;
+            this.dragView = dragView;
+        }
+
+        public void onAlarm(Alarm alarm) {
+            int[] resultSpan = new int[2];
+            mTargetCell = findNearestArea((int) mDragViewVisualCenter[0],
+                    (int) mDragViewVisualCenter[1], spanX, spanY, mDragTargetLayout, mTargetCell);
+            mLastReorderX = mTargetCell[0];
+            mLastReorderY = mTargetCell[1];
+
+            mTargetCell = mDragTargetLayout.createArea((int) mDragViewVisualCenter[0],
+                    (int) mDragViewVisualCenter[1], minSpanX, minSpanY, spanX, spanY,
+                    child, mTargetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+
+            if (mTargetCell[0] < 0 || mTargetCell[1] < 0) {
+                mDragTargetLayout.revertTempState();
+            } else {
+                setDragMode(DRAG_MODE_REORDER);
+            }
+
+            boolean resize = resultSpan[0] != spanX || resultSpan[1] != spanY;
+            mDragTargetLayout.visualizeDropLocation(child, mDragOutline,
+                    (int) mDragViewVisualCenter[0], (int) mDragViewVisualCenter[1],
+                    mTargetCell[0], mTargetCell[1], resultSpan[0], resultSpan[1], resize,
+                    dragView.getDragVisualizeOffset(), dragView.getDragRegion());
+        }
+    }
+
 
 }

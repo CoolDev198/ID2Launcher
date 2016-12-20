@@ -244,6 +244,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
         dragController.addDropTarget(wokSpace);
+        
     }
 
     public WorkSpace getWokSpace() {
@@ -375,4 +376,8 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     }
 
 
+    public FolderIcon addFolder(CellLayout target, long container, int screen, int i, int i1) {
+
+        return null;
+    }
 }
