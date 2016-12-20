@@ -52,7 +52,6 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         this.setTag(folderId);
 
 
-
     }
 
     private void init() {
@@ -139,6 +138,8 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         }
     }
 
+
+
     public Bitmap getBitmapFolderView() {
         try {
             this.buildDrawingCache();
@@ -196,6 +197,11 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
     @Override
     public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
 
+    }
+
+    public ArrayList<View> getItemsInReadingOrder() {
+        ArrayList<View> appList = new ArrayList<>();
+        return appList;
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {

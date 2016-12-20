@@ -35,8 +35,6 @@
     <string name="permdesc_write_settings">Allows the app to change the settings and
         shortcuts in Home.</string>
 
-    <!-- Displayed when user selects a shortcut for an app that was uninstalled [CHAR_LIMIT=none]-->
-    <string name="activity_not_found">App isn\'t installed.</string>
 
     <string name="button_allow">Allow</string>
     <string name="button_deny">Deny</string>

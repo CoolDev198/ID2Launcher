@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
@@ -71,10 +72,7 @@
 
         </service>
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="ea68f1362674c92688d9f52dd7d75719647b73db"
-            />
+
     </application>
 
 </manifest>
