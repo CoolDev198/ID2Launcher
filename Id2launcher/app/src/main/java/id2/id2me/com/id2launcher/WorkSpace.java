@@ -29,7 +29,7 @@ import timber.log.Timber;
  * Created by sunita on 11/29/16.
  */
 
-public class WorkSpace extends LinearLayout implements DropTarget, DragSource, DragScroller {
+public class WorkSpace extends LinearLayout implements DropTarget, DragSource, DragScroller ,DragController.DragListener{
     public static final int DRAG_BITMAP_PADDING = 2;
     private static final Rect sTempRect = new Rect();
     private static final int BACKGROUND_FADE_OUT_DURATION = 350;
@@ -1278,4 +1278,13 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         }
     }
 
+    @Override
+    public void onDragStart(DragSource source, Object info, int dragAction) {
+
+    }
+
+    @Override
+    public void onDragEnd() {
+
+    }
 }
