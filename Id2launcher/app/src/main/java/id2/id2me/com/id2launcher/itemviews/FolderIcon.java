@@ -21,6 +21,7 @@ import id2.id2me.com.id2launcher.R;
  */
 
 public class FolderIcon extends LinearLayout {
+    private static final int TOTAL_NUM_ITEMS_IN_PREVIEW = 9;
     private static final int NUM_ITEMS_IN_ROW = 3;
     private static final float PERSPECTIVE_SCALE_FACTOR = 1f;
     private static final float PERSPECTIVE_SHIFT_FACTOR = 1f;
