@@ -60,7 +60,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-            //Fabric.with(this,new Crashlytics());
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
             launcherApplication = ((LauncherApplication) getApplication());

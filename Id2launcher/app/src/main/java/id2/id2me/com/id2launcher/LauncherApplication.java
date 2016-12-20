@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.ndk.CrashlyticsNdk;
 import io.fabric.sdk.android.Fabric;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class LauncherApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics(), new CrashlyticsNdk());
+      //  Fabric.with(this, new Crashlytics());
 
         ButterKnife.setDebug(true);
         if (BuildConfig.DEBUG) {
