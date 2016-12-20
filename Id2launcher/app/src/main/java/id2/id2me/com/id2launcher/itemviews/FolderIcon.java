@@ -7,11 +7,13 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.FolderItemView;
 import id2.id2me.com.id2launcher.R;
 
 /**
@@ -19,7 +21,7 @@ import id2.id2me.com.id2launcher.R;
  */
 
 public class FolderIcon extends LinearLayout {
-    private static final int NUM_ITEMS_IN_PREVIEW = 3;
+    private static final int NUM_ITEMS_IN_ROW = 3;
     private static final float PERSPECTIVE_SCALE_FACTOR = 1f;
     private static final float PERSPECTIVE_SHIFT_FACTOR = 1f;
     private float mMaxPerspectiveShift;
@@ -34,6 +36,7 @@ public class FolderIcon extends LinearLayout {
     //private Folder mFolder;
 
     private PreviewItemDrawingParams mParams = new PreviewItemDrawingParams(0, 0, 0, 0);
+    private FolderItemView mFolder;
 
     public FolderIcon(Context context) {
         super(context);
@@ -42,25 +45,24 @@ public class FolderIcon extends LinearLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        //ArrayList<View> items = mFolder.getItemsInReadingOrder(false);
-        ArrayList<View> items = new ArrayList<>();  // get app list in Folder
+        ArrayList<View> items = mFolder.getItemsInReadingOrder();
 
         Drawable d;
-        TextView v;
+        ImageView v;
         int counter = 0;
-        v = (TextView) items.get(0);
-        d = v.getCompoundDrawables()[1];
+        v = (ImageView) items.get(0);
+        d = v.getDrawable();
         computePreviewDrawingParams(d);
 
         float transX = 0;
         float transY = 0;
 
-        for(int i = 0 ; i < NUM_ITEMS_IN_PREVIEW ; i++) {
+        for(int i = 0 ; i < NUM_ITEMS_IN_ROW ; i++) {
             transX = mBaselineIconSize * i;
-            for(int j = 0 ; j < NUM_ITEMS_IN_PREVIEW ; j++) {
+            for(int j = 0 ; j < NUM_ITEMS_IN_ROW ; j++) {
                 transY = mBaselineIconSize * j;
-                v = (TextView) items.get(counter);
-                d = v.getCompoundDrawables()[1];
+                v = (ImageView) items.get(counter);
+                d = v.getDrawable();
                 mParams = computePreviewItemDrawingParams(transX, transY ,mParams);
                 mParams.drawable = d;
                 drawPreviewItem(canvas, mParams);
