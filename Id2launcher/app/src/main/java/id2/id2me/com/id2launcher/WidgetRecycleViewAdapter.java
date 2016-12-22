@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
-import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 
 /**
  * Created by sunita on 8/9/16.
