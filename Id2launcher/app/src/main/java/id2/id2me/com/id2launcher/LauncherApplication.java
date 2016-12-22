@@ -3,11 +3,14 @@ package id2.id2me.com.id2launcher;
 import android.app.Application;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
+
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -33,6 +36,7 @@ public class LauncherApplication extends Application {
     public LauncherModel mModel;
     public View desktopFragment;
     private Launcher launcher;
+    public static HashMap<String, Bitmap> mHashMapBitmap;
 
     public static LauncherApplication getApp() {
         return launcherApplication;

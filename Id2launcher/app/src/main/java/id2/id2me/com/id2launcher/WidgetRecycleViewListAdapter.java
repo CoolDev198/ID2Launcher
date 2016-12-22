@@ -30,11 +30,8 @@ import android.widget.TextView;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 
 import id2.id2me.com.id2launcher.itemviews.WidgetImageView;
-import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import timber.log.Timber;
 
 /**
@@ -93,7 +90,8 @@ class AsyncTaskPageData {
     WidgetRecycleViewListAdapter.AsyncTaskCallback postExecuteCallback;
 }
 
-public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRecycleViewListAdapter.MyViewHolder> implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener, View.OnKeyListener {
+public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRecycleViewListAdapter.MyViewHolder>
+        implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener, View.OnKeyListener {
 
     LauncherApplication launcherApplication;
     private PendingAddItemInfo widgetInfo;
@@ -103,7 +101,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
     private ArrayList<Object> shortcutList = new ArrayList<>();
     PackageManager mPackageManager;
     private int mAppIconSize;
-    private HashMap<String, Bitmap> mHashMapBitmap;
+    //private HashMap<String, Bitmap> mHashMapBitmap;
 
     private final float sWidgetPreviewIconPaddingPercentage = 0.25f;
     // Caching
@@ -133,7 +131,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
         mIconCache = launcherApplication.mIconCache;
         mCellWidth = launcherApplication.getCellWidth();
         mCellHeight = launcherApplication.getCellHeight();
-        mHashMapBitmap = new HashMap<>();
+        launcherApplication.mHashMapBitmap = new HashMap<>();
         Timber.v("Widget List Size : " + items.size());
         //loadWidgets();
     }
@@ -159,7 +157,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
         /*itemView.setOnLongClickListener(listeners);
         itemView.setOnClickListener(listeners);*/
         MyViewHolder myViewHolder = new MyViewHolder(itemView);
-        itemView.setTag(myViewHolder);
+        //itemView.setTag(myViewHolder);
         return myViewHolder;
     }
 
@@ -182,7 +180,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
             createItemInfo.minSpanY = minSpanXY[1];
 
             widgetItemView.applyFromAppWidgetProviderInfo(info, -1, spanXY);
-            //widgetItemView.setTag(createItemInfo);
+            widgetItemView.setTag(createItemInfo);
 
             //widgetItemView.setShortPressListener(this);
         } else if(rawInfo instanceof ResolveInfo) {
@@ -194,7 +192,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                     info.activityInfo.name);
 
             widgetItemView.applyFromResolveInfo(mPackageManager, info);
-            //widgetItemView.setTag(createItemInfo);
+            widgetItemView.setTag(createItemInfo);
 
         }
 
@@ -215,7 +213,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                     key_id = resolveInfo.activityInfo.packageName;
                 }
 
-                Bitmap b = mHashMapBitmap.get(key_id);
+                Bitmap b = launcherApplication.mHashMapBitmap.get(key_id);
                 if(b != null){
                     holder.widget_preview_img.setImageBitmap(b);
                 } else {
@@ -232,12 +230,12 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                                 cellSpans[0], cellSpans[1], maxWidth, maxHeight);
                         holder.widget_preview_img.setImageBitmap(b);
                         String id = info.provider.getPackageName()+""+info.previewImage;
-                        mHashMapBitmap.put(id,b);
+                        launcherApplication.mHashMapBitmap.put(id,b);
                     } else if (rawInfo instanceof ResolveInfo){
                         ResolveInfo info = (ResolveInfo) rawInfo;
                         b = getShortcutPreview(info, maxPreviewWidth, maxPreviewHeight);
                         holder.widget_preview_img.setImageBitmap(b);
-                        mHashMapBitmap.put(info.activityInfo.packageName,b);
+                        launcherApplication.mHashMapBitmap.put(info.activityInfo.packageName,b);
                     }
                 }
 
