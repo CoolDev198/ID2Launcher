@@ -2424,11 +2424,11 @@ public class CellLayout extends ViewGroup {
         // reserve enough space in both orientations.
         int actualWidth = resources.getDimensionPixelSize(R.dimen.cell_width);
         int actualHeight = resources.getDimensionPixelSize(R.dimen.cell_height);
-        int smallerSize = Math.min(actualWidth, actualHeight);
+        //int smallerSize = Math.min(actualWidth, actualHeight);
 
         // Always round up to next largest cell
-        int spanX = (int) Math.ceil(width / (float) smallerSize);
-        int spanY = (int) Math.ceil(height / (float) smallerSize);
+        int spanX = (int) Math.ceil(width / (float) actualWidth);
+        int spanY = (int) Math.ceil(height / (float) actualHeight);
 
         if (result == null) {
             return new int[] { spanX, spanY };
@@ -2438,5 +2438,24 @@ public class CellLayout extends ViewGroup {
         return result;
     }
 
+    public int[] rectToCell(int width, int height) {
+        // Always assume we're working with the smallest span to make sure we
+        // reserve enough space in both orientations.
+        int spanX = 0;
+        int spanY = 0;
+        try {
+            int actualWidth = launcherApplication.getCellWidth();
+            int actualHeight = launcherApplication.getCellHeight();
+            // Always round up to next largest cell
+            spanX = (int) Math.ceil(width / (float) actualWidth);
+            spanY = (int) Math.ceil(height / (float) actualHeight);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new int[]{spanX, spanY};
+    }
+
 }
+
 
