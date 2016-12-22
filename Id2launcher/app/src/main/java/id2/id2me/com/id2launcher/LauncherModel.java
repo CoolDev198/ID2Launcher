@@ -448,6 +448,8 @@ public class LauncherModel extends BroadcastReceiver {
                 }
             }
             mWidgetList.addAll(shortcuts);
+            Collections.sort(mWidgetList,
+                    new WidgetAndShortcutNameComparator(mPackageManager));
         }
 
         @Override
@@ -535,4 +537,36 @@ public class LauncherModel extends BroadcastReceiver {
 
         }
     }
+
+    public static class WidgetAndShortcutNameComparator implements Comparator<Object> {
+        private Collator mCollator;
+        private PackageManager mPackageManager;
+        private HashMap<Object, String> mLabelCache;
+        WidgetAndShortcutNameComparator(PackageManager pm) {
+            mPackageManager = pm;
+            mLabelCache = new HashMap<Object, String>();
+            mCollator = Collator.getInstance();
+        }
+        public final int compare(Object a, Object b) {
+            String labelA, labelB;
+            if (mLabelCache.containsKey(a)) {
+                labelA = mLabelCache.get(a);
+            } else {
+                labelA = (a instanceof AppWidgetProviderInfo) ?
+                        ((AppWidgetProviderInfo) a).label :
+                        ((ResolveInfo) a).loadLabel(mPackageManager).toString();
+                mLabelCache.put(a, labelA);
+            }
+            if (mLabelCache.containsKey(b)) {
+                labelB = mLabelCache.get(b);
+            } else {
+                labelB = (b instanceof AppWidgetProviderInfo) ?
+                        ((AppWidgetProviderInfo) b).label :
+                        ((ResolveInfo) b).loadLabel(mPackageManager).toString();
+                mLabelCache.put(b, labelB);
+            }
+            return mCollator.compare(labelA, labelB);
+        }
+    };
+
 }
