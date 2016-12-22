@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package id2.id2me.com.id2launcher.models;
+package id2.id2me.com.id2launcher;
 
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetProviderInfo;
@@ -22,6 +22,8 @@ import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
+
+import id2.id2me.com.id2launcher.models.ItemInfo;
 
 /**
  * We pass this object with a drag from the customization tray
