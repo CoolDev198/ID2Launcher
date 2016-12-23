@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
@@ -55,6 +56,7 @@ public class LauncherModel extends BroadcastReceiver {
     private int mBatchSize; // 0 is all apps at once
     private int mAllAppsLoadDelay; // milliseconds between batches
     private IconCache mIconCache;
+    private RefreshAdapter refreshAdapter;
 
     public LauncherModel(IconCache iconCache) {
 
@@ -175,7 +177,9 @@ public class LauncherModel extends BroadcastReceiver {
         }
     }
 
-
+    public void setRefreshAdapter(RefreshAdapter refreshAdapter) {
+        this.refreshAdapter = refreshAdapter;
+    }
 
 
     public interface Callbacks {
@@ -438,7 +442,7 @@ public class LauncherModel extends BroadcastReceiver {
         }
 
         public void run() {
-            final Context context = launcherApplication;
+
 
             final String[] packages = mPackages;
             final int N = packages.length;
@@ -451,14 +455,17 @@ public class LauncherModel extends BroadcastReceiver {
                 case OP_ADD:
                     for (int i = 0; i < N; i++) {
                         if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.addPackage " + packages[i]);
-                        mBgAllAppsList.addPackage(context, packages[i]);
+                        mBgAllAppsList.addPackage(mApp, packages[i]);
                     }
+
                     break;
                 case OP_UPDATE:
                     for (int i = 0; i < N; i++) {
                         if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.updatePackage " + packages[i]);
-                        mBgAllAppsList.updatePackage(context, packages[i]);
+                        mBgAllAppsList.updatePackage(mApp, packages[i]);
                     }
+                    if(refreshAdapter!=null)
+                    refreshAdapter.appAdded();
                     break;
                 case OP_REMOVE:
                 case OP_UNAVAILABLE:
@@ -466,6 +473,8 @@ public class LauncherModel extends BroadcastReceiver {
                         if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.removePackage " + packages[i]);
                         mBgAllAppsList.removePackage(packages[i]);
                     }
+                    if(refreshAdapter!=null)
+                    refreshAdapter.appRemoved();
                     break;
             }
             if (added != null) {
@@ -489,7 +498,7 @@ public class LauncherModel extends BroadcastReceiver {
                     public void run() {
                         try {
 
-                           // callbacks.bindAppsUpdated();
+                          // callbacks.bindAppsUpdated();
 
                         } catch (Exception e) {
                             e.printStackTrace();

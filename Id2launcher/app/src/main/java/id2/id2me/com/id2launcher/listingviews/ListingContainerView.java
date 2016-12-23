@@ -5,10 +5,13 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import id2.id2me.com.id2launcher.AllAppAdapter;
 import id2.id2me.com.id2launcher.DragSource;
 import id2.id2me.com.id2launcher.DropTarget;
 import id2.id2me.com.id2launcher.Launcher;
 import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.RefreshAdapter;
+import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import timber.log.Timber;
@@ -17,18 +20,25 @@ import timber.log.Timber;
  * Created by sunita on 12/16/16.
  */
 
-public class ListingContainerView extends FrameLayout implements View.OnLongClickListener, View.OnClickListener, DragSource {
+public abstract class ListingContainerView extends FrameLayout implements View.OnLongClickListener, View.OnClickListener, DragSource {
+
+    private  AllAppAdapter allAppAdapter;
+    private WidgetRecycleViewAdapter widgetRecycleViewAdapter;
+
     public ListingContainerView(Context context) {
-        super(context);
+        this(context,null);
     }
 
     public ListingContainerView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs,0);
     }
 
     public ListingContainerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+
     }
+
 
     @Override
     public void onClick(View child) {

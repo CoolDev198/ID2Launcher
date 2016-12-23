@@ -14,17 +14,15 @@ public class WallpaperContainer extends RelativeLayout implements DropTarget {
     Launcher mLauncher;
 
     public WallpaperContainer(Context context) {
-        super(context);
+        this(context,null);
     }
 
     public WallpaperContainer(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs,0);
     }
 
     public WallpaperContainer(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
+        this(context, attrs, defStyleAttr,0);
     }
 
     public WallpaperContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {

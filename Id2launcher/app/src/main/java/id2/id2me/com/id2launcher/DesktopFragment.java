@@ -161,7 +161,7 @@ public class DesktopFragment extends Fragment  {
 
     private void addWallpaperCropper() {
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
-        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
+       // LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
