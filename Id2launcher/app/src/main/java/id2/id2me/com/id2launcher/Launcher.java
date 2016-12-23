@@ -244,8 +244,9 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     }
 
     public void setWokSpace(WorkSpace wokSpace) {
-        this.wokSpace=wokSpace;
-        
+        this.wokSpace = wokSpace;
+        dragController.addDropTarget(wokSpace);
+        dragController.addDragListener(wokSpace);
     }
 
     public WorkSpace getWokSpace() {

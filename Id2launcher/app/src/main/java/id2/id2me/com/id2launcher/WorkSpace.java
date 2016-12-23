@@ -36,6 +36,7 @@ import timber.log.Timber;
  */
 
 public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChangeListener, DropTarget, DragSource, DragScroller, DragController.DragListener, View.OnTouchListener {
+
     public static final int DRAG_BITMAP_PADDING = 2;
     // Relating to the animation of items being dropped externally
     public static final int ANIMATE_INTO_POSITION_AND_DISAPPEAR = 0;
@@ -208,15 +209,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         return distanceX * distanceX + distanceY * distanceY;
     }
 
-    @Override
-    public void onDragStart(DragSource source, Object info, int dragAction) {
-        //  Timber.v("onDrag Start");
-    }
-
-    @Override
-    public void onDragEnd() {
-
-    }
 
     @Override
     public void onChildViewAdded(View parent, View child) {
@@ -1443,4 +1435,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
 
+    @Override
+    public void onDragStart(DragSource source, Object info, int dragAction) {
+
+    }
+
+    @Override
+    public void onDragEnd() {
+
+    }
 }
