@@ -628,19 +628,12 @@ public class DragController {
                 continue;
             target.getCustomHitRect(outR);
 
-
-            // Convert the hit rect to DragLayer coordinates
-          //  target.getLocationInDragLayer(dropCoordinates);
-
-            mDragObject.x = x;
-            mDragObject.y = y;
-
             if (outR.contains(x, y)) {
                 Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
 
 //                // Make dropCoordinates relative to the DropTarget
-                dropCoordinates[0] = x ;//- dropCoordinates[0];
-                dropCoordinates[1] = y;//- dropCoordinates[1];
+                dropCoordinates[0] = x ;
+                dropCoordinates[1] = y- mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height) + mLauncher.getScrollView().getScrollY();;
 //
                 return target;
             }

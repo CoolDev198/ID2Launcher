@@ -79,9 +79,10 @@ public class WallpaperContainer extends RelativeLayout implements DropTarget {
 
     @Override
     public void getCustomHitRect(Rect outRect) {
-        getLocalVisibleRect(outRect);
-        if(mLauncher.getScrollView()!=null) {
-          int scrollY =   mLauncher.getScrollView().getScrollY();
+        getHitRect(outRect);
+        ObservableScrollView scrollView = mLauncher.getScrollView();
+        if (scrollView != null) {
+            int scrollY = scrollView.getScrollY();
             outRect.bottom = outRect.bottom - scrollY;
         }
 

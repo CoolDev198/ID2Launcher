@@ -377,6 +377,10 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     }
 
 
+    void showOutOfSpaceMessage() {
+        Toast.makeText(this, getString(R.string.out_of_space), Toast.LENGTH_SHORT).show();
+    }
+
     public FolderIcon addFolder(CellLayout target, long container, int screen, int i, int i1) {
 
         return null;

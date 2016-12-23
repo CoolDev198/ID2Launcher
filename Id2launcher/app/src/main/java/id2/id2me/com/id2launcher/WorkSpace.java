@@ -510,25 +510,17 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         // hideScrollingIndicator(false);
     }
 
-    private CellLayout findMatchingPageForDragOver(
-            DragView dragView, int originX, int originY) {
+    private CellLayout findMatchingPageForDragOver(int originX, int originY) {
         // We loop through all the screens (ie CellLayouts) and see which ones overlap
         // with the item being dragged and then choose the one that's closest to the touch point
         final int screenCount = getChildCount();
         CellLayout bestMatchingScreen = null;
-
-        int newy = originY - getResources().getDimensionPixelSize(R.dimen.wallpaper_height) + launcher.getScrollView().getScrollY();
         for (int i = 0; i < screenCount; i++) {
             View child = getChildAt(i);
             Rect outR = new Rect();
 
             child.getHitRect(outR);
-            //child.getMatrix().
-            //Timber.v(" celllayout hit rect : i : "   +i  + " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
-
-            //Timber.v("center point :: " + cellLayoutCenter[0] + " " + cellLayoutCenter[1]);
-            //  Timber.v("distance :: " + dist);
-            if (outR.contains(originX, newy)) {
+                  if (outR.contains(originX, originY)) {
                 if (child instanceof CellLayout) {
                       Timber.v("best machi :: " + i);
                  //   Timber.v("touch point  x ::  old y :: new y :: scroll y  " + originX + " " + originY + "  " + "  " +newy  + "  " +launcher.getScrollView().getScrollY());
@@ -987,7 +979,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     void mapToCellLayout(DragObject dragObject, CellLayout layout) {
 
         if(layout!=null)
-        dragObject.y = dragObject.y - getResources().getDimensionPixelSize(R.dimen.wallpaper_height) + launcher.getScrollView().getScrollY() - layout.getTop();
+        dragObject.y = dragObject.y - layout.getTop();
 
        // Timber.v();
     }
@@ -1002,13 +994,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             throw new RuntimeException("Improper spans found");
 
         if (layout == null) {
-            layout = findMatchingPageForDragOver(d.dragView, d.x, d.y);
+            layout = findMatchingPageForDragOver(d.x, d.y);
         }
 
 
         final View child = (mDragInfo == null) ? null : mDragInfo.cell;
 
-        if (layout != mDragTargetLayout) {
+        if (layout != mDragTargetLayout && layout!=null) {
             setCurrentDropLayout(layout);
             setCurrentDragOverlappingLayout(layout);
         }
@@ -1122,44 +1114,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
 
-    void mapPointFromSelfToChild(View v, float[] xy, Matrix cachedInverseMatrix) {
-//        if (cachedInverseMatrix == null) {
-//            v.getMatrix().invert(mTempInverseMatrix);
-//            ca
-// chedInverseMatrix = mTempInverseMatrix;
-//        }
-
-        xy[0] = xy[0] + launcher.getScrollView().getScrollX();
-        xy[1] = xy[1] + launcher.getScrollView().getScrollY();
-        //cachedInverseMatrix.mapPoints(xy);
-    }
-
-    /*
-    *
-    * This method returns the CellLayout that is currently being dragged to. In order to drag
-    * to a CellLayout, either the touch point must be directly over the CellLayout, or as a second
-    * strategy, we see if the dragView is overlapping any CellLayout and choose the closest one
-    *
-    * Return null if no CellLayout is currently being dragged over
-    *
-    */
-
-    /*
- *
- * Convert the 2D coordinate xy from this CellLayout's coordinate space to
- * the parent View's coordinate space. The argument xy is modified with the return result.
- *
- */
-    void mapPointFromChildToSelf(View v, float[] xy) {
-        v.getMatrix().mapPoints(xy);
-        int scrollY = launcher.getScrollView().getScrollY();
-//        if (mNextPage != INVALID_PAGE) {
-//            scrollX = mScroller.getFinalX();
-//        }
-        //   Timber.v("scroll y :: " +   launcher.getScrollView().getScrollY());
-        xy[0] = xy[0] + getScrollX();
-        xy[1] = xy[1] + launcher.getScrollView().getScrollY();
-    }
 
     // This is used to compute the visual center of the dragView. This point is then
     // used to visualize drop locations and determine where to drop an item. The idea is that
@@ -1211,7 +1165,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public boolean acceptDrop(DragObject d) {
         // If it's an external drop (e.g. from All Apps), check if it should be accepted
-        CellLayout dropTargetLayout = mDropToLayout;
+        CellLayout dropTargetLayout = mDragTargetLayout;
         if (d.dragSource != this) {
             // Don't accept the drop if we're not over a screen at time of drop
             if (dropTargetLayout == null) {
@@ -1262,6 +1216,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             if (!foundCell) {
                 // Don't show the message if we are dropping on the AllApps button and the hotseat
                 // is full
+                mLauncher.showOutOfSpaceMessage();
                 return false;
             }
         }
@@ -1420,7 +1375,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     enum State {NORMAL, SPRING_LOADED, SMALL}
 
-    enum WallpaperVerticalOffset {TOP, MIDDLE, BOTTOM}
 
     class FolderCreationAlarmListener implements OnAlarmListener {
         CellLayout layout;
