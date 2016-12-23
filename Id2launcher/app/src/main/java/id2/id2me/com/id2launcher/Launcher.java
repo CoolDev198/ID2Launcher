@@ -38,7 +38,7 @@ import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
-public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener
+public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener,View.OnClickListener
 {
     static final int APPWIDGET_HOST_ID = 1024;
     private static final int REQUEST_PICK_APPWIDGET = 6;
@@ -259,6 +259,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
         favorite.setOnLongClickListener(this);
+        favorite.setOnClickListener(this);
         favorite.setShortCutModel(info);
         return favorite;
     }
@@ -414,5 +415,14 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     public ObservableScrollView getScrollView() {
         return scrollView;
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view instanceof AppItemView){
+            final ShortcutInfo shortcutInfo = (ShortcutInfo) view.getTag();
+            startActivitySafely(view,shortcutInfo.intent,shortcutInfo);
+        }
+
     }
 }
