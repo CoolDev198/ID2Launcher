@@ -434,11 +434,11 @@ public class DragController {
 
     private void handleMoveEvent(int x, int y) {
 
-        Log.v("handleMoveEvent ", x + "   " + y);
+        Timber.v("handleMoveEvent "+ x + "   " + y);
 
         if (y > mLauncher.getScrollView().getHeight() - 150) {
             mLauncher.getScrollView().smoothScrollBy(0, 15);
-        } else if (y < 300) {
+        } else if (y < 400) {
             mLauncher.getScrollView().smoothScrollBy(0, -15);
         }
 
