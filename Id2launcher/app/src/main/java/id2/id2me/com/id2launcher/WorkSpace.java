@@ -69,12 +69,17 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
     private CellLayout.CellInfo mDragInfo;
     private Point mDisplaySize = new Point();
     private int currentPage = 0;
+    private float mSpringLoadedShrinkFactor;
+
 
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
         launcher = (Launcher) context;
         Display display = launcher.getWindowManager().getDefaultDisplay();
         display.getSize(mDisplaySize);
+        mSpringLoadedShrinkFactor =
+                getResources().getInteger(R.integer.config_workspaceSpringLoadShrinkPercentage) / 100.0f;
+
     }
 
     static private float squaredDistance(float[] point1, float[] point2) {
@@ -108,9 +113,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         Resources r = getResources();
         final Canvas canvas = new Canvas();
 
-
         scrollView = (ObservableScrollView) ((View) getParent());
-
 
         // The outline is used to visualize where the item will land if dropped
         mDragOutline = createDragOutline(child, canvas, DRAG_BITMAP_PADDING);
@@ -154,6 +157,14 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         b.recycle();
 
     }
+
+
+    public void beginDragWidget(View v, Bitmap b, DragSource dragSource, Object dragInfo, float scale){
+        final Canvas canvas = new Canvas();
+        scrollView = (ObservableScrollView) ((View) getParent());
+
+        launcher.getDragController().startDrag(v, b, dragSource, dragInfo, DragController.DRAG_ACTION_COPY, null, scale);
+    }
         /*
     *
     * We call these methods (onDragStartedWithItemSpans/onDragStartedWithSize) whenever we
@@ -185,36 +196,44 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         return b;
     }
 
-//    public void onDragStartedWithItem(PendingAddItemInfo info, Bitmap b, boolean clipAlpha) {
-//        final Canvas canvas = new Canvas();
-//
-//        int[] size = estimateItemSize(info.spanX, info.spanY, info, false);
-//
-//        // The outline is used to visualize where the item will land if dropped
-//        mDragOutline = createDragOutline(b, canvas, DRAG_BITMAP_PADDING, size[0],
-//                size[1], clipAlpha);
-//    }
-//    // estimate the size of a widget with spans hSpan, vSpan. return MAX_VALUE for each
-//    // dimension if unsuccessful
-//    public int[] estimateItemSize(int hSpan, int vSpan,
-//                                  ItemInfo itemInfo, boolean springLoaded) {
-//        int[] size = new int[2];
-//        if (getChildCount() > 0) {
-//            CellLayout cl = (CellLayout) mLauncher.getWorkspace().getChildAt(0);
-//            Rect r = estimateItemPosition(cl, itemInfo, 0, 0, hSpan, vSpan);
-//            size[0] = r.width();
-//            size[1] = r.height();
-//            if (springLoaded) {
-//                size[0] *= mSpringLoadedShrinkFactor;
-//                size[1] *= mSpringLoadedShrinkFactor;
-//            }
-//            return size;
-//        } else {
-//            size[0] = Integer.MAX_VALUE;
-//            size[1] = Integer.MAX_VALUE;
-//            return size;
-//        }
-//    }
+
+    public void onDragStartedWithItem(PendingAddItemInfo info, Bitmap b, boolean clipAlpha) {
+        final Canvas canvas = new Canvas();
+
+        int[] size = estimateItemSize(info.spanX, info.spanY, info, false);
+
+        // The outline is used to visualize where the item will land if dropped
+        mDragOutline = createDragOutline(b, canvas, DRAG_BITMAP_PADDING, size[0],
+                size[1], clipAlpha);
+    }
+    // estimate the size of a widget with spans hSpan, vSpan. return MAX_VALUE for each
+    // dimension if unsuccessful
+    public int[] estimateItemSize(int hSpan, int vSpan,
+                                  ItemInfo itemInfo, boolean springLoaded) {
+        int[] size = new int[2];
+        if (getChildCount() > 0) {
+            CellLayout cl = (CellLayout) launcher.getWokSpace().getChildAt(1);
+            Rect r = estimateItemPosition(cl, itemInfo, 0, 0, hSpan, vSpan);
+            size[0] = r.width();
+            size[1] = r.height();
+            if (springLoaded) {
+                size[0] *= mSpringLoadedShrinkFactor;
+                size[1] *= mSpringLoadedShrinkFactor;
+            }
+            return size;
+        } else {
+            size[0] = Integer.MAX_VALUE;
+            size[1] = Integer.MAX_VALUE;
+            return size;
+        }
+    }
+
+    public Rect estimateItemPosition(CellLayout cl, ItemInfo pendingInfo,
+                                     int hCell, int vCell, int hSpan, int vSpan) {
+        Rect r = new Rect();
+        cl.cellToRect(hCell, vCell, hSpan, vSpan, r);
+        return r;
+    }
 
 
     /**
@@ -395,7 +414,7 @@ public class WorkSpace extends LinearLayout implements DropTarget, DragSource, D
         if (d.dragSource != this) {
             final int[] touchXY = new int[]{(int) mDragViewVisualCenter[0],
                     (int) mDragViewVisualCenter[1]};
-            onDropExternal(touchXY, d.dragInfo, dropTargetLayout, false, d);
+            //onDropExternal(touchXY, d.dragInfo, dropTargetLayout, false, d);
         } else if (mDragInfo != null) {
             final View cell = mDragInfo.cell;
 

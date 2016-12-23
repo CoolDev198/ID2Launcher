@@ -16,11 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-
-import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 
 /**
  * Created by sunita on 8/2/16.

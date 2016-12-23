@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<id2.id2me.com.id2launcher.itemviews.WidgetItemView
+<id2.id2me.com.id2launcher.WidgetItemView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="160dp"
     android:background="@drawable/widget_container_holo"
     android:layout_weight="1"
     >
@@ -56,4 +56,4 @@
     </LinearLayout>
 
 
-</id2.id2me.com.id2launcher.itemviews.WidgetItemView>
+</id2.id2me.com.id2launcher.WidgetItemView>

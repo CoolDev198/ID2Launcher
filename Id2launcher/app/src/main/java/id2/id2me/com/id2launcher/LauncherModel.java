@@ -1,5 +1,7 @@
 package id2.id2me.com.id2launcher;
 
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -50,6 +52,7 @@ public class LauncherModel extends BroadcastReceiver {
     static final ArrayList<Runnable> mDeferredBindRunnables = new ArrayList<Runnable>();
     private final Object mLock = new Object();
     public AllAppsList mBgAllAppsList;
+    public ArrayList<Object> mWidgetList;
     LauncherApplication launcherApplication;
     private boolean mStopped;
     private int mBatchSize; // 0 is all apps at once
@@ -59,6 +62,7 @@ public class LauncherModel extends BroadcastReceiver {
     public LauncherModel(IconCache iconCache) {
 
         mBgAllAppsList = new AllAppsList(iconCache);
+        mWidgetList = new ArrayList<>();
         mIconCache = iconCache;
         mApp = LauncherApplication.getApp();
         Resources res = mApp.getResources();
@@ -416,9 +420,42 @@ public class LauncherModel extends BroadcastReceiver {
             }
         }
 
+        private void loadAllWidgetList(){
+
+            PackageManager mPackageManager = mContext.getPackageManager();
+            List<AppWidgetProviderInfo> widgets =
+                    AppWidgetManager.getInstance(mContext).getInstalledProviders();
+            Intent shortcutsIntent = new Intent(Intent.ACTION_CREATE_SHORTCUT);
+            List<ResolveInfo> shortcuts = mPackageManager.queryIntentActivities(shortcutsIntent, 0);
+            for (AppWidgetProviderInfo widget : widgets) {
+                if (widget.minWidth > 0 && widget.minHeight > 0) {
+                    // Ensure that all widgets we show can be added on a workspace of this size
+                    int[] spanXY = Launcher.getSpanForWidget(mContext, widget);
+                    int[] minSpanXY = Launcher.getMinSpanForWidget(mContext, widget);
+                    int minSpanX = Math.min(spanXY[0], minSpanXY[0]);
+                    int minSpanY = Math.min(spanXY[1], minSpanXY[1]);
+                    /*if (minSpanX <= LauncherModel.getCellCountX() &&
+                            minSpanY <= LauncherModel.getCellCountY()) {
+                        mWidgetList.add(widget);
+                    } else {
+                        Log.e(TAG, "Widget " + widget.provider + " can not fit on this device (" +
+                                widget.minWidth + ", " + widget.minHeight + ")");
+                    }*/
+                    mWidgetList.add(widget);
+                } else {
+                    Log.e(TAG, "Widget " + widget.provider + " has invalid dimensions (" +
+                            widget.minWidth + ", " + widget.minHeight + ")");
+                }
+            }
+            mWidgetList.addAll(shortcuts);
+            Collections.sort(mWidgetList,
+                    new WidgetAndShortcutNameComparator(mPackageManager));
+        }
+
         @Override
         public void run() {
             loadAllAppsByBatch();
+            loadAllWidgetList();
         }
     }
 
@@ -500,4 +537,36 @@ public class LauncherModel extends BroadcastReceiver {
 
         }
     }
+
+    public static class WidgetAndShortcutNameComparator implements Comparator<Object> {
+        private Collator mCollator;
+        private PackageManager mPackageManager;
+        private HashMap<Object, String> mLabelCache;
+        WidgetAndShortcutNameComparator(PackageManager pm) {
+            mPackageManager = pm;
+            mLabelCache = new HashMap<Object, String>();
+            mCollator = Collator.getInstance();
+        }
+        public final int compare(Object a, Object b) {
+            String labelA, labelB;
+            if (mLabelCache.containsKey(a)) {
+                labelA = mLabelCache.get(a);
+            } else {
+                labelA = (a instanceof AppWidgetProviderInfo) ?
+                        ((AppWidgetProviderInfo) a).label :
+                        ((ResolveInfo) a).loadLabel(mPackageManager).toString();
+                mLabelCache.put(a, labelA);
+            }
+            if (mLabelCache.containsKey(b)) {
+                labelB = mLabelCache.get(b);
+            } else {
+                labelB = (b instanceof AppWidgetProviderInfo) ?
+                        ((AppWidgetProviderInfo) b).label :
+                        ((ResolveInfo) b).loadLabel(mPackageManager).toString();
+                mLabelCache.put(b, labelB);
+            }
+            return mCollator.compare(labelA, labelB);
+        }
+    };
+
 }
