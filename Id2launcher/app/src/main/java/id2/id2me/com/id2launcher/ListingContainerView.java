@@ -37,9 +37,7 @@ import timber.log.Timber;
 public class ListingContainerView extends FrameLayout implements View.OnLongClickListener, View.OnClickListener, DragSource {
     // Caching
     private Canvas mCanvas;
-    private IconCache mIconCache;
-    PendingAddWidgetInfo mCreateWidgetInfo = null;
-    private boolean mDraggingWidget = false;
+
     public ListingContainerView(Context context) {
         super(context);
 
@@ -77,35 +75,19 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         if (child instanceof AppItemView) {
             beginDraggingApplication(child);
         }  else if (child instanceof WidgetItemView) {
-            //Object rawInfo = child.getTag();
-            PendingAddItemInfo itemInfo = (PendingAddItemInfo) child.getTag();
-            if(itemInfo instanceof PendingAddWidgetInfo){
-                PendingAddWidgetInfo info = (PendingAddWidgetInfo) itemInfo;
-                mCreateWidgetInfo = new PendingAddWidgetInfo(info);
-            }
-            if (!beginDraggingWidget(child)) {
-                return false;
-            }
+            beginDraggingWidget(child);
         }
         return true;
     }
 
-    private boolean beginDraggingWidget(View child) {
-        mDraggingWidget = true;
+    private void beginDraggingWidget(View child) {
         LauncherApplication launcherApplication = LauncherApplication.getApp();
         launcherApplication.getLauncher().resetPage();
-        mIconCache = launcherApplication.mIconCache;
+
         mCanvas = new Canvas();
         //get the wudget priview image for drag representation
         ImageView image = (ImageView) child.findViewById(R.id.widget_preview);
         PendingAddItemInfo itemInfo = (PendingAddItemInfo) child.getTag();
-
-        // If the ImageView doesn't have a drawable yet, the widget preview hasn't been loaded and
-        // we abort the drag.
-        if (image.getDrawable() == null) {
-            mDraggingWidget = false;
-            return false;
-        }
 
         //Compose drag image
         Bitmap preview;
@@ -115,20 +97,14 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         if (itemInfo instanceof PendingAddWidgetInfo) {
             // This can happen in some weird cases involving multi-touch. We can't start dragging
             // the widget if this is null, so we break out.
-            if (mCreateWidgetInfo == null) {
-                return false;
-            }
 
-            PendingAddWidgetInfo createWidgetInfo = mCreateWidgetInfo;
-            itemInfo = createWidgetInfo;
+            PendingAddWidgetInfo createWidgetInfo = new PendingAddWidgetInfo((PendingAddWidgetInfo) itemInfo);
 
             BitmapDrawable previewDrawable = (BitmapDrawable) image.getDrawable();
             float minScale = 1.25f;
 
             String id = createWidgetInfo.componentName.getPackageName()+""+createWidgetInfo.previewImage;
             preview = launcherApplication.mHashMapBitmap.get(id);
-            /*preview = getWidgetPreview(createWidgetInfo.componentName, createWidgetInfo.previewImage,
-                    createWidgetInfo.icon, spanX, spanY, maxWidth, maxHeight);*/
 
             // Determine the image view drawable scale relative to the preview
             float[] mv = new float[9];
@@ -142,7 +118,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
             scale = (float) mv[0];
         } else {
             PendingAddShortcutInfo createShortcutInfo = (PendingAddShortcutInfo) child.getTag();
-            Drawable icon = mIconCache.getFullResIcon(createShortcutInfo.shortcutActivityInfo);
+            Drawable icon = launcherApplication.mIconCache.getFullResIcon(createShortcutInfo.shortcutActivityInfo);
             preview = Bitmap.createBitmap(icon.getIntrinsicWidth(),
                     icon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 
@@ -163,8 +139,6 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
                 false);
         launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(itemInfo, outline, clipAlpha);
         launcherApplication.getLauncher().getWokSpace().beginDragWidget(image, preview, this, itemInfo, scale);
-        return true;
-
     }
 
     private void renderDrawableToBitmap(Drawable d, Bitmap bitmap, int x, int y, int w, int h) {
