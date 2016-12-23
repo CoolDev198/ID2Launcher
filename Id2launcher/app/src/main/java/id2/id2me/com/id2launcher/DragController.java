@@ -633,7 +633,9 @@ public class DragController {
 
 //                // Make dropCoordinates relative to the DropTarget
                 dropCoordinates[0] = x ;
-                dropCoordinates[1] = y- mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height) + mLauncher.getScrollView().getScrollY();;
+                int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
+                int scrollY= mLauncher.getScrollView().getScrollY();
+                dropCoordinates[1] = y- wallPaperHeight +scrollY;;
 //
                 return target;
             }
