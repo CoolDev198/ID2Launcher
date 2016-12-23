@@ -1,12 +1,15 @@
 package id2.id2me.com.id2launcher;
 
 import android.app.ActivityOptions;
+import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -375,6 +378,24 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     @Override
     public void onPageBoundSynchronously(int page) {
 
+    }
+
+    static int[] getSpanForWidget(Context context, ComponentName component, int minWidth,
+                                  int minHeight) {
+        Rect padding = AppWidgetHostView.getDefaultPaddingForWidget(context, component, null);
+        // We want to account for the extra amount of padding that we are adding to the widget
+        // to ensure that it gets the full amount of space that it has requested
+        int requiredWidth = minWidth + padding.left + padding.right;
+        int requiredHeight = minHeight + padding.top + padding.bottom;
+        return CellLayout.rectToCell(context.getResources(), requiredWidth, requiredHeight, null);
+    }
+
+    static int[] getSpanForWidget(Context context, AppWidgetProviderInfo info) {
+        return getSpanForWidget(context, info.provider, info.minWidth, info.minHeight);
+    }
+
+    static int[] getMinSpanForWidget(Context context, AppWidgetProviderInfo info) {
+        return getSpanForWidget(context, info.provider, info.minResizeWidth, info.minResizeHeight);
     }
 
 

@@ -138,7 +138,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     private float[] mTempCellLayoutCenterCoordinates = new float[2];
     private float[] mTempDragBottomRightCoordinates = new float[2];
     private Matrix mTempInverseMatrix = new Matrix();
-    private float mSpringLoadedShrinkFactor;
     private State mState = State.NORMAL;
     private boolean mIsSwitchingState = false;
     /**
@@ -193,6 +192,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     private float[] mNewAlphas;
     private float[] mNewRotationYs;
     private float mTransitionProgress;
+    private int currentPage = 0;
+    private float mSpringLoadedShrinkFactor;
+
 
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -201,6 +203,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Display display = launcher.getWindowManager().getDefaultDisplay();
         display.getSize(mDisplaySize);
         mDragEnforcer = new DropTarget.DragEnforcer(context);
+        mSpringLoadedShrinkFactor =
+                getResources().getInteger(R.integer.config_workspaceSpringLoadShrinkPercentage) / 100.0f;
+
+
     }
 
     static private float squaredDistance(float[] point1, float[] point2) {
@@ -293,6 +299,22 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     }
 
+
+    public void beginDragWidget(View v, Bitmap b, DragSource dragSource, Object dragInfo, float scale){
+        final Canvas canvas = new Canvas();
+
+        launcher.getDragController().startDrag(v, b, dragSource, dragInfo, DragController.DRAG_ACTION_COPY, null, scale);
+    }
+        /*
+    *
+    * We call these methods (onDragStartedWithItemSpans/onDragStartedWithSize) whenever we
+    * start a drag in Launcher, regardless of whether the drag has ever entered the Workspace
+    *
+    * These methods mark the appropriate pages as accepting drops (which alters their visual
+    * appearance).
+    *
+    */
+
     /**
      * Returns a new bitmap to show when the given View is being dragged around.
      * Responsibility for the bitmap is transferred to the caller.
@@ -313,6 +335,46 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         return b;
     }
+
+
+    public void onDragStartedWithItem(PendingAddItemInfo info, Bitmap b, boolean clipAlpha) {
+        final Canvas canvas = new Canvas();
+
+        int[] size = estimateItemSize(info.spanX, info.spanY, info, false);
+
+        // The outline is used to visualize where the item will land if dropped
+        mDragOutline = createDragOutline(b, canvas, DRAG_BITMAP_PADDING, size[0],
+                size[1], clipAlpha);
+    }
+    // estimate the size of a widget with spans hSpan, vSpan. return MAX_VALUE for each
+    // dimension if unsuccessful
+    public int[] estimateItemSize(int hSpan, int vSpan,
+                                  ItemInfo itemInfo, boolean springLoaded) {
+        int[] size = new int[2];
+        if (getChildCount() > 0) {
+            CellLayout cl = (CellLayout) launcher.getWokSpace().getChildAt(1);
+            Rect r = estimateItemPosition(cl, itemInfo, 0, 0, hSpan, vSpan);
+            size[0] = r.width();
+            size[1] = r.height();
+            if (springLoaded) {
+                size[0] *= mSpringLoadedShrinkFactor;
+                size[1] *= mSpringLoadedShrinkFactor;
+            }
+            return size;
+        } else {
+            size[0] = Integer.MAX_VALUE;
+            size[1] = Integer.MAX_VALUE;
+            return size;
+        }
+    }
+
+    public Rect estimateItemPosition(CellLayout cl, ItemInfo pendingInfo,
+                                     int hCell, int vCell, int hSpan, int vSpan) {
+        Rect r = new Rect();
+        cl.cellToRect(hCell, vCell, hSpan, vSpan, r);
+        return r;
+    }
+
 
     /**
      * Returns a new bitmap to be used as the object outline, e.g. to visualize the drop location.
@@ -548,8 +610,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         if (d.dragSource != this) {
             final int[] touchXY = new int[]{(int) mDragViewVisualCenter[0],
                     (int) mDragViewVisualCenter[1]};
+
             onDropExternal(touchXY, d.dragInfo, dropTargetLayout, false, d);
-        }        else if (mDragInfo != null) {
+
+        } else if (mDragInfo != null) {
+
             final View cell = mDragInfo.cell;
 
             Runnable resizeRunnable = null;

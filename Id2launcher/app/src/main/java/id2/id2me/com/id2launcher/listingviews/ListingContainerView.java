@@ -10,8 +10,6 @@ import id2.id2me.com.id2launcher.DragSource;
 import id2.id2me.com.id2launcher.DropTarget;
 import id2.id2me.com.id2launcher.Launcher;
 import id2.id2me.com.id2launcher.LauncherApplication;
-import id2.id2me.com.id2launcher.RefreshAdapter;
-import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import timber.log.Timber;
@@ -21,9 +19,7 @@ import timber.log.Timber;
  */
 
 public abstract class ListingContainerView extends FrameLayout implements View.OnLongClickListener, View.OnClickListener, DragSource {
-
-    private  AllAppAdapter allAppAdapter;
-    private WidgetRecycleViewAdapter widgetRecycleViewAdapter;
+    
 
     public ListingContainerView(Context context) {
         this(context,null);

@@ -5,8 +5,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
+import id2.id2me.com.id2launcher.ListingContainerView;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
+import id2.id2me.com.id2launcher.WidgetRecycleViewListAdapter;
 
 
 /**
@@ -15,7 +16,9 @@ import id2.id2me.com.id2launcher.WidgetRecycleViewAdapter;
 public class WidgetsListingView extends ListingContainerView {
 
     Context context;
-    private WidgetRecycleViewAdapter widgetRecycleViewAdapter;
+
+    private RecyclerView recyclerView;
+    private WidgetRecycleViewListAdapter widgetRecycleViewAdapter;
 
     public WidgetsListingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -28,8 +31,9 @@ public class WidgetsListingView extends ListingContainerView {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         recyclerView.setLayoutManager(manager);
         recyclerView.setHasFixedSize(true);
-        widgetRecycleViewAdapter=new WidgetRecycleViewAdapter(this);
+        widgetRecycleViewAdapter=new WidgetRecycleViewListAdapter(this);
         recyclerView.setAdapter(widgetRecycleViewAdapter);
+
     }
 
 
