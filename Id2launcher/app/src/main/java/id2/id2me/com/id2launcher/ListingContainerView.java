@@ -83,14 +83,14 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
                 PendingAddWidgetInfo info = (PendingAddWidgetInfo) itemInfo;
                 mCreateWidgetInfo = new PendingAddWidgetInfo(info);
             }
-
-            //mCreateWidgetInfo = new PendingAddWidgetInfo((PendingAddWidgetInfo) child.getTag());
-            beginDraggingWidget(child);
+            if (!beginDraggingWidget(child)) {
+                return false;
+            }
         }
         return true;
     }
 
-    private void beginDraggingWidget(View child) {
+    private boolean beginDraggingWidget(View child) {
         mDraggingWidget = true;
         LauncherApplication launcherApplication = LauncherApplication.getApp();
         launcherApplication.getLauncher().resetPage();
@@ -102,10 +102,10 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
 
         // If the ImageView doesn't have a drawable yet, the widget preview hasn't been loaded and
         // we abort the drag.
-        /*if (image.getDrawable() == null) {
+        if (image.getDrawable() == null) {
             mDraggingWidget = false;
             return false;
-        }*/
+        }
 
         //Compose drag image
         Bitmap preview;
@@ -116,7 +116,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
             // This can happen in some weird cases involving multi-touch. We can't start dragging
             // the widget if this is null, so we break out.
             if (mCreateWidgetInfo == null) {
-                //return false;
+                return false;
             }
 
             PendingAddWidgetInfo createWidgetInfo = mCreateWidgetInfo;
@@ -163,9 +163,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
                 false);
         launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(itemInfo, outline, clipAlpha);
         launcherApplication.getLauncher().getWokSpace().beginDragWidget(image, preview, this, itemInfo, scale);
-        //outline.recycle();
-        //preview.recycle();
-        //return true;
+        return true;
 
     }
 

@@ -2438,24 +2438,6 @@ public class CellLayout extends ViewGroup {
         return result;
     }
 
-    public int[] rectToCell(int width, int height) {
-        // Always assume we're working with the smallest span to make sure we
-        // reserve enough space in both orientations.
-        int spanX = 0;
-        int spanY = 0;
-        try {
-            int actualWidth = launcherApplication.getCellWidth();
-            int actualHeight = launcherApplication.getCellHeight();
-            // Always round up to next largest cell
-            spanX = (int) Math.ceil(width / (float) actualWidth);
-            spanY = (int) Math.ceil(height / (float) actualHeight);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return new int[]{spanX, spanY};
-    }
-
 }
 
 

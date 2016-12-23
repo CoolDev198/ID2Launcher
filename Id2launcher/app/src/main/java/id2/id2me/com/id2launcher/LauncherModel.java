@@ -447,6 +447,7 @@ public class LauncherModel extends BroadcastReceiver {
                             widget.minWidth + ", " + widget.minHeight + ")");
                 }
             }
+
             mWidgetList.addAll(shortcuts);
             Collections.sort(mWidgetList,
                     new WidgetAndShortcutNameComparator(mPackageManager));
