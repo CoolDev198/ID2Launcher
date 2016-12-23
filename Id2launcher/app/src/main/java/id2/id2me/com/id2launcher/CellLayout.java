@@ -253,7 +253,7 @@ public class CellLayout extends ViewGroup {
             if (lp.cellVSpan < 0) lp.cellVSpan = mCountY;
 
            // child.setId(childId);
-
+Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             mShortcutsAndWidgets.addView(child, index, lp);
 
             if (markCells) markCellsAsOccupiedForView(child);
@@ -412,7 +412,7 @@ public class CellLayout extends ViewGroup {
     public void markCellsAsUnoccupiedForView(View view, boolean occupied[][]) {
         if (view == null || view.getParent() != mShortcutsAndWidgets) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
-       // markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, occupied, false);
+        markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, occupied, false);
     }
 
     private void markCellsForView(int cellX, int cellY, int spanX, int spanY, boolean[][] occupied,
@@ -519,8 +519,8 @@ public class CellLayout extends ViewGroup {
         }
 
         if (finalSolution != null) {
-            result[0] = finalSolution.dragViewX;
-            result[1] = finalSolution.dragViewY;
+           // result[0] = finalSolution.dragViewX;
+            //result[1] = finalSolution.dragViewY;
             resultSpan[0] = finalSolution.dragViewSpanX;
             resultSpan[1] = finalSolution.dragViewSpanY;
 
@@ -1949,7 +1949,7 @@ public class CellLayout extends ViewGroup {
     int[] findNearestArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
                           View ignoreView, boolean ignoreOccupied, int[] result, int[] resultSpan,
                           boolean[][] occupied) {
-        lazyInitTempRectStack();
+         lazyInitTempRectStack();
         // mark space take by ignoreView as available (method checks if ignoreView is null)
           markCellsAsUnoccupiedForView(ignoreView, occupied);
 
@@ -2067,6 +2067,7 @@ public class CellLayout extends ViewGroup {
             bestXY[1] = -1;
         }
         recycleTempRects(validRegions);
+        Timber.v("target cell find nearest   ::  " +  bestXY[0] + "  " + bestXY[1]);
         return bestXY;
     }
 
@@ -2158,12 +2159,12 @@ public class CellLayout extends ViewGroup {
         intersectingViews.clear();
         Rect r0 = new Rect(cellX, cellY, cellX + spanX, cellY + spanY);
         Rect r1 = new Rect();
-        final int count = getChildCount();
+        final int count = mShortcutsAndWidgets.getChildCount();
         for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
+            View child = mShortcutsAndWidgets.getChildAt(i);
             if (child == dragView) continue;
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
-         //   r1.set(lp.cellX, lp.cellY, lp.cellX + lp.cellHSpan, lp.cellY + lp.cellVSpan);
+            r1.set(lp.cellX, lp.cellY, lp.cellX + lp.cellHSpan, lp.cellY + lp.cellVSpan);
             if (Rect.intersects(r0, r1)) {
                 mIntersectingViews.add(child);
                 if (boundingRect != null) {

@@ -20,7 +20,7 @@ import timber.log.Timber;
  */
 public class LauncherApplication extends Application {
 
-    public static final int DEFAULT_SCREENS = 1;
+    public static final int DEFAULT_SCREENS = 2;
     public static ImageView wallpaperImg;
     public static List<NotificationWidgetInfo> notificationWidgetModels;
     static LauncherApplication launcherApplication;

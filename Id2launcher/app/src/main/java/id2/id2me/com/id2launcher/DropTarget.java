@@ -177,7 +177,7 @@ public interface DropTarget {
     boolean acceptDrop(DragObject dragObject);
 
     // These methods are implemented in Views
-    void getHitRect(Rect outRect);
+    void getCustomHitRect(Rect outRect);
     void getLocationInDragLayer(int[] loc);
     int getLeft();
     int getTop();
