@@ -233,6 +233,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                         launcherApplication.mHashMapBitmap.put(id,b);
                     } else if (rawInfo instanceof ResolveInfo){
                         ResolveInfo info = (ResolveInfo) rawInfo;
+                        maxPreviewWidth = launcherApplication.getScreenWidth() / 3 ;
                         b = getShortcutPreview(info, maxPreviewWidth, maxPreviewHeight);
                         holder.widget_preview_img.setImageBitmap(b);
                         launcherApplication.mHashMapBitmap.put(info.activityInfo.packageName,b);
@@ -515,6 +516,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                 launcherApplication.getResources().getDimensionPixelOffset(R.dimen.shortcut_preview_padding_right);
 
         int scaledIconWidth = (maxWidth - paddingLeft - paddingRight);
+        //int scaledIconWidth = 390;
 
         renderDrawableToBitmap(
                 icon, tempBitmap, paddingLeft, paddingTop, scaledIconWidth, scaledIconWidth);
