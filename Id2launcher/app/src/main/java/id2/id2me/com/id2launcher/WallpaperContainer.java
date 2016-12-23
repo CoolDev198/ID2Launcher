@@ -11,20 +11,30 @@ import android.widget.RelativeLayout;
  */
 
 public class WallpaperContainer extends RelativeLayout implements DropTarget {
+    Launcher mLauncher;
+
     public WallpaperContainer(Context context) {
         super(context);
     }
 
     public WallpaperContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public WallpaperContainer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     public WallpaperContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
+    void init() {
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        mLauncher = launcherApplication.getLauncher();
     }
 
     @Override
@@ -70,6 +80,10 @@ public class WallpaperContainer extends RelativeLayout implements DropTarget {
     @Override
     public void getCustomHitRect(Rect outRect) {
         getLocalVisibleRect(outRect);
+        if(mLauncher.getScrollView()!=null) {
+          int scrollY =   mLauncher.getScrollView().getScrollY();
+            outRect.bottom = outRect.bottom - scrollY;
+        }
 
     }
 
