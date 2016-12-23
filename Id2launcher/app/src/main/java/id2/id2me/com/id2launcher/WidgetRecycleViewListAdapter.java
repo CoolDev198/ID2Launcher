@@ -233,6 +233,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                         launcherApplication.mHashMapBitmap.put(id,b);
                     } else if (rawInfo instanceof ResolveInfo){
                         ResolveInfo info = (ResolveInfo) rawInfo;
+                        maxPreviewWidth = launcherApplication.getScreenWidth()/3;
                         b = getShortcutPreview(info, maxPreviewWidth, maxPreviewHeight);
                         holder.widget_preview_img.setImageBitmap(b);
                         launcherApplication.mHashMapBitmap.put(info.activityInfo.packageName,b);

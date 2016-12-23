@@ -35,6 +35,7 @@ public class LauncherApplication extends Application {
     public View desktopFragment;
     private Launcher launcher;
     public HashMap<String, Bitmap> mHashMapBitmap;
+    public int screenWidth;
 
     public static LauncherApplication getApp() {
         return launcherApplication;
@@ -63,6 +64,7 @@ public class LauncherApplication extends Application {
         mModel = new LauncherModel(mIconCache);
         addBroadCastReceiver();
         density = getResources().getDisplayMetrics().density;
+        screenWidth = getResources().getDisplayMetrics().widthPixels;
     }
 
     private void addBroadCastReceiver() {
@@ -109,4 +111,8 @@ public class LauncherApplication extends Application {
         return cellWidth;
     }
 
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
 }
