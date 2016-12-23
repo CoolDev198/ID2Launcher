@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         // Start ResultActivity
         ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
-        mExecutor.submit(new LoadScaledImageTask(this, uri, LauncherApplication.wallpaperImg, calcImageSize()));
+      //  mExecutor.submit(new LoadScaledImageTask(this, uri, LauncherApplication.wallpaperImg, calcImageSize()));
     }
 
     public int calcImageSize() {

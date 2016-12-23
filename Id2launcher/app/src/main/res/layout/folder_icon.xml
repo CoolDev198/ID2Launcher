@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<id2.id2me.com.id2launcher.itemviews.FolderIcon
+<id2.id2me.com.id2launcher.FolderIcon
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -12,4 +12,4 @@
         android:layout_height="@dimen/folder_preview_size"
         android:src="@color/white"/>
 
-</id2.id2me.com.id2launcher.itemviews.FolderIcon>
+</id2.id2me.com.id2launcher.FolderIcon>

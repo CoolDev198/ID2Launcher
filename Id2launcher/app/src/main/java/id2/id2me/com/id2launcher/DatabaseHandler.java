@@ -322,7 +322,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         } finally {
             cursor.close();
         }
-        LauncherApplication.notificationWidgetModels = notificationWidgetModels;
+       // LauncherApplication.notificationWidgetModels = notificationWidgetModels;
     }
 
     public ArrayList<ItemInfo> getAppsListOfFolder(long id) {

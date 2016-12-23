@@ -3,6 +3,7 @@ package id2.id2me.com.id2launcher;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -75,10 +76,15 @@ public class DesktopFragment extends Fragment  {
 
         try {
             // LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, new IntentFilter("Msg"));
-
             fragmentView = inflater.inflate(R.layout.desktop_fragment, container, false);
+
+            WorkSpace workSpace =(WorkSpace)fragmentView.findViewById(R.id.container);
+            WallpaperContainer wallpaperContainer =(WallpaperContainer) fragmentView.findViewById(R.id.wallpaper_layout);
             launcher = (Launcher) getActivity();
-            launcher.setWokSpace((WorkSpace) fragmentView.findViewById(R.id.container));
+            dragController.addDropTarget(workSpace);
+            dragController.addDropTarget(wallpaperContainer);
+            launcher.setWokSpace(workSpace);
+            launcher.setScrollView((ObservableScrollView) fragmentView.findViewById(R.id.scrollView));
             db = DatabaseHandler.getInstance(context);
             initViews();
 
@@ -140,9 +146,13 @@ public class DesktopFragment extends Fragment  {
             child.setTag(i);
 
             if (i == 0) {
-                //child.setBackgroundColor(Color.BLACK);
-            } else {
-                //child.setBackgroundColor(Color.YELLOW);
+                child.setBackgroundColor(Color.BLACK);
+            } else if(i==1){
+                child.setBackgroundColor(Color.YELLOW);
+            } else if(i==2){
+                child.setBackgroundColor(Color.RED);
+            } else if(i==3){
+                child.setBackgroundColor(Color.GREEN);
             }
 
             containerL.addView(child);
@@ -151,7 +161,7 @@ public class DesktopFragment extends Fragment  {
 
     private void addWallpaperCropper() {
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
-        LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
+       // LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
         wallpaperLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {

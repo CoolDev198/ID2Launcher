@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -58,6 +59,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     // The Intent extra that defines whether to ignore the launch animation
     static final String INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION =
             "com.android.launcher.intent.extra.shortcut.INGORE_LAUNCH_ANIMATION";
+    private ObservableScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -397,4 +399,20 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     }
 
 
+    void showOutOfSpaceMessage() {
+        Toast.makeText(this, getString(R.string.out_of_space), Toast.LENGTH_SHORT).show();
+    }
+
+    public FolderIcon addFolder(CellLayout target, long container, int screen, int i, int i1) {
+
+        return null;
+    }
+
+    public void setScrollView(ObservableScrollView scrollView) {
+        this.scrollView = scrollView;
+    }
+
+    public ObservableScrollView getScrollView() {
+        return scrollView;
+    }
 }

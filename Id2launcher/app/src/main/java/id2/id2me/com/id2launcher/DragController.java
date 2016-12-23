@@ -19,6 +19,8 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 /**
  * Class for initiating a drag within a view or across multiple views.
  */
@@ -434,6 +436,12 @@ public class DragController {
 
         Log.v("handleMoveEvent ", x + "   " + y);
 
+        if (y > mLauncher.getScrollView().getHeight() - 150) {
+            mLauncher.getScrollView().smoothScrollBy(0, 15);
+        } else if (y < 300) {
+            mLauncher.getScrollView().smoothScrollBy(0, -15);
+        }
+
         mDragObject.dragView.move(x, y);
 
         // Drop on someone?
@@ -448,18 +456,23 @@ public class DragController {
                 Math.sqrt(Math.pow(mLastTouch[0] - x, 2) + Math.pow(mLastTouch[1] - y, 2));
         mLastTouch[0] = x;
         mLastTouch[1] = y;
-        //  checkScrollState(x, y);
     }
 
     private void checkTouchMove(DropTarget dropTarget) {
         if (dropTarget != null) {
+
             if (mLastDropTarget != dropTarget) {
                 if (mLastDropTarget != null) {
                     mLastDropTarget.onDragExit(mDragObject);
                 }
                 dropTarget.onDragEnter(mDragObject);
             }
-            dropTarget.onDragOver(mDragObject);
+
+                dropTarget.onDragOver(mDragObject);
+
+
+
+
         } else {
             if (mLastDropTarget != null) {
                 mLastDropTarget.onDragExit(mDragObject);
@@ -467,6 +480,7 @@ public class DragController {
         }
         mLastDropTarget = dropTarget;
     }
+
 
     public void forceMoveEvent() {
         if (mDragging) {
@@ -604,7 +618,7 @@ public class DragController {
     }
 
     private DropTarget findDropTarget(int x, int y, int[] dropCoordinates) {
-        final Rect r = mRectTemp;
+        final Rect outR = mRectTemp;
 
         final ArrayList<DropTarget> dropTargets = mDropTargets;
         final int count = dropTargets.size();
@@ -612,26 +626,17 @@ public class DragController {
             DropTarget target = dropTargets.get(i);
             if (!target.isDropEnabled())
                 continue;
-            target.getHitRect(r);
+            target.getCustomHitRect(outR);
 
-            // Convert the hit rect to DragLayer coordinates
-          //  target.getLocationInDragLayer(dropCoordinates);
-          //  r.offset(dropCoordinates[0] - target.getLeft(), dropCoordinates[1] - target.getTop());
+            if (outR.contains(x, y)) {
+                Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
 
-            mDragObject.x = x;
-            mDragObject.y = y;
-
-            if (r.contains(x, y)) {
-                DropTarget delegate = target.getDropTargetDelegate(mDragObject);
-                if (delegate != null) {
-                    target = delegate;
-                    target.getLocationInDragLayer(dropCoordinates);
-                }
-
-                // Make dropCoordinates relative to the DropTarget
-                dropCoordinates[0] = x;// - dropCoordinates[0];
-                dropCoordinates[1] = y ;//- dropCoordinates[1];
-
+//                // Make dropCoordinates relative to the DropTarget
+                dropCoordinates[0] = x ;
+                int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
+                int scrollY= mLauncher.getScrollView().getScrollY();
+                dropCoordinates[1] = y- wallPaperHeight +scrollY;;
+//
                 return target;
             }
         }

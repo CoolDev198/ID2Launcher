@@ -21,21 +21,36 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
     private HashMap<Integer, String> mapIndex;
     private LauncherApplication launcherApplication;
     private ListingContainerView listeners;
+    private ArrayList<String> symbols;
 
     public AllAppAdapter(ListingContainerView listeners) {
         try {
             this.listeners = listeners;
             launcherApplication = LauncherApplication.getApp();
             this.groupList = launcherApplication.mModel.mBgAllAppsList.data;
+            makeSymbolsList();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
+    void makeSymbolsList() {
+        symbols = new ArrayList<>();
+        for (AppInfo appInfo:groupList) {
+          String symbol = appInfo.title.toString().substring(0,1);
+            if(!Character.isAlphabetic(symbol.charAt(0))){
+                symbol="#";
+            }
+            symbols.add(symbol);
+
+        }
+    }
+
     @Override
     public String getTextToShowInBubble(int pos) {
-        return  groupList.get(pos).toString().toUpperCase().substring(0,0);
+
+        return symbols.get(pos);
 
     }
 

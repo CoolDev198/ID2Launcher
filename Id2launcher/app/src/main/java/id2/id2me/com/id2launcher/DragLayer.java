@@ -370,6 +370,8 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     }
 
 
-
+    public float getDescendantRectRelativeToSelf(View v, Rect folderLocation) {
+        return 0;
+    }
 }
 

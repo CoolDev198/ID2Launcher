@@ -49,6 +49,8 @@
     <!-- Displayed when user selects a shortcut for an app that was uninstalled [CHAR_LIMIT=none]-->
     <string name="activity_not_found">App isn\'t installed.</string>
     <string name="invalid_alert">Invalid Location</string>
+    <!-- Error message when user has filled a home screen -->
+    <string name="out_of_space">No more room on this Home screen.</string>
 
     <string-array name="noti_app_id">
         <item>com.facebook.katana</item>
