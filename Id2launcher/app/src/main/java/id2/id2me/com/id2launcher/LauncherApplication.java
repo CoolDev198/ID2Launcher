@@ -36,7 +36,7 @@ public class LauncherApplication extends Application {
     public LauncherModel mModel;
     public View desktopFragment;
     private Launcher launcher;
-    public static HashMap<String, Bitmap> mHashMapBitmap;
+    public HashMap<String, Bitmap> mHashMapBitmap;
 
     public static LauncherApplication getApp() {
         return launcherApplication;
