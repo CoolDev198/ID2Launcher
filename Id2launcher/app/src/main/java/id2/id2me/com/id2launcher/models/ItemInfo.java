@@ -84,7 +84,7 @@ public class ItemInfo {
     /**
      * The position of the item in a drag-and-drop operation.
      */
-    int[] dropPos = null;
+    public int[] dropPos = null;
 
     public ItemInfo(AppInfo info) {
 
