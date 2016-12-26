@@ -109,6 +109,18 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         animateView(view, from, to, finalAlpha, initScaleX, initScaleY, finalScaleX, finalScaleY, duration,
                 null, null, onCompleteRunnable, animationEndStyle, anchorView);
     }
+
+    public void animateViewIntoPosition(DragView dragView, final int[] pos, float alpha,
+                                        float scaleX, float scaleY, int animationEndStyle, Runnable onFinishRunnable,
+                                        int duration) {
+        Rect r = new Rect();
+        getViewRectRelativeToSelf(dragView, r);
+        final int fromX = r.left;
+        final int fromY = r.top;
+
+        animateViewIntoPosition(dragView, fromX, fromY, pos[0], pos[1], alpha, 1, 1, scaleX, scaleY,
+                onFinishRunnable, animationEndStyle, duration, null);
+    }
     /**
      * This method animates a view at the end of a drag and drop animation.
      *
