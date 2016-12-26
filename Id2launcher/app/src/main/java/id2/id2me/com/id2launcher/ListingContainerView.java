@@ -75,7 +75,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         if (child instanceof AppItemView) {
             beginDraggingApplication(child);
         }  else if (child instanceof WidgetItemView) {
-            //beginDraggingWidget(child);
+            beginDraggingWidget(child);
         }
         return true;
     }
