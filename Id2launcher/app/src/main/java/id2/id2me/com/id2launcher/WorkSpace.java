@@ -2,6 +2,7 @@ package id2.id2me.com.id2launcher;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.appwidget.AppWidgetHostView;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -124,7 +125,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      * The CellLayout which will be dropped to
      */
     private CellLayout mDropToLayout = null;
-    private Launcher mLauncher;
     private IconCache mIconCache;
     private DragController mDragController;
     // These are temporary variables to prevent having to allocate a new object just to
@@ -254,7 +254,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
           addExtraEmptyScreen();
         Resources r = getResources();
         final Canvas canvas = new Canvas();
-
 
         // The outline is used to visualize where the item will land if dropped
         mDragOutline = createDragOutline(child, canvas, DRAG_BITMAP_PADDING);
@@ -764,7 +763,83 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         final long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
         final int screen = indexOfChild(cellLayout);
 
+        if (info instanceof PendingAddItemInfo) {
+            final PendingAddItemInfo pendingInfo = (PendingAddItemInfo) dragInfo;
 
+            boolean findNearestVacantCell = true;
+            if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
+                mTargetCell = findNearestArea((int) touchXY[0], (int) touchXY[1], spanX, spanY,
+                        cellLayout, mTargetCell);
+                float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
+                        mDragViewVisualCenter[1], mTargetCell);
+                if (willCreateUserFolder((ItemInfo) d.dragInfo, cellLayout, mTargetCell,
+                        distance, true) || willAddToExistingUserFolder((ItemInfo) d.dragInfo,
+                        cellLayout, mTargetCell, distance)) {
+                    findNearestVacantCell = false;
+                }
+            }
+
+            final ItemInfo item = (ItemInfo) d.dragInfo;
+            boolean updateWidgetSize = false;
+            if (findNearestVacantCell) {
+                int minSpanX = item.spanX;
+                int minSpanY = item.spanY;
+                if (item.minSpanX > 0 && item.minSpanY > 0) {
+                    minSpanX = item.minSpanX;
+                    minSpanY = item.minSpanY;
+                }
+                int[] resultSpan = new int[2];
+                mTargetCell = cellLayout.createArea((int) mDragViewVisualCenter[0],
+                        (int) mDragViewVisualCenter[1], minSpanX, minSpanY, info.spanX, info.spanY,
+                        null, mTargetCell, resultSpan, CellLayout.MODE_ON_DROP_EXTERNAL);
+
+                if (resultSpan[0] != item.spanX || resultSpan[1] != item.spanY) {
+                    updateWidgetSize = true;
+                }
+                item.spanX = resultSpan[0];
+                item.spanY = resultSpan[1];
+            }
+
+            Runnable onAnimationCompleteRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    // When dragging and dropping from customization tray, we deal with creating
+                    // widgets/shortcuts/folders in a slightly different way
+                    switch (pendingInfo.itemType) {
+                        case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
+                            int span[] = new int[2];
+                            span[0] = item.spanX;
+                            span[1] = item.spanY;
+                            launcher.addAppWidgetFromDrop((PendingAddWidgetInfo) pendingInfo,
+                                    container, screen, mTargetCell, span, null);
+                            break;
+                        case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
+                            launcher.processShortcutFromDrop(pendingInfo.componentName,
+                                    container, screen, mTargetCell, null);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unknown item type: " +
+                                    pendingInfo.itemType);
+                    }
+                }
+            };
+            View finalView = pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET
+                    ? ((PendingAddWidgetInfo) pendingInfo).boundWidget : null;
+
+            if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
+                AppWidgetHostView awhv = (AppWidgetHostView) finalView;
+                /*AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, mLauncher, item.spanX,
+                        item.spanY);*/
+            }
+
+            int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
+            if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET &&
+                    ((PendingAddWidgetInfo) pendingInfo).info.configure != null) {
+                animationStyle = ANIMATE_INTO_POSITION_AND_REMAIN;
+            }
+            animateWidgetDrop(info, cellLayout, d.dragView, onAnimationCompleteRunnable,
+                    animationStyle, finalView, true);
+        } else {
         // This is for other drag/drop cases, like dragging from All Apps
         View view = null;
 
@@ -822,7 +897,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 //                        exitSpringLoadedRunnable);
             // resetTransitionTransform(cellLayout);
         }
-        // }
+        }
     }
 
     /**
@@ -971,11 +1046,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             }
 
             Rect folderLocation = new Rect();
-            float scale = mLauncher.getDragLayer().getDescendantRectRelativeToSelf(v, folderLocation);
+            float scale = launcher.getDragLayer().getDescendantRectRelativeToSelf(v, folderLocation);
             target.removeView(v);
 
             FolderIcon fi =
-                    mLauncher.addFolder(target, container, screen, targetCell[0], targetCell[1]);
+                    launcher.addFolder(target, container, screen, targetCell[0], targetCell[1]);
             destInfo.cellX = -1;
             destInfo.cellY = -1;
             sourceInfo.cellX = -1;
@@ -1016,6 +1091,99 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             }
         }
         return false;
+    }
+
+    public void animateWidgetDrop(ItemInfo info, CellLayout cellLayout, DragView dragView,
+                                  final Runnable onCompleteRunnable, int animationType, final View finalView,
+                                  boolean external) {
+        Rect from = new Rect();
+        launcher.getDragLayer().getViewRectRelativeToSelf(dragView, from);
+
+        int[] finalPos = new int[2];
+        float scaleXY[] = new float[2];
+        boolean scalePreview = !(info instanceof PendingAddShortcutInfo);
+        getFinalPositionForDropAnimation(finalPos, scaleXY, dragView, cellLayout, info, mTargetCell,
+                external, scalePreview);
+
+        Resources res = launcher.getResources();
+        int duration = res.getInteger(R.integer.config_dropAnimMaxDuration) - 200;
+
+        // In the case where we've prebound the widget, we remove it from the DragLayer
+        if (finalView instanceof AppWidgetHostView && external) {
+            Log.d(TAG, "6557954 Animate widget drop, final view is appWidgetHostView");
+            launcher.getDragLayer().removeView(finalView);
+        }
+        if ((animationType == ANIMATE_INTO_POSITION_AND_RESIZE || external) && finalView != null) {
+            /*Bitmap crossFadeBitmap = createWidgetBitmap(info, finalView);
+            dragView.setCrossFadeBitmap(crossFadeBitmap);
+            dragView.crossFade((int) (duration * 0.8f));*/
+        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET && external) {
+            scaleXY[0] = scaleXY[1] = Math.min(scaleXY[0],  scaleXY[1]);
+        }
+
+        DragLayer dragLayer = launcher.getDragLayer();
+        if (animationType == CANCEL_TWO_STAGE_WIDGET_DROP_ANIMATION) {
+            launcher.getDragLayer().animateViewIntoPosition(dragView, finalPos, 0f, 0.1f, 0.1f,
+                    DragLayer.ANIMATION_END_DISAPPEAR, onCompleteRunnable, duration);
+        } else {
+            int endStyle;
+            if (animationType == ANIMATE_INTO_POSITION_AND_REMAIN) {
+                endStyle = DragLayer.ANIMATION_END_REMAIN_VISIBLE;
+            } else {
+                endStyle = DragLayer.ANIMATION_END_DISAPPEAR;;
+            }
+
+            Runnable onComplete = new Runnable() {
+                @Override
+                public void run() {
+                    if (finalView != null) {
+                        finalView.setVisibility(VISIBLE);
+                    }
+                    if (onCompleteRunnable != null) {
+                        onCompleteRunnable.run();
+                    }
+                }
+            };
+            dragLayer.animateViewIntoPosition(dragView, from.left, from.top, finalPos[0],
+                    finalPos[1], 1, 1, 1, scaleXY[0], scaleXY[1], onComplete, endStyle,
+                    duration, this);
+        }
+    }
+
+    private void getFinalPositionForDropAnimation(int[] loc, float[] scaleXY,
+                                                  DragView dragView, CellLayout layout, ItemInfo info, int[] targetCell,
+                                                  boolean external, boolean scale) {
+        // Now we animate the dragView, (ie. the widget or shortcut preview) into its final
+        // location and size on the home screen.
+        int spanX = info.spanX;
+        int spanY = info.spanY;
+
+        Rect r = estimateItemPosition(layout, info, targetCell[0], targetCell[1], spanX, spanY);
+        loc[0] = r.left;
+        loc[1] = r.top;
+
+        //setFinalTransitionTransform(layout);
+        float cellLayoutScale =
+                launcher.getDragLayer().getDescendantCoordRelativeToSelf(layout, loc);
+        //resetTransitionTransform(layout);
+
+        float dragViewScaleX;
+        float dragViewScaleY;
+        if (scale) {
+            dragViewScaleX = (1.0f * r.width()) / dragView.getMeasuredWidth();
+            dragViewScaleY = (1.0f * r.height()) / dragView.getMeasuredHeight();
+        } else {
+            dragViewScaleX = 1f;
+            dragViewScaleY = 1f;
+        }
+
+        // The animation will scale the dragView about its center, so we need to center about
+        // the final location.
+        loc[0] -= (dragView.getMeasuredWidth() - cellLayoutScale * r.width()) / 2;
+        loc[1] -= (dragView.getMeasuredHeight() - cellLayoutScale * r.height()) / 2;
+
+        scaleXY[0] = dragViewScaleX * cellLayoutScale;
+        scaleXY[1] = dragViewScaleY * cellLayoutScale;
     }
 
     @Override
@@ -1273,7 +1441,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             if (!foundCell) {
                 // Don't show the message if we are dropping on the AllApps button and the hotseat
                 // is full
-                mLauncher.showOutOfSpaceMessage();
+                launcher.showOutOfSpaceMessage();
                 return false;
             }
         }
@@ -1446,7 +1614,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         public void onAlarm(Alarm alarm) {
             if (mDragFolderRingAnimator == null) {
-                mDragFolderRingAnimator = new FolderIcon.FolderRingAnimator(mLauncher, null);
+                mDragFolderRingAnimator = new FolderIcon.FolderRingAnimator(launcher, null);
             }
             mDragFolderRingAnimator.setCell(cellX, cellY);
             mDragFolderRingAnimator.setCellLayout(layout);
