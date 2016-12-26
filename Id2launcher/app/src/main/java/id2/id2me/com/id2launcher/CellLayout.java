@@ -604,6 +604,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 result, resultSpan, mOccupied);
     }
 
+    int[] findNearestVacantArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX,
+                                int spanY, int[] result, int[] resultSpan) {
+        return findNearestVacantArea(pixelX, pixelY, minSpanX, minSpanY, spanX, spanY, null,
+                result, resultSpan);
+    }
+
     ItemConfiguration findConfigurationNoShuffle(int pixelX, int pixelY, int minSpanX, int minSpanY,
                                                  int spanX, int spanY, View dragView, ItemConfiguration solution) {
         int[] result = new int[2];
