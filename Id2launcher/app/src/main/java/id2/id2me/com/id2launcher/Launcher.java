@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ScrollView;
@@ -69,6 +70,21 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     private AppWidgetProviderInfo mPendingAddWidgetInfo;
     private int[] mTmpAddItemCellCoordinates = new int[2];
     private boolean mRestoring;
+    private LauncherModel mModel;
+    private boolean mWorkspaceLoading = true;
+    private boolean mWaitingForResult;
+
+    private static ArrayList<PendingAddArguments> sPendingAddList
+            = new ArrayList<PendingAddArguments>();
+
+    private static class PendingAddArguments {
+        int requestCode;
+        Intent intent;
+        long container;
+        int screen;
+        int cellX;
+        int cellY;
+    }
 
 
     @Override
@@ -78,7 +94,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
             launcherApplication = ((LauncherApplication) getApplication());
-            LauncherModel mModel=launcherApplication.setLauncher(this);
+            mModel = launcherApplication.setLauncher(this);
             mModel.startLoader(true, -1);
             setTranslucentStatus(true);
             getSupportActionBar().hide();
@@ -193,6 +209,10 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         return mAppWidgetHost;
     }
 
+    public boolean isWorkspaceLocked() {
+        return mWorkspaceLoading || mWaitingForResult;
+    }
+
 
     @Override
     protected void onStart() {
@@ -220,7 +240,9 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         } catch (NullPointerException ex) {
             Timber.e("problem while stopping AppWidgetHost during Launcher destruction", ex);
         }
-        }
+    }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -239,7 +261,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         boolean delayExitSpringLoadedMode = false;
         boolean isWidgetDrop = (requestCode == REQUEST_PICK_APPWIDGET ||
                 requestCode == REQUEST_CREATE_APPWIDGET);
-        //mWaitingForResult = false;
+        mWaitingForResult = false;
 
         // We have special handling for widgets
         if (isWidgetDrop) {
@@ -254,6 +276,32 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             }
             return;
         }
+
+        // The pattern used here is that a user PICKs a specific application,
+        // which, depending on the target, might need to CREATE the actual target.
+
+        // For example, the user would PICK_SHORTCUT for "Music playlist", and we
+        // launch over to the Music app to actually CREATE_SHORTCUT.
+        if (resultCode == RESULT_OK && mPendingAddInfo.container != ItemInfo.NO_ID) {
+            final PendingAddArguments args = new PendingAddArguments();
+            args.requestCode = requestCode;
+            args.intent = data;
+            args.container = mPendingAddInfo.container;
+            args.screen = mPendingAddInfo.screen;
+            args.cellX = mPendingAddInfo.cellX;
+            args.cellY = mPendingAddInfo.cellY;
+            sPendingAddList.add(args);
+            /*if (isWorkspaceLocked()) {
+                sPendingAddList.add(args);
+            } else {
+                delayExitSpringLoadedMode = completeAdd(args);
+            }*/
+            delayExitSpringLoadedMode = completeAdd(args);
+        }
+        dragLayer.clearAnimatedView();
+        // Exit spring loaded mode if necessary after cancelling the configuration of a widget
+        /*exitSpringLoadedDragModeDelayed((resultCode != RESULT_CANCELED), delayExitSpringLoadedMode,
+                null);*/
 
     }
 
@@ -288,14 +336,107 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                 }
             };
         }
-        /*if (dragLayer.getAnimatedView() != null) {
+        if (dragLayer.getAnimatedView() != null) {
             wokSpace.animateWidgetDrop(mPendingAddInfo, cellLayout,
                     (DragView) dragLayer.getAnimatedView(), onCompleteRunnable,
                     animationType, boundWidget, true);
         } else {
             // The animated view may be null in the case of a rotation during widget configuration
             onCompleteRunnable.run();
+        }
+    }
+
+    /**
+     * Returns whether we should delay spring loaded mode -- for shortcuts and widgets that have
+     * a configuration step, this allows the proper animations to run after other transitions.
+     */
+    private boolean completeAdd(PendingAddArguments args) {
+        boolean result = false;
+        switch (args.requestCode) {
+            case REQUEST_PICK_APPLICATION:
+                /*completeAddApplication(args.intent, args.container, args.screen, args.cellX,
+                        args.cellY);*/
+                break;
+            case REQUEST_PICK_SHORTCUT:
+                processShortcut(args.intent);
+                break;
+            case REQUEST_CREATE_SHORTCUT:
+                completeAddShortcut(args.intent, args.container, args.screen, args.cellX,
+                        args.cellY);
+                result = true;
+                break;
+            case REQUEST_CREATE_APPWIDGET:
+                int appWidgetId = args.intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+                completeAddAppWidget(appWidgetId, args.container, args.screen, null, null);
+                result = true;
+                break;
+            /*case REQUEST_PICK_WALLPAPER:
+                // We just wanted the activity result here so we can clear mWaitingForResult
+                break;*/
+        }
+        // Before adding this resetAddInfo(), after a shortcut was added to a workspace screen,
+        // if you turned the screen off and then back while in All Apps, Launcher would not
+        // return to the workspace. Clearing mAddInfo.container here fixes this issue
+        resetAddInfo();
+        return result;
+    }
+
+    /**
+     * Add a shortcut to the workspace.
+     *
+     * @param data The intent describing the shortcut.
+     * @param //cellInfo The position on screen where to create the shortcut.
+     */
+    private void completeAddShortcut(Intent data, long container, int screen, int cellX,
+                                     int cellY) {
+        int[] cellXY = mTmpAddItemCellCoordinates;
+        int[] touchXY = mPendingAddInfo.dropPos;
+        //CellLayout layout = getCellLayout(container, screen);
+
+        boolean foundCellSpan = false;
+
+        ShortcutInfo info = mModel.infoFromShortcutIntent(this, data, null);
+        if (info == null) {
+            return;
+        }
+        final View view = createShortcut(info);
+
+        // First we check if we already know the exact location where we want to add this item.
+        if (cellX >= 0 && cellY >= 0) {
+            cellXY[0] = cellX;
+            cellXY[1] = cellY;
+            foundCellSpan = true;
+
+            // If appropriate, either create a folder or add to an existing folder
+            /*if (wokSpace.createUserFolderIfNecessary(view, container, layout, cellXY, 0,
+                    true, null,null)) {
+                return;
+            }
+            DropTarget.DragObject dragObject = new DropTarget.DragObject();
+            dragObject.dragInfo = info;
+            if (wokSpace.addToExistingFolderIfNecessary(view, layout, cellXY, 0, dragObject,
+                    true)) {
+                return;
+            }*/
+        } else if (touchXY != null) {
+            // when dragging and dropping, just find the closest free spot
+           /* int[] result = layout.findNearestVacantArea(touchXY[0], touchXY[1], 1, 1, cellXY);
+            foundCellSpan = (result != null);*/
+        } else {
+            //foundCellSpan = layout.findCellForSpan(cellXY, 1, 1);
+        }
+
+        /*if (!foundCellSpan) {
+            showOutOfSpaceMessage(isHotseatLayout(layout));
+            return;
         }*/
+
+        //LauncherModel.addItemToDatabase(this, info, container, screen, cellXY[0], cellXY[1], false);
+
+        if (!mRestoring) {
+            wokSpace.addInScreen(view, container, screen, cellXY[0], cellXY[1], 1, 1,
+                    false);
+        }
     }
 
 
@@ -338,6 +479,20 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     public WorkSpace getWokSpace() {
         return wokSpace;
     }
+
+    /**
+     * Creates a view representing a shortcut.
+     *
+     * @param info The data structure describing the shortcut.
+     *
+     * @return A View inflated from R.layout.application.
+     */
+    View createShortcut(ShortcutInfo info) {
+        return createShortcut(R.layout.app_item_view,
+                null, info, null);
+    }
+
+
 
     public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
