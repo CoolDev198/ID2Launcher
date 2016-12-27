@@ -14,16 +14,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
@@ -34,10 +30,8 @@ import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
-import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
-import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 
 public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener,View.OnClickListener
@@ -462,6 +456,13 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         return true;
     }
 
+    public boolean setOnLongClick(View v){
+        v.setOnLongClickListener(this);
+        return true;
+    }
+
+
+
     public DragController getDragController() {
         return dragController;
     }
@@ -876,6 +877,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             }
 
             launcherInfo.hostView.setTag(launcherInfo);
+            launcherInfo.hostView.setOnLongClickListener(this);
             launcherInfo.hostView.setVisibility(View.VISIBLE);
             launcherInfo.notifyWidgetSizeChanged(this);
 
