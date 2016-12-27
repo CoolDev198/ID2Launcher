@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -48,6 +47,9 @@ public class CellLayout extends ViewGroup {
 
     private int mCountX;
     private int mCountY;
+
+    private static int mStaticCountX;
+    private static int mStaticCountY;
 
     private int mOriginalWidthGap;
     private int mOriginalHeightGap;
@@ -100,6 +102,9 @@ public class CellLayout extends ViewGroup {
     private boolean mLastDownOnOccupiedCell = false;
     private OnTouchListener mInterceptTouchListener;
 
+    static final int LANDSCAPE = 0;
+    static final int PORTRAIT = 1;
+
     public CellLayout(Context context) {
         this(context, null);
     }
@@ -120,6 +125,7 @@ public class CellLayout extends ViewGroup {
         mMaxGap=0;
         mCountX = launcherApplication.CELL_COUNT_X;
         mCountY = launcherApplication.CELL_COUNT_Y;
+        setStaticCountXY(mCountX, mCountY);
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];
         mPreviousReorderDirection[0] = INVALID_DIRECTION;
@@ -470,6 +476,37 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             return (ShortcutAndWidgetContainer) getChildAt(0);
         }
         return null;
+    }
+
+    boolean createAreaForResize(int cellX, int cellY, int spanX, int spanY,
+                                View dragView, int[] direction, boolean commit) {
+        int[] pixelXY = new int[2];
+        regionToCenterPoint(cellX, cellY, spanX, spanY, pixelXY);
+
+        // First we determine if things have moved enough to cause a different layout
+        ItemConfiguration swapSolution = simpleSwap(pixelXY[0], pixelXY[1], spanX, spanY,
+                spanX,  spanY, direction, dragView,  true,  new ItemConfiguration());
+
+        setUseTempCoords(true);
+        if (swapSolution != null && swapSolution.isSolution) {
+            // If we're just testing for a possible location (MODE_ACCEPT_DROP), we don't bother
+            // committing anything or animating anything as we just want to determine if a solution
+            // exists
+            copySolutionToTempState(swapSolution, dragView);
+            setItemPlacementDirty(true);
+            animateItemsToSolution(swapSolution, dragView, commit);
+
+            if (commit) {
+                commitTempPlacement();
+                completeAndClearReorderHintAnimations();
+                setItemPlacementDirty(false);
+            } else {
+                beginOrAdjustHintAnimations(swapSolution, dragView,
+                        REORDER_ANIMATION_DURATION);
+            }
+            mShortcutsAndWidgets.requestLayout();
+        }
+        return swapSolution.isSolution;
     }
 
     int[] createArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
@@ -2150,6 +2187,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
 
         if (action == MotionEvent.ACTION_DOWN) {
             clearTagCellInfo();
+
         }
 
         if (mInterceptTouchListener != null && mInterceptTouchListener.onTouch(this, event)) {
@@ -2416,6 +2454,81 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         return result;
     }
 
+    int getCellWidth() {
+        return mCellWidth;
+    }
+
+    int getCellHeight() {
+        return mCellHeight;
+    }
+
+    int getWidthGap() {
+        return mWidthGap;
+    }
+
+    int getHeightGap() {
+        return mHeightGap;
+    }
+
+    int getCountX() {
+        return mCountX;
+    }
+
+    int getCountY() {
+        return mCountY;
+    }
+
+    static void setStaticCountXY(int x, int y) {
+        mStaticCountX = x;
+        mStaticCountY = y;
+    }
+
+    static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
+                           int orientation) {
+        int numWidthGaps = mStaticCountX - 1;
+        int numHeightGaps = mStaticCountY - 1;
+
+        int widthGap;
+        int heightGap;
+        int cellWidth;
+        int cellHeight;
+        int paddingLeft;
+        int paddingRight;
+        int paddingTop;
+        int paddingBottom;
+
+        int maxGap = res.getDimensionPixelSize(R.dimen.workspace_max_gap);
+        if (orientation == LANDSCAPE) {
+            cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_land);
+            cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_land);
+            widthGap = res.getDimensionPixelSize(R.dimen.workspace_width_gap_land);
+            heightGap = res.getDimensionPixelSize(R.dimen.workspace_height_gap_land);
+            paddingLeft = res.getDimensionPixelSize(R.dimen.cell_layout_left_padding_land);
+            paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_land);
+            paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_land);
+            paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_land);
+        } else {
+            // PORTRAIT
+            cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_port);
+            cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_port);
+            widthGap = res.getDimensionPixelSize(R.dimen.workspace_width_gap_port);
+            heightGap = res.getDimensionPixelSize(R.dimen.workspace_height_gap_port);
+            paddingLeft = res.getDimensionPixelSize(R.dimen.cell_layout_left_padding_port);
+            paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_port);
+            paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_port);
+            paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_port);
+        }
+
+        if (widthGap < 0 || heightGap < 0) {
+            int hSpace = measureWidth - paddingLeft - paddingRight;
+            int vSpace = measureHeight - paddingTop - paddingBottom;
+            int hFreeSpace = hSpace - (mStaticCountX * cellWidth);
+            int vFreeSpace = vSpace - (mStaticCountY * cellHeight);
+            widthGap = Math.min(maxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
+            heightGap = Math.min(maxGap, numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
+        }
+        metrics.set(cellWidth, cellHeight, widthGap, heightGap);
+    }
 }
 
 
