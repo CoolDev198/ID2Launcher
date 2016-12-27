@@ -36,7 +36,8 @@ import timber.log.Timber;
  * Created by sunita on 11/29/16.
  */
 
-public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChangeListener, DropTarget, DragSource, DragScroller, DragController.DragListener, View.OnTouchListener {
+public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChangeListener, DropTarget, DragSource,
+        DragScroller, DragController.DragListener, View.OnTouchListener, View.OnLongClickListener {
 
     public static final int DRAG_BITMAP_PADDING = 2;
     // Relating to the animation of items being dropped externally
@@ -828,8 +829,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
             if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
                 AppWidgetHostView awhv = (AppWidgetHostView) finalView;
-                /*AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, mLauncher, item.spanX,
-                        item.spanY);*/
+                AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, item.spanX,
+                        item.spanY);
             }
 
             int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
@@ -958,10 +959,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
-//        if (!(child instanceof FolderItemView)) {
-//            child.setHapticFeedbackEnabled(false);
-//          //  child.setOnLongClickListener(mLongClickListener);
-//        }
+        /*if (!(child instanceof FolderItemView)) {
+            child.setHapticFeedbackEnabled(false);
+            //child.setOnLongClickListener(this);
+            launcher.setOnLongClick(child);
+
+        }*/
         if (child instanceof DropTarget) {
             launcher.getDragController().addDropTarget((DropTarget) child);
         }
@@ -1598,6 +1601,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         return false;
     }
 
+    @Override
+    public boolean onLongClick(View view) {
+        startDrag(view);
+        return true;
+    }
+
     enum State {NORMAL, SPRING_LOADED, SMALL}
 
 
@@ -1676,5 +1685,41 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public void onDragEnd() {
 
+    }
+
+    static Rect getCellLayoutMetrics(Launcher launcher, int orientation) {
+        Resources res = launcher.getResources();
+        Display display = launcher.getWindowManager().getDefaultDisplay();
+        Point smallestSize = new Point();
+        Point largestSize = new Point();
+        display.getCurrentSizeRange(smallestSize, largestSize);
+        if (orientation == CellLayout.LANDSCAPE) {
+            if (mLandscapeCellLayoutMetrics == null) {
+                int paddingLeft = res.getDimensionPixelSize(R.dimen.workspace_left_padding_land);
+                int paddingRight = res.getDimensionPixelSize(R.dimen.workspace_right_padding_land);
+                int paddingTop = res.getDimensionPixelSize(R.dimen.workspace_top_padding_land);
+                int paddingBottom = res.getDimensionPixelSize(R.dimen.workspace_bottom_padding_land);
+                int width = largestSize.x - paddingLeft - paddingRight;
+                int height = smallestSize.y - paddingTop - paddingBottom;
+                mLandscapeCellLayoutMetrics = new Rect();
+                CellLayout.getMetrics(mLandscapeCellLayoutMetrics, res,
+                        width, height, orientation);
+            }
+            return mLandscapeCellLayoutMetrics;
+        } else if (orientation == CellLayout.PORTRAIT) {
+            if (mPortraitCellLayoutMetrics == null) {
+                int paddingLeft = res.getDimensionPixelSize(R.dimen.workspace_left_padding_land);
+                int paddingRight = res.getDimensionPixelSize(R.dimen.workspace_right_padding_land);
+                int paddingTop = res.getDimensionPixelSize(R.dimen.workspace_top_padding_land);
+                int paddingBottom = res.getDimensionPixelSize(R.dimen.workspace_bottom_padding_land);
+                int width = smallestSize.x - paddingLeft - paddingRight;
+                int height = largestSize.y - paddingTop - paddingBottom;
+                mPortraitCellLayoutMetrics = new Rect();
+                CellLayout.getMetrics(mPortraitCellLayoutMetrics, res,
+                        width, height, orientation);
+            }
+            return mPortraitCellLayoutMetrics;
+        }
+        return null;
     }
 }
