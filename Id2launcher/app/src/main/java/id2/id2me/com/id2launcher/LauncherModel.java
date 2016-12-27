@@ -24,11 +24,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
-import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import timber.log.Timber;
 
