@@ -9,8 +9,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -27,6 +29,7 @@ import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
+import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import timber.log.Timber;
 
 /**
@@ -58,7 +61,10 @@ public class LauncherModel extends BroadcastReceiver {
     private boolean mStopped;
     private int mBatchSize; // 0 is all apps at once
     private int mAllAppsLoadDelay; // milliseconds between batches
+
     private IconCache mIconCache;
+    private Bitmap mDefaultIcon;
+
     private RefreshAdapter refreshAdapter;
 
     public LauncherModel(IconCache iconCache) {
@@ -67,6 +73,8 @@ public class LauncherModel extends BroadcastReceiver {
         mWidgetList = new ArrayList<>();
         mIconCache = iconCache;
         mApp = LauncherApplication.getApp();
+        mDefaultIcon = Utilities.createIconBitmap(
+                mIconCache.getFullResDefaultActivityIcon(), mApp);
         Resources res = mApp.getResources();
         mAllAppsLoadDelay = res.getInteger(R.integer.config_allAppsBatchLoadDelay);
         mBatchSize = res.getInteger(R.integer.config_allAppsBatchSize);
@@ -578,5 +586,65 @@ public class LauncherModel extends BroadcastReceiver {
             return mCollator.compare(labelA, labelB);
         }
     };
+
+
+    ShortcutInfo infoFromShortcutIntent(Context context, Intent data, Bitmap fallbackIcon) {
+        Intent intent = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+        String name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);
+        Parcelable bitmap = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
+
+        if (intent == null) {
+            // If the intent is null, we can't construct a valid ShortcutInfo, so we return null
+            Log.e(TAG, "Can't construct ShorcutInfo with null intent");
+            return null;
+        }
+
+        Bitmap icon = null;
+        boolean customIcon = false;
+        Intent.ShortcutIconResource iconResource = null;
+
+        if (bitmap != null && bitmap instanceof Bitmap) {
+            icon = Utilities.createIconBitmap(new FastBitmapDrawable((Bitmap)bitmap), context);
+            customIcon = true;
+        } else {
+            Parcelable extra = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
+            if (extra != null && extra instanceof Intent.ShortcutIconResource) {
+                try {
+                    iconResource = (Intent.ShortcutIconResource) extra;
+                    final PackageManager packageManager = context.getPackageManager();
+                    Resources resources = packageManager.getResourcesForApplication(
+                            iconResource.packageName);
+                    final int id = resources.getIdentifier(iconResource.resourceName, null, null);
+                    icon = Utilities.createIconBitmap(
+                            mIconCache.getFullResIcon(resources, id), context);
+                } catch (Exception e) {
+                    Log.w(TAG, "Could not load shortcut icon: " + extra);
+                }
+            }
+        }
+
+        final ShortcutInfo info = new ShortcutInfo();
+
+        if (icon == null) {
+            if (fallbackIcon != null) {
+                icon = fallbackIcon;
+            } else {
+                icon = getFallbackIcon();
+                info.usingFallbackIcon = true;
+            }
+        }
+        info.setIcon(icon);
+
+        info.title = name;
+        info.intent = intent;
+        info.customIcon = customIcon;
+        info.iconResource = iconResource;
+
+        return info;
+    }
+
+    private Bitmap getFallbackIcon() {
+        return Bitmap.createBitmap(mDefaultIcon);
+    }
 
 }
