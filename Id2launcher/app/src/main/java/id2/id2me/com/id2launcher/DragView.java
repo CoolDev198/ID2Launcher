@@ -244,7 +244,7 @@ public class DragView extends View {
         DragLayer.LayoutParams lp = new DragLayer.LayoutParams(0, 0);
         lp.width = mBitmap.getWidth();
         lp.height = mBitmap.getHeight();
-       // lp.customPosition = true;
+        lp.customPosition = true;
         setLayoutParams(lp);
         setTranslationX(touchX - mRegistrationX);
         setTranslationY(touchY - mRegistrationY);
