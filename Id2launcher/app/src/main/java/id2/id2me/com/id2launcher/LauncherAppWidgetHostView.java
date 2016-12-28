@@ -54,7 +54,8 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
             if (handler != null && runnable != null)
                 handler.removeCallbacks(runnable);
         }
-        return super.onInterceptTouchEvent(ev);
+        //return super.onInterceptTouchEvent(ev);
+        return false;
     }
 
 
@@ -67,12 +68,7 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
     private void onDragWidget() {
 
         try {
-            launcherApplication.dragInfo = (ItemInfo) this.getTag();
-
-            Canvas canvas = new Canvas();
-            //outlineBmp = launcherApplication.createDragOutline(launcherAppWidgetHostView );
-            //launcherApplication.dragAnimation(this);
-
+            launcherApplication.getLauncher().getWokSpace().startDragWidget(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
