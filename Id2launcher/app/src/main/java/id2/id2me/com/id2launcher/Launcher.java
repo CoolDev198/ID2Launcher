@@ -456,12 +456,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         return true;
     }
 
-    public boolean setOnLongClick(View v){
-        v.setOnLongClickListener(this);
-        return true;
-    }
-
-
 
     public DragController getDragController() {
         return dragController;
@@ -877,7 +871,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             }
 
             launcherInfo.hostView.setTag(launcherInfo);
-            launcherInfo.hostView.setOnLongClickListener(this);
             launcherInfo.hostView.setVisibility(View.VISIBLE);
             launcherInfo.notifyWidgetSizeChanged(this);
 
