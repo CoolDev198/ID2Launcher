@@ -17,6 +17,8 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import id2.id2me.com.id2launcher.models.ItemInfo;
+
 /**
  * Created by sunita on 8/31/16.
  */
@@ -40,6 +42,20 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         setChildrenDrawingOrderEnabled(true);
         setOnHierarchyChangeListener(this);
 
+    }
+
+    public void addResizeFrame(ItemInfo itemInfo, LauncherAppWidgetHostView widget,
+                               CellLayout cellLayout) {
+        AppWidgetResizeFrame resizeFrame = new AppWidgetResizeFrame(getContext(),
+                widget, cellLayout, this);
+
+        LayoutParams lp = new LayoutParams(-1, -1);
+        lp.customPosition = true;
+
+        addView(resizeFrame, lp);
+        //mResizeFrames.add(resizeFrame);
+
+        resizeFrame.snapToWidget(false);
     }
 
     public void animateViewIntoPosition(DragView dragView, final View child, int duration,
