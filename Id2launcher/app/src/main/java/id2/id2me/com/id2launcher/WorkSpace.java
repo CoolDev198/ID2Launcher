@@ -3,6 +3,7 @@ package id2.id2me.com.id2launcher;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.appwidget.AppWidgetHostView;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -22,7 +23,9 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -37,7 +40,7 @@ import timber.log.Timber;
  */
 
 public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChangeListener, DropTarget, DragSource,
-        DragScroller, DragController.DragListener, View.OnTouchListener, View.OnLongClickListener {
+        DragScroller, DragController.DragListener, View.OnTouchListener {
 
     public static final int DRAG_BITMAP_PADDING = 2;
     // Relating to the animation of items being dropped externally
@@ -251,6 +254,24 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         beginDragShared(child, this);
     }
 
+    void startDragWidget(View child) {
+        mDragInfo = new CellLayout.CellInfo();
+        LauncherAppWidgetInfo launcherAppWidgetInfo = (LauncherAppWidgetInfo) child.getTag();
+        mDragInfo.cell = child;
+        mDragInfo.spanX = launcherAppWidgetInfo.spanX;
+        mDragInfo.spanY = launcherAppWidgetInfo.spanY;
+        mDragInfo.screen = launcherAppWidgetInfo.getScreen();
+        // Make sure the drag was started by a long press as opposed to a long click.
+        if (!child.isInTouchMode()) {
+            return;
+        }
+
+        child.setVisibility(INVISIBLE);
+        CellLayout layout = (CellLayout) child.getParent().getParent();
+        layout.prepareChildForDrag(child);
+        beginDragShared(child, this);
+    }
+
     public void beginDragShared(View child, DragSource dragSource) {
           addExtraEmptyScreen();
         Resources r = getResources();
@@ -276,14 +297,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Point dragVisualizeOffset = null;
         Rect dragRect = null;
 
-        if (child instanceof AppItemView) {
+        if (child instanceof AppItemView ) {
             int iconSize = r.getDimensionPixelSize(R.dimen.app_icon_size);
             int top = child.getPaddingTop();
             int left = (bmpWidth - iconSize) / 2;
             int right = left + iconSize;
             int bottom = top + iconSize;
             dragLayerY += top;
-
 
             // Note: The drag region is used to calculate drag layer offsets, but the
             // dragVisualizeOffset in addition to the dragRect (the size) to position the outline.
@@ -327,6 +347,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             b = Bitmap.createBitmap(
                     v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
         } else {
+            b = Bitmap.createBitmap(
+                    v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
         }
 
         canvas.setBitmap(b);
@@ -664,6 +686,16 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
                 boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
 
+                // if the widget resizes on drop
+                if (foundCell && (cell instanceof AppWidgetHostView) &&
+                        (resultSpan[0] != item.spanX || resultSpan[1] != item.spanY)) {
+                    resizeOnDrop = true;
+                    item.spanX = resultSpan[0];
+                    item.spanY = resultSpan[1];
+                    AppWidgetHostView awhv = (AppWidgetHostView) cell;
+                    AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, resultSpan[0],
+                            resultSpan[1]);
+                }
 
                 if (foundCell) {
                     final ItemInfo info = (ItemInfo) cell.getTag();
@@ -684,6 +716,35 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     cell.setId(LauncherModel.getCellLayoutChildId(container, mDragInfo.screen,
                             mTargetCell[0], mTargetCell[1], mDragInfo.spanX, mDragInfo.spanY));
 
+                    if (container != LauncherSettings.Favorites.CONTAINER_HOTSEAT &&
+                            cell instanceof LauncherAppWidgetHostView) {
+                        final CellLayout cellLayout = dropTargetLayout;
+                        // We post this call so that the widget has a chance to be placed
+                        // in its final location
+
+                        final LauncherAppWidgetHostView hostView = (LauncherAppWidgetHostView) cell;
+                        AppWidgetProviderInfo pinfo = hostView.getAppWidgetInfo();
+                        if (pinfo != null &&
+                                pinfo.resizeMode != AppWidgetProviderInfo.RESIZE_NONE) {
+                            final Runnable addResizeFrame = new Runnable() {
+                                public void run() {
+                                    DragLayer dragLayer = launcher.getDragLayer();
+                                    dragLayer.addResizeFrame(info, hostView, cellLayout);
+                                }
+                            };
+                            resizeRunnable = (new Runnable() {
+                                public void run() {
+                                    /*if (!isPageMoving()) {
+                                        addResizeFrame.run();
+                                    } else {
+                                        mDelayedResizeRunnable = addResizeFrame;
+                                    }*/
+                                    addResizeFrame.run();
+                                    //mDelayedResizeRunnable = addResizeFrame;
+                                }
+                            });
+                        }
+                    }
 
                 } else {
                     // If we can't find a drop location, we return the item to its original position
@@ -696,6 +757,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             }
 
             final CellLayout parent = (CellLayout) cell.getParent().getParent();
+            final Runnable finalResizeRunnable = resizeRunnable;
             // Prepare it to be animated into its new position
             // This must be called after the view has been re-parented
             final Runnable onCompleteRunnable = new Runnable() {
@@ -703,17 +765,24 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 public void run() {
                     mAnimatingViewIntoPlace = false;
 //                    updateChildrenLayersEnabled(false);
-//                    if (finalResizeRunnable != null) {
-//                        finalResizeRunnable.run();
-//                    }
+                    if (finalResizeRunnable != null) {
+                        finalResizeRunnable.run();
+                    }
                 }
             };
             mAnimatingViewIntoPlace = true;
             if (d.dragView.hasDrawn()) {
                 final ItemInfo info = (ItemInfo) cell.getTag();
-                int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
-                launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
-                        onCompleteRunnable, this);
+                if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {
+                    int animationType = resizeOnDrop ? ANIMATE_INTO_POSITION_AND_RESIZE :
+                            ANIMATE_INTO_POSITION_AND_DISAPPEAR;
+                    animateWidgetDrop(info, parent, d.dragView,
+                            onCompleteRunnable, animationType, cell, false);
+                } else {
+                    int duration = snapScreen < 0 ? -1 : ADJACENT_SCREEN_DROP_DURATION;
+                    launcher.getDragLayer().animateViewIntoPosition(d.dragView, cell, duration,
+                            onCompleteRunnable, this);
+                }
             } else {
                 d.deferDragViewCleanupPostAnimation = false;
                 cell.setVisibility(VISIBLE);
@@ -961,9 +1030,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         /*if (!(child instanceof FolderItemView)) {
             child.setHapticFeedbackEnabled(false);
-            //child.setOnLongClickListener(this);
-            launcher.setOnLongClick(child);
-
+            child.setOnLongClickListener(this);
         }*/
         if (child instanceof DropTarget) {
             launcher.getDragController().addDropTarget((DropTarget) child);
@@ -1117,9 +1184,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             launcher.getDragLayer().removeView(finalView);
         }
         if ((animationType == ANIMATE_INTO_POSITION_AND_RESIZE || external) && finalView != null) {
-            /*Bitmap crossFadeBitmap = createWidgetBitmap(info, finalView);
+            Bitmap crossFadeBitmap = createWidgetBitmap(info, finalView);
             dragView.setCrossFadeBitmap(crossFadeBitmap);
-            dragView.crossFade((int) (duration * 0.8f));*/
+            dragView.crossFade((int) (duration * 0.8f));
         } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET && external) {
             scaleXY[0] = scaleXY[1] = Math.min(scaleXY[0],  scaleXY[1]);
         }
@@ -1151,6 +1218,26 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     finalPos[1], 1, 1, 1, scaleXY[0], scaleXY[1], onComplete, endStyle,
                     duration, this);
         }
+    }
+
+    public Bitmap createWidgetBitmap(ItemInfo widgetInfo, View layout) {
+        int[] unScaledSize = estimateItemSize(widgetInfo.spanX,
+                widgetInfo.spanY, widgetInfo, false);
+        int visibility = layout.getVisibility();
+        layout.setVisibility(VISIBLE);
+
+        int width = MeasureSpec.makeMeasureSpec(unScaledSize[0], MeasureSpec.EXACTLY);
+        int height = MeasureSpec.makeMeasureSpec(unScaledSize[1], MeasureSpec.EXACTLY);
+        Bitmap b = Bitmap.createBitmap(unScaledSize[0], unScaledSize[1],
+                Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+
+        layout.measure(width, height);
+        layout.layout(0, 0, unScaledSize[0], unScaledSize[1]);
+        layout.draw(c);
+        c.setBitmap(null);
+        layout.setVisibility(visibility);
+        return b;
     }
 
     private void getFinalPositionForDropAnimation(int[] loc, float[] scaleXY,
@@ -1599,12 +1686,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         return false;
-    }
-
-    @Override
-    public boolean onLongClick(View view) {
-        startDrag(view);
-        return true;
     }
 
     enum State {NORMAL, SPRING_LOADED, SMALL}
