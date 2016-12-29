@@ -510,7 +510,8 @@ public class DragController {
                 mMotionDownX = dragLayerX;
                 mMotionDownY = dragLayerY;
 
-                if ((dragLayerX < mScrollZone) || (dragLayerX > mScrollView.getWidth() - mScrollZone)) {
+                //if ((dragLayerX < mScrollZone) || (dragLayerX > mScrollView.getWidth() - mScrollZone)) {
+                if ((dragLayerX < mScrollZone)) {
                     mScrollState = SCROLL_WAITING_IN_ZONE;
                     mHandler.postDelayed(mScrollRunnable, SCROLL_DELAY);
                 } else {
