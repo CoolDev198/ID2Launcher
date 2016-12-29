@@ -319,7 +319,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     }
 
-
     public void beginDragWidget(View v, Bitmap b, DragSource dragSource, Object dragInfo, float scale){
         final Canvas canvas = new Canvas();
 
@@ -439,8 +438,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
             destCanvas.clipRect(clipRect, Region.Op.REPLACE);
             icon.draw(destCanvas);
-        } else if (v instanceof FolderItemView) {
+        } else {
 
+            if (v instanceof FolderItemView){
+
+            }
+            destCanvas.translate(-v.getScrollX() + padding / 2, -v.getScrollY() + padding / 2);
+            destCanvas.clipRect(clipRect, Region.Op.REPLACE);
+            v.draw(destCanvas);
         }
 
         destCanvas.restore();
@@ -693,8 +698,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     item.spanX = resultSpan[0];
                     item.spanY = resultSpan[1];
                     AppWidgetHostView awhv = (AppWidgetHostView) cell;
-                    AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, resultSpan[0],
-                            resultSpan[1]);
+                    /*AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, resultSpan[0],
+                            resultSpan[1]);*/
                 }
 
                 if (foundCell) {
@@ -898,8 +903,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
             if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
                 AppWidgetHostView awhv = (AppWidgetHostView) finalView;
-                AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, item.spanX,
-                        item.spanY);
+                /*AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, item.spanX,
+                        item.spanY);*/
             }
 
             int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
