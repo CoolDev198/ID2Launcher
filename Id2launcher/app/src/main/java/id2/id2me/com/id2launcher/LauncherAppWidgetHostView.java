@@ -3,12 +3,11 @@ package id2.id2me.com.id2launcher;
 import android.app.Activity;
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 
-import id2.id2me.com.id2launcher.models.ItemInfo;
+import java.util.Calendar;
 
 
 /**
@@ -22,6 +21,9 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
     LauncherApplication launcherApplication;
     private Handler handler;
     private Runnable runnable;
+    private static final int MIN_CLICK_DURATION = 1000;
+    private long eventDownTime;
+    private boolean longPress = false;
 
     public LauncherAppWidgetHostView(Context context) {
         super(context);
@@ -35,24 +37,36 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
         runnable = new Runnable() {
             @Override
             public void run() {
-                onDragWidget();
+                //long clickDuration = Calendar.getInstance().getTimeInMillis() - eventDownTime;
+                long eventDuration = android.os.SystemClock.elapsedRealtime() - eventDownTime;
+                if (eventDuration >= MIN_CLICK_DURATION && longPress) {
+                    onDragWidget();
+                }
             }
         };
     }
 
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            eventDownTime = ev.getDownTime();
+            //eventDownTime = Calendar.getInstance().getTimeInMillis();
             handler.postDelayed(runnable, 500);
+            longPress = true;
         }
         if (ev.getAction() == MotionEvent.ACTION_UP) {
-            if (handler != null && runnable != null)
+            if (handler != null && runnable != null && longPress) {
+                longPress = false;
                 handler.removeCallbacks(runnable);
+            }
+
         }
         if (ev.getAction() == MotionEvent.ACTION_CANCEL) {
-            if (handler != null && runnable != null)
+            if (handler != null && runnable != null && longPress) {
+                longPress = false;
                 handler.removeCallbacks(runnable);
+            }
         }
         //return super.onInterceptTouchEvent(ev);
         return false;
@@ -66,7 +80,6 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
 
 
     private void onDragWidget() {
-
         try {
             launcherApplication.getLauncher().getWokSpace().startDragWidget(this);
         } catch (Exception e) {
