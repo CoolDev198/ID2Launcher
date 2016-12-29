@@ -804,7 +804,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         }
 
         // Calculate the grid spans needed to fit this widget
-        //CellLayout layout = getCellLayout(container, screen);
         CellLayout layout = (CellLayout) wokSpace.getChildAt(screen);
 
         int[] minSpanXY = getMinSpanForWidget(this, appWidgetInfo);
@@ -846,6 +845,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                 }.start();
             }
             //showOutOfSpaceMessage(isHotseatLayout(layout));
+            Toast.makeText(this, R.string.out_of_space, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -881,4 +881,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         }
         resetAddInfo();
     }
+
+
 }
