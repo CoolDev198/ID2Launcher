@@ -146,13 +146,13 @@ public class DesktopFragment extends Fragment  {
             child.setTag(i);
 
             if (i == 0) {
-                //child.setBackgroundColor(Color.BLACK);
+                child.setBackgroundColor(Color.BLACK);
             } else if(i==1){
-                //child.setBackgroundColor(Color.YELLOW);
+                child.setBackgroundColor(Color.YELLOW);
             } else if(i==2){
-                //child.setBackgroundColor(Color.RED);
+                child.setBackgroundColor(Color.RED);
             } else if(i==3){
-                //child.setBackgroundColor(Color.GREEN);
+                child.setBackgroundColor(Color.GREEN);
             }
 
             containerL.addView(child);
