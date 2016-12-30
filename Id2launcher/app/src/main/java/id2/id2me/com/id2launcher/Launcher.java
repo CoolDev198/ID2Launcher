@@ -385,7 +385,8 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                                      int cellY) {
         int[] cellXY = mTmpAddItemCellCoordinates;
         int[] touchXY = mPendingAddInfo.dropPos;
-        //CellLayout layout = getCellLayout(container, screen);
+
+        CellLayout layout = (CellLayout) wokSpace.getChildAt(screen);
 
         boolean foundCellSpan = false;
 
@@ -414,16 +415,16 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             }*/
         } else if (touchXY != null) {
             // when dragging and dropping, just find the closest free spot
-           /* int[] result = layout.findNearestVacantArea(touchXY[0], touchXY[1], 1, 1, cellXY);
-            foundCellSpan = (result != null);*/
+            int[] result = layout.findNearestVacantArea(touchXY[0], touchXY[1], 1, 1, cellXY);
+            foundCellSpan = (result != null);
         } else {
-            //foundCellSpan = layout.findCellForSpan(cellXY, 1, 1);
+            foundCellSpan = layout.findCellForSpan(cellXY, 1, 1);
         }
 
-        /*if (!foundCellSpan) {
-            showOutOfSpaceMessage(isHotseatLayout(layout));
+        if (!foundCellSpan) {
+            showOutOfSpaceMessage();
             return;
-        }*/
+        }
 
         //LauncherModel.addItemToDatabase(this, info, container, screen, cellXY[0], cellXY[1], false);
 
@@ -634,7 +635,8 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
 
     void showOutOfSpaceMessage() {
-        Toast.makeText(this, getString(R.string.out_of_space), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.out_of_space, Toast.LENGTH_SHORT).show();
+
     }
 
     public FolderIcon addFolder(CellLayout target, long container, int screen, int i, int i1) {
@@ -844,8 +846,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                     }
                 }.start();
             }
-            //showOutOfSpaceMessage(isHotseatLayout(layout));
-            Toast.makeText(this, R.string.out_of_space, Toast.LENGTH_SHORT).show();
+            showOutOfSpaceMessage();
             return;
         }
 
