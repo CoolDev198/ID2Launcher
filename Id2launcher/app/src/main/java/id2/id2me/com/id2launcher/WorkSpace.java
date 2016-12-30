@@ -320,6 +320,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
     public void beginDragWidget(View v, Bitmap b, DragSource dragSource, Object dragInfo, float scale){
+        addExtraEmptyScreen();
         final Canvas canvas = new Canvas();
 
         launcher.getDragController().startDrag(v, b, dragSource, dragInfo, DragController.DRAG_ACTION_COPY, null, scale);
@@ -692,15 +693,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
 
                 // if the widget resizes on drop
-                if (foundCell && (cell instanceof AppWidgetHostView) &&
+                /*if (foundCell && (cell instanceof AppWidgetHostView) &&
                         (resultSpan[0] != item.spanX || resultSpan[1] != item.spanY)) {
                     resizeOnDrop = true;
                     item.spanX = resultSpan[0];
                     item.spanY = resultSpan[1];
                     AppWidgetHostView awhv = (AppWidgetHostView) cell;
-                    /*AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, resultSpan[0],
-                            resultSpan[1]);*/
-                }
+                    AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, resultSpan[0],
+                            resultSpan[1]);
+                }*/
 
                 if (foundCell) {
                     final ItemInfo info = (ItemInfo) cell.getTag();
@@ -729,7 +730,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
                         final LauncherAppWidgetHostView hostView = (LauncherAppWidgetHostView) cell;
                         AppWidgetProviderInfo pinfo = hostView.getAppWidgetInfo();
-                        if (pinfo != null &&
+                        /*if (pinfo != null &&
                                 pinfo.resizeMode != AppWidgetProviderInfo.RESIZE_NONE) {
                             final Runnable addResizeFrame = new Runnable() {
                                 public void run() {
@@ -739,16 +740,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                             };
                             resizeRunnable = (new Runnable() {
                                 public void run() {
-                                    /*if (!isPageMoving()) {
+                                    *//*if (!isPageMoving()) {
                                         addResizeFrame.run();
                                     } else {
                                         mDelayedResizeRunnable = addResizeFrame;
-                                    }*/
-                                    addResizeFrame.run();
+                                    }*//*
                                     //mDelayedResizeRunnable = addResizeFrame;
                                 }
                             });
-                        }
+                        }*/
                     }
 
                 } else {
@@ -794,8 +794,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             }
             parent.onDropChild(cell);
         }
-         removeExtraEmptyScreen();
-
         removeExtraEmptyScreen();
     }
 
@@ -901,11 +899,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             View finalView = pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET
                     ? ((PendingAddWidgetInfo) pendingInfo).boundWidget : null;
 
-            if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
+            /*if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
                 AppWidgetHostView awhv = (AppWidgetHostView) finalView;
-                /*AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, item.spanX,
-                        item.spanY);*/
-            }
+                AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, item.spanX,
+                        item.spanY);
+            }*/
 
             int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
             if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET &&
