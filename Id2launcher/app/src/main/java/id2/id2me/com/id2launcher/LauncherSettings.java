@@ -94,7 +94,7 @@ public class LauncherSettings {
     /**
      * Favorites.
      */
-    static final class Favorites implements BaseLauncherColumns {
+    public static final class Favorites implements BaseLauncherColumns {
         /**
          * The content:// style URL for this table
          */
@@ -185,7 +185,7 @@ public class LauncherSettings {
         /**
          * The favorite is a widget
          */
-        static final int ITEM_TYPE_APPWIDGET = 4;
+        public static final int ITEM_TYPE_APPWIDGET = 4;
 
         /**
          * The favorite is a clock

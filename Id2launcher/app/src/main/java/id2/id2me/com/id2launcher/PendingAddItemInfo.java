@@ -66,7 +66,7 @@ class PendingAddWidgetInfo extends PendingAddItemInfo {
     Parcelable configurationData;
 
     public PendingAddWidgetInfo(AppWidgetProviderInfo i, String dataMimeType, Parcelable data) {
-        //itemType = LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET;
+        itemType = LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET;
         this.info = i;
         componentName = i.provider;
         minWidth = i.minWidth;
@@ -94,11 +94,11 @@ class PendingAddWidgetInfo extends PendingAddItemInfo {
         mimeType = copy.mimeType;
         configurationData = copy.configurationData;
         componentName = copy.componentName;
-//        itemType = copy.itemType;
-//        spanX = copy.spanX;
-//        spanY = copy.spanY;
-//        minSpanX = copy.minSpanX;
-//        minSpanY = copy.minSpanY;
+        itemType = copy.itemType;
+        spanX = copy.spanX;
+        spanY = copy.spanY;
+        minSpanX = copy.minSpanX;
+        minSpanY = copy.minSpanY;
         bindOptions = copy.bindOptions == null ? null : (Bundle) copy.bindOptions.clone();
     }
 

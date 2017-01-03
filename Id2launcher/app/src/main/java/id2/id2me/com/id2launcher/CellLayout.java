@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -46,8 +45,8 @@ public class CellLayout extends ViewGroup {
     private int mCellWidth;
     private int mCellHeight;
 
-    private int mCountX;
-    private int mCountY;
+    private static int mCountX;
+    private static int mCountY;
 
     private int mOriginalWidthGap;
     private int mOriginalHeightGap;
@@ -99,6 +98,9 @@ public class CellLayout extends ViewGroup {
     private int[] mDirectionVector = new int[2];
     private boolean mLastDownOnOccupiedCell = false;
     private OnTouchListener mInterceptTouchListener;
+
+    static final int LANDSCAPE = 0;
+    static final int PORTRAIT = 1;
 
     public CellLayout(Context context) {
         this(context, null);
@@ -472,6 +474,37 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         return null;
     }
 
+    boolean createAreaForResize(int cellX, int cellY, int spanX, int spanY,
+                                View dragView, int[] direction, boolean commit) {
+        int[] pixelXY = new int[2];
+        regionToCenterPoint(cellX, cellY, spanX, spanY, pixelXY);
+
+        // First we determine if things have moved enough to cause a different layout
+        ItemConfiguration swapSolution = simpleSwap(pixelXY[0], pixelXY[1], spanX, spanY,
+                spanX,  spanY, direction, dragView,  true,  new ItemConfiguration());
+
+        setUseTempCoords(true);
+        if (swapSolution != null && swapSolution.isSolution) {
+            // If we're just testing for a possible location (MODE_ACCEPT_DROP), we don't bother
+            // committing anything or animating anything as we just want to determine if a solution
+            // exists
+            copySolutionToTempState(swapSolution, dragView);
+            setItemPlacementDirty(true);
+            animateItemsToSolution(swapSolution, dragView, commit);
+
+            if (commit) {
+                commitTempPlacement();
+                completeAndClearReorderHintAnimations();
+                setItemPlacementDirty(false);
+            } else {
+                beginOrAdjustHintAnimations(swapSolution, dragView,
+                        REORDER_ANIMATION_DURATION);
+            }
+            mShortcutsAndWidgets.requestLayout();
+        }
+        return swapSolution.isSolution;
+    }
+
     int[] createArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
                      View dragView, int[] result, int resultSpan[], int mode) {
         // First we determine if things have moved enough to cause a different layout
@@ -589,6 +622,42 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      *
      * @param pixelX The X location at which you want to search for a vacant area.
      * @param pixelY The Y location at which you want to search for a vacant area.
+     * @param spanX Horizontal span of the object.
+     * @param spanY Vertical span of the object.
+     * @param result Array in which to place the result, or null (in which case a new array will
+     *        be allocated)
+     * @return The X, Y cell of a vacant area that can contain this object,
+     *         nearest the requested location.
+     */
+    int[] findNearestVacantArea(int pixelX, int pixelY, int spanX, int spanY,
+                                int[] result) {
+        return findNearestVacantArea(pixelX, pixelY, spanX, spanY, null, result);
+    }
+
+    /**
+     * Find a vacant area that will fit the given bounds nearest the requested
+     * cell location. Uses Euclidean distance to score multiple vacant areas.
+     *
+     * @param pixelX The X location at which you want to search for a vacant area.
+     * @param pixelY The Y location at which you want to search for a vacant area.
+     * @param spanX Horizontal span of the object.
+     * @param spanY Vertical span of the object.
+     * @param ignoreView Considers space occupied by this view as unoccupied
+     * @param result Previously returned value to possibly recycle.
+     * @return The X, Y cell of a vacant area that can contain this object,
+     *         nearest the requested location.
+     */
+    int[] findNearestVacantArea(
+            int pixelX, int pixelY, int spanX, int spanY, View ignoreView, int[] result) {
+        return findNearestArea(pixelX, pixelY, spanX, spanY, ignoreView, true, result);
+    }
+
+    /**
+     * Find a vacant area that will fit the given bounds nearest the requested
+     * cell location. Uses Euclidean distance to score multiple vacant areas.
+     *
+     * @param pixelX The X location at which you want to search for a vacant area.
+     * @param pixelY The Y location at which you want to search for a vacant area.
      * @param minSpanX The minimum horizontal span required
      * @param minSpanY The minimum vertical span required
      * @param spanX Horizontal span of the object.
@@ -602,6 +671,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                                 int spanX, int spanY, View ignoreView, int[] result, int[] resultSpan) {
         return findNearestArea(pixelX, pixelY, minSpanX, minSpanY, spanX, spanY, ignoreView, true,
                 result, resultSpan, mOccupied);
+    }
+
+    int[] findNearestVacantArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX,
+                                int spanY, int[] result, int[] resultSpan) {
+        return findNearestVacantArea(pixelX, pixelY, minSpanX, minSpanY, spanX, spanY, null,
+                result, resultSpan);
     }
 
     ItemConfiguration findConfigurationNoShuffle(int pixelX, int pixelY, int minSpanX, int minSpanY,
@@ -2108,6 +2183,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
 
         if (action == MotionEvent.ACTION_DOWN) {
             clearTagCellInfo();
+
         }
 
         if (mInterceptTouchListener != null && mInterceptTouchListener.onTouch(this, event)) {
@@ -2374,6 +2450,66 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         return result;
     }
 
+    int getCellWidth() {
+        return mCellWidth;
+    }
+
+    int getCellHeight() {
+        return mCellHeight;
+    }
+
+    int getWidthGap() {
+        return mWidthGap;
+    }
+
+    int getHeightGap() {
+        return mHeightGap;
+    }
+
+    int getCountX() {
+        return mCountX;
+    }
+
+    int getCountY() {
+        return mCountY;
+    }
+
+    static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
+                           int orientation) {
+        int numWidthGaps = mCountX - 1;
+        int numHeightGaps = mCountY - 1;
+
+        int widthGap;
+        int heightGap;
+        int cellWidth;
+        int cellHeight;
+        int paddingLeft;
+        int paddingRight;
+        int paddingTop;
+        int paddingBottom;
+
+        int maxGap = res.getDimensionPixelSize(R.dimen.workspace_max_gap);
+
+            // PORTRAIT
+            cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_port);
+            cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_port);
+            widthGap = res.getDimensionPixelSize(R.dimen.workspace_width_gap_port);
+            heightGap = res.getDimensionPixelSize(R.dimen.workspace_height_gap_port);
+            paddingLeft = res.getDimensionPixelSize(R.dimen.cell_layout_left_padding_port);
+            paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_port);
+            paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_port);
+            paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_port);
+
+        if (widthGap < 0 || heightGap < 0) {
+            int hSpace = measureWidth - paddingLeft - paddingRight;
+            int vSpace = measureHeight - paddingTop - paddingBottom;
+            int hFreeSpace = hSpace - (mCountX * cellWidth);
+            int vFreeSpace = vSpace - (mCountY * cellHeight);
+            widthGap = Math.min(maxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
+            heightGap = Math.min(maxGap, numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
+        }
+        metrics.set(cellWidth, cellHeight, widthGap, heightGap);
+    }
 }
 
 

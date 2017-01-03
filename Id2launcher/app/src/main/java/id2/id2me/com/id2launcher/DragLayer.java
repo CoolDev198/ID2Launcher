@@ -17,6 +17,8 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import id2.id2me.com.id2launcher.models.ItemInfo;
+
 /**
  * Created by sunita on 8/31/16.
  */
@@ -40,6 +42,20 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         setChildrenDrawingOrderEnabled(true);
         setOnHierarchyChangeListener(this);
 
+    }
+
+    public void addResizeFrame(ItemInfo itemInfo, LauncherAppWidgetHostView widget,
+                               CellLayout cellLayout) {
+        AppWidgetResizeFrame resizeFrame = new AppWidgetResizeFrame(getContext(),
+                widget, cellLayout, this);
+
+        LayoutParams lp = new LayoutParams(-1, -1);
+        lp.customPosition = true;
+
+        addView(resizeFrame, lp);
+        //mResizeFrames.add(resizeFrame);
+
+        resizeFrame.snapToWidget(false);
     }
 
     public void animateViewIntoPosition(DragView dragView, final View child, int duration,
@@ -108,6 +124,18 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         Rect to = new Rect(toX, toY, toX + view.getMeasuredWidth(), toY + view.getMeasuredHeight());
         animateView(view, from, to, finalAlpha, initScaleX, initScaleY, finalScaleX, finalScaleY, duration,
                 null, null, onCompleteRunnable, animationEndStyle, anchorView);
+    }
+
+    public void animateViewIntoPosition(DragView dragView, final int[] pos, float alpha,
+                                        float scaleX, float scaleY, int animationEndStyle, Runnable onFinishRunnable,
+                                        int duration) {
+        Rect r = new Rect();
+        getViewRectRelativeToSelf(dragView, r);
+        final int fromX = r.left;
+        final int fromY = r.top;
+
+        animateViewIntoPosition(dragView, fromX, fromY, pos[0], pos[1], alpha, 1, 1, scaleX, scaleY,
+                onFinishRunnable, animationEndStyle, duration, null);
     }
     /**
      * This method animates a view at the end of a drag and drop animation.
@@ -372,6 +400,54 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
     public float getDescendantRectRelativeToSelf(View v, Rect folderLocation) {
         return 0;
+    }
+
+    public View getAnimatedView() {
+        return mDropView;
+    }
+
+    public static class LayoutParams extends FrameLayout.LayoutParams {
+        public int x, y;
+        public boolean customPosition = false;
+
+        /**
+         * {@inheritDoc}
+         */
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
+
+        public int getY() {
+            return y;
+        }
     }
 }
 

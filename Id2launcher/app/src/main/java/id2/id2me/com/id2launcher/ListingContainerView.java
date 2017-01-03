@@ -39,12 +39,11 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
     private Canvas mCanvas;
 
     public ListingContainerView(Context context) {
-        super(context);
-
+        this(context, null);
     }
 
     public ListingContainerView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public ListingContainerView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -75,7 +74,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         if (child instanceof AppItemView) {
             beginDraggingApplication(child);
         }  else if (child instanceof WidgetItemView) {
-            //beginDraggingWidget(child);
+            beginDraggingWidget(child);
         }
         return true;
     }
@@ -89,6 +88,10 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         ImageView image = (ImageView) child.findViewById(R.id.widget_preview);
         PendingAddItemInfo itemInfo = (PendingAddItemInfo) child.getTag();
 
+        if(itemInfo.spanX <=0 || itemInfo.spanY <=0){
+            itemInfo.spanX = itemInfo.minSpanX;
+            itemInfo.spanY = itemInfo.minSpanY;
+        }
         //Compose drag image
         Bitmap preview;
         Bitmap outline;
@@ -139,6 +142,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
                 false);
         launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(itemInfo, outline, clipAlpha);
         launcherApplication.getLauncher().getWokSpace().beginDragWidget(image, preview, this, itemInfo, scale);
+
     }
 
     private void renderDrawableToBitmap(Drawable d, Bitmap bitmap, int x, int y, int w, int h) {

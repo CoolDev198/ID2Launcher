@@ -510,7 +510,8 @@ public class DragController {
                 mMotionDownX = dragLayerX;
                 mMotionDownY = dragLayerY;
 
-                if ((dragLayerX < mScrollZone) || (dragLayerX > mScrollView.getWidth() - mScrollZone)) {
+                //if ((dragLayerX < mScrollZone) || (dragLayerX > mScrollView.getWidth() - mScrollZone)) {
+                if ((dragLayerX < mScrollZone)) {
                     mScrollState = SCROLL_WAITING_IN_ZONE;
                     mHandler.postDelayed(mScrollRunnable, SCROLL_DELAY);
                 } else {
@@ -606,7 +607,7 @@ public class DragController {
         mDragObject.y = (int) coordinates[1];
         boolean accepted = false;
         mLauncher.getWokSpace().onDrop(mDragObject);
-     if (dropTarget != null) {
+        if (dropTarget != null) {
             mDragObject.dragComplete = true;
             dropTarget.onDragExit(mDragObject);
             if (dropTarget.acceptDrop(mDragObject)) {
@@ -614,7 +615,7 @@ public class DragController {
                 accepted = true;
             }
         }
-//        mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
+       mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
     }
 
     private DropTarget findDropTarget(int x, int y, int[] dropCoordinates) {
