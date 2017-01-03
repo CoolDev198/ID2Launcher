@@ -1766,20 +1766,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Point smallestSize = new Point();
         Point largestSize = new Point();
         display.getCurrentSizeRange(smallestSize, largestSize);
-        if (orientation == CellLayout.LANDSCAPE) {
-            if (mLandscapeCellLayoutMetrics == null) {
-                int paddingLeft = res.getDimensionPixelSize(R.dimen.workspace_left_padding_land);
-                int paddingRight = res.getDimensionPixelSize(R.dimen.workspace_right_padding_land);
-                int paddingTop = res.getDimensionPixelSize(R.dimen.workspace_top_padding_land);
-                int paddingBottom = res.getDimensionPixelSize(R.dimen.workspace_bottom_padding_land);
-                int width = largestSize.x - paddingLeft - paddingRight;
-                int height = smallestSize.y - paddingTop - paddingBottom;
-                mLandscapeCellLayoutMetrics = new Rect();
-                CellLayout.getMetrics(mLandscapeCellLayoutMetrics, res,
-                        width, height, orientation);
-            }
-            return mLandscapeCellLayoutMetrics;
-        } else if (orientation == CellLayout.PORTRAIT) {
             if (mPortraitCellLayoutMetrics == null) {
                 int paddingLeft = res.getDimensionPixelSize(R.dimen.workspace_left_padding_land);
                 int paddingRight = res.getDimensionPixelSize(R.dimen.workspace_right_padding_land);
@@ -1792,7 +1778,5 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                         width, height, orientation);
             }
             return mPortraitCellLayoutMetrics;
-        }
-        return null;
     }
 }
