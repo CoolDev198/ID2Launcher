@@ -2436,11 +2436,11 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         // reserve enough space in both orientations.
         int actualWidth = resources.getDimensionPixelSize(R.dimen.cell_width);
         int actualHeight = resources.getDimensionPixelSize(R.dimen.cell_height);
-        //int smallerSize = Math.min(actualWidth, actualHeight);
+        int smallerSize = Math.min(actualWidth, actualHeight);
 
         // Always round up to next largest cell
-        int spanX = (int) Math.ceil(width / (float) actualWidth);
-        int spanY = (int) Math.ceil(height / (float) actualHeight);
+        int spanX = (int) Math.ceil(width / (float) smallerSize);
+        int spanY = (int) Math.ceil(height / (float) smallerSize);
 
         if (result == null) {
             return new int[] { spanX, spanY };
