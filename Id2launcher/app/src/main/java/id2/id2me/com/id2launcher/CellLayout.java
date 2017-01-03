@@ -45,11 +45,8 @@ public class CellLayout extends ViewGroup {
     private int mCellWidth;
     private int mCellHeight;
 
-    private int mCountX;
-    private int mCountY;
-
-    private static int mStaticCountX;
-    private static int mStaticCountY;
+    private static int mCountX;
+    private static int mCountY;
 
     private int mOriginalWidthGap;
     private int mOriginalHeightGap;
@@ -125,7 +122,6 @@ public class CellLayout extends ViewGroup {
         mMaxGap=0;
         mCountX = launcherApplication.CELL_COUNT_X;
         mCountY = launcherApplication.CELL_COUNT_Y;
-        setStaticCountXY(mCountX, mCountY);
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];
         mPreviousReorderDirection[0] = INVALID_DIRECTION;
@@ -2478,15 +2474,10 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         return mCountY;
     }
 
-    static void setStaticCountXY(int x, int y) {
-        mStaticCountX = x;
-        mStaticCountY = y;
-    }
-
     static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
                            int orientation) {
-        int numWidthGaps = mStaticCountX - 1;
-        int numHeightGaps = mStaticCountY - 1;
+        int numWidthGaps = mCountX - 1;
+        int numHeightGaps = mCountY - 1;
 
         int widthGap;
         int heightGap;
@@ -2498,16 +2489,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         int paddingBottom;
 
         int maxGap = res.getDimensionPixelSize(R.dimen.workspace_max_gap);
-        if (orientation == LANDSCAPE) {
-            cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_land);
-            cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_land);
-            widthGap = res.getDimensionPixelSize(R.dimen.workspace_width_gap_land);
-            heightGap = res.getDimensionPixelSize(R.dimen.workspace_height_gap_land);
-            paddingLeft = res.getDimensionPixelSize(R.dimen.cell_layout_left_padding_land);
-            paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_land);
-            paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_land);
-            paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_land);
-        } else {
+
             // PORTRAIT
             cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_port);
             cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_port);
@@ -2517,13 +2499,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_port);
             paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_port);
             paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_port);
-        }
 
         if (widthGap < 0 || heightGap < 0) {
             int hSpace = measureWidth - paddingLeft - paddingRight;
             int vSpace = measureHeight - paddingTop - paddingBottom;
-            int hFreeSpace = hSpace - (mStaticCountX * cellWidth);
-            int vFreeSpace = vSpace - (mStaticCountY * cellHeight);
+            int hFreeSpace = hSpace - (mCountX * cellWidth);
+            int vFreeSpace = vSpace - (mCountY * cellHeight);
             widthGap = Math.min(maxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
             heightGap = Math.min(maxGap, numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
         }
