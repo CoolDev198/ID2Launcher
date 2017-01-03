@@ -90,6 +90,12 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             mInflater = getLayoutInflater();
             launcherApplication = ((LauncherApplication) getApplication());
             mModel = launcherApplication.setLauncher(this);
+
+            mAppWidgetManager = AppWidgetManager.getInstance(this);
+            mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
+            ((LauncherApplication) getApplication()).mAppWidgetHost = mAppWidgetHost;
+            mAppWidgetHost.startListening();
+
             mModel.startLoader(true, -1);
             setTranslucentStatus(true);
             getSupportActionBar().hide();
@@ -170,7 +176,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
         resetPage();
-        setAppWidgetManager();
+
     }
 
 
@@ -194,11 +200,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         pager.setCurrentItem(1);
     }
 
-    private void setAppWidgetManager() {
-        mAppWidgetManager = AppWidgetManager.getInstance(this);
-        ((LauncherApplication) getApplication()).mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
-        this.mAppWidgetHost = ((LauncherApplication) getApplication()).mAppWidgetHost;
-    }
 
     public LauncherAppWidgetHost getAppWidgetHost() {
         return mAppWidgetHost;
@@ -208,33 +209,15 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         return mWorkspaceLoading || mWaitingForResult;
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            if (mAppWidgetHost != null)
-                mAppWidgetHost.startListening();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mAppWidgetHost.stopListening();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         try {
             mAppWidgetHost.stopListening();
         } catch (NullPointerException ex) {
             Timber.e("problem while stopping AppWidgetHost during Launcher destruction", ex);
         }
+        mAppWidgetHost = null;
     }
 
 
@@ -867,6 +850,8 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                 // Perform actual inflation because we're live
                 launcherInfo.hostView = mAppWidgetHost.createView(this, appWidgetId, appWidgetInfo);
                 launcherInfo.hostView.setAppWidget(appWidgetId, appWidgetInfo);
+                Timber.v("App Widget ID : " + appWidgetId + " name : " +
+                        launcherInfo.hostView.getAppWidgetInfo().provider.getPackageName());
             } else {
                 // The AppWidgetHostView has already been inflated and instantiated
                 launcherInfo.hostView = hostView;
@@ -874,7 +859,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
             launcherInfo.hostView.setTag(launcherInfo);
             launcherInfo.hostView.setVisibility(View.VISIBLE);
-            launcherInfo.notifyWidgetSizeChanged(this);
+            //launcherInfo.notifyWidgetSizeChanged(this);
 
             wokSpace.addInScreen(launcherInfo.hostView, container, screen, cellXY[0], cellXY[1],
                     launcherInfo.spanX, launcherInfo.spanY, false);
