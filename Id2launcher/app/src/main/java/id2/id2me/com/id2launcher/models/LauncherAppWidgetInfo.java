@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.models;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.ComponentName;
@@ -55,7 +55,6 @@ public class LauncherAppWidgetInfo extends ItemInfo {
      */
     public void onBindAppWidget(Launcher launcher) {
         if (!mHasNotifiedInitialWidgetSizeChanged) {
-            notifyWidgetSizeChanged(launcher);
         }
     }
 
@@ -72,9 +71,9 @@ public class LauncherAppWidgetInfo extends ItemInfo {
         return "AppWidget(id=" + Integer.toString(appWidgetId) + ")";
     }
 
-    /*@Override
+    @Override
     void unbind() {
         super.unbind();
         hostView = null;
-    }*/
+    }
 }
