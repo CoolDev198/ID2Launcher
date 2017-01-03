@@ -8,11 +8,14 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -28,6 +31,7 @@ import java.util.Stack;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import timber.log.Timber;
+import id2.id2me.com.id2launcher.FolderIcon.FolderRingAnimator;;
 
 /**
  * Created by sunita on 10/17/16.
@@ -35,6 +39,7 @@ import timber.log.Timber;
 
 public class CellLayout extends ViewGroup {
 
+    private static final boolean DEBUG_VISUALIZE_OCCUPIED = false;
     private final Rect mRect = new Rect();
     private final DecelerateInterpolator mEaseOutInterpolator;
     private ArrayList<View> mIntersectingViews = new ArrayList<View>();
@@ -62,6 +67,7 @@ public class CellLayout extends ViewGroup {
     private static final int INVALID_DIRECTION = -100;
     private String TAG = "CellLayout";
     private ShortcutAndWidgetContainer mShortcutsAndWidgets;
+    private ArrayList<FolderRingAnimator> mFolderOuterRings = new ArrayList<FolderRingAnimator>();
     private boolean[][] mOccupied;
     private static final boolean DESTRUCTIVE_REORDER = false;
     boolean[][] mTmpOccupied;
@@ -101,6 +107,7 @@ public class CellLayout extends ViewGroup {
 
     static final int LANDSCAPE = 0;
     static final int PORTRAIT = 1;
+    private int[] mFolderLeaveBehindCell = {-1, -1};
 
     public CellLayout(Context context) {
         this(context, null);
@@ -1179,7 +1186,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      *        cellY, spanX, spanY) are occupied. This is used when try to move a group of views.
      * @param result Array in which to place the result, or null (in which case a new array will
      *        be allocated)
-     * @return The X, Y cell of a vacant area that can contain this object,
+     * @return The X, Y cell of a vacant area that can contain this object,x
      *         nearest the requested location.
      */
     private int[] findNearestArea(int cellX, int cellY, int spanX, int spanY, int[] direction,
@@ -1458,10 +1465,10 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
     }
 
-    public void showFolderAccept(FolderIcon.FolderRingAnimator mDragFolderRingAnimator) {
-
-
+    public void showFolderAccept(FolderRingAnimator fra) {
+        mFolderOuterRings.add(fra);
     }
+
 
     public void setOnInterceptTouchListener(View.OnTouchListener onInterceptTouchListener) {
         this.mInterceptTouchListener = onInterceptTouchListener;
@@ -1487,7 +1494,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             this.spanY = spanY;
         }
     }
-
+    public void hideFolderAccept(FolderIcon.FolderRingAnimator fra) {
+        if (mFolderOuterRings.contains(fra)) {
+            mFolderOuterRings.remove(fra);
+        }
+        invalidate();
+    }
     public View getChildAt(int x, int y) {
         return mShortcutsAndWidgets.getChildAt(x, y);
     }
@@ -1628,6 +1640,75 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             }
         }
 
+
+        if (DEBUG_VISUALIZE_OCCUPIED) {
+            int[] pt = new int[2];
+            ColorDrawable cd = new ColorDrawable(Color.RED);
+            cd.setBounds(0, 0,  mCellWidth, mCellHeight);
+            for (int i = 0; i < mCountX; i++) {
+                for (int j = 0; j < mCountY; j++) {
+                    if (mOccupied[i][j]) {
+                        cellToPoint(i, j, pt);
+                        canvas.save();
+                        canvas.translate(pt[0], pt[1]);
+                        cd.draw(canvas);
+                        canvas.restore();
+                    }
+                }
+            }
+        }
+
+        int previewOffset = FolderRingAnimator.sPreviewSize;
+
+        // The folder outer / inner ring image(s)
+        for (int i = 0; i < mFolderOuterRings.size(); i++) {
+            FolderRingAnimator fra = mFolderOuterRings.get(i);
+
+            // Draw outer ring
+            Drawable d = FolderRingAnimator.sSharedOuterRingDrawable;
+            int width = (int) fra.getOuterRingSize();
+            int height = width;
+            cellToPoint(fra.mCellX, fra.mCellY, mTempLocation);
+
+            int centerX = mTempLocation[0] + mCellWidth / 2;
+            int centerY = mTempLocation[1] + previewOffset / 2;
+
+            canvas.save();
+            canvas.translate(centerX - width / 2, centerY - height / 2);
+            d.setBounds(0, 0, width, height);
+            d.draw(canvas);
+            canvas.restore();
+
+//            // Draw inner ring
+//            d = FolderRingAnimator.sSharedInnerRingDrawable;
+//            width = (int) fra.getInnerRingSize();
+//            height = width;
+//            cellToPoint(fra.mCellX, fra.mCellY, mTempLocation);
+//
+//            centerX = mTempLocation[0] + mCellWidth / 2;
+//            centerY = mTempLocation[1] + previewOffset / 2;
+//            canvas.save();
+//            canvas.translate(centerX - width / 2, centerY - width / 2);
+//            d.setBounds(0, 0, width, height);
+//            d.draw(canvas);
+//            canvas.restore();
+        }
+
+        if (mFolderLeaveBehindCell[0] >= 0 && mFolderLeaveBehindCell[1] >= 0) {
+            Drawable d = FolderIcon.sSharedFolderLeaveBehind;
+            int width = d.getIntrinsicWidth();
+            int height = d.getIntrinsicHeight();
+
+            cellToPoint(mFolderLeaveBehindCell[0], mFolderLeaveBehindCell[1], mTempLocation);
+            int centerX = mTempLocation[0] + mCellWidth / 2;
+            int centerY = mTempLocation[1] + previewOffset / 2;
+
+            canvas.save();
+            canvas.translate(centerX - width / 2, centerY - width / 2);
+            d.setBounds(0, 0, width, height);
+            d.draw(canvas);
+            canvas.restore();
+        }
 
         super.onDraw(canvas);
     }

@@ -62,7 +62,7 @@ public class FolderInfo extends ItemInfo {
     }
 
 
-    void addListener(FolderListener listener) {
+    public void addListener(FolderListener listener) {
         listeners.add(listener);
     }
 

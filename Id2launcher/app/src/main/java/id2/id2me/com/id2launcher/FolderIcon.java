@@ -11,7 +11,9 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -35,7 +37,10 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
     private static final float PERSPECTIVE_SHIFT_FACTOR = 1f;
     private float mMaxPerspectiveShift;
     private int mBaselineIconSize;
+    private Launcher mLauncher;
+    FolderRingAnimator mFolderRingAnimator = null;
     private int mAvailableSpaceInPreview;
+    public static Drawable sSharedFolderLeaveBehind = null;
     private float mBaselineIconScale;
     private int mIntrinsicIconSize;
     private int mTotalWidth = -1;
@@ -43,9 +48,17 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
     private int mPreviewOffsetX;
     private int mPreviewOffsetY;
     //private Folder mFolder;
-
+    private static final int CONSUMPTION_ANIMATION_DURATION = 100;
+    private static boolean sStaticValuesDirty = true;
+    private ImageView mPreviewBackground;
+    // The degree to which the outer ring is scaled in its natural state
+    private static final float OUTER_RING_GROWTH_FACTOR = 0.3f;
     private PreviewItemDrawingParams mParams = new PreviewItemDrawingParams(0, 0, 0, 0);
     private FolderItemView mFolder;
+    private FolderInfo mInfo;
+    // The degree to which the inner ring grows when accepting drop
+    private static final float INNER_RING_GROWTH_FACTOR = 0.15f;
+
 
     public FolderIcon(Context context) {
         super(context);
@@ -120,8 +133,20 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
     public void onDrop(DropTarget.DragObject d) {
     }
 
-    public void onDragEnter(ItemInfo info) {
+    private boolean willAcceptItem(ItemInfo item) {
+        final int itemType = item.itemType;
+        return (itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION ||
+                itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT);
+    }
 
+    public void onDragEnter(ItemInfo info) {
+        if (!willAcceptItem((ItemInfo) info)) return;//mFolder.isDestroyed() ||
+        CellLayout.LayoutParams lp = (CellLayout.LayoutParams) getLayoutParams();
+        CellLayout layout = (CellLayout) getParent().getParent();
+        mFolderRingAnimator.setCell(lp.cellX, lp.cellY);
+        mFolderRingAnimator.setCellLayout(layout);
+        mFolderRingAnimator.animateToAcceptState();
+        layout.showFolderAccept(mFolderRingAnimator);
     }
 
 
@@ -206,7 +231,28 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         }
         canvas.restore();
     }
+    static FolderIcon fromXml(int resId, Launcher launcher, ViewGroup group,
+                              FolderInfo folderInfo, IconCache iconCache) {
 
+        FolderIcon icon = (FolderIcon) LayoutInflater.from(launcher).inflate(resId, group, false);
+
+        icon.mPreviewBackground = (ImageView) icon.findViewById(R.id.preview_background);
+
+        icon.setTag(folderInfo);
+        icon.setOnClickListener(launcher);
+        icon.mInfo = folderInfo;
+        icon.mLauncher = launcher;
+        FolderItemView folder = FolderItemView.fromXml(launcher);
+        folder.setDragController(launcher.getDragController());
+        folder.setFolderIcon(icon);
+        folder.bind(folderInfo);
+        icon.mFolder = folder;
+
+        icon.mFolderRingAnimator = new FolderRingAnimator(launcher, icon);
+        folderInfo.addListener(icon);
+
+        return icon;
+    }
     public static class FolderRingAnimator {
         public int mCellX;
         public int mCellY;
@@ -227,19 +273,19 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         public FolderRingAnimator(Launcher launcher, FolderIcon folderIcon) {
             mFolderIcon = folderIcon;
             Resources res = launcher.getResources();
-        //    mOuterRingDrawable = res.getDrawable(R.drawable.portal_ring_outer_holo);
-            //mInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_holo);
+            mOuterRingDrawable = res.getDrawable(R.drawable.portal_ring_outer_holo);
+            mInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_holo);
 
             // We need to reload the static values when configuration changes in case they are
             // different in another configuration
-//            if (sStaticValuesDirty) {
-//                sPreviewSize = res.getDimensionPixelSize(R.dimen.folder_preview_size);
-//                sPreviewPadding = res.getDimensionPixelSize(R.dimen.folder_preview_padding);
-//                sSharedOuterRingDrawable = res.getDrawable(R.drawable.portal_ring_outer_holo);
-//                sSharedInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_holo);
-//                sSharedFolderLeaveBehind = res.getDrawable(R.drawable.portal_ring_rest);
-//                sStaticValuesDirty = false;
-//            }
+            if (sStaticValuesDirty) {
+                sPreviewSize = res.getDimensionPixelSize(R.dimen.folder_preview_size);
+                sPreviewPadding = res.getDimensionPixelSize(R.dimen.folder_preview_padding);
+                sSharedOuterRingDrawable = res.getDrawable(R.drawable.folder_background);
+                sSharedInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_holo);
+                sSharedFolderLeaveBehind = res.getDrawable(R.drawable.portal_ring_rest);
+                sStaticValuesDirty = false;
+            }
         }
 
         public void animateToAcceptState() {
@@ -247,14 +293,14 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
                 mNeutralAnimator.cancel();
             }
             mAcceptAnimator = LauncherAnimUtils.ofFloat(0f, 1f);
-          //  mAcceptAnimator.setDuration(CONSUMPTION_ANIMATION_DURATION);
+            mAcceptAnimator.setDuration(CONSUMPTION_ANIMATION_DURATION);
 
             final int previewSize = sPreviewSize;
             mAcceptAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 public void onAnimationUpdate(ValueAnimator animation) {
                     final float percent = (Float) animation.getAnimatedValue();
-                   // mOuterRingSize = (1 + percent * OUTER_RING_GROWTH_FACTOR) * previewSize;
-                   // mInnerRingSize = (1 + percent * INNER_RING_GROWTH_FACTOR) * previewSize;
+                    mOuterRingSize = (1 + percent * OUTER_RING_GROWTH_FACTOR) * previewSize;
+                    mInnerRingSize = (1 + percent * INNER_RING_GROWTH_FACTOR) * previewSize;
                     if (mCellLayout != null) {
                         mCellLayout.invalidate();
                     }
@@ -264,7 +310,7 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
                 @Override
                 public void onAnimationStart(Animator animation) {
                     if (mFolderIcon != null) {
-                       // mFolderIcon.mPreviewBackground.setVisibility(INVISIBLE);
+                        mFolderIcon.mPreviewBackground.setVisibility(INVISIBLE);
                     }
                 }
             });
@@ -276,14 +322,14 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
                 mAcceptAnimator.cancel();
             }
             mNeutralAnimator = LauncherAnimUtils.ofFloat(0f, 1f);
-        //    mNeutralAnimator.setDuration(CONSUMPTION_ANIMATION_DURATION);
+            mNeutralAnimator.setDuration(CONSUMPTION_ANIMATION_DURATION);
 
             final int previewSize = sPreviewSize;
             mNeutralAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 public void onAnimationUpdate(ValueAnimator animation) {
                     final float percent = (Float) animation.getAnimatedValue();
-              //      mOuterRingSize = (1 + (1 - percent) * OUTER_RING_GROWTH_FACTOR) * previewSize;
-               //     mInnerRingSize = (1 + (1 - percent) * INNER_RING_GROWTH_FACTOR) * previewSize;
+                    mOuterRingSize = (1 + (1 - percent) * OUTER_RING_GROWTH_FACTOR) * previewSize;
+                    mInnerRingSize = (1 + (1 - percent) * INNER_RING_GROWTH_FACTOR) * previewSize;
                     if (mCellLayout != null) {
                         mCellLayout.invalidate();
                     }
@@ -293,10 +339,10 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (mCellLayout != null) {
-                   //     mCellLayout.hideFolderAccept(FolderRingAnimator.this);
+                        mCellLayout.hideFolderAccept(FolderRingAnimator.this);
                     }
                     if (mFolderIcon != null) {
-                     //   mFolderIcon.mPreviewBackground.setVisibility(VISIBLE);
+                        mFolderIcon.mPreviewBackground.setVisibility(VISIBLE);
                     }
                 }
             });
@@ -327,5 +373,4 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
             return mInnerRingSize;
         }
     }
-
 }

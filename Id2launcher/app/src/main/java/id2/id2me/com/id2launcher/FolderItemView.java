@@ -3,20 +3,18 @@ package id2.id2me.com.id2launcher;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
-import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by CrazyInnoTech on 11-11-2016.
@@ -32,6 +30,8 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
     private DatabaseHandler db;
     private long folderId;
     private ObservableScrollView container;
+    private DragController dragController;
+    private FolderIcon folderIcon;
 
 
     public FolderItemView(Context context, DatabaseHandler db, long folderId) {
@@ -45,38 +45,22 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
 
         launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
 
-        init();
-        setFolderView();
-
         this.setOnTouchListener(this);
         this.setTag(folderId);
 
-
     }
 
-    private void init() {
-
-        this.addView(inflate(getContext(), R.layout.folder_view, null));
-        this.addView(inflate(getContext(), R.layout.folder_view, null));
-        this.addView(inflate(getContext(), R.layout.folder_view, null));
-
-       // blur_relative = launcherApplication.desktopFragment.findViewById(R.id.blur_relative);
-       // blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
-        container = (ObservableScrollView) launcherApplication.desktopFragment.findViewById(R.id.scrollView);
-//        blur_relative.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                blur_relative.setVisibility(View.GONE);
-//                container.setVisibility(View.VISIBLE);
-//                return false;
-//
-//            }
-//
-//        });
-
-        gestureListener = new GestureListener(this);
-        gestureDetector = new GestureDetector(context, gestureListener);
+    /**
+     * Creates a new UserFolder, inflated from R.layout.user_folder.
+     *
+     * @param context The application's context.
+     *
+     * @return A new UserFolder.
+     */
+    static FolderItemView fromXml(Context context) {
+        return (FolderItemView) LayoutInflater.from(context).inflate(R.layout.folder_item_view, null);
     }
+
 
     @Override
     public boolean onTouch(View v, MotionEvent ev) {
@@ -118,25 +102,6 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
         return folderImgs;
     }
 
-    void setFolderView() {
-
-        try {
-            ArrayList<ImageView> folderImgs = setFolderImagesList();
-            ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
-
-            for (int i = 0; i < folderImgs.size(); i++) {
-                if (i < itemInfoModels.size()) {
-                    folderImgs.get(i).setBackground(null);
-                   // folderImgs.get(i).setImageBitmap(ItemInfo.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
-                    folderImgs.get(i).setVisibility(View.VISIBLE);
-                } else {
-                    folderImgs.get(i).setBackground(ContextCompat.getDrawable(context, R.drawable.folder_empty_icon));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 
 
@@ -162,11 +127,6 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
             e.printStackTrace();
         }
 
-    }
-
-    public void addedToExistingFolder(){
-        this.setFolderView();
-        this.updateFoldersFragment();
     }
 
     @Override
@@ -202,6 +162,18 @@ public class FolderItemView extends LinearLayout implements DragSource, View.OnT
     public ArrayList<View> getItemsInReadingOrder() {
         ArrayList<View> appList = new ArrayList<>();
         return appList;
+    }
+
+    public void setDragController(DragController dragController) {
+        this.dragController = dragController;
+    }
+
+    public void setFolderIcon(FolderIcon folderIcon) {
+        this.folderIcon = folderIcon;
+    }
+
+    public void bind(FolderInfo folderInfo) {
+
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {

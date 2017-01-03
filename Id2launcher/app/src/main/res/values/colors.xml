@@ -29,7 +29,7 @@
     <color name="frame_color">#E0E0E0</color>
     <color name="statusbar_bg">#FF006080</color>
 
-
+    <color name="outline">@android:color/holo_blue_light</color>
     <color name="red">#FF0000</color>
     <color name="blue">#1100ff</color>
     <color name="green">#00ff08</color>
