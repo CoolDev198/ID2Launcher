@@ -23,15 +23,14 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
+import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import timber.log.Timber;
 
@@ -197,8 +196,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     private float[] mNewRotationYs;
     private float mTransitionProgress;
     private int currentPage = 0;
-    private float mSpringLoadedShrinkFactor;
-
 
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -207,10 +204,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Display display = launcher.getWindowManager().getDefaultDisplay();
         display.getSize(mDisplaySize);
         mDragEnforcer = new DropTarget.DragEnforcer(context);
-        mSpringLoadedShrinkFactor =
-                getResources().getInteger(R.integer.config_workspaceSpringLoadShrinkPercentage) / 100.0f;
-
-
     }
 
     static private float squaredDistance(float[] point1, float[] point2) {
@@ -378,10 +371,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             Rect r = estimateItemPosition(cl, itemInfo, 0, 0, hSpan, vSpan);
             size[0] = r.width();
             size[1] = r.height();
-            if (springLoaded) {
-                size[0] *= mSpringLoadedShrinkFactor;
-                size[1] *= mSpringLoadedShrinkFactor;
-            }
             return size;
         } else {
             size[0] = Integer.MAX_VALUE;
