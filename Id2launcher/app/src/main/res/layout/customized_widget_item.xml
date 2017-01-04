@@ -13,10 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingTop="@dimen/app_widget_preview_padding_top"
-        android:paddingLeft="@dimen/app_widget_preview_padding_left"
-        android:paddingRight="@dimen/app_widget_preview_padding_right"
-        android:scaleType="matrix"
+        android:src="@mipmap/ic_launcher"
+        android:scaleType="centerInside"
+        android:layout_gravity="center"
         android:background="@drawable/widget_container_holo" />
 
     <LinearLayout
