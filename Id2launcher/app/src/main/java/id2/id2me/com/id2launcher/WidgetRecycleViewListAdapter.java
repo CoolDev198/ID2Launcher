@@ -616,40 +616,6 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
         }
     }
 
-    private void onSyncWidgetPageItems(AsyncTaskPageData data) {
-        /*if (mInTransition) {
-            mDeferredSyncWidgetPageItems.add(data);
-            return;
-        }*/
-        try {
-            int page = data.page;
-            //PagedViewGridLayout layout = (PagedViewGridLayout) getPageAt(page);
-            ArrayList<Object> items = data.items;
-            int count = items.size();
-            for (int i = 0; i < count; ++i) {
-
-
-                //WidgetItemView widget = (WidgetItemView) layout.getChildAt(i);
-                //if (widget != null) {
-                    Bitmap preview = data.generatedImages.get(0);
-                    applyPreview(new FastBitmapDrawable(preview), i);
-               // }
-            }
-
-            /*layout.createHardwareLayer();
-            invalidate();*/
-
-            // Update all thread priorities
-            /*Iterator<AppsCustomizeAsyncTask> iter = mRunningTasks.iterator();
-            while (iter.hasNext()) {
-                AppsCustomizeAsyncTask task = (AppsCustomizeAsyncTask) iter.next();
-                int pageIndex = task.page;
-                task.setThreadPriority(getThreadPriorityForPage(pageIndex));
-            }*/
-        } finally {
-            data.cleanup(false);
-        }
-    }
 
     void applyPreview(FastBitmapDrawable preview, int index) {
 

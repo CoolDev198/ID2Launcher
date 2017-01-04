@@ -39,7 +39,6 @@ public class LauncherModel extends BroadcastReceiver {
     private final LauncherApplication mApp;
     private LoaderTask mLoaderTask;
     static final boolean DEBUG_LOADERS = false;
-    static final String TAG = "LauncherModel";
     private static final HandlerThread sWorkerThread = new HandlerThread("launcher-loader");
     private static final Handler sWorker = new Handler();
     private DeferredHandler mHandler = new DeferredHandler();
@@ -99,7 +98,7 @@ public class LauncherModel extends BroadcastReceiver {
     public void startLoader(boolean isLaunching, int synchronousBindPage) {
         synchronized (mLock) {
             if (DEBUG_LOADERS) {
-                Log.d(TAG, "startLoader isLaunching=" + isLaunching);
+                Timber.d( "startLoader isLaunching=" + isLaunching);
             }
 
             // Clear any deferred bind-runnables from the synchronized load process
@@ -149,7 +148,7 @@ public class LauncherModel extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (DEBUG_LOADERS) Log.d(TAG, "onReceive intent=" + intent);
+        if (DEBUG_LOADERS) Timber.d( "onReceive intent=" + intent);
 
         final String action = intent.getAction();
 
@@ -308,7 +307,7 @@ public class LauncherModel extends BroadcastReceiver {
                     return null;
                 }
                 if (callbacks == null) {
-                    Log.w(TAG, "no mCallbacks");
+                    Timber.w("no mCallbacks");
                     return null;
                 }
 
@@ -345,7 +344,7 @@ public class LauncherModel extends BroadcastReceiver {
                     final long qiaTime = DEBUG_LOADERS ? SystemClock.uptimeMillis() : 0;
                     apps = packageManager.queryIntentActivities(mainIntent, 0);
                     if (DEBUG_LOADERS) {
-                        Timber.d(TAG, "queryIntentActivities took "
+                        Timber.d( "queryIntentActivities took "
                                 + (SystemClock.uptimeMillis() - qiaTime) + "ms");
                     }
                     if (apps == null) {
@@ -353,7 +352,7 @@ public class LauncherModel extends BroadcastReceiver {
                     }
                     N = apps.size();
                     if (DEBUG_LOADERS) {
-                        Log.d(TAG, "queryIntentActivities got " + N + " apps");
+                        Timber.d( "queryIntentActivities got " + N + " apps");
                     }
                     if (N == 0) {
                         // There are no apps?!?
@@ -369,7 +368,7 @@ public class LauncherModel extends BroadcastReceiver {
                     Collections.sort(apps,
                             new LauncherModel.ShortcutNameComparator(packageManager, mLabelCache));
                     if (DEBUG_LOADERS) {
-                        Log.d(TAG, "sort took "
+                        Timber.d( "sort took "
                                 + (SystemClock.uptimeMillis() - sortTime) + "ms");
                     }
                 }
@@ -399,24 +398,24 @@ public class LauncherModel extends BroadcastReceiver {
                                 callbacks.bindAppsAdded(added);
                             }
                             if (DEBUG_LOADERS) {
-                                Log.d(TAG, "bound " + added.size() + " apps in "
+                                Timber.d( "bound " + added.size() + " apps in "
                                         + (SystemClock.uptimeMillis() - t) + "ms");
                             }
                         } else {
-                            Log.i(TAG, "not binding apps: no Launcher activity");
+                            Timber.i( "not binding apps: no Launcher activity");
                         }
                     }
                 });
 
                 if (DEBUG_LOADERS) {
-                    Log.d(TAG, "batch of " + (i - startIndex) + " icons processed in "
+                    Timber.d( "batch of " + (i - startIndex) + " icons processed in "
                             + (SystemClock.uptimeMillis() - t2) + "ms");
                 }
 
                 if (mAllAppsLoadDelay > 0 && i < N) {
                     try {
                         if (DEBUG_LOADERS) {
-                            Log.d(TAG, "sleeping for " + mAllAppsLoadDelay + "ms");
+                            Timber.d( "sleeping for " + mAllAppsLoadDelay + "ms");
                         }
                         Thread.sleep(mAllAppsLoadDelay);
                     } catch (InterruptedException exc) {
@@ -425,19 +424,21 @@ public class LauncherModel extends BroadcastReceiver {
             }
 
             if (DEBUG_LOADERS) {
-                Log.d(TAG, "cached all " + N + " apps in "
+                Timber.d( "cached all " + N + " apps in "
                         + (SystemClock.uptimeMillis() - t) + "ms"
                         + (mAllAppsLoadDelay > 0 ? " (including delay)" : ""));
             }
         }
 
         private void loadAllWidgetList(){
+            mWidgetList.clear();
 
             PackageManager mPackageManager = mContext.getPackageManager();
             List<AppWidgetProviderInfo> widgets =
                     AppWidgetManager.getInstance(mContext).getInstalledProviders();
             Intent shortcutsIntent = new Intent(Intent.ACTION_CREATE_SHORTCUT);
             List<ResolveInfo> shortcuts = mPackageManager.queryIntentActivities(shortcutsIntent, 0);
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
             for (AppWidgetProviderInfo widget : widgets) {
                 if (widget.minWidth > 0 && widget.minHeight > 0) {
                     // Ensure that all widgets we show can be added on a workspace of this size
@@ -445,16 +446,15 @@ public class LauncherModel extends BroadcastReceiver {
                     int[] minSpanXY = Launcher.getMinSpanForWidget(mContext, widget);
                     int minSpanX = Math.min(spanXY[0], minSpanXY[0]);
                     int minSpanY = Math.min(spanXY[1], minSpanXY[1]);
-                    /*if (minSpanX <= LauncherModel.getCellCountX() &&
-                            minSpanY <= LauncherModel.getCellCountY()) {
+                    if (minSpanX <= launcherApplication.CELL_COUNT_X &&
+                            minSpanY <= launcherApplication.CELL_COUNT_Y) {
                         mWidgetList.add(widget);
                     } else {
-                        Log.e(TAG, "Widget " + widget.provider + " can not fit on this device (" +
+                        Timber.e("Widget " + widget.provider + " can not fit on this device (" +
                                 widget.minWidth + ", " + widget.minHeight + ")");
-                    }*/
-                    mWidgetList.add(widget);
+                    }
                 } else {
-                    Log.e(TAG, "Widget " + widget.provider + " has invalid dimensions (" +
+                    Timber.e( "Widget " + widget.provider + " has invalid dimensions (" +
                             widget.minWidth + ", " + widget.minHeight + ")");
                 }
             }
@@ -499,14 +499,14 @@ public class LauncherModel extends BroadcastReceiver {
             switch (mOp) {
                 case OP_ADD:
                     for (int i = 0; i < N; i++) {
-                        if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.addPackage " + packages[i]);
+                        if (DEBUG_LOADERS) Timber.d("mAllAppsList.addPackage " + packages[i]);
                         mBgAllAppsList.addPackage(mApp, packages[i]);
                     }
 
                     break;
                 case OP_UPDATE:
                     for (int i = 0; i < N; i++) {
-                        if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.updatePackage " + packages[i]);
+                        if (DEBUG_LOADERS) Timber.d("mAllAppsList.updatePackage " + packages[i]);
                         mBgAllAppsList.updatePackage(mApp, packages[i]);
                     }
                     if(refreshAdapter!=null)
@@ -515,7 +515,7 @@ public class LauncherModel extends BroadcastReceiver {
                 case OP_REMOVE:
                 case OP_UNAVAILABLE:
                     for (int i = 0; i < N; i++) {
-                        if (DEBUG_LOADERS) Log.d(TAG, "mAllAppsList.removePackage " + packages[i]);
+                        if (DEBUG_LOADERS) Timber.d( "mAllAppsList.removePackage " + packages[i]);
                         mBgAllAppsList.removePackage(packages[i]);
                     }
                     if(refreshAdapter!=null)
@@ -594,7 +594,7 @@ public class LauncherModel extends BroadcastReceiver {
 
         if (intent == null) {
             // If the intent is null, we can't construct a valid ShortcutInfo, so we return null
-            Log.e(TAG, "Can't construct ShorcutInfo with null intent");
+            Timber.e("Can't construct ShorcutInfo with null intent");
             return null;
         }
 
@@ -617,7 +617,7 @@ public class LauncherModel extends BroadcastReceiver {
                     icon = Utilities.createIconBitmap(
                             mIconCache.getFullResIcon(resources, id), context);
                 } catch (Exception e) {
-                    Log.w(TAG, "Could not load shortcut icon: " + extra);
+                    Timber.w("Could not load shortcut icon: " + extra);
                 }
             }
         }
