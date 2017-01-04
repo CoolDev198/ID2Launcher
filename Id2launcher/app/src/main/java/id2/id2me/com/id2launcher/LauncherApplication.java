@@ -22,8 +22,8 @@ import timber.log.Timber;
  * Created by sunita on 7/27/16.
  */
 public class LauncherApplication extends Application {
-
-    public static final int DEFAULT_SCREENS = 2;
+    private static final int sLongPressTimeout = 300;
+    public  final int DEFAULT_SCREENS = 2;
     static LauncherApplication launcherApplication;
     private static float density;
     public final int CELL_COUNT_X = 4;
@@ -110,7 +110,9 @@ public class LauncherApplication extends Application {
                 R.dimen.cell_width);
         return cellWidth;
     }
-
+    public static int getLongPressTimeout() {
+        return sLongPressTimeout;
+    }
 
     public int getScreenWidth() {
         return screenWidth;

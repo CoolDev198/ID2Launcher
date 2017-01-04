@@ -25,23 +25,14 @@ import timber.log.Timber;
 
 public class LauncherAppWidgetHostView extends AppWidgetHostView {
 
-    final String TAG = "AppWidgetHostView";
+    private CheckLongPressHelper mLongPressHelper;
     LayoutInflater mInflater;
     LauncherApplication launcherApplication;
-    LauncherAppWidgetHostView.GestureListener gestureListener;
-    GestureDetector gestureDetector;
-    private long startClickTime;
-    private static final int MAX_CLICK_DURATION = 100;
-    private Context mContext;
-    private int mPreviousOrientation;
 
     public LauncherAppWidgetHostView(Context context) {
         super(context);
-        mContext = context;
-        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
+        mLongPressHelper = new CheckLongPressHelper(this);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        gestureListener = new GestureListener();
-        gestureDetector = new GestureDetector(context, gestureListener);
     }
 
     @Override
@@ -52,17 +43,10 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
     @Override
     public void updateAppWidget(RemoteViews remoteViews) {
         // Store the orientation in which the widget was inflated
-        mPreviousOrientation = mContext.getResources().getConfiguration().orientation;
         super.updateAppWidget(remoteViews);
     }
 
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Timber.v("onInterceptTouchEvent Widgets");
-        startClickTime = Calendar.getInstance().getTimeInMillis();
-        return gestureDetector.onTouchEvent(ev);
-    }
 
     @Override
     protected void onAttachedToWindow() {
@@ -70,49 +54,34 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
     }
 
 
-    private void onDragWidget() {
-        try {
-            launcherApplication.getLauncher().getWokSpace().startDragWidget(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        GestureListener(){
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        // Consume any touch events for ourselves after longpress is triggered
+        if (mLongPressHelper.hasPerformedLongPress()) {
+            mLongPressHelper.cancelLongPress();
+            return true;
         }
 
-        @Override
-        public void onLongPress(MotionEvent e) {
-            /*super.onLongPress(e);*/
-            long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
-            Timber.v("long press Time StartClickTime : " + startClickTime + " Click duration: " + clickDuration);
-            if (clickDuration < MAX_CLICK_DURATION) {
-                Timber.v("long press achived : ");
-                onDragWidget();
+        // Watch for longpress events at this level to make sure
+        // users can always pick up this widget
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                mLongPressHelper.postCheckForLongPress();
+                break;
             }
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mLongPressHelper.cancelLongPress();
+                break;
         }
 
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            return super.onSingleTapConfirmed(e);
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-            //super.onShowPress(e);
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return super.onDown(e);
-        }
+        // Otherwise continue letting touch events fall through to children
+        return false;
     }
 
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+        mLongPressHelper.cancelLongPress();
+    }
 }

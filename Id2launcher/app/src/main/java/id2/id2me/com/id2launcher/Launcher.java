@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -437,8 +438,35 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     @Override
     public boolean onLongClick(View v) {
-        getWokSpace().startDrag(v);
+        Timber.v("on long click called ");
+        if (!(v instanceof CellLayout)) {
+            v = (View) v.getParent().getParent();
+        }
+
+        resetAddInfo();
+        CellLayout.CellInfo longClickCellInfo = (CellLayout.CellInfo) v.getTag();
+        // This happens when long clicking an item with the dpad/trackball
+        if (longClickCellInfo == null) {
+            return true;
+        }
+
+        // The hotseat touch handling does not go through Workspace, and we always allow long press
+        // on hotseat items.
+        final View itemUnderLongClick = longClickCellInfo.cell;
+        if (!dragController.isDragging()) {
+            if (itemUnderLongClick == null) {
+                // User long pressed on empty space
+                wokSpace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                        HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
+            } else {
+                if (!(itemUnderLongClick instanceof FolderItemView)) {
+                    // User long pressed on an item
+                    wokSpace.startDrag(longClickCellInfo);
+                }
+            }
+        }
         return true;
+
     }
 
 
@@ -452,6 +480,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
+        this.wokSpace.setOnLongClickListener(this);
         dragController.addDropTarget(wokSpace);
         dragController.addDragListener(wokSpace);
     }
@@ -476,7 +505,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
-        favorite.setOnLongClickListener(this);
+      //  favorite.setOnLongClickListener(this);
         favorite.setOnClickListener(this);
         favorite.setShortCutModel(info);
         return favorite;
@@ -859,7 +888,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
             launcherInfo.hostView.setTag(launcherInfo);
             launcherInfo.hostView.setVisibility(View.VISIBLE);
-            //launcherInfo.notifyWidgetSizeChanged(this);
+            launcherInfo.notifyWidgetSizeChanged(this);
 
             wokSpace.addInScreen(launcherInfo.hostView, container, screen, cellXY[0], cellXY[1],
                     launcherInfo.spanX, launcherInfo.spanY, false);

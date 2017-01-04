@@ -228,18 +228,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     }
 
-    void startDrag(View child) {
-        mDragInfo = new CellLayout.CellInfo();
-        ShortcutInfo shortcutInfo = (ShortcutInfo) child.getTag();
-        mDragInfo.cell = child;
-        mDragInfo.spanX = shortcutInfo.spanX;
-        mDragInfo.spanY = shortcutInfo.spanY;
-        mDragInfo.screen = shortcutInfo.getScreen();
+    void startDrag(CellLayout.CellInfo cellInfo) {
+        View child = cellInfo.cell;
 
         // Make sure the drag was started by a long press as opposed to a long click.
         if (!child.isInTouchMode()) {
             return;
         }
+
+        mDragInfo = cellInfo;
 
         child.setVisibility(INVISIBLE);
         CellLayout layout = (CellLayout) child.getParent().getParent();
@@ -247,23 +244,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         beginDragShared(child, this);
     }
 
-    void startDragWidget(View child) {
-        mDragInfo = new CellLayout.CellInfo();
-        LauncherAppWidgetInfo launcherAppWidgetInfo = (LauncherAppWidgetInfo) child.getTag();
-        mDragInfo.cell = child;
-        mDragInfo.spanX = launcherAppWidgetInfo.spanX;
-        mDragInfo.spanY = launcherAppWidgetInfo.spanY;
-        mDragInfo.screen = launcherAppWidgetInfo.getScreen();
-        // Make sure the drag was started by a long press as opposed to a long click.
-        if (!child.isInTouchMode()) {
-            return;
-        }
-
-        child.setVisibility(INVISIBLE);
-        CellLayout layout = (CellLayout) child.getParent().getParent();
-        layout.prepareChildForDrag(child);
-        beginDragShared(child, this);
-    }
 
     public void beginDragShared(View child, DragSource dragSource) {
           addExtraEmptyScreen();
@@ -1022,10 +1002,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
-        /*if (!(child instanceof FolderItemView)) {
+        if (!(child instanceof FolderItemView)) {
             child.setHapticFeedbackEnabled(false);
-            child.setOnLongClickListener(this);
-        }*/
+            child.setOnLongClickListener(launcher);
+        }
         if (child instanceof DropTarget) {
             launcher.getDragController().addDropTarget((DropTarget) child);
         }
