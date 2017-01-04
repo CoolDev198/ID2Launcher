@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -48,7 +49,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     public static ViewPager pager;
     public AppWidgetManager mAppWidgetManager;
     HorizontalPagerAdapter pageAdapter;
-    LauncherApplication launcherApplication;
     DatabaseHandler db;
     DragLayer dragLayer;
     private LauncherAppWidgetHost mAppWidgetHost;
@@ -88,15 +88,20 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
-            launcherApplication = ((LauncherApplication) getApplication());
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
             mModel = launcherApplication.setLauncher(this);
+
+            mAppWidgetManager = AppWidgetManager.getInstance(this);
+            mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
+            mAppWidgetHost.startListening();
+
             mModel.startLoader(true, -1);
             setTranslucentStatus(true);
             getSupportActionBar().hide();
             setContentView(R.layout.activity_launcher);
             init();
             //  openNotificationAccess();
-            loadDesktop();
+           // loadDesktop();
             setStatusBarStyle();
 
 
@@ -170,7 +175,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
         resetPage();
-        setAppWidgetManager();
+
     }
 
 
@@ -194,11 +199,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         pager.setCurrentItem(1);
     }
 
-    private void setAppWidgetManager() {
-        mAppWidgetManager = AppWidgetManager.getInstance(this);
-        ((LauncherApplication) getApplication()).mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
-        this.mAppWidgetHost = ((LauncherApplication) getApplication()).mAppWidgetHost;
-    }
 
     public LauncherAppWidgetHost getAppWidgetHost() {
         return mAppWidgetHost;
@@ -208,33 +208,15 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         return mWorkspaceLoading || mWaitingForResult;
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            if (mAppWidgetHost != null)
-                mAppWidgetHost.startListening();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mAppWidgetHost.stopListening();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         try {
             mAppWidgetHost.stopListening();
         } catch (NullPointerException ex) {
             Timber.e("problem while stopping AppWidgetHost during Launcher destruction", ex);
         }
+        mAppWidgetHost = null;
     }
 
 
@@ -454,8 +436,35 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     @Override
     public boolean onLongClick(View v) {
-        getWokSpace().startDrag(v);
+        Timber.v("on long click called ");
+        if (!(v instanceof CellLayout)) {
+            v = (View) v.getParent().getParent();
+        }
+
+        resetAddInfo();
+        CellLayout.CellInfo longClickCellInfo = (CellLayout.CellInfo) v.getTag();
+        // This happens when long clicking an item with the dpad/trackball
+        if (longClickCellInfo == null) {
+            return true;
+        }
+
+        // The hotseat touch handling does not go through Workspace, and we always allow long press
+        // on hotseat items.
+        final View itemUnderLongClick = longClickCellInfo.cell;
+        if (!dragController.isDragging()) {
+            if (itemUnderLongClick == null) {
+                // User long pressed on empty space
+                wokSpace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                        HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
+            } else {
+                if (!(itemUnderLongClick instanceof FolderItemView)) {
+                    // User long pressed on an item
+                    wokSpace.startDrag(longClickCellInfo);
+                }
+            }
+        }
         return true;
+
     }
 
 
@@ -469,6 +478,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
+        this.wokSpace.setOnLongClickListener(this);
         dragController.addDropTarget(wokSpace);
         dragController.addDragListener(wokSpace);
     }
@@ -493,7 +503,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
-        favorite.setOnLongClickListener(this);
+      //  favorite.setOnLongClickListener(this);
         favorite.setOnClickListener(this);
         favorite.setShortCutModel(info);
         return favorite;
@@ -754,9 +764,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                 //TODO add options bundle for 4.2+
                 success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
                         info.componentName);
-
-//                success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
-//                        info.componentName, options);
             } else {
                 success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
                         info.componentName);
@@ -862,25 +869,31 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         /*LauncherModel.addItemToDatabase(this, launcherInfo,
                 container, screen, cellXY[0], cellXY[1], false);*/
 
-        if (!mRestoring) {
+        //if (!mRestoring) {
             if (hostView == null) {
-                // Perform actual inflation because we're live
+                // Perform actual inflatixzxon because we're live
                 launcherInfo.hostView = mAppWidgetHost.createView(this, appWidgetId, appWidgetInfo);
                 launcherInfo.hostView.setAppWidget(appWidgetId, appWidgetInfo);
+                Timber.v("App Widget ID : " + appWidgetId + " name : " +
+                        launcherInfo.hostView.getAppWidgetInfo().provider.getPackageName());
             } else {
                 // The AppWidgetHostView has already been inflated and instantiated
                 launcherInfo.hostView = hostView;
             }
 
+        try {
             launcherInfo.hostView.setTag(launcherInfo);
             launcherInfo.hostView.setVisibility(View.VISIBLE);
             launcherInfo.notifyWidgetSizeChanged(this);
 
             wokSpace.addInScreen(launcherInfo.hostView, container, screen, cellXY[0], cellXY[1],
                     launcherInfo.spanX, launcherInfo.spanY, false);
-
-            //addWidgetToAutoAdvanceIfNeeded(launcherInfo.hostView, appWidgetInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        //addWidgetToAutoAdvanceIfNeeded(launcherInfo.hostView, appWidgetInfo);
+        //}
         resetAddInfo();
     }
 

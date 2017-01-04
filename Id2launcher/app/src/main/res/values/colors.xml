@@ -43,4 +43,6 @@
     </array>
 
     <color name="transparent_alpha">#dcffffff</color>
+
+    <color name="appwidget_error_color">#FCCC</color>
 </resources>
