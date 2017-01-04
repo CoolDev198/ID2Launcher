@@ -49,7 +49,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     public static ViewPager pager;
     public AppWidgetManager mAppWidgetManager;
     HorizontalPagerAdapter pageAdapter;
-    LauncherApplication launcherApplication;
     DatabaseHandler db;
     DragLayer dragLayer;
     private LauncherAppWidgetHost mAppWidgetHost;
@@ -89,12 +88,11 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
-            launcherApplication = ((LauncherApplication) getApplication());
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
             mModel = launcherApplication.setLauncher(this);
 
             mAppWidgetManager = AppWidgetManager.getInstance(this);
             mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
-            ((LauncherApplication) getApplication()).mAppWidgetHost = mAppWidgetHost;
             mAppWidgetHost.startListening();
 
             mModel.startLoader(true, -1);
@@ -103,7 +101,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             setContentView(R.layout.activity_launcher);
             init();
             //  openNotificationAccess();
-            loadDesktop();
+           // loadDesktop();
             setStatusBarStyle();
 
 
@@ -766,9 +764,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                 //TODO add options bundle for 4.2+
                 success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
                         info.componentName);
-
-//                success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
-//                        info.componentName, options);
             } else {
                 success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
                         info.componentName);
@@ -874,9 +869,9 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         /*LauncherModel.addItemToDatabase(this, launcherInfo,
                 container, screen, cellXY[0], cellXY[1], false);*/
 
-        if (!mRestoring) {
+        //if (!mRestoring) {
             if (hostView == null) {
-                // Perform actual inflation because we're live
+                // Perform actual inflatixzxon because we're live
                 launcherInfo.hostView = mAppWidgetHost.createView(this, appWidgetId, appWidgetInfo);
                 launcherInfo.hostView.setAppWidget(appWidgetId, appWidgetInfo);
                 Timber.v("App Widget ID : " + appWidgetId + " name : " +
@@ -886,15 +881,19 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
                 launcherInfo.hostView = hostView;
             }
 
+        try {
             launcherInfo.hostView.setTag(launcherInfo);
             launcherInfo.hostView.setVisibility(View.VISIBLE);
             launcherInfo.notifyWidgetSizeChanged(this);
 
             wokSpace.addInScreen(launcherInfo.hostView, container, screen, cellXY[0], cellXY[1],
                     launcherInfo.spanX, launcherInfo.spanY, false);
-
-            //addWidgetToAutoAdvanceIfNeeded(launcherInfo.hostView, appWidgetInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        //addWidgetToAutoAdvanceIfNeeded(launcherInfo.hostView, appWidgetInfo);
+        //}
         resetAddInfo();
     }
 

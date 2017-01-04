@@ -958,7 +958,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      */
     void addInScreen(View child, long container, int screen, int x, int y, int spanX, int spanY,
                      boolean insert) {
-        if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+         if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
             if (screen < 0 || screen >= getChildCount()) {
                 Log.e(TAG, "The screen must be >= 0 and < " + getChildCount()
                         + " (was " + screen + "); skipping child");
@@ -993,7 +993,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         }
 
         // Get the canonical child id to uniquely represent this view in this screen
-        int childId = 0;//LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
+        int childId = LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
         boolean markCellsAsOccupied = !(child instanceof FolderItemView);
         if (!layout.addViewToCellLayout(child, insert ? 0 : -1, childId, lp, markCellsAsOccupied)) {
             // TODO: This branch occurs when the workspace is adding views
@@ -1334,7 +1334,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     item.getSpanY(), child, mTargetCell);
 
             if (!nearestDropOccupied) {
-                // Timber.v(" not occupied ");
+                 Timber.v(" notoccupied ");
                 mDragTargetLayout.visualizeDropLocation(child, mDragOutline,
                         (int) mDragViewVisualCenter[0], (int) mDragViewVisualCenter[1],
                         mTargetCell[0], mTargetCell[1], item.getSpanX(), item.getSpanY(), false,
@@ -1345,7 +1345,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
                 // Otherwise, if we aren't adding to or creating a folder and there's no pending
                 // reorder, then we schedule a reorder
-                ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
+              ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
                         minSpanX, minSpanY, item.spanX, item.spanY, d.dragView, child);
                 mReorderAlarm.setOnAlarmListener(listener);
                 mReorderAlarm.setAlarm(REORDER_TIMEOUT);

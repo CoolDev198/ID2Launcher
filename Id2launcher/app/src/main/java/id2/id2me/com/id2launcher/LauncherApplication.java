@@ -22,7 +22,7 @@ import timber.log.Timber;
  * Created by sunita on 7/27/16.
  */
 public class LauncherApplication extends Application {
-    private static final int sLongPressTimeout = 300;
+    private static final int sLongPressTimeout = 500;
     public  final int DEFAULT_SCREENS = 2;
     static LauncherApplication launcherApplication;
     private static float density;
@@ -30,7 +30,6 @@ public class LauncherApplication extends Application {
     public final int CELL_COUNT_Y = 5;
     public boolean isDrawerOpen = false;
     public ItemInfo dragInfo;
-    public LauncherAppWidgetHost mAppWidgetHost;
     public LauncherModel mModel;
     public View desktopFragment;
     private Launcher launcher;

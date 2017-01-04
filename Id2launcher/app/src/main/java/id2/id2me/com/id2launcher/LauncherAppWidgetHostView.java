@@ -37,12 +37,11 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView {
 
     @Override
     protected View getErrorView() {
-        return mInflater.inflate(R.layout.appwidget_error, this, false);
+        return super.getErrorView();
     }
 
     @Override
     public void updateAppWidget(RemoteViews remoteViews) {
-        // Store the orientation in which the widget was inflated
         super.updateAppWidget(remoteViews);
     }
 
