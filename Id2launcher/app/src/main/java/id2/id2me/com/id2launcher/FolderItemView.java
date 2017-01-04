@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -14,18 +12,17 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
+import id2.id2me.com.id2launcher.models.ItemInfo;
 import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by CrazyInnoTech on 11-11-2016.
  */
 
-public class FolderItemView extends LinearLayout implements View.OnTouchListener {
+public class FolderItemView extends LinearLayout implements DragSource, View.OnTouchListener {
 
     Context context;
     LauncherApplication launcherApplication;
@@ -55,7 +52,6 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         this.setTag(folderId);
 
 
-
     }
 
     private void init() {
@@ -64,19 +60,19 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         this.addView(inflate(getContext(), R.layout.folder_view, null));
         this.addView(inflate(getContext(), R.layout.folder_view, null));
 
-        blur_relative = launcherApplication.desktopFragment.findViewById(R.id.blur_relative);
-        blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
+       // blur_relative = launcherApplication.desktopFragment.findViewById(R.id.blur_relative);
+       // blur_relative.setLayoutParams(new RelativeLayout.LayoutParams(launcherApplication.getScreenWidth(), launcherApplication.getScreenHeight()));
         container = (ObservableScrollView) launcherApplication.desktopFragment.findViewById(R.id.scrollView);
-        blur_relative.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                blur_relative.setVisibility(View.GONE);
-                container.setVisibility(View.VISIBLE);
-                return false;
-
-            }
-
-        });
+//        blur_relative.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                blur_relative.setVisibility(View.GONE);
+//                container.setVisibility(View.VISIBLE);
+//                return false;
+//
+//            }
+//
+//        });
 
         gestureListener = new GestureListener(this);
         gestureDetector = new GestureDetector(context, gestureListener);
@@ -87,26 +83,26 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         Log.v("FolderItemView", "  x:: y ;; " + ev.getX() + "  " + ev.getY());
         return gestureDetector.onTouchEvent(ev);
     }
-
-    void performClick(View view) {
-        // Log.v("FolderItemView ", " Click");
-        ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(folderId);
-        container.setVisibility(View.GONE);
-        blur_relative.setVisibility(View.VISIBLE);
-
-        Blurry.with(context)
-                .radius(25)
-                .sampling(1)
-                .color(Color.argb(66, 255, 255, 255))
-                .async()
-                .capture(launcherApplication.desktopFragment.findViewById(R.id.scrollView))
-                .into(blur_relative);
-
-        AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
-        appGridView.setNumColumns(3);
-        FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.pop_up_grid, appGridView);
-        appGridView.setAdapter(adapter);
-    }
+//
+//    void performClick(View view) {
+//        // Log.v("FolderItemView ", " Click");
+//        ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
+//        container.setVisibility(View.GONE);
+//        blur_relative.setVisibility(View.VISIBLE);
+//
+//        Blurry.with(context)
+//                .radius(25)
+//                .sampling(1)
+//                .color(Color.argb(66, 255, 255, 255))
+//                .async()
+//                .capture(launcherApplication.desktopFragment.findViewById(R.id.scrollView))
+//                .into(blur_relative);
+//
+//        AppGridView appGridView = (AppGridView) blur_relative.findViewById(R.id.folder_gridView);
+//        appGridView.setNumColumns(3);
+//        FolderGridAdapter adapter = new FolderGridAdapter(itemInfoModels, context, R.layout.app_item_view, appGridView);
+//        appGridView.setAdapter(adapter);
+//    }
 
 
     private ArrayList setFolderImagesList() {
@@ -126,12 +122,12 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
 
         try {
             ArrayList<ImageView> folderImgs = setFolderImagesList();
-            ArrayList<ItemInfoModel> itemInfoModels = db.getAppsListOfFolder(folderId);
+            ArrayList<ItemInfo> itemInfoModels = db.getAppsListOfFolder(folderId);
 
             for (int i = 0; i < folderImgs.size(); i++) {
                 if (i < itemInfoModels.size()) {
                     folderImgs.get(i).setBackground(null);
-                    folderImgs.get(i).setImageBitmap(ItemInfoModel.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
+                   // folderImgs.get(i).setImageBitmap(ItemInfo.getIconFromCursor(itemInfoModels.get(i).getIcon(), context));
                     folderImgs.get(i).setVisibility(View.VISIBLE);
                 } else {
                     folderImgs.get(i).setBackground(ContextCompat.getDrawable(context, R.drawable.folder_empty_icon));
@@ -141,6 +137,8 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
             e.printStackTrace();
         }
     }
+
+
 
     public Bitmap getBitmapFolderView() {
         try {
@@ -171,6 +169,41 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         this.updateFoldersFragment();
     }
 
+    @Override
+    public boolean supportsFlingToDelete() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsAppInfoDropTarget() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsDeleteDropTarget() {
+        return false;
+    }
+
+    @Override
+    public float getIntrinsicIconScaleFactor() {
+        return 0;
+    }
+
+    @Override
+    public void onFlingToDeleteCompleted() {
+
+    }
+
+    @Override
+    public void onDropCompleted(View target, DropTarget.DragObject d, boolean isFlingToDelete, boolean success) {
+
+    }
+
+    public ArrayList<View> getItemsInReadingOrder() {
+        ArrayList<View> appList = new ArrayList<>();
+        return appList;
+    }
+
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         FolderItemView folderItemView;
@@ -181,9 +214,8 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         @Override
         public void onLongPress(MotionEvent e) {
             //  Log.v("FolderItemView ", " on long press : ");
-            launcherApplication.dragInfo = (ItemInfoModel) folderItemView.getTag();
-            launcherApplication.dragInfo.setDropExternal(false);
-            launcherApplication.dragAnimation(folderItemView, new Point((int) e.getX(), (int) e.getY()));
+            launcherApplication.dragInfo = (ItemInfo) folderItemView.getTag();
+           // launcherApplication.dragAnimation(folderItemView, new Point((int) e.getX(), (int) e.getY()));
             super.onLongPress(e);
         }
 
@@ -203,7 +235,7 @@ public class FolderItemView extends LinearLayout implements View.OnTouchListener
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             // Log.v("FolderItemView ", " onSingleTapUp: ");
-            performClick(folderItemView);
+            //performClick(folderItemView);
             return super.onSingleTapUp(e);
         }
 

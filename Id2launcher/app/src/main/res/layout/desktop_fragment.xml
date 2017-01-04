@@ -1,27 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_layout"
+<id2.id2me.com.id2launcher.Container xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/blur_relative"
-        layout="@layout/popup_view"
+    <id2.id2me.com.id2launcher.ObservableScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:background="@color/home_screen_color">
 
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <id2.id2me.com.id2launcher.WallpaperContainer
+                android:id="@+id/wallpaper_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/wallpaper_height">
+
+
+                <ImageView
+                    android:id="@+id/wallpaper_img"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/wallpaper_height"
+                    android:background="@mipmap/wallpaper"
+                    android:scaleType="centerCrop" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/wallpaper_height" />
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/noti_widget"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="20dp"
+                    android:background="@android:color/transparent"
+                    android:scrollbars="none"
+                    android:visibility="visible" />
+            </id2.id2me.com.id2launcher.WallpaperContainer>
+
+            <id2.id2me.com.id2launcher.WorkSpace
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/container">
+
+            </id2.id2me.com.id2launcher.WorkSpace>
+
+        </LinearLayout>
+
+
+    </id2.id2me.com.id2launcher.ObservableScrollView>
 
     <LinearLayout
         android:id="@+id/drop_target_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/drop_target_height"
+        android:layout_gravity="top"
         android:layout_marginTop="@dimen/drop_target_margin"
         android:background="@color/overlay"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         android:weightSum="2">
 
         <RelativeLayout
@@ -53,67 +98,5 @@
     </LinearLayout>
 
 
-    <id2.id2me.com.id2launcher.ObservableScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/home_screen_color"
-        android:layout_below="@id/drop_target_layout">
-
-        <id2.id2me.com.id2launcher.DragLayer
-            android:id="@+id/drag_layer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-
-            <LinearLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:background="@android:color/holo_red_dark"
-                    android:id="@+id/wallpaper_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/wallpaper_height">
-
-
-                    <ImageView
-                        android:id="@+id/wallpaper_img"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/wallpaper_height"
-                        android:background="@mipmap/wallpaper"
-                        android:scaleType="centerCrop" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/wallpaper_height" />
-
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/noti_widget"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="20dp"
-                        android:background="@android:color/transparent"
-                        android:scrollbars="none"
-                        android:visibility="visible" />
-
-                </RelativeLayout>
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/drag_outline_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
-
-        </id2.id2me.com.id2launcher.DragLayer>
-
-    </id2.id2me.com.id2launcher.ObservableScrollView>
-
-
-</RelativeLayout>
+</id2.id2me.com.id2launcher.Container>
 

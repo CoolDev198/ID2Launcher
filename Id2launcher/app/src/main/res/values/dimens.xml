@@ -2,8 +2,13 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">20dp</dimen>
+
     <dimen name="cell_height">100dp</dimen>
-    <dimen name="cell_width">120dp</dimen>
+    <dimen name="cell_width">90dp</dimen>
+    <dimen name="cell_layout_padding_left">4dp</dimen>
+
+    <dimen name="workspace_max_gap">16dp</dimen>
+
     <dimen name="indicator_y_diff">258dip</dimen>
     <dimen name="indicator_x_diff">72dip</dimen>
     <dimen name="drop_target_bar_height">40dp</dimen>
@@ -44,7 +49,65 @@
     <dimen name="drop_target_margin">25dp</dimen>
 
 
+    <dimen name="app_icon_padding_top">8dp</dimen>
+
     <dimen name="wallpaper_height_after_anim">240dp</dimen>
 
+
+
+    <!-- Dragging -->
+    <!-- the area at the edge of the screen that makes the workspace go left
+         or right while you're dragging. -->
+    <dimen name="scroll_zone">20dp</dimen>
+
+    <!-- When dragging items on the workspace, the number of dps by which the position of
+     the drag view should be offset from the position of the original view. -->
+    <dimen name="dragViewOffsetX">0dp</dimen>
+    <dimen name="dragViewOffsetY">0dp</dimen>
+    <!--  When dragging an item, how much bigger (fixed dps) the dragged view
+          should be. If 0, it will not be scaled at all. -->
+    <dimen name="dragViewScale">12dp</dimen>
+
+    <!-- Folders -->
+    <!-- The size of the image which sits behind the preview of the folder contents -->
+    <dimen name="folder_preview_size">62dp</dimen>
+    <!-- The amount that the preview contents are inset from the preview background -->
+    <dimen name="folder_preview_padding">4dp</dimen>
+
+    <!-- Padding applied to shortcut previews -->
+    <dimen name="shortcut_preview_padding_left">0dp</dimen>
+    <dimen name="shortcut_preview_padding_right">0dp</dimen>
+    <dimen name="shortcut_preview_padding_top">0dp</dimen>
+
+    <!-- CellLayout padding -->
+    <dimen name="cell_layout_left_padding_port">0dp</dimen>
+    <dimen name="cell_layout_left_padding_land">0dp</dimen>
+    <dimen name="cell_layout_right_padding_port">0dp</dimen>
+    <dimen name="cell_layout_right_padding_land">0dp</dimen>
+    <dimen name="cell_layout_top_padding_port">6dp</dimen>
+    <dimen name="cell_layout_top_padding_land">0dp</dimen>
+    <dimen name="cell_layout_bottom_padding_port">0dp</dimen>
+    <dimen name="cell_layout_bottom_padding_land">0dp</dimen>
+
+    <!-- Workspace padding -->
+    <dimen name="workspace_left_padding_port">0dp</dimen>
+    <dimen name="workspace_left_padding_land">0dp</dimen>
+    <dimen name="workspace_right_padding_port">0dp</dimen>
+    <dimen name="workspace_right_padding_land">0dp</dimen>
+    <dimen name="workspace_top_padding_port">0dp</dimen>
+    <dimen name="workspace_top_padding_land">0dp</dimen>
+    <dimen name="workspace_bottom_padding_port">0dp</dimen>
+    <dimen name="workspace_bottom_padding_land">0dp</dimen>
+
+
+    <!-- Workspace cell size -->
+    <dimen name="workspace_cell_width_land">106dp</dimen>
+    <dimen name="workspace_cell_width_port">80dp</dimen>
+    <dimen name="workspace_cell_height_land">74dp</dimen>
+    <dimen name="workspace_cell_height_port">100dp</dimen>
+    <dimen name="workspace_width_gap_land">0dp</dimen>
+    <dimen name="workspace_width_gap_port">0dp</dimen>
+    <dimen name="workspace_height_gap_land">0dp</dimen>
+    <dimen name="workspace_height_gap_port">0dp</dimen>
 
 </resources>

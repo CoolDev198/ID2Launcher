@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     >
 
-    <id2.id2me.com.id2launcher.AppGridView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/folder_gridView"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
@@ -13,7 +13,7 @@
         android:layout_height="300dp"
         android:layout_centerInParent="true"
         android:background="@drawable/round_white_border">
-    </id2.id2me.com.id2launcher.AppGridView>
+    </android.support.v7.widget.RecyclerView>
 
 
 </RelativeLayout>

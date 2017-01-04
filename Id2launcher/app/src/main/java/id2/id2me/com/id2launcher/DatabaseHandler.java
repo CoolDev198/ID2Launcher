@@ -6,13 +6,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import id2.id2me.com.id2launcher.models.ItemInfoModel;
-import id2.id2me.com.id2launcher.models.NotificationWidgetModel;
+import id2.id2me.com.id2launcher.models.ItemInfo;
+import id2.id2me.com.id2launcher.models.NotificationWidgetInfo;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -47,7 +46,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_ICON_TYPE = "iconType";
     private static final String COLUMN_INTENT = "intent";
     private static final String COLUMN_CONTAINER = "container";
-    public static ArrayList<ItemInfoModel> itemInfosList;
+    public static ArrayList<ItemInfo> itemInfosList;
     static DatabaseHandler sInstance;
     int maxID = -1;
     Context context;
@@ -185,9 +184,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void addOrMoveItemInfo(ItemInfoModel itemInfo) {
+    public void addOrMoveItemInfo(ItemInfo itemInfo) {
         try {
-            if (itemInfo.getId() == ItemInfoModel.NO_ID) {
+            if (itemInfo.getId() == ItemInfo.NO_ID) {
                 addItemInfoToDataBase(itemInfo);
             } else {
                 modifyItemInfo(itemInfo);
@@ -197,11 +196,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void moveItemInfo(ItemInfoModel itemInfo) {
+    public void moveItemInfo(ItemInfo itemInfo) {
 
     }
 
-    public void modifyItemInfo(ItemInfoModel itemInfo) {
+    public void modifyItemInfo(ItemInfo itemInfo) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -223,7 +222,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
-    public ArrayList<ItemInfoModel> getItemsInfo() {
+    public ArrayList<ItemInfo> getItemsInfo() {
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = null;
@@ -234,9 +233,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             while (res.isAfterLast() == false) {
 
-                ItemInfoModel itemInfo = new ItemInfoModel();
-                itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
-                itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
+                ItemInfo itemInfo = new ItemInfo();
+                //itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
+               // itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
                 itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
                 itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
                 itemInfo.setScreen(res.getInt(res.getColumnIndex(COLUMN_SCREEN)));
@@ -253,7 +252,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return itemInfosList;
     }
 
-    public void addItemInfoToDataBase(ItemInfoModel itemInfo) {
+    public void addItemInfoToDataBase(ItemInfo itemInfo) {
         initializeMaxId();
         try {
             maxID++;
@@ -270,15 +269,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_CONTAINER, itemInfo.getContainer());
             values.put(COLUMN_CELLX, itemInfo.getCellX());
             values.put(COLUMN_CELLY, itemInfo.getCellY());
-            values.put(COLUMN_ICON, itemInfo.getIcon());
-            values.put(COLUMN_INTENT, itemInfo.getIntent());
+            //values.put(COLUMN_ICON, itemInfo.getIcon());
+            //values.put(COLUMN_INTENT, itemInfo.getIntent());
             values.put(COLUMN_SPANX, itemInfo.getSpanX());
             values.put(COLUMN_SPANY, itemInfo.getSpanY());
-            values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
-            values.put(COLUMN_TITLE, itemInfo.getTitle());
+            //values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
+            //values.put(COLUMN_TITLE, itemInfo.getTitle());
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
-            values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
-            values.put(COLUMN_PNAME, itemInfo.getPname());
+            //values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
+            //values.put(COLUMN_PNAME, itemInfo.getPname());
             values.put(COLUMN_SCREEN,itemInfo.getScreen());
             db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
@@ -297,7 +296,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     public void getNotificationData() {
-        ArrayList<NotificationWidgetModel> notificationWidgetModels = null;
+        ArrayList<NotificationWidgetInfo> notificationWidgetModels = null;
         Cursor cursor = null;
         SQLiteDatabase db = null;
         try {
@@ -310,7 +309,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor = db.query(TABLE_NOTI_WIDGET, null, COLUMN_NOTI_COUNT + ">?", new String[]{"0"}, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                NotificationWidgetModel notificationWidgetModel = new NotificationWidgetModel();
+                NotificationWidgetInfo notificationWidgetModel = new NotificationWidgetInfo();
                 notificationWidgetModel.setPname(cursor.getString(0));
                 notificationWidgetModel.setAppName(cursor.getString(1));
                 notificationWidgetModel.setCount(cursor.getInt(2));
@@ -323,11 +322,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         } finally {
             cursor.close();
         }
-        LauncherApplication.notificationWidgetModels = notificationWidgetModels;
+       // LauncherApplication.notificationWidgetModels = notificationWidgetModels;
     }
 
-    public ArrayList<ItemInfoModel> getAppsListOfFolder(long id) {
-        ArrayList<ItemInfoModel> itemInfoModels = null;
+    public ArrayList<ItemInfo> getAppsListOfFolder(long id) {
+        ArrayList<ItemInfo> itemInfoModels = null;
         Cursor res = null;
         SQLiteDatabase db = null;
         try {
@@ -340,9 +339,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             res = db.query(TABLE_ITEMS, null, COLUMN_CONTAINER + "=?", new String[]{id + ""}, null, null, null);
             res.moveToFirst();
             while (!res.isAfterLast()) {
-                ItemInfoModel itemInfo = new ItemInfoModel();
-                itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
-                itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
+                ItemInfo itemInfo = new ItemInfo();
+                //itemInfo.setPname(res.getString((res.getColumnIndex(COLUMN_PNAME))));
+                //itemInfo.setIcon(res.getBlob(res.getColumnIndex(COLUMN_ICON)));
                 itemInfo.setCellY(res.getInt(res.getColumnIndex(COLUMN_CELLY)));
                 itemInfo.setCellX(res.getInt(res.getColumnIndex(COLUMN_CELLX)));
                 itemInfo.setContainer(res.getInt(res.getColumnIndex(COLUMN_CONTAINER)));
@@ -357,7 +356,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return itemInfoModels;
     }
 
-    public long addFolderToDatabase(ItemInfoModel itemInfo) {
+    public long addFolderToDatabase(ItemInfo itemInfo) {
         initializeMaxId();
         try {
             maxID++;
@@ -374,15 +373,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(COLUMN_CONTAINER, itemInfo.getContainer());
             values.put(COLUMN_CELLX, itemInfo.getCellX());
             values.put(COLUMN_CELLY, itemInfo.getCellY());
-            values.put(COLUMN_ICON, itemInfo.getIcon());
-            values.put(COLUMN_INTENT, itemInfo.getIntent());
+           // values.put(COLUMN_ICON, itemInfo.getIcon());
+            //values.put(COLUMN_INTENT, itemInfo.getIntent());
             values.put(COLUMN_SPANX, itemInfo.getSpanX());
             values.put(COLUMN_SPANY, itemInfo.getSpanY());
-            values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
-            values.put(COLUMN_TITLE, itemInfo.getTitle());
+           // values.put(COLUMN_APPWIDGET_ID, itemInfo.getAppWidgetId());
+           // values.put(COLUMN_TITLE, itemInfo.getTitle());
             values.put(COLUMN_ITEM_TYPE, itemInfo.getItemType());
-            values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
-            values.put(COLUMN_PNAME, itemInfo.getPname());
+           // values.put(COLUMN_ICON_TYPE, itemInfo.getIconType());
+           // values.put(COLUMN_PNAME, itemInfo.getPname());
             values.put(COLUMN_SCREEN,itemInfo.getScreen());
             db.insert(TABLE_ITEMS, null, values);
             db.setTransactionSuccessful();
@@ -394,18 +393,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return itemInfo.getId();
     }
 
-    ItemInfoModel createFolderInfo(ItemInfoModel dragInfo) {
-        ItemInfoModel itemInfoModel = new ItemInfoModel();
+    ItemInfo createFolderInfo(ItemInfo dragInfo) {
+        ItemInfo itemInfoModel = new ItemInfo();
         itemInfoModel.setCellX(dragInfo.getCellX());
         itemInfoModel.setCellY(dragInfo.getCellY());
-        itemInfoModel.setTempCellX(dragInfo.getCellX());
-        itemInfoModel.setTempCellY(dragInfo.getCellY());
+       // itemInfoModel.setTempCellX(dragInfo.getCellX());
+        //itemInfoModel.setTempCellY(dragInfo.getCellY());
         itemInfoModel.setSpanX(dragInfo.getSpanX());
         itemInfoModel.setSpanY(dragInfo.getSpanY());
         itemInfoModel.setItemType(DatabaseHandler.ITEM_TYPE_FOLDER);
         itemInfoModel.setTitle("");
         itemInfoModel.setContainer(DatabaseHandler.CONTAINER_DESKTOP);
-        itemInfoModel.setIcon(ItemInfoModel.writeBitmap(AllAppsList.createIconBitmap(ContextCompat.getDrawable(context, R.mipmap.folder_icon), context)));
+        //itemInfoModel.setIcon(ItemInfo.writeBitmap(AllAppsList.createIconBitmap(ContextCompat.getDrawable(context, R.mipmap.folder_icon), context)));
         return itemInfoModel;
     }
 }
