@@ -782,8 +782,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 cell.setVisibility(VISIBLE);
             }
             parent.onDropChild(cell);
+            removeExtraEmptyScreen();
+
         }
-        removeExtraEmptyScreen();
+
     }
 
     /**
@@ -1027,6 +1029,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         if (child instanceof DropTarget) {
             launcher.getDragController().addDropTarget((DropTarget) child);
         }
+
+        removeExtraEmptyScreen();
     }
 
     boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
