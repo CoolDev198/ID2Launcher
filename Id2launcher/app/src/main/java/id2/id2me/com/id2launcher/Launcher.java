@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -71,6 +72,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
+    private RemoveUnistallDropTargetBar mRemoveUnistallDropTargetBar;
 
     private static class PendingAddArguments {
         int requestCode;
@@ -171,6 +173,9 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         dragLayer = (DragLayer) findViewById(R.id.drag_layer);
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
+
+        // Get the delete bar
+        mRemoveUnistallDropTargetBar = (RemoveUnistallDropTargetBar) findViewById(R.id.drop_target_bar);
 
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
