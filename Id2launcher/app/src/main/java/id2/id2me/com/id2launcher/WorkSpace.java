@@ -762,8 +762,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 cell.setVisibility(VISIBLE);
             }
             parent.onDropChild(cell);
-            removeExtraEmptyScreen();
-
         }
 
     }
