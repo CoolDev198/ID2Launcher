@@ -7,6 +7,8 @@ import android.support.v4.view.ViewPager;
 
 import java.util.List;
 
+import id2.id2me.com.id2launcher.fragments.FolderFragment;
+
 /**
  * Created by bliss76 on 26/05/16.
  */

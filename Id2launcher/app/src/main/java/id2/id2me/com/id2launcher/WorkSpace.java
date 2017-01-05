@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
-import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
+import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
+import id2.id2me.com.id2launcher.models.PendingAddShortcutInfo;
+import id2.id2me.com.id2launcher.models.PendingAddWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import timber.log.Timber;
 

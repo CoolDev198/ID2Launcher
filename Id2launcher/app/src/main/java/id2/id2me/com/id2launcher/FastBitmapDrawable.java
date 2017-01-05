@@ -25,7 +25,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-class FastBitmapDrawable extends Drawable {
+public class FastBitmapDrawable extends Drawable {
     private Bitmap mBitmap;
     private int mAlpha;
     private int mWidth;
