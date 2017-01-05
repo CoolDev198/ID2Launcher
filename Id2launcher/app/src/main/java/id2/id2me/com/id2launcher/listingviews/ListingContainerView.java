@@ -156,8 +156,8 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         // Save the preview for the outline generation, then dim the preview
         outline = Bitmap.createScaledBitmap(preview, preview.getWidth(), preview.getHeight(),
                 false);
-        launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(itemInfo, outline, clipAlpha);
-        launcherApplication.getLauncher().getWokSpace().beginDragWidget(image, preview, this, itemInfo, scale);
+
+        launcherApplication.getLauncher().getWokSpace().beginDragWidget(itemInfo, outline, clipAlpha, image, preview, this, itemInfo, scale);
 
     }
 

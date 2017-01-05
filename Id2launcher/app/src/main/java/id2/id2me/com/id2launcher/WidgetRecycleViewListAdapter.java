@@ -54,7 +54,6 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
     private ArrayList<Object> shortcutList = new ArrayList<>();
     PackageManager mPackageManager;
     private int mAppIconSize;
-    //private HashMap<String, Bitmap> mHashMapBitmap;
 
     private final float sWidgetPreviewIconPaddingPercentage = 0.25f;
     // Caching
@@ -476,18 +475,5 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
             return new Rect();
         }
     }
-
-    public int[] getPreviewSize() {
-        LayoutInflater vi =
-                (LayoutInflater) launcherApplication.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = vi.inflate(R.layout.customized_widget_item, null);
-        final ImageView i = (ImageView) v.findViewById(R.id.widget_preview);
-        int[] maxSize = new int[2];
-        maxSize[0] = i.getWidth() - mOriginalImagePadding.left - mOriginalImagePadding.right;
-        maxSize[1] = i.getHeight() - mOriginalImagePadding.top;
-        return maxSize;
-    }
-
-
 }
 
