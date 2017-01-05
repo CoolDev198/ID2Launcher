@@ -58,6 +58,10 @@
 
     </id2.id2me.com.id2launcher.ObservableScrollView>
 
+    <include
+        android:id="@+id/drop_target_bar"
+        layout="@layout/drop_target_bar"/>
+
     <LinearLayout
         android:id="@+id/drop_target_layout"
         android:layout_width="match_parent"
@@ -66,7 +70,7 @@
         android:layout_marginTop="@dimen/drop_target_margin"
         android:background="@color/overlay"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         android:weightSum="2">
 
         <RelativeLayout
