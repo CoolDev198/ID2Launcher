@@ -72,7 +72,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
-    private RemoveUnistallDropTargetBar mRemoveUnistallDropTargetBar;
 
     private static class PendingAddArguments {
         int requestCode;
@@ -174,8 +173,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
 
-        // Get the delete bar
-        mRemoveUnistallDropTargetBar = (RemoveUnistallDropTargetBar) findViewById(R.id.drop_target_bar);
 
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
