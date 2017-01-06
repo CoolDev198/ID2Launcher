@@ -27,11 +27,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.fragments.DesktopFragment;
+import id2.id2me.com.id2launcher.fragments.DrawerFragment;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
+import id2.id2me.com.id2launcher.models.PendingAddWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 import timber.log.Timber;

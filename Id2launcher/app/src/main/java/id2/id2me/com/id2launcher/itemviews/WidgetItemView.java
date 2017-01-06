@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.itemviews;
 
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import id2.id2me.com.id2launcher.FastBitmapDrawable;
+import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.LauncherModel;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.itemviews.WidgetImageView;

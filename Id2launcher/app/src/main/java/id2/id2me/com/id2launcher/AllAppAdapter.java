@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 
 /**
@@ -49,9 +50,7 @@ public class AllAppAdapter extends RecyclerView.Adapter<AllAppAdapter.MyViewHold
 
     @Override
     public String getTextToShowInBubble(int pos) {
-
         return symbols.get(pos);
-
     }
 
 
