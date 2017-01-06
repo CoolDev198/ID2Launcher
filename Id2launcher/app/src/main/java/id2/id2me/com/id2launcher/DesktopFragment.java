@@ -52,6 +52,7 @@ public class DesktopFragment extends Fragment  {
         }
     };
     private LinearLayout container;
+    private RemoveUnistallDropTargetBar mRemoveUnistallDropTargetBar;
 
     public static DesktopFragment newInstance(DragController _dragController) {
         DesktopFragment f = new DesktopFragment();
@@ -83,6 +84,7 @@ public class DesktopFragment extends Fragment  {
             launcher = (Launcher) getActivity();
             dragController.addDropTarget(workSpace);
             dragController.addDropTarget(wallpaperContainer);
+
             launcher.setWokSpace(workSpace);
             launcher.setScrollView((ObservableScrollView) fragmentView.findViewById(R.id.scrollView));
             db = DatabaseHandler.getInstance(context);
@@ -129,6 +131,14 @@ public class DesktopFragment extends Fragment  {
 
             }
         });
+
+        // Get the delete bar
+        mRemoveUnistallDropTargetBar = (RemoveUnistallDropTargetBar) fragmentView.findViewById(R.id.drop_target_bar);
+        if (mRemoveUnistallDropTargetBar != null) {
+            mRemoveUnistallDropTargetBar.setup(launcher, dragController);
+
+
+        }
 
         addDefaultScreens();
 
