@@ -58,45 +58,7 @@
 
     </id2.id2me.com.id2launcher.ObservableScrollView>
 
-    <LinearLayout
-        android:id="@+id/drop_target_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/drop_target_height"
-        android:layout_gravity="top"
-        android:layout_marginTop="@dimen/drop_target_margin"
-        android:background="@color/overlay"
-        android:orientation="horizontal"
-        android:visibility="visible"
-        android:weightSum="2">
-
-        <RelativeLayout
-            android:id="@+id/layout_remove"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@mipmap/ic_launcher_clear_normal_holo" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/layout_uninstall"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@mipmap/ic_launcher_trashcan_normal_holo" />
-        </RelativeLayout>
-
-    </LinearLayout>
-
+    <include layout="@layout/drop_target_bar"/>
 
 </id2.id2me.com.id2launcher.Container>
 

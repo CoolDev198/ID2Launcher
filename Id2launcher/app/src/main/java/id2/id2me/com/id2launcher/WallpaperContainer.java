@@ -6,11 +6,13 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
+import timber.log.Timber;
+
 /**
  * Created by sunita on 12/21/16.
  */
 
-public class WallpaperContainer extends RelativeLayout implements DropTarget {
+public class WallpaperContainer extends RelativeLayout implements DropTarget  {
     Launcher mLauncher;
 
     public WallpaperContainer(Context context) {
@@ -42,7 +44,11 @@ public class WallpaperContainer extends RelativeLayout implements DropTarget {
 
     @Override
     public void onDrop(DragObject dragObject) {
-
+        if(dragObject.dragSource instanceof  WorkSpace){
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
+            launcherApplication.getLauncher().getWokSpace().onDrop(dragObject);
+        }
+        Timber.v(" on Drop");
     }
 
     @Override
