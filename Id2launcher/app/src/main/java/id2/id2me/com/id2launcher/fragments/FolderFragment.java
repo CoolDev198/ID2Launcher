@@ -35,20 +35,12 @@ public class FolderFragment extends Fragment {
         return f;
     }
 
-    public FolderGridAdapter getAdapter() {
-        return adapter;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         try {
             fragmentView = inflater.inflate(R.layout.popup_view, container, false);
-            folderId = getArguments().getLong(FolderId);
-            RecyclerView appGridView = (RecyclerView) fragmentView.findViewById(R.id.folder_gridView);
-         //   setColumnWidth(appGridView);
-           // setNoOfColumnsOfGrid(appGridView);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,16 +54,6 @@ public class FolderFragment extends Fragment {
          // updateView();
       //  }
     }
-
-//    void updateView(){
-//        AppGridView appGridView = (AppGridView) fragmentView.findViewById(R.id.folder_gridView);
-//        itemInfoModels = db.getAppsListOfFolder(folderId);
-//        if (itemInfoModels != null) {
-//            adapter = new FolderGridAdapter(itemInfoModels, getActivity(), R.layout.folder_grid, appGridView);
-//        }
-//
-//        appGridView.setAdapter(adapter);
-//    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -85,12 +67,4 @@ public class FolderFragment extends Fragment {
 
     }
 
-    void setColumnWidth(GridView gridView) {
-        int width = (int) (gridView.getWidth() / NO_OF_APPS_IN_ROW) - 30;
-        gridView.setColumnWidth(width);
-    }
-
-    void setNoOfColumnsOfGrid(GridView gridView) {
-        gridView.setNumColumns(NO_OF_APPS_IN_ROW);
-    }
-}
+   }

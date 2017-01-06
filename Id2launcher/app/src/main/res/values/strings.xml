@@ -9,6 +9,8 @@
     <!-- Label for trash icon  will become completely unavailable on the
          device. [CHAR_LIMIT=30]-->
     <string name="uninstall_zone_label">Uninstall</string>
+    <!-- Label for the info icon. [CHAR_LIMIT=30] -->
+    <string name="info_target_label">App info</string>
 
     <!-- The format string for the dimensions of a widget in the drawer -->
     <string name="widget_dims_format" translatable="false">%1$d x %2$d</string>

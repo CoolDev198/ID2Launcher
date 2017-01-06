@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -75,6 +76,15 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
+    private FrameLayout dropTargetBar;
+
+    public void setDropTargetBar(FrameLayout dropTargetBar) {
+        this.dropTargetBar = dropTargetBar;
+    }
+
+    public FrameLayout getDropTargetBar() {
+        return dropTargetBar;
+    }
 
     private static class PendingAddArguments {
         int requestCode;
@@ -174,6 +184,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         dragLayer = (DragLayer) findViewById(R.id.drag_layer);
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
+
 
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
@@ -462,6 +473,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
             } else {
                 if (!(itemUnderLongClick instanceof FolderItemView)) {
                     // User long pressed on an item
+                    dropTargetBar.setVisibility(View.VISIBLE);
                     wokSpace.startDrag(longClickCellInfo);
                 }
             }
@@ -482,7 +494,6 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
         this.wokSpace.setOnLongClickListener(this);
-        dragController.addDropTarget(wokSpace);
         dragController.addDragListener(wokSpace);
     }
 

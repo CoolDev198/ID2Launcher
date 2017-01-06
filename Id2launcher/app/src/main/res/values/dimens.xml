@@ -110,4 +110,7 @@
     <dimen name="workspace_height_gap_land">0dp</dimen>
     <dimen name="workspace_height_gap_port">0dp</dimen>
 
+    <!-- Drag padding to add to the bottom of drop targets -->
+    <dimen name="drop_target_drag_padding">14dp</dimen>
+
 </resources>

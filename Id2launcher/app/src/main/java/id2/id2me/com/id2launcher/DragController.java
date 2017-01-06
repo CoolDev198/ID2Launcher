@@ -303,9 +303,9 @@ public class DragController {
 
             // Only end the drag if we are not deferred
 //            if (!isDeferred) {
-//                for (DragListener listener : mListeners) {
-//                    listener.onDragEnd();
-//                }
+                for (DragListener listener : mListeners) {
+                    listener.onDragEnd();
+                }
 //            }
         }
 
@@ -607,7 +607,7 @@ public class DragController {
         mDragObject.x = (int) coordinates[0];
         mDragObject.y = (int) coordinates[1];
         boolean accepted = false;
-        mLauncher.getWokSpace().onDrop(mDragObject);
+        dropTarget.onDrop(mDragObject);
         if (dropTarget != null) {
             mDragObject.dragComplete = true;
             dropTarget.onDragExit(mDragObject);
@@ -625,14 +625,20 @@ public class DragController {
         final ArrayList<DropTarget> dropTargets = mDropTargets;
         final int count = dropTargets.size();
         for (int i = count - 1; i >= 0; i--) {
+            //for (int i = 0; i < count; i++) {
             DropTarget target = dropTargets.get(i);
             if (!target.isDropEnabled())
                 continue;
             target.getCustomHitRect(outR);
 
-            if (outR.contains(x, y)) {
-                Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
+            Timber.v("Custom rect target X : " + x + " Y : " + y +
+                    " L : " + outR.left + " R : " + outR.right + " T : " + outR.top + " B :" + outR.bottom);
 
+            if (outR.contains(x, y)) {
+                if(target instanceof  ButtonDropTarget){
+                    Timber.v(" target :  delete drop target" );
+                }
+            //    Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
 //                // Make dropCoordinates relative to the DropTarget
                 dropCoordinates[0] = x ;
                 int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
