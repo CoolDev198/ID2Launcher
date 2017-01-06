@@ -1638,6 +1638,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     @Override
     public void onDragEnd() {
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        launcherApplication.getLauncher().getDropTargetBar().setVisibility(GONE);
     }
 
 

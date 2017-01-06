@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drop_target_bar"
     style="@style/DropTargetBar"
-    android:visibility="visible"
+    android:visibility="gone"
     >
 <LinearLayout
     android:layout_width="wrap_content"
@@ -11,7 +12,7 @@
         <id2.id2me.com.id2launcher.InfoDropTarget
             android:id="@+id/info_target_text"
             style="@style/DropTargetButton"
-            android:drawableLeft="@mipmap/ic_launcher_clear_normal_holo"
+            android:drawableLeft="@drawable/info_target_selector"
             android:text="@string/info_target_label"
             android:visibility="gone"
             />
@@ -19,7 +20,7 @@
         <id2.id2me.com.id2launcher.DeleteDropTarget
             android:id="@+id/remove_target_text"
             style="@style/DropTargetButton"
-            android:drawableLeft="@mipmap/ic_launcher_clear_normal_holo"
+            android:drawableLeft="@drawable/remove_target_selector"
             android:text="@string/remove_zone_label"
             />
 </LinearLayout>

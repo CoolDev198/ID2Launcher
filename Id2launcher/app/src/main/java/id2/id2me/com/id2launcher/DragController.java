@@ -303,9 +303,9 @@ public class DragController {
 
             // Only end the drag if we are not deferred
 //            if (!isDeferred) {
-//                for (DragListener listener : mListeners) {
-//                    listener.onDragEnd();
-//                }
+                for (DragListener listener : mListeners) {
+                    listener.onDragEnd();
+                }
 //            }
         }
 
@@ -607,7 +607,7 @@ public class DragController {
         mDragObject.x = (int) coordinates[0];
         mDragObject.y = (int) coordinates[1];
         boolean accepted = false;
-        mLauncher.getWokSpace().onDrop(mDragObject);
+        dropTarget.onDrop(mDragObject);
         if (dropTarget != null) {
             mDragObject.dragComplete = true;
             dropTarget.onDragExit(mDragObject);

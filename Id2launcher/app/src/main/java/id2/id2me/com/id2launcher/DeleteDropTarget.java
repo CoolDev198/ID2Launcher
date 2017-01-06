@@ -3,10 +3,12 @@ package id2.id2me.com.id2launcher;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +16,12 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
+import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
+import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
+import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 
 /**
@@ -26,9 +31,9 @@ import id2.id2me.com.id2launcher.models.ShortcutInfo;
 public class DeleteDropTarget extends ButtonDropTarget {
     private static int DELETE_ANIMATION_DURATION = 285;
     private ColorStateList mOriginalTextColor;
-    private Drawable mUninstallDrawable;
-    private Drawable mRemoveDrawable;
-    private Drawable mCurrentDrawable;
+    private TransitionDrawable mUninstallDrawable;
+    private TransitionDrawable mRemoveDrawable;
+    private TransitionDrawable mCurrentDrawable;
 
     public DeleteDropTarget(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -45,27 +50,27 @@ public class DeleteDropTarget extends ButtonDropTarget {
         // Get the drawable
         mOriginalTextColor = getTextColors();
 
-        // Get the hover color
-        Resources r = getResources();
-        mHoverColor = r.getColor(R.color.delete_target_hover_tint);
-        mUninstallDrawable =
-                r.getDrawable(R.drawable.uninstall_target_selector);
-        mRemoveDrawable =  r.getDrawable(R.drawable.remove_target_selector);
 
-        /*mRemoveDrawable.setCrossFadeEnabled(true);
-        mUninstallDrawable.setCrossFadeEnabled(true);*/
+        mHoverColor = ContextCompat.getColor(getContext(),R.color.delete_target_hover_tint);
+        mUninstallDrawable = (TransitionDrawable)
+                ContextCompat.getDrawable(getContext(),R.drawable.uninstall_target_selector);
+        mRemoveDrawable = (TransitionDrawable) ContextCompat.getDrawable(getContext(),R.drawable.remove_target_selector);
+
+        mRemoveDrawable.setCrossFadeEnabled(true);
+        mUninstallDrawable.setCrossFadeEnabled(true);
 
         // The current drawable is set to either the remove drawable or the uninstall drawable
         // and is initially set to the remove drawable, as set in the layout xml.
-        mCurrentDrawable = getCurrentDrawable();
+        mCurrentDrawable = (TransitionDrawable) getCurrentDrawable();
+
+
     }
 
     private boolean isAllAppsApplication(DragSource source, Object info) {
-        //return (source instanceof AppsCustomizePagedView) && (info instanceof ApplicationInfo);
-        return false;
+        return (source instanceof ListingContainerView) && (info instanceof ApplicationInfo);
     }
     private boolean isAllAppsWidget(DragSource source, Object info) {
-        /*if (source instanceof AppsCustomizePagedView) {
+        if (source instanceof ListingContainerView) {
             if (info instanceof PendingAddItemInfo) {
                 PendingAddItemInfo addInfo = (PendingAddItemInfo) info;
                 switch (addInfo.itemType) {
@@ -74,7 +79,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
                         return true;
                 }
             }
-        }*/
+        }
         return false;
     }
     private boolean isDragSourceWorkspaceOrFolder(DragObject d) {
@@ -92,11 +97,11 @@ public class DeleteDropTarget extends ButtonDropTarget {
     }
 
     private void setHoverColor() {
-        //mCurrentDrawable.startTransition(mTransitionDuration);
+        mCurrentDrawable.startTransition(mTransitionDuration);
         setTextColor(mHoverColor);
     }
     private void resetHoverColor() {
-        //mCurrentDrawable.resetTransition();
+        mCurrentDrawable.resetTransition();
         setTextColor(mOriginalTextColor);
     }
 
@@ -119,12 +124,12 @@ public class DeleteDropTarget extends ButtonDropTarget {
         // If we are dragging an application from AppsCustomize, only show the control if we can
         // delete the app (it was downloaded), and rename the string to "uninstall" in such a case
         if (isAllAppsApplication(source, info)) {
-           /* ApplicationInfo appInfo = (ApplicationInfo) info;
-            if ((appInfo.flags & ApplicationInfo.DOWNLOADED_FLAG) != 0) {
+            AppInfo appInfo = (AppInfo) info;
+            if ((appInfo.flags & AppInfo.DOWNLOADED_FLAG) != 0) {
                 isUninstall = true;
             } else {
                 isVisible = false;
-            }*/
+            }
             isVisible = false;
         }
 
@@ -166,6 +171,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
             // Restore the hover color if we are deleting
             dragObject.dragView.setColor(mHoverColor);
         }
+
     }
 
     @Override
@@ -196,21 +202,21 @@ public class DeleteDropTarget extends ButtonDropTarget {
 
     private void completeDrop(DragObject d) {
         ItemInfo item = (ItemInfo) d.dragInfo;
-        Toast.makeText(getContext(),"Remove Drop Target", Toast.LENGTH_SHORT).show();
-        /*if (isAllAppsApplication(d.dragSource, item)) {
+       // Toast.makeText(getContext(),"Remove Drop Target", Toast.LENGTH_SHORT).show();
+        if (isAllAppsApplication(d.dragSource, item)) {
             // Uninstall the application if it is being dragged from AppsCustomize
             //mLauncher.startApplicationUninstallActivity((ApplicationInfo) item);
         } else if (isWorkspaceOrFolderApplication(d)) {
-            LauncherModel.deleteItemFromDatabase(mLauncher, item);
+         //   LauncherModel.deleteItemFromDatabase(mLauncher, item);
         } else if (isWorkspaceFolder(d)) {
             // Remove the folder from the workspace and delete the contents from launcher model
-            *//*FolderInfo folderInfo = (FolderInfo) item;
-            mLauncher.removeFolder(folderInfo);
-            LauncherModel.deleteFolderContentsFromDatabase(mLauncher, folderInfo);*//*
+            FolderInfo folderInfo = (FolderInfo) item;
+          //  mLauncher.removeFolder(folderInfo);
+          //  LauncherModel.deleteFolderContentsFromDatabase(mLauncher, folderInfo);
         } else if (isWorkspaceOrFolderWidget(d)) {
             // Remove the widget from the workspace
-            *//*mLauncher.removeAppWidget((LauncherAppWidgetInfo) item);
-            LauncherModel.deleteItemFromDatabase(mLauncher, item);
+            //mLauncher.removeAppWidget((LauncherAppWidgetInfo) item);
+          //  LauncherModel.deleteItemFromDatabase(mLauncher, item);
 
             final LauncherAppWidgetInfo launcherAppWidgetInfo = (LauncherAppWidgetInfo) item;
             final LauncherAppWidgetHost appWidgetHost = mLauncher.getAppWidgetHost();
@@ -222,8 +228,8 @@ public class DeleteDropTarget extends ButtonDropTarget {
                         appWidgetHost.deleteAppWidgetId(launcherAppWidgetInfo.appWidgetId);
                     }
                 }.start();
-            }*//*
-        }*/
+            }
+        }
     }
 
 

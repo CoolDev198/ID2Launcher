@@ -76,6 +76,15 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
+    private FrameLayout dropTargetBar;
+
+    public void setDropTargetBar(FrameLayout dropTargetBar) {
+        this.dropTargetBar = dropTargetBar;
+    }
+
+    public FrameLayout getDropTargetBar() {
+        return dropTargetBar;
+    }
 
     private static class PendingAddArguments {
         int requestCode;
@@ -464,6 +473,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
             } else {
                 if (!(itemUnderLongClick instanceof FolderItemView)) {
                     // User long pressed on an item
+                    dropTargetBar.setVisibility(View.VISIBLE);
                     wokSpace.startDrag(longClickCellInfo);
                 }
             }

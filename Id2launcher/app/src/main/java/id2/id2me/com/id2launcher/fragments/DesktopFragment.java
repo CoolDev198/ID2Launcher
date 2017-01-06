@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -81,7 +82,7 @@ public class DesktopFragment extends Fragment  {
             WorkSpace workSpace =(WorkSpace)fragmentView.findViewById(R.id.container);
             WallpaperContainer wallpaperContainer =(WallpaperContainer) fragmentView.findViewById(R.id.wallpaper_layout);
             DeleteDropTarget deleteDropTarget = (DeleteDropTarget) fragmentView.findViewById(R.id.remove_target_text);
-
+            FrameLayout dropTargetBar = (FrameLayout)fragmentView.findViewById(R.id.drop_target_bar);
             launcher = (Launcher) getActivity();
 
             dragController.addDropTarget(workSpace);
@@ -89,6 +90,7 @@ public class DesktopFragment extends Fragment  {
             dragController.addDropTarget(deleteDropTarget);
 
             launcher.setWokSpace(workSpace);
+            launcher.setDropTargetBar(dropTargetBar);
             launcher.setScrollView((ObservableScrollView) fragmentView.findViewById(R.id.scrollView));
             db = DatabaseHandler.getInstance(context);
 
