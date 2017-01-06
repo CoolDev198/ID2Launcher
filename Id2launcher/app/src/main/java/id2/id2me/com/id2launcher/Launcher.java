@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.HapticFeedbackConstants;
@@ -36,7 +37,7 @@ import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 import timber.log.Timber;
 
-public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener,View.OnClickListener
+public class Launcher extends FragmentActivity implements LauncherModel.Callbacks,View.OnLongClickListener,View.OnClickListener
 {
     static final int APPWIDGET_HOST_ID = 1024;
     private static final int REQUEST_CREATE_SHORTCUT = 1;
@@ -97,7 +98,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
             mModel.startLoader(true, -1);
             setTranslucentStatus(true);
-            getSupportActionBar().hide();
             setContentView(R.layout.activity_launcher);
             init();
             //  openNotificationAccess();
