@@ -168,6 +168,7 @@ public class DragController {
     public void startDrag(Bitmap b, int dragLayerX, int dragLayerY,
                           DragSource source, Object dragInfo, int dragAction, Point dragOffset, Rect dragRegion,
                           float initialDragViewScale) {
+
         if (PROFILE_DRAWING_DURING_DRAG) {
             android.os.Debug.startMethodTracing("Launcher");
         }

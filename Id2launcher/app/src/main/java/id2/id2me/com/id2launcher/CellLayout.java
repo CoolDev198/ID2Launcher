@@ -209,6 +209,18 @@ public class CellLayout extends ViewGroup {
         return result;
     }
 
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+
+        // Cancel long press for all children
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            child.cancelLongPress();
+        }
+    }
+
     static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
                            int orientation) {
         int numWidthGaps = mCountX - 1;
