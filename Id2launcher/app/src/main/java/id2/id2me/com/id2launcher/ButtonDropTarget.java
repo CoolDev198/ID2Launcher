@@ -39,29 +39,17 @@ public class ButtonDropTarget extends TextView implements DropTarget, DragContro
         super(context, attrs, defStyleAttr);
         Resources r = getResources();
         mTransitionDuration = r.getInteger(R.integer.config_dropTargetBgTransitionDuration);
-        mBottomDragPadding = r.getDimensionPixelSize(R.dimen.drop_target_drag_padding);
-
-        //rectPoint.set(this.getWidth(),this.getHeight());
+        mBottomDragPadding = r.getDimensionPixelSize(R.dimen.drop_target_margin);
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        mLauncher=launcherApplication.getLauncher();
 
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        //mDeleteDropTarget = (ButtonDropTarget) findViewById(R.id.remove_target_text);
-        Timber.v("Drop target Rect X : " + this.getX() + " Y : " + this.getY());
-        Timber.v("Drop target Rect Width  W : " + this.getWidth() + " H : " + this.getHeight());
-        Timber.v("Drop target Rect Width  R : " + this.getRight() + " B : " + this.getBottom());
-
-        /*Timber.v("Drop target Rect Width  DR : " + mDeleteDropTarget.getRight() + " DB : " + mDeleteDropTarget.getBottom());
-        Timber.v("Drop target Rect DX : " + mDeleteDropTarget.getX() + " DY : " + mDeleteDropTarget.getY());
-        Timber.v("Drop target Rect Width  DW : " + mDeleteDropTarget.getWidth() + " DH : " + mDeleteDropTarget.getHeight());*/
-
     }
 
-    void setLauncher(Launcher launcher) {
-        mLauncher = launcher;
-    }
 
     @Override
     public void onDragStart(DragSource source, Object info, int dragAction) {
@@ -116,8 +104,10 @@ public class ButtonDropTarget extends TextView implements DropTarget, DragContro
     @Override
     public void getCustomHitRect(Rect outRect) {
         this.getHitRect(outRect);
-        //outRect.bottom += mBottomDragPadding;
-        //outRect.set(0, 0, rectPoint.x, rectPoint.y);
+        outRect.bottom=outRect.bottom+mBottomDragPadding;
+        int[] coords = new int[2];
+        mLauncher.getDragLayer().getDescendantCoordRelativeToSelf(this, coords);
+        outRect.offsetTo(coords[0], coords[1]);
     }
 
     @Override

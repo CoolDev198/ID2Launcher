@@ -978,9 +978,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             child.setHapticFeedbackEnabled(false);
             child.setOnLongClickListener(launcher);
         }
-        if (child instanceof DropTarget) {
-            launcher.getDragController().addDropTarget((DropTarget) child);
-        }
+//        if (child instanceof DropTarget) {
+//            launcher.getDragController().addDropTarget((DropTarget) child);
+//        }
 
     }
 

@@ -374,7 +374,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         pt[0] += descendant.getLeft();
         pt[1] += descendant.getTop();
         ViewParent viewParent = descendant.getParent();
-        while (viewParent instanceof View && viewParent != this) {
+        while (viewParent instanceof View && viewParent != this ) {
             final View view = (View)viewParent;
             view.getMatrix().mapPoints(pt);
             scale *= view.getScaleX();

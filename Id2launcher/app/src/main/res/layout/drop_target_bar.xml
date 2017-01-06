@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<id2.id2me.com.id2launcher.RemoveUnistallDropTargetBar xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/DropTargetBar"
-    android:visibility="visible">
-
-    <LinearLayout
-        style="@style/layout"
-        android:orientation="horizontal">
-
+    android:visibility="visible"
+    >
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="horizontal">
         <id2.id2me.com.id2launcher.InfoDropTarget
             android:id="@+id/info_target_text"
             style="@style/DropTargetButton"
             android:drawableLeft="@mipmap/ic_launcher_clear_normal_holo"
             android:text="@string/info_target_label"
-            android:visibility="gone" />
+            android:visibility="gone"
+            />
 
         <id2.id2me.com.id2launcher.DeleteDropTarget
             android:id="@+id/remove_target_text"
             style="@style/DropTargetButton"
             android:drawableLeft="@mipmap/ic_launcher_clear_normal_holo"
-            android:text="@string/remove_zone_label" />
-
-    </LinearLayout>
-
-</id2.id2me.com.id2launcher.RemoveUnistallDropTargetBar>
+            android:text="@string/remove_zone_label"
+            />
+</LinearLayout>
+</FrameLayout>

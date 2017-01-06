@@ -484,7 +484,6 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
         this.wokSpace.setOnLongClickListener(this);
-        dragController.addDropTarget(wokSpace);
         dragController.addDragListener(wokSpace);
     }
 

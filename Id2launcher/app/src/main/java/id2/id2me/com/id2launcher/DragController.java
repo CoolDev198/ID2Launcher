@@ -635,8 +635,10 @@ public class DragController {
                     " L : " + outR.left + " R : " + outR.right + " T : " + outR.top + " B :" + outR.bottom);
 
             if (outR.contains(x, y)) {
-                Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
-
+                if(target instanceof  ButtonDropTarget){
+                    Timber.v(" target :  delete drop target" );
+                }
+            //    Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
 //                // Make dropCoordinates relative to the DropTarget
                 dropCoordinates[0] = x ;
                 int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
