@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,6 +11,9 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.DatabaseHandler;
+import id2.id2me.com.id2launcher.FolderGridAdapter;
+import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 
 /**

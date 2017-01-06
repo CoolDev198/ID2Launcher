@@ -1,27 +1,29 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.fragments;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
-
-import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.CellLayout;
+import id2.id2me.com.id2launcher.DatabaseHandler;
+import id2.id2me.com.id2launcher.DragController;
+import id2.id2me.com.id2launcher.Launcher;
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.ObservableScrollView;
+import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.WallpaperContainer;
+import id2.id2me.com.id2launcher.WorkSpace;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
 import id2.id2me.com.id2launcher.wallpaperEditor.MainActivity;
 

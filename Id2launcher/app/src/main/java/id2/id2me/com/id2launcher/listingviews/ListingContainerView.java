@@ -1,4 +1,4 @@
-package id2.id2me.com.id2launcher;
+package id2.id2me.com.id2launcher.listingviews;
 
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
@@ -19,6 +19,17 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import id2.id2me.com.id2launcher.AppWidgetResizeFrame;
+import id2.id2me.com.id2launcher.DragLayer;
+import id2.id2me.com.id2launcher.DragSource;
+import id2.id2me.com.id2launcher.DropTarget;
+import id2.id2me.com.id2launcher.Launcher;
+import id2.id2me.com.id2launcher.LauncherApplication;
+import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
+import id2.id2me.com.id2launcher.models.PendingAddShortcutInfo;
+import id2.id2me.com.id2launcher.models.PendingAddWidgetInfo;
+import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.itemviews.WidgetItemView;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import timber.log.Timber;
@@ -145,8 +156,8 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         // Save the preview for the outline generation, then dim the preview
         outline = Bitmap.createScaledBitmap(preview, preview.getWidth(), preview.getHeight(),
                 false);
-        launcherApplication.getLauncher().getWokSpace().onDragStartedWithItem(itemInfo, outline, clipAlpha);
-        launcherApplication.getLauncher().getWokSpace().beginDragWidget(image, preview, this, itemInfo, scale);
+
+        launcherApplication.getLauncher().getWokSpace().beginDragWidget(itemInfo, outline, clipAlpha, image, preview, this, itemInfo, scale);
 
     }
 
