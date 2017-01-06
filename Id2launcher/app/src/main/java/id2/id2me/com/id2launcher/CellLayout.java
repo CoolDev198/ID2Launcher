@@ -2111,6 +2111,8 @@ public class CellLayout extends ViewGroup {
         // long-press we'd end up picking up an item from a previous drag operation.
         final int action = event.getAction();
 
+
+
         if (action == MotionEvent.ACTION_DOWN) {
             clearTagCellInfo();
 
@@ -2122,6 +2124,11 @@ public class CellLayout extends ViewGroup {
 
         if (action == MotionEvent.ACTION_DOWN) {
             setTagToCellInfoForPoint((int) event.getX(), (int) event.getY());
+        }
+
+        //to cancel long press on releasing the widgets
+        if(action == MotionEvent.ACTION_CANCEL){
+            cancelLongPress();
         }
 
         return false;
@@ -2137,16 +2144,16 @@ public class CellLayout extends ViewGroup {
         setTag(cellInfo);
     }
 
-    @Override
+    /*@Override
     public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event);
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         //  Log.v(TAG, "on touch x:: y " + event.getX() + "  " + event.getY());
         return super.dispatchTouchEvent(event);
-    }
+    }*/
 
     boolean isNearestDropLocationOccupied(int pixelX, int pixelY, int spanX, int spanY,
                                           View dragView, int[] result) {
