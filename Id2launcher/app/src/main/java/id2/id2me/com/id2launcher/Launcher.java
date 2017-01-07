@@ -77,6 +77,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
     private FrameLayout dropTargetBar;
+    private DeleteDropTarget deleteDropTarget;
 
     public void setDropTargetBar(FrameLayout dropTargetBar) {
         this.dropTargetBar = dropTargetBar;
@@ -84,6 +85,15 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     public FrameLayout getDropTargetBar() {
         return dropTargetBar;
+    }
+
+    public void setDeleteDropTarget(DeleteDropTarget deleteDropTarget) {
+        this.deleteDropTarget = deleteDropTarget;
+    }
+
+
+    public DeleteDropTarget getDeleteDropTarget() {
+        return deleteDropTarget;
     }
 
     private static class PendingAddArguments {

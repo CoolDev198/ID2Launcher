@@ -91,6 +91,7 @@ public class DesktopFragment extends Fragment  {
 
             launcher.setWokSpace(workSpace);
             launcher.setDropTargetBar(dropTargetBar);
+            launcher.setDeleteDropTarget(deleteDropTarget);
             launcher.setScrollView((ObservableScrollView) fragmentView.findViewById(R.id.scrollView));
             db = DatabaseHandler.getInstance(context);
 
@@ -149,15 +150,15 @@ public class DesktopFragment extends Fragment  {
                     launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
             child.setTag(i);
 
-            if (i == 0) {
-                child.setBackgroundColor(Color.BLACK);
-            } else if(i==1){
-                child.setBackgroundColor(Color.YELLOW);
-            } else if(i==2){
-                child.setBackgroundColor(Color.RED);
-            } else if(i==3){
-                child.setBackgroundColor(Color.GREEN);
-            }
+//            if (i == 0) {
+//                child.setBackgroundColor(Color.BLACK);
+//            } else if(i==1){
+//                child.setBackgroundColor(Color.YELLOW);
+//            } else if(i==2){
+//                child.setBackgroundColor(Color.RED);
+//            } else if(i==3){
+//                child.setBackgroundColor(Color.GREEN);
+//            }
 
             containerL.addView(child);
         }
