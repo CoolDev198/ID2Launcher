@@ -660,6 +660,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
 
     void showOutOfSpaceMessage() {
+        wokSpace.removeExtraEmptyScreen();
         Toast.makeText(this, R.string.out_of_space, Toast.LENGTH_SHORT).show();
 
     }
