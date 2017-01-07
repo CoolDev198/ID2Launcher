@@ -100,8 +100,10 @@ public class DeleteDropTarget extends ButtonDropTarget {
         mCurrentDrawable.startTransition(mTransitionDuration);
         setTextColor(mHoverColor);
     }
-    private void resetHoverColor() {
-        mCurrentDrawable.resetTransition();
+    public void resetHoverColor() {
+        if (mCurrentDrawable != null) {
+            mCurrentDrawable.resetTransition();
+        }
         setTextColor(mOriginalTextColor);
     }
 
@@ -165,7 +167,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
     public void onDragExit(DragObject dragObject) {
         super.onDragExit(dragObject);
 
-        if (!dragObject.dragComplete) {
+            if (!dragObject.dragComplete) {
             resetHoverColor();
         } else {
             // Restore the hover color if we are deleting

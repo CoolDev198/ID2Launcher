@@ -91,6 +91,7 @@ public class DesktopFragment extends Fragment  {
 
             launcher.setWokSpace(workSpace);
             launcher.setDropTargetBar(dropTargetBar);
+            launcher.setDeleteDropTarget(deleteDropTarget);
             launcher.setScrollView((ObservableScrollView) fragmentView.findViewById(R.id.scrollView));
             db = DatabaseHandler.getInstance(context);
 
