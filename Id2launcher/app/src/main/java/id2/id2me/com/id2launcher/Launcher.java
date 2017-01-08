@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.HapticFeedbackConstants;
@@ -19,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -27,16 +29,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import id2.id2me.com.id2launcher.fragments.DesktopFragment;
+import id2.id2me.com.id2launcher.fragments.DrawerFragment;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.LauncherAppWidgetInfo;
+import id2.id2me.com.id2launcher.models.PendingAddWidgetInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationService;
 import timber.log.Timber;
 
-public class Launcher extends AppCompatActivity implements LauncherModel.Callbacks,View.OnLongClickListener,View.OnClickListener
+public class Launcher extends FragmentActivity implements LauncherModel.Callbacks,View.OnLongClickListener,View.OnClickListener
 {
     static final int APPWIDGET_HOST_ID = 1024;
     private static final int REQUEST_CREATE_SHORTCUT = 1;
@@ -71,6 +76,25 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
+    private FrameLayout dropTargetBar;
+    private DeleteDropTarget deleteDropTarget;
+
+    public void setDropTargetBar(FrameLayout dropTargetBar) {
+        this.dropTargetBar = dropTargetBar;
+    }
+
+    public FrameLayout getDropTargetBar() {
+        return dropTargetBar;
+    }
+
+    public void setDeleteDropTarget(DeleteDropTarget deleteDropTarget) {
+        this.deleteDropTarget = deleteDropTarget;
+    }
+
+
+    public DeleteDropTarget getDeleteDropTarget() {
+        return deleteDropTarget;
+    }
 
     private static class PendingAddArguments {
         int requestCode;
@@ -97,7 +121,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
             mModel.startLoader(true, -1);
             setTranslucentStatus(true);
-            getSupportActionBar().hide();
             setContentView(R.layout.activity_launcher);
             init();
             //  openNotificationAccess();
@@ -171,6 +194,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
         dragLayer = (DragLayer) findViewById(R.id.drag_layer);
         List<Fragment> fragments = getFragments();
         pager = (ViewPager) findViewById(R.id.viewpager);
+
 
         pageAdapter = new HorizontalPagerAdapter(getSupportFragmentManager(), fragments, pager);
         pager.setAdapter(pageAdapter);
@@ -459,6 +483,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
             } else {
                 if (!(itemUnderLongClick instanceof FolderItemView)) {
                     // User long pressed on an item
+                    dropTargetBar.setVisibility(View.VISIBLE);
                     wokSpace.startDrag(longClickCellInfo);
                 }
             }
@@ -479,7 +504,6 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
     public void setWokSpace(WorkSpace wokSpace) {
         this.wokSpace = wokSpace;
         this.wokSpace.setOnLongClickListener(this);
-        dragController.addDropTarget(wokSpace);
         dragController.addDragListener(wokSpace);
     }
 
@@ -646,6 +670,7 @@ public class Launcher extends AppCompatActivity implements LauncherModel.Callbac
 
 
     void showOutOfSpaceMessage() {
+        wokSpace.removeExtraEmptyScreen();
         Toast.makeText(this, R.string.out_of_space, Toast.LENGTH_SHORT).show();
 
     }

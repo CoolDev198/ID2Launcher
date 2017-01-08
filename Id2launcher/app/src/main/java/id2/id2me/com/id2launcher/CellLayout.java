@@ -38,15 +38,12 @@ import id2.id2me.com.id2launcher.FolderIcon.FolderRingAnimator;;
 
 public class CellLayout extends ViewGroup {
 
-<<<<<<< HEAD
+
     private static final boolean DEBUG_VISUALIZE_OCCUPIED = false;
-=======
     public static final int MODE_DRAG_OVER = 0;
     public static final int MODE_ON_DROP = 1;
     public static final int MODE_ON_DROP_EXTERNAL = 2;
     public static final int MODE_ACCEPT_DROP = 3;
-    static final int LANDSCAPE = 0;
-    static final int PORTRAIT = 1;
     private static final int INVALID_DIRECTION = -100;
     private static final boolean DESTRUCTIVE_REORDER = false;
     private static final float REORDER_HINT_MAGNITUDE = 0.12f;
@@ -56,7 +53,6 @@ public class CellLayout extends ViewGroup {
     private final static Paint sPaint = new Paint();
     private static int mCountX;
     private static int mCountY;
->>>>>>> develop
     private final Rect mRect = new Rect();
     private final DecelerateInterpolator mEaseOutInterpolator;
     private final int[] mTmpXY = new int[2];
@@ -106,14 +102,11 @@ public class CellLayout extends ViewGroup {
     private int[] mDirectionVector = new int[2];
     private boolean mLastDownOnOccupiedCell = false;
     private OnTouchListener mInterceptTouchListener;
-
-<<<<<<< HEAD
     static final int LANDSCAPE = 0;
     static final int PORTRAIT = 1;
     private int[] mFolderLeaveBehindCell = {-1, -1};
 
-=======
->>>>>>> develop
+
     public CellLayout(Context context) {
         this(context, null);
     }
@@ -223,6 +216,18 @@ public class CellLayout extends ViewGroup {
         result[0] = spanX;
         result[1] = spanY;
         return result;
+    }
+
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+
+        // Cancel long press for all children
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            child.cancelLongPress();
+        }
     }
 
     static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
@@ -1239,7 +1244,6 @@ public class CellLayout extends ViewGroup {
      * @param spanY              Vertical span of the object.
      * @param direction          The favored direction in which the views should move from x, y
      * @param exactDirectionOnly If this parameter is true, then only solutions where the direction
-<<<<<<< HEAD
      *        matches exactly. Otherwise we find the best matching direction.
      * @param occoupied The array which represents which cells in the CellLayout are occupied
      * @param blockOccupied The array which represents which cells in the specified block (cellX,
@@ -1248,16 +1252,6 @@ public class CellLayout extends ViewGroup {
      *        be allocated)
      * @return The X, Y cell of a vacant area that can contain this object,x
      *         nearest the requested location.
-=======
-     *                           matches exactly. Otherwise we find the best matching direction.
-     * @param occoupied          The array which represents which cells in the CellLayout are occupied
-     * @param blockOccupied      The array which represents which cells in the specified block (cellX,
-     *                           cellY, spanX, spanY) are occupied. This is used when try to move a group of views.
-     * @param result             Array in which to place the result, or null (in which case a new array will
-     *                           be allocated)
-     * @return The X, Y cell of a vacant area that can contain this object,
-     * nearest the requested location.
->>>>>>> develop
      */
     private int[] findNearestArea(int cellX, int cellY, int spanX, int spanY, int[] direction,
                                   boolean[][] occupied, boolean blockOccupied[][], int[] result) {
@@ -1549,7 +1543,7 @@ public class CellLayout extends ViewGroup {
         this.mInterceptTouchListener = onInterceptTouchListener;
     }
 
-<<<<<<< HEAD
+
     private class ItemConfiguration {
         HashMap<View, CellAndSpan> map = new HashMap<View, CellAndSpan>();
         boolean isSolution = false;
@@ -1576,8 +1570,7 @@ public class CellLayout extends ViewGroup {
         }
         invalidate();
     }
-=======
->>>>>>> develop
+
     public View getChildAt(int x, int y) {
         return mShortcutsAndWidgets.getChildAt(x, y);
     }
@@ -2224,6 +2217,8 @@ public class CellLayout extends ViewGroup {
         // long-press we'd end up picking up an item from a previous drag operation.
         final int action = event.getAction();
 
+
+
         if (action == MotionEvent.ACTION_DOWN) {
             clearTagCellInfo();
 
@@ -2235,6 +2230,11 @@ public class CellLayout extends ViewGroup {
 
         if (action == MotionEvent.ACTION_DOWN) {
             setTagToCellInfoForPoint((int) event.getX(), (int) event.getY());
+        }
+
+        //to cancel long press on releasing the widgets
+        if(action == MotionEvent.ACTION_CANCEL){
+            cancelLongPress();
         }
 
         return false;
@@ -2250,16 +2250,17 @@ public class CellLayout extends ViewGroup {
         setTag(cellInfo);
     }
 
-    @Override
+
+    /*@Override
     public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event);
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         //  Log.v(TAG, "on touch x:: y " + event.getX() + "  " + event.getY());
         return super.dispatchTouchEvent(event);
-    }
+    }*/
 
     boolean isNearestDropLocationOccupied(int pixelX, int pixelY, int spanX, int spanY,
                                           View dragView, int[] result) {
@@ -2498,27 +2499,6 @@ public class CellLayout extends ViewGroup {
         }
     }
 
-    private class ItemConfiguration {
-        HashMap<View, CellAndSpan> map = new HashMap<View, CellAndSpan>();
-        boolean isSolution = false;
-        int dragViewX, dragViewY, dragViewSpanX, dragViewSpanY;
-
-        int area() {
-            return dragViewSpanX * dragViewSpanY;
-        }
-    }
-
-    private class CellAndSpan {
-        int x, y;
-        int spanX, spanY;
-
-        public CellAndSpan(int x, int y, int spanX, int spanY) {
-            this.x = x;
-            this.y = y;
-            this.spanX = spanX;
-            this.spanY = spanY;
-        }
-    }
 
     // Class which represents the reorder hint animations. These animations show that an item is
     // in a temporary state, and hint at where the item will return to.

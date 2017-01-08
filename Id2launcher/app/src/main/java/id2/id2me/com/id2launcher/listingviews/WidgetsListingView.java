@@ -5,7 +5,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-import id2.id2me.com.id2launcher.ListingContainerView;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.WidgetRecycleViewListAdapter;
 

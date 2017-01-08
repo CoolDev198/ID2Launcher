@@ -32,76 +32,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import id2.id2me.com.id2launcher.itemviews.WidgetImageView;
+import id2.id2me.com.id2launcher.itemviews.WidgetItemView;
+import id2.id2me.com.id2launcher.listingviews.ListingContainerView;
+import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
+import id2.id2me.com.id2launcher.models.PendingAddShortcutInfo;
+import id2.id2me.com.id2launcher.models.PendingAddWidgetInfo;
 import timber.log.Timber;
 
 /**
  * Created by CrazyInnoTech on 21-12-2016.
  */
 
-class AsyncTaskPageData {
-    enum Type {
-        LoadWidgetPreviewData
-    }
-
-    AsyncTaskPageData(ArrayList<Object> l, ArrayList<Bitmap> si, WidgetRecycleViewListAdapter.AsyncTaskCallback bgR,
-                      WidgetRecycleViewListAdapter.AsyncTaskCallback postR) {
-        items = l;
-        sourceImages = si;
-        generatedImages = new ArrayList<Bitmap>();
-        maxImageWidth = maxImageHeight = -1;
-        doInBackgroundCallback = bgR;
-        postExecuteCallback = postR;
-    }
-    AsyncTaskPageData(ArrayList<Object> l, int cw, int ch, WidgetRecycleViewListAdapter.AsyncTaskCallback bgR,
-                      WidgetRecycleViewListAdapter.AsyncTaskCallback postR) {
-        items = l;
-        generatedImages = new ArrayList<Bitmap>();
-        maxImageWidth = cw;
-        maxImageHeight = ch;
-        doInBackgroundCallback = bgR;
-        postExecuteCallback = postR;
-    }
-    void cleanup(boolean cancelled) {
-        // Clean up any references to source/generated bitmaps
-        if (sourceImages != null) {
-            if (cancelled) {
-                for (Bitmap b : sourceImages) {
-                    b.recycle();
-                }
-            }
-            sourceImages.clear();
-        }
-        if (generatedImages != null) {
-            if (cancelled) {
-                for (Bitmap b : generatedImages) {
-                    b.recycle();
-                }
-            }
-            generatedImages.clear();
-        }
-    }
-    int page;
-    ArrayList<Object> items;
-    ArrayList<Bitmap> sourceImages;
-    ArrayList<Bitmap> generatedImages;
-    int maxImageWidth;
-    int maxImageHeight;
-    WidgetRecycleViewListAdapter.AsyncTaskCallback doInBackgroundCallback;
-    WidgetRecycleViewListAdapter.AsyncTaskCallback postExecuteCallback;
-}
 
 public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRecycleViewListAdapter.MyViewHolder>
         implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener, View.OnKeyListener {
 
     LauncherApplication launcherApplication;
-    private PendingAddItemInfo widgetInfo;
     private ListingContainerView listeners;
     private ArrayList<Object> items;
     private ArrayList<Object> widgetList = new ArrayList<>();
     private ArrayList<Object> shortcutList = new ArrayList<>();
     PackageManager mPackageManager;
     private int mAppIconSize;
-    //private HashMap<String, Bitmap> mHashMapBitmap;
 
     private final float sWidgetPreviewIconPaddingPercentage = 0.25f;
     // Caching
@@ -133,7 +85,6 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
         mCellHeight = launcherApplication.getCellHeight();
         launcherApplication.mHashMapBitmap = new HashMap<>();
         Timber.v("Widget List Size : " + items.size());
-        //loadWidgets();
     }
 
 
@@ -154,19 +105,22 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         WidgetItemView itemView = (WidgetItemView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.customized_widget_item, parent, false);
-        /*itemView.setOnLongClickListener(listeners);
-        itemView.setOnClickListener(listeners);*/
-        MyViewHolder myViewHolder = new MyViewHolder(itemView);
-        //itemView.setTag(myViewHolder);
-        return myViewHolder;
+        itemView.setOnLongClickListener(listeners);
+        itemView.setOnClickListener(listeners);
+        return new MyViewHolder(itemView);
     }
 
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         Object rawInfo = items.get(position);
-        PendingAddItemInfo createItemInfo = null;
+
+        bindItem(holder ,rawInfo);
+    }
+
+    private void bindItem(MyViewHolder holder, Object rawInfo ) {
         WidgetItemView widgetItemView = (WidgetItemView) holder.itemView;
+        PendingAddItemInfo createItemInfo = null;
         if(rawInfo instanceof AppWidgetProviderInfo){
             //widgetList.add(rawInfo);
             AppWidgetProviderInfo info = (AppWidgetProviderInfo) rawInfo;
@@ -182,9 +136,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
             widgetItemView.applyFromAppWidgetProviderInfo(info, -1, spanXY);
             widgetItemView.setTag(createItemInfo);
 
-            //widgetItemView.setShortPressListener(this);
         } else if(rawInfo instanceof ResolveInfo) {
-            //shortcutList.add(rawInfo);
             ResolveInfo info = (ResolveInfo) rawInfo;
             createItemInfo = new PendingAddShortcutInfo(info.activityInfo);
             createItemInfo.itemType = LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT;
@@ -196,49 +148,42 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
 
         }
 
-        widgetItemView.setOnClickListener(listeners);
-        widgetItemView.setOnLongClickListener(listeners);
-        /*widgetItemView.setOnTouchListener(this);
-        widgetItemView.setOnKeyListener(this);*/
 
-        //if(items.size() < 10){
-                String key_id = null;
-                if(rawInfo instanceof  AppWidgetProviderInfo){
-                    AppWidgetProviderInfo info = (AppWidgetProviderInfo) rawInfo;
-                    //pkg_name = info.provider.getPackageName();
-                    key_id = info.provider.getPackageName()+""+info.previewImage;
-                    //pkg_name = info.provider.getPackageName();
-                } else if(rawInfo instanceof ResolveInfo) {
-                    ResolveInfo resolveInfo = (ResolveInfo) rawInfo;
-                    key_id = resolveInfo.activityInfo.packageName;
-                }
+        String key_id = null;
+        if(rawInfo instanceof  AppWidgetProviderInfo){
+            AppWidgetProviderInfo info = (AppWidgetProviderInfo) rawInfo;
+            key_id = info.provider.getPackageName()+""+info.previewImage;
+        } else if(rawInfo instanceof ResolveInfo) {
+            ResolveInfo resolveInfo = (ResolveInfo) rawInfo;
+            key_id = resolveInfo.activityInfo.packageName;
+        }
 
-                Bitmap b = launcherApplication.mHashMapBitmap.get(key_id);
-                if(b != null){
-                    holder.widget_preview_img.setImageBitmap(b);
-                } else {
-                    int maxPreviewWidth = launcherApplication.getCellWidth();
-                    int maxPreviewHeight = launcherApplication.getCellHeight();
-                    if(rawInfo instanceof AppWidgetProviderInfo){
-                        AppWidgetProviderInfo info = (AppWidgetProviderInfo) rawInfo;
-                        int[] cellSpans = Launcher.getSpanForWidget(launcherApplication.getApplicationContext(), info);
+        Bitmap b = launcherApplication.mHashMapBitmap.get(key_id);
+        if(b != null){
+            holder.widget_preview_img.setImageBitmap(b);
+        } else {
+            int maxPreviewWidth = launcherApplication.getCellWidth();
+            int maxPreviewHeight = launcherApplication.getCellHeight();
+            if(rawInfo instanceof AppWidgetProviderInfo){
+                AppWidgetProviderInfo info = (AppWidgetProviderInfo) rawInfo;
+                int[] cellSpans = Launcher.getSpanForWidget(launcherApplication.getApplicationContext(), info);
                 int maxWidth = Math.min(maxPreviewWidth,
                         estimateCellWidth(cellSpans[0]));
                 int maxHeight = Math.min(maxPreviewHeight,
                         estimateCellHeight(cellSpans[1]));
-                        b = getWidgetPreview(info.provider, info.previewImage, info.icon,
-                                cellSpans[0], cellSpans[1], maxWidth, maxHeight);
-                        holder.widget_preview_img.setImageBitmap(b);
-                        String id = info.provider.getPackageName()+""+info.previewImage;
-                        launcherApplication.mHashMapBitmap.put(id,b);
-                    } else if (rawInfo instanceof ResolveInfo){
-                        ResolveInfo info = (ResolveInfo) rawInfo;
-                        maxPreviewWidth = launcherApplication.getScreenWidth()/3;
-                        b = getShortcutPreview(info, maxPreviewWidth, maxPreviewHeight);
-                        holder.widget_preview_img.setImageBitmap(b);
-                        launcherApplication.mHashMapBitmap.put(info.activityInfo.packageName,b);
-                    }
-                }
+                b = getWidgetPreview(info.provider, info.previewImage, info.icon,
+                        cellSpans[0], cellSpans[1], maxWidth, maxHeight);
+                holder.widget_preview_img.setImageBitmap(b);
+                String id = info.provider.getPackageName()+""+info.previewImage;
+                launcherApplication.mHashMapBitmap.put(id,b);
+            } else if (rawInfo instanceof ResolveInfo){
+                ResolveInfo info = (ResolveInfo) rawInfo;
+                maxPreviewWidth = launcherApplication.getScreenWidth()/3;
+                b = getShortcutPreview(info, maxPreviewWidth, maxPreviewHeight);
+                holder.widget_preview_img.setImageBitmap(b);
+                launcherApplication.mHashMapBitmap.put(info.activityInfo.packageName,b);
+            }
+        }
 
         Timber.v("Widget Size : " + widgetList.size());
         Timber.v("Shortcut Widget Size : " + shortcutList.size());
@@ -252,7 +197,6 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
 
     @Override
     public void onClick(View view) {
-
     }
 
     @Override
@@ -277,94 +221,12 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
 
         private MyViewHolder(WidgetItemView view) {
             super(view);
-            //view.applyFromAppWidgetProviderInfo();
             widget_dim = (TextView) view.findViewById(R.id.widget_dims);
             widget_name = (TextView) view.findViewById(R.id.widget_name);
             widget_preview_img = (ImageView) view.findViewById(R.id.widget_preview);
         }
     }
 
-    interface AsyncTaskCallback {
-        void run(WidgetsCustomizeAsyncTask task, AsyncTaskPageData data);
-    }
-
-
-    /**
-     * A generic template for an async task used in AppsCustomize.
-     */
-    class WidgetsCustomizeAsyncTask extends AsyncTask<AsyncTaskPageData, Void, AsyncTaskPageData> {
-        WidgetsCustomizeAsyncTask(int p, AsyncTaskPageData.Type ty) {
-            page = p;
-            threadPriority = Process.THREAD_PRIORITY_DEFAULT;
-            dataType = ty;
-        }
-        @Override
-        protected AsyncTaskPageData doInBackground(AsyncTaskPageData... params) {
-            if (params.length != 1) return null;
-            // Load each of the widget previews in the background
-            params[0].doInBackgroundCallback.run(this, params[0]);
-            return params[0];
-        }
-        @Override
-        protected void onPostExecute(AsyncTaskPageData result) {
-            // All the widget previews are loaded, so we can just callback to inflate the page
-            result.postExecuteCallback.run(this, result);
-        }
-
-        void setThreadPriority(int p) {
-            threadPriority = p;
-        }
-        void syncThreadPriority() {
-            Process.setThreadPriority(threadPriority);
-        }
-
-        // The page that this async task is associated with
-        AsyncTaskPageData.Type dataType;
-        int page;
-        int threadPriority;
-    }
-
-    private void loadWidgetPreviewsInBackground(WidgetsCustomizeAsyncTask task,
-                                                AsyncTaskPageData data) {
-        // loadWidgetPreviewsInBackground can be called without a task to load a set of widget
-        // previews synchronously
-        if (task != null) {
-            // Ensure that this task starts running at the correct priority
-            task.syncThreadPriority();
-        }
-
-        // Load each of the widget/shortcut previews
-        ArrayList<Object> items = data.items;
-        ArrayList<Bitmap> images = data.generatedImages;
-        int count = items.size();
-        for (int i = 0; i < count; ++i) {
-            if (task != null) {
-                // Ensure we haven't been cancelled yet
-                if (task.isCancelled()) break;
-                // Before work on each item, ensure that this task is running at the correct
-                // priority
-                task.syncThreadPriority();
-            }
-
-            Object rawInfo = items.get(i);
-            if (rawInfo instanceof AppWidgetProviderInfo) {
-                AppWidgetProviderInfo info = (AppWidgetProviderInfo) rawInfo;
-                int[] cellSpans = Launcher.getSpanForWidget(launcherApplication.getApplicationContext(), info);
-
-                int maxWidth = Math.min(data.maxImageWidth,
-                        estimateCellWidth(cellSpans[0]));
-                int maxHeight = Math.min(data.maxImageHeight,
-                        estimateCellHeight(cellSpans[1]));
-                Bitmap b = getWidgetPreview(info.provider, info.previewImage, info.icon,
-                        cellSpans[0], cellSpans[1], maxWidth, maxHeight);
-                images.add(b);
-            } else if (rawInfo instanceof ResolveInfo) {
-                // Fill in the shortcuts information
-                ResolveInfo info = (ResolveInfo) rawInfo;
-                images.add(getShortcutPreview(info, data.maxImageWidth, data.maxImageHeight));
-            }
-        }
-    }
 
 
     private Bitmap getWidgetPreview(ComponentName provider, int previewImage,
@@ -529,8 +391,6 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
             colorMatrix.setSaturation(0);
             p.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
             p.setAlpha((int) (255 * 0.06f));
-            //float density = 1f;
-            //p.setMaskFilter(new BlurMaskFilter(15*density, BlurMaskFilter.Blur.NORMAL));
             mCachedShortcutPreviewPaint.set(p);
         }
         c.drawBitmap(tempBitmap, 0, 0, p);
@@ -614,42 +474,6 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
         protected Rect initialValue() {
             return new Rect();
         }
-    }
-
-
-    void applyPreview(FastBitmapDrawable preview, int index) {
-
-        LayoutInflater vi =
-                (LayoutInflater) launcherApplication.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = vi.inflate(R.layout.customized_widget_item, null);
-        final WidgetImageView image =
-                (WidgetImageView) v.findViewById(R.id.widget_preview);
-        if (preview != null) {
-            image.mAllowRequestLayout = false;
-            image.setImageDrawable(preview);
-            //if (mIsAppWidget) {
-                // center horizontally
-                int[] imageSize = getPreviewSize();
-                int centerAmount = (imageSize[0] - preview.getIntrinsicWidth()) / 2;
-                image.setPadding(mOriginalImagePadding.left + centerAmount,
-                        mOriginalImagePadding.top,
-                        mOriginalImagePadding.right,
-                        mOriginalImagePadding.bottom);
-            //}
-            image.setAlpha(1f);
-            image.mAllowRequestLayout = true;
-        }
-    }
-
-    public int[] getPreviewSize() {
-        LayoutInflater vi =
-                (LayoutInflater) launcherApplication.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = vi.inflate(R.layout.customized_widget_item, null);
-        final ImageView i = (ImageView) v.findViewById(R.id.widget_preview);
-        int[] maxSize = new int[2];
-        maxSize[0] = i.getWidth() - mOriginalImagePadding.left - mOriginalImagePadding.right;
-        maxSize[1] = i.getHeight() - mOriginalImagePadding.top;
-        return maxSize;
     }
 
 
