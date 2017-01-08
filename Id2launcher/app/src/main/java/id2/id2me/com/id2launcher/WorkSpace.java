@@ -130,18 +130,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     }
 
-    void startDrag(View child) {
-        mDragInfo = new CellLayout.CellInfo();
-        ShortcutInfo shortcutInfo = (ShortcutInfo) child.getTag();
-        mDragInfo.cell = child;
-        mDragInfo.spanX = shortcutInfo.spanX;
-        mDragInfo.spanY = shortcutInfo.spanY;
-        mDragInfo.screen = shortcutInfo.getScreen();
+    void startDrag(CellLayout.CellInfo cellInfo) {
+        View child = cellInfo.cell;
 
         // Make sure the drag was started by a long press as opposed to a long click.
         if (!child.isInTouchMode()) {
             return;
         }
+
+        mDragInfo = cellInfo;
 
         child.setVisibility(INVISIBLE);
         CellLayout layout = (CellLayout) child.getParent().getParent();
@@ -149,23 +146,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         beginDragShared(child, this);
     }
 
-    void startDragWidget(View child) {
-        mDragInfo = new CellLayout.CellInfo();
-        LauncherAppWidgetInfo launcherAppWidgetInfo = (LauncherAppWidgetInfo) child.getTag();
-        mDragInfo.cell = child;
-        mDragInfo.spanX = launcherAppWidgetInfo.spanX;
-        mDragInfo.spanY = launcherAppWidgetInfo.spanY;
-        mDragInfo.screen = launcherAppWidgetInfo.getScreen();
-        // Make sure the drag was started by a long press as opposed to a long click.
-        if (!child.isInTouchMode()) {
-            return;
-        }
-
-        child.setVisibility(INVISIBLE);
-        CellLayout layout = (CellLayout) child.getParent().getParent();
-        layout.prepareChildForDrag(child);
-        beginDragShared(child, this);
-    }
 
     public void beginDragShared(View child, DragSource dragSource) {
           addExtraEmptyScreen();
@@ -629,8 +609,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 cell.setVisibility(VISIBLE);
             }
             parent.onDropChild(cell);
+            removeExtraEmptyScreen();
+
         }
-        removeExtraEmptyScreen();
+
     }
 
     /**
@@ -814,7 +796,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      */
     void addInScreen(View child, long container, int screen, int x, int y, int spanX, int spanY,
                      boolean insert) {
-        if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+         if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
             if (screen < 0 || screen >= getChildCount()) {
                 Log.e(TAG, "The screen must be >= 0 and < " + getChildCount()
                         + " (was " + screen + "); skipping child");
@@ -847,8 +829,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         }
 
         // Get the canonical child id to uniquely represent this view in this screen
+<<<<<<< HEAD
         int childId = 0;
         //LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
+=======
+        int childId = LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
+>>>>>>> develop
         boolean markCellsAsOccupied = !(child instanceof FolderItemView);
         if (!layout.addViewToCellLayout(child, insert ? 0 : -1, childId, lp, markCellsAsOccupied)) {
             // TODO: This branch occurs when the workspace is adding views
@@ -857,13 +843,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
-        /*if (!(child instanceof FolderItemView)) {
+        if (!(child instanceof FolderItemView)) {
             child.setHapticFeedbackEnabled(false);
-            child.setOnLongClickListener(this);
-        }*/
+            child.setOnLongClickListener(launcher);
+        }
         if (child instanceof DropTarget) {
             launcher.getDragController().addDropTarget((DropTarget) child);
         }
+
+        removeExtraEmptyScreen();
     }
 
     boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
@@ -1187,7 +1175,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     item.getSpanY(), child, mTargetCell);
 
             if (!nearestDropOccupied) {
+<<<<<<< HEAD
                  Timber.v(" not occupied cell ");
+=======
+                 Timber.v(" notoccupied ");
+>>>>>>> develop
                 mDragTargetLayout.visualizeDropLocation(child, mDragOutline,
                         (int) mDragViewVisualCenter[0], (int) mDragViewVisualCenter[1],
                         mTargetCell[0], mTargetCell[1], item.getSpanX(), item.getSpanY(), false,
@@ -1198,7 +1190,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
                 // Otherwise, if we aren't adding to or creating a folder and there's no pending
                 // reorder, then we schedule a reorder
-                ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
+              ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
                         minSpanX, minSpanY, item.spanX, item.spanY, d.dragView, child);
                 mReorderAlarm.setOnAlarmListener(listener);
                 mReorderAlarm.setAlarm(REORDER_TIMEOUT);

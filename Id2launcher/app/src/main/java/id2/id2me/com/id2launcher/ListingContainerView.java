@@ -1,7 +1,7 @@
 package id2.id2me.com.id2launcher;
 
-import android.animation.AnimatorSet;
-import android.animation.ValueAnimator;
+import android.appwidget.AppWidgetHostView;
+import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,22 +11,15 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import id2.id2me.com.id2launcher.DragSource;
-import id2.id2me.com.id2launcher.DropTarget;
-import id2.id2me.com.id2launcher.Launcher;
-import id2.id2me.com.id2launcher.LauncherAnimUtils;
-import id2.id2me.com.id2launcher.LauncherApplication;
-import id2.id2me.com.id2launcher.PendingAddItemInfo;
-import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
-import id2.id2me.com.id2launcher.itemviews.WidgetImageView;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import timber.log.Timber;
 
@@ -35,8 +28,18 @@ import timber.log.Timber;
  */
 
 public class ListingContainerView extends FrameLayout implements View.OnLongClickListener, View.OnClickListener, DragSource {
+    static final int WIDGET_NO_CLEANUP_REQUIRED = -1;
+    static final int WIDGET_PRELOAD_PENDING = 0;
+    static final int WIDGET_BOUND = 1;
+    static final int WIDGET_INFLATED = 2;
+    int mWidgetCleanupState = WIDGET_NO_CLEANUP_REQUIRED;
+    int mWidgetLoadingId = -1;
+    Launcher mLauncher;
     // Caching
     private Canvas mCanvas;
+    private Rect mTmpRect = new Rect();
+    private Runnable mInflateWidgetRunnable = null;
+    private Runnable mBindWidgetRunnable = null;
 
     public ListingContainerView(Context context) {
         this(context, null);
@@ -48,6 +51,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
 
     public ListingContainerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.mLauncher = LauncherApplication.getApp().getLauncher();
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         if (child instanceof AppItemView) {
             final AppInfo appInfo = (AppInfo) child.getTag();
             Launcher mLauncher = LauncherApplication.getApp().getLauncher();
-            mLauncher.startActivitySafely(child,appInfo.intent,appInfo);
+            mLauncher.startActivitySafely(child, appInfo.intent, appInfo);
         } else {
             Toast.makeText(getContext(), R.string.long_press_widget_to_add,
                     Toast.LENGTH_SHORT).show();
@@ -73,7 +77,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         Timber.v("On Long Click");
         if (child instanceof AppItemView) {
             beginDraggingApplication(child);
-        }  else if (child instanceof WidgetItemView) {
+        } else if (child instanceof WidgetItemView) {
             beginDraggingWidget(child);
         }
         return true;
@@ -88,7 +92,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
         ImageView image = (ImageView) child.findViewById(R.id.widget_preview);
         PendingAddItemInfo itemInfo = (PendingAddItemInfo) child.getTag();
 
-        if(itemInfo.spanX <=0 || itemInfo.spanY <=0){
+        if (itemInfo.spanX <= 0 || itemInfo.spanY <= 0) {
             itemInfo.spanX = itemInfo.minSpanX;
             itemInfo.spanY = itemInfo.minSpanY;
         }
@@ -103,10 +107,11 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
 
             PendingAddWidgetInfo createWidgetInfo = new PendingAddWidgetInfo((PendingAddWidgetInfo) itemInfo);
 
-            BitmapDrawable previewDrawable = (BitmapDrawable) image.getDrawable();
-            float minScale = 1.25f;
+            preloadWidget(createWidgetInfo);
 
-            String id = createWidgetInfo.componentName.getPackageName()+""+createWidgetInfo.previewImage;
+            BitmapDrawable previewDrawable = (BitmapDrawable) image.getDrawable();
+
+            String id = createWidgetInfo.componentName.getPackageName() + "" + createWidgetInfo.previewImage;
             preview = launcherApplication.mHashMapBitmap.get(id);
 
             // Determine the image view drawable scale relative to the preview
@@ -160,6 +165,90 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
             d.setBounds(oldBounds); // Restore the bounds
             c.setBitmap(null);
         }
+    }
+
+    Bundle getDefaultOptionsForWidget(Launcher launcher, PendingAddWidgetInfo info) {
+        Bundle options = null;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) { //widget resize available since 4.2
+            AppWidgetResizeFrame.getWidgetSizeRanges(mLauncher, info.spanX, info.spanY, mTmpRect);
+            Rect padding = AppWidgetHostView.getDefaultPaddingForWidget(mLauncher,
+                    info.componentName, null);
+
+            float density = getResources().getDisplayMetrics().density;
+            int xPaddingDips = (int) ((padding.left + padding.right) / density);
+            int yPaddingDips = (int) ((padding.top + padding.bottom) / density);
+
+            options = new Bundle();
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH,
+                    mTmpRect.left - xPaddingDips);
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
+                    mTmpRect.top - yPaddingDips);
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH,
+                    mTmpRect.right - xPaddingDips);
+            options.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
+                    mTmpRect.bottom - yPaddingDips);
+        }
+        return options;
+    }
+
+    private void preloadWidget(final PendingAddWidgetInfo info) {
+        final AppWidgetProviderInfo pInfo = info.info;
+        final Bundle options = getDefaultOptionsForWidget(mLauncher, info);
+
+        if (pInfo.configure != null) {
+            info.bindOptions = options;
+            return;
+        }
+
+        mWidgetCleanupState = WIDGET_PRELOAD_PENDING;
+        mBindWidgetRunnable = new Runnable() {
+            @Override
+            public void run() {
+                mWidgetLoadingId = mLauncher.getAppWidgetHost().allocateAppWidgetId();
+                // Options will be null for platforms with JB or lower, so this serves as an
+                // SDK level check.
+                if (options == null) {
+                    if (AppWidgetManager.getInstance(mLauncher).bindAppWidgetIdIfAllowed(
+                            mWidgetLoadingId, info.componentName)) {
+                        mWidgetCleanupState = WIDGET_BOUND;
+                    }
+                } else {
+                    //TODO add options bundle for 4.2+
+                    if (AppWidgetManager.getInstance(mLauncher).bindAppWidgetIdIfAllowed(
+                            mWidgetLoadingId, info.componentName)) {
+                        mWidgetCleanupState = WIDGET_BOUND;
+                    }
+
+                }
+            }
+        };
+        post(mBindWidgetRunnable);
+
+        mInflateWidgetRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mWidgetCleanupState != WIDGET_BOUND) {
+                    return;
+                }
+                AppWidgetHostView hostView = mLauncher.
+                        getAppWidgetHost().createView(getContext(), mWidgetLoadingId, pInfo);
+                info.boundWidget = hostView;
+                mWidgetCleanupState = WIDGET_INFLATED;
+                hostView.setVisibility(INVISIBLE);
+                int[] unScaledSize = mLauncher.getWokSpace().estimateItemSize(info.spanX,
+                        info.spanY, info, false);
+
+                // We want the first widget layout to be the correct size. This will be important
+                // for width size reporting to the AppWidgetManager.
+                DragLayer.LayoutParams lp = new DragLayer.LayoutParams(unScaledSize[0],
+                        unScaledSize[1]);
+                lp.x = lp.y = 0;
+                lp.customPosition = true;
+                hostView.setLayoutParams(lp);
+                mLauncher.getDragLayer().addView(hostView);
+            }
+        };
+        post(mInflateWidgetRunnable);
     }
 
     private void beginDraggingApplication(View child) {

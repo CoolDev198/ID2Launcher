@@ -71,6 +71,7 @@ public class WidgetItemView extends LinearLayout {
 
     public void applyFromAppWidgetProviderInfo(AppWidgetProviderInfo info,
                                                int maxWidth, int[] cellSpan) {
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
         mIsAppWidget = true;
         final ImageView image = (ImageView) findViewById(R.id.widget_preview);
         if (maxWidth > -1) {
@@ -81,8 +82,8 @@ public class WidgetItemView extends LinearLayout {
         name.setText(info.label);
         final TextView dims = (TextView) findViewById(R.id.widget_dims);
         if (dims != null) {
-            int hSpan = (cellSpan[0]);
-            int vSpan = (cellSpan[1]);
+            int hSpan = Math.min(cellSpan[0], launcherApplication.CELL_COUNT_X);
+            int vSpan = Math.min(cellSpan[1], launcherApplication.CELL_COUNT_Y);
             dims.setText(String.format(mDimensionsFormatString, hSpan, vSpan));
         }
     }

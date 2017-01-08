@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
-import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import timber.log.Timber;
 import id2.id2me.com.id2launcher.FolderIcon.FolderRingAnimator;;
@@ -39,76 +38,82 @@ import id2.id2me.com.id2launcher.FolderIcon.FolderRingAnimator;;
 
 public class CellLayout extends ViewGroup {
 
+<<<<<<< HEAD
     private static final boolean DEBUG_VISUALIZE_OCCUPIED = false;
-    private final Rect mRect = new Rect();
-    private final DecelerateInterpolator mEaseOutInterpolator;
-    private ArrayList<View> mIntersectingViews = new ArrayList<View>();
-    private final int[] mTmpXY = new int[2];
-    private final Stack<Rect> mTempRectStack = new Stack<Rect>();
-    LauncherApplication launcherApplication;
-
-    private int mCellWidth;
-    private int mCellHeight;
-
+=======
+    public static final int MODE_DRAG_OVER = 0;
+    public static final int MODE_ON_DROP = 1;
+    public static final int MODE_ON_DROP_EXTERNAL = 2;
+    public static final int MODE_ACCEPT_DROP = 3;
+    static final int LANDSCAPE = 0;
+    static final int PORTRAIT = 1;
+    private static final int INVALID_DIRECTION = -100;
+    private static final boolean DESTRUCTIVE_REORDER = false;
+    private static final float REORDER_HINT_MAGNITUDE = 0.12f;
+    private static final int REORDER_ANIMATION_DURATION = 150;
+    private final static PorterDuffXfermode sAddBlendMode =
+            new PorterDuffXfermode(PorterDuff.Mode.ADD);
+    private final static Paint sPaint = new Paint();
     private static int mCountX;
     private static int mCountY;
-
+>>>>>>> develop
+    private final Rect mRect = new Rect();
+    private final DecelerateInterpolator mEaseOutInterpolator;
+    private final int[] mTmpXY = new int[2];
+    private final Stack<Rect> mTempRectStack = new Stack<Rect>();
+    private final Point mDragCenter = new Point();
+    private final Paint mDragOutlinePaint = new Paint();
+    // When a drag operation is in progress, holds the nearest cell to the touch point
+    private final int[] mDragCell = new int[2];
+    private final int[] mTmpPoint = new int[2];
+    private final CellInfo mCellInfo = new CellInfo();
+    LauncherApplication launcherApplication;
+    int[] mTempLocation = new int[2];
+    int[] mPreviousReorderDirection = new int[2];
+    boolean[][] mTmpOccupied;
+    Rect temp = new Rect();
+    private ArrayList<View> mIntersectingViews = new ArrayList<View>();
+    private int mCellWidth;
+    private int mCellHeight;
     private int mOriginalWidthGap;
     private int mOriginalHeightGap;
     private int mWidthGap;
     private int mHeightGap;
     private int mMaxGap;
-    int[] mTempLocation = new int[2];
-    public static final int MODE_DRAG_OVER = 0;
-    public static final int MODE_ON_DROP = 1;
-    public static final int MODE_ON_DROP_EXTERNAL = 2;
-    public static final int MODE_ACCEPT_DROP = 3;
-    int[] mPreviousReorderDirection = new int[2];
-    private static final int INVALID_DIRECTION = -100;
     private String TAG = "CellLayout";
     private ShortcutAndWidgetContainer mShortcutsAndWidgets;
     private ArrayList<FolderRingAnimator> mFolderOuterRings = new ArrayList<FolderRingAnimator>();
     private boolean[][] mOccupied;
-    private static final boolean DESTRUCTIVE_REORDER = false;
-    boolean[][] mTmpOccupied;
     // These arrays are used to implement the drag visualization on x-large screens.
     // They are used as circular arrays, indexed by mDragOutlineCurrent.
     private Rect[] mDragOutlines = new Rect[4];
     private float[] mDragOutlineAlphas = new float[mDragOutlines.length];
     private InterruptibleInOutAnimator[] mDragOutlineAnims =
             new InterruptibleInOutAnimator[mDragOutlines.length];
-    private final Point mDragCenter = new Point();
     // Used as an index into the above 3 arrays; indicates which is the most current value.
     private int mDragOutlineCurrent = 0;
-    private final Paint mDragOutlinePaint = new Paint();
-    // When a drag operation is in progress, holds the nearest cell to the touch point
-    private final int[] mDragCell = new int[2];
-    private final int[] mTmpPoint = new int[2];
     private HashMap<LayoutParams, Animator> mReorderAnimators = new
             HashMap<CellLayout.LayoutParams, Animator>();
     private HashMap<View, ReorderHintAnimation>
             mShakeAnimators = new HashMap<View, ReorderHintAnimation>();
-    private static final float REORDER_HINT_MAGNITUDE = 0.12f;
-    private static final int REORDER_ANIMATION_DURATION = 150;
     private float mReorderHintAnimationMagnitude;
-    private final static PorterDuffXfermode sAddBlendMode =
-            new PorterDuffXfermode(PorterDuff.Mode.ADD);
-    private final static Paint sPaint = new Paint();
     private boolean mItemPlacementDirty = false;
     private DropTarget.DragEnforcer mDragEnforcer;
     // If we're actively dragging something over this screen, mIsDragOverlapping is true
     private boolean mIsDragOverlapping = false;
-    private final CellInfo mCellInfo = new CellInfo();
     private Rect mOccupiedRect = new Rect();
     private boolean mDragging = false;
     private int[] mDirectionVector = new int[2];
     private boolean mLastDownOnOccupiedCell = false;
     private OnTouchListener mInterceptTouchListener;
 
+<<<<<<< HEAD
     static final int LANDSCAPE = 0;
     static final int PORTRAIT = 1;
     private int[] mFolderLeaveBehindCell = {-1, -1};
 
+=======
+>>>>>>> develop
     public CellLayout(Context context) {
         this(context, null);
     }
@@ -117,6 +122,7 @@ public class CellLayout extends ViewGroup {
         this(context, attrs, 0);
     }
 
+
     public CellLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
@@ -124,9 +130,9 @@ public class CellLayout extends ViewGroup {
 
         mCellWidth = getResources().getDimensionPixelSize(R.dimen.cell_width);
         mCellHeight = getResources().getDimensionPixelSize(R.dimen.cell_height);
-        mWidthGap=mOriginalWidthGap=getResources().getDimensionPixelSize(R.dimen.workspace_width_gap_port);
-        mWidthGap=mOriginalHeightGap=getResources().getDimensionPixelSize(R.dimen.workspace_height_gap_port);
-        mMaxGap=0;
+        mWidthGap = mOriginalWidthGap = getResources().getDimensionPixelSize(R.dimen.workspace_width_gap_port);
+        mWidthGap = mOriginalHeightGap = getResources().getDimensionPixelSize(R.dimen.workspace_height_gap_port);
+        mMaxGap = 0;
         mCountX = launcherApplication.CELL_COUNT_X;
         mCountY = launcherApplication.CELL_COUNT_Y;
         mOccupied = new boolean[mCountX][mCountY];
@@ -150,7 +156,7 @@ public class CellLayout extends ViewGroup {
 
         final int duration = 900;
         final float fromAlphaValue = 0;
-        final float toAlphaValue = (float)128;
+        final float toAlphaValue = (float) 128;
         mEaseOutInterpolator = new DecelerateInterpolator(2.5f); // Quint ease out
         for (int i = 0; i < mDragOutlines.length; i++) {
             mDragOutlines[i] = new Rect(-1, -1, -1, -1);
@@ -162,7 +168,7 @@ public class CellLayout extends ViewGroup {
             final int thisIndex = i;
             anim.getAnimator().addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    final Bitmap outline = (Bitmap)anim.getTag();
+                    final Bitmap outline = (Bitmap) anim.getTag();
 
                     // If an animation is started and then stopped very quickly, we can still
                     // get spurious updates we've cleared the tag. Guard against this.
@@ -200,10 +206,66 @@ public class CellLayout extends ViewGroup {
         addView(mShortcutsAndWidgets);
     }
 
+    public static int[] rectToCell(Resources resources, int width, int height, int[] result) {
+        // Always assume we're working with the smallest span to make sure we
+        // reserve enough space in both orientations.
+        int actualWidth = resources.getDimensionPixelSize(R.dimen.cell_width);
+        int actualHeight = resources.getDimensionPixelSize(R.dimen.cell_height);
+        int smallerSize = Math.min(actualWidth, actualHeight);
+
+        // Always round up to next largest cell
+        int spanX = (int) Math.ceil(width / (float) smallerSize);
+        int spanY = (int) Math.ceil(height / (float) smallerSize);
+
+        if (result == null) {
+            return new int[]{spanX, spanY};
+        }
+        result[0] = spanX;
+        result[1] = spanY;
+        return result;
+    }
+
+    static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
+                           int orientation) {
+        int numWidthGaps = mCountX - 1;
+        int numHeightGaps = mCountY - 1;
+
+        int widthGap;
+        int heightGap;
+        int cellWidth;
+        int cellHeight;
+        int paddingLeft;
+        int paddingRight;
+        int paddingTop;
+        int paddingBottom;
+
+        int maxGap = res.getDimensionPixelSize(R.dimen.workspace_max_gap);
+
+        // PORTRAIT
+        cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_port);
+        cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_port);
+        widthGap = res.getDimensionPixelSize(R.dimen.workspace_width_gap_port);
+        heightGap = res.getDimensionPixelSize(R.dimen.workspace_height_gap_port);
+        paddingLeft = res.getDimensionPixelSize(R.dimen.cell_layout_left_padding_port);
+        paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_port);
+        paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_port);
+        paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_port);
+
+        if (widthGap < 0 || heightGap < 0) {
+            int hSpace = measureWidth - paddingLeft - paddingRight;
+            int vSpace = measureHeight - paddingTop - paddingBottom;
+            int hFreeSpace = hSpace - (mCountX * cellWidth);
+            int vFreeSpace = vSpace - (mCountY * cellHeight);
+            widthGap = Math.min(maxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
+            heightGap = Math.min(maxGap, numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
+        }
+        metrics.set(cellWidth, cellHeight, widthGap, heightGap);
+    }
 
     public void prepareChildForDrag(View child) {
         markCellsAsUnoccupiedForView(child);
     }
+
     public void setGridSize(int x, int y) {
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];
@@ -223,7 +285,6 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets.buildLayer();
     }
 
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int count = getChildCount();
@@ -238,18 +299,6 @@ public class CellLayout extends ViewGroup {
                                        boolean markCells) {
         final LayoutParams lp = params;
 
-        // Hotseat icons - remove text
-        if (child instanceof AppItemView) {
-            AppItemView bubbleChild = (AppItemView) child;
-
-            Resources res = getResources();
-//            if (mIsHotseat) {
-//                bubbleChild.setTextColor(res.getColor(android.R.color.transparent));
-//            } else {
-//                bubbleChild.setTextColor(res.getColor(R.color.workspace_icon_text_color));
-//            }
-        }
-
         child.setScaleX(getChildrenScale());
         child.setScaleY(getChildrenScale());
 
@@ -261,8 +310,8 @@ public class CellLayout extends ViewGroup {
             if (lp.cellHSpan < 0) lp.cellHSpan = mCountX;
             if (lp.cellVSpan < 0) lp.cellVSpan = mCountY;
 
-           // child.setId(childId);
-Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
+            child.setId(childId);
+            Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             mShortcutsAndWidgets.addView(child, index, lp);
 
             if (markCells) markCellsAsOccupiedForView(child);
@@ -280,14 +329,14 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      *
      * @param cellXY The array that will contain the position of a vacant cell if such a cell
      *               can be found.
-     * @param spanX The horizontal span of the cell we want to find.
-     * @param spanY The vertical span of the cell we want to find.
-     *
+     * @param spanX  The horizontal span of the cell we want to find.
+     * @param spanY  The vertical span of the cell we want to find.
      * @return True if a vacant cell of the specified dimension was found, false otherwise.
      */
     boolean findCellForSpan(int[] cellXY, int spanX, int spanY) {
         return findCellForSpanThatIntersectsIgnoring(cellXY, spanX, spanY, -1, -1, null, mOccupied);
     }
+
     /**
      * The superset of the above two methods
      */
@@ -415,9 +464,11 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         mShortcutsAndWidgets.removeViewsInLayout(start, count);
     }
+
     public void markCellsAsUnoccupiedForView(View view) {
         markCellsAsUnoccupiedForView(view, mOccupied);
     }
+
     public void markCellsAsUnoccupiedForView(View view, boolean occupied[][]) {
         if (view == null || view.getParent() != mShortcutsAndWidgets) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
@@ -433,6 +484,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             }
         }
     }
+
     /**
      * A drag event has begun over this layout.
      * It may have begun over this layout (in which case onDragChild is called first),
@@ -443,15 +495,15 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         mDragging = true;
     }
 
+    boolean getIsDragOverlapping() {
+        return mIsDragOverlapping;
+    }
+
     void setIsDragOverlapping(boolean isDragOverlapping) {
         if (mIsDragOverlapping != isDragOverlapping) {
             mIsDragOverlapping = isDragOverlapping;
             invalidate();
         }
-    }
-
-    boolean getIsDragOverlapping() {
-        return mIsDragOverlapping;
     }
 
     /**
@@ -488,7 +540,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
 
         // First we determine if things have moved enough to cause a different layout
         ItemConfiguration swapSolution = simpleSwap(pixelXY[0], pixelXY[1], spanX, spanY,
-                spanX,  spanY, direction, dragView,  true,  new ItemConfiguration());
+                spanX, spanY, direction, dragView, true, new ItemConfiguration());
 
         setUseTempCoords(true);
         if (swapSolution != null && swapSolution.isSolution) {
@@ -540,7 +592,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
 
         ItemConfiguration swapSolution = simpleSwap(pixelX, pixelY, minSpanX, minSpanY,
-                spanX,  spanY, mDirectionVector, dragView,  true,  new ItemConfiguration());
+                spanX, spanY, mDirectionVector, dragView, true, new ItemConfiguration());
 
         // We attempt the approach which doesn't shuffle views at all
         ItemConfiguration noShuffleSolution = findConfigurationNoShuffle(pixelX, pixelY, minSpanX,
@@ -559,8 +611,8 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
 
         if (finalSolution != null) {
-           // result[0] = finalSolution.dragViewX;
-            //result[1] = finalSolution.dragViewY;
+            result[0] = finalSolution.dragViewX;
+            result[1] = finalSolution.dragViewY;
             resultSpan[0] = finalSolution.dragViewSpanX;
             resultSpan[1] = finalSolution.dragViewSpanY;
 
@@ -596,6 +648,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         mShortcutsAndWidgets.requestLayout();
         return result;
     }
+
     private void commitTempPlacement() {
         for (int i = 0; i < mCountX; i++) {
             for (int j = 0; j < mCountY; j++) {
@@ -620,7 +673,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 info.spanY = lp.cellVSpan;
             }
         }
-      //  launcherApplication.getLauncher().getWokSpace().updateItemLocationsInDatabase(this);
+        //  launcherApplication.getLauncher().getWokSpace().updateItemLocationsInDatabase(this);
     }
 
     /**
@@ -629,12 +682,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      *
      * @param pixelX The X location at which you want to search for a vacant area.
      * @param pixelY The Y location at which you want to search for a vacant area.
-     * @param spanX Horizontal span of the object.
-     * @param spanY Vertical span of the object.
+     * @param spanX  Horizontal span of the object.
+     * @param spanY  Vertical span of the object.
      * @param result Array in which to place the result, or null (in which case a new array will
-     *        be allocated)
+     *               be allocated)
      * @return The X, Y cell of a vacant area that can contain this object,
-     *         nearest the requested location.
+     * nearest the requested location.
      */
     int[] findNearestVacantArea(int pixelX, int pixelY, int spanX, int spanY,
                                 int[] result) {
@@ -645,14 +698,14 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      * Find a vacant area that will fit the given bounds nearest the requested
      * cell location. Uses Euclidean distance to score multiple vacant areas.
      *
-     * @param pixelX The X location at which you want to search for a vacant area.
-     * @param pixelY The Y location at which you want to search for a vacant area.
-     * @param spanX Horizontal span of the object.
-     * @param spanY Vertical span of the object.
+     * @param pixelX     The X location at which you want to search for a vacant area.
+     * @param pixelY     The Y location at which you want to search for a vacant area.
+     * @param spanX      Horizontal span of the object.
+     * @param spanY      Vertical span of the object.
      * @param ignoreView Considers space occupied by this view as unoccupied
-     * @param result Previously returned value to possibly recycle.
+     * @param result     Previously returned value to possibly recycle.
      * @return The X, Y cell of a vacant area that can contain this object,
-     *         nearest the requested location.
+     * nearest the requested location.
      */
     int[] findNearestVacantArea(
             int pixelX, int pixelY, int spanX, int spanY, View ignoreView, int[] result) {
@@ -663,16 +716,16 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      * Find a vacant area that will fit the given bounds nearest the requested
      * cell location. Uses Euclidean distance to score multiple vacant areas.
      *
-     * @param pixelX The X location at which you want to search for a vacant area.
-     * @param pixelY The Y location at which you want to search for a vacant area.
-     * @param minSpanX The minimum horizontal span required
-     * @param minSpanY The minimum vertical span required
-     * @param spanX Horizontal span of the object.
-     * @param spanY Vertical span of the object.
+     * @param pixelX     The X location at which you want to search for a vacant area.
+     * @param pixelY     The Y location at which you want to search for a vacant area.
+     * @param minSpanX   The minimum horizontal span required
+     * @param minSpanY   The minimum vertical span required
+     * @param spanX      Horizontal span of the object.
+     * @param spanY      Vertical span of the object.
      * @param ignoreView Considers space occupied by this view as unoccupied
-     * @param result Previously returned value to possibly recycle.
+     * @param result     Previously returned value to possibly recycle.
      * @return The X, Y cell of a vacant area that can contain this object,
-     *         nearest the requested location.
+     * nearest the requested location.
      */
     int[] findNearestVacantArea(int pixelX, int pixelY, int minSpanX, int minSpanY,
                                 int spanX, int spanY, View ignoreView, int[] result, int[] resultSpan) {
@@ -780,6 +833,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             lp.useTmpCoords = useTempCoords;
         }
     }
+
     public boolean animateChildToPosition(final View child, int cellX, int cellY, int duration,
                                           int delay, boolean permanent, boolean adjustOccupied) {
         ShortcutAndWidgetContainer clc = getShortcutsAndWidgets();
@@ -841,6 +895,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             });
             va.addListener(new AnimatorListenerAdapter() {
                 boolean cancelled = false;
+
                 public void onAnimationEnd(Animator animation) {
                     // If the animation was cancelled, it means that another animation
                     // has interrupted this one, and we don't want to lock the item into
@@ -853,6 +908,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                         mReorderAnimators.remove(lp);
                     }
                 }
+
                 public void onAnimationCancel(Animator animation) {
                     cancelled = true;
                 }
@@ -863,6 +919,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         return false;
     }
+
     private void copyCurrentStateToSolution(ItemConfiguration solution, boolean temp) {
         int childCount = mShortcutsAndWidgets.getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -931,6 +988,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         return solution;
     }
+
     // This method tries to find a reordering solution which satisfies the push mechanic by trying
     // to push items in each of the cardinal directions, in an order based on the direction vector
     // passed.
@@ -1045,7 +1103,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         Rect r0 = new Rect(cellX, cellY, cellX + spanX, cellY + spanY);
         Rect r1 = new Rect();
-        for (View child: solution.map.keySet()) {
+        for (View child : solution.map.keySet()) {
             if (child == ignoreView) continue;
             CellAndSpan c = solution.map.get(child);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -1080,6 +1138,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         return true;
     }
+
     private boolean addViewToTempLocation(View v, Rect rectOccupiedByPotentialDrop,
                                           int[] direction, ItemConfiguration currentState) {
         CellAndSpan c = currentState.map.get(v);
@@ -1106,7 +1165,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         boolean success = false;
         Rect boundingRect = null;
         // We construct a rect which represents the entire group of views passed in
-        for (View v: views) {
+        for (View v : views) {
             CellAndSpan c = currentState.map.get(v);
             if (boundingRect == null) {
                 boundingRect = new Rect(c.x, c.y, c.x + c.spanX, c.y + c.spanY);
@@ -1123,7 +1182,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
 
         // Mark the occupied state as false for the group of views we want to move.
-        for (View v: dup) {
+        for (View v : dup) {
             CellAndSpan c = currentState.map.get(v);
             markCellsForView(c.x, c.y, c.spanX, c.spanY, mTmpOccupied, false);
         }
@@ -1133,7 +1192,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         int left = boundingRect.left;
         // We mark more precisely which parts of the bounding rect are truly occupied, allowing
         // for interlocking.
-        for (View v: dup) {
+        for (View v : dup) {
             CellAndSpan c = currentState.map.get(v);
             markCellsForView(c.x - left, c.y - top, c.spanX, c.spanY, blockOccupied, true);
         }
@@ -1152,7 +1211,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         if (mTempLocation[0] >= 0 && mTempLocation[1] >= 0) {
             int deltaX = mTempLocation[0] - boundingRect.left;
             int deltaY = mTempLocation[1] - boundingRect.top;
-            for (View v: dup) {
+            for (View v : dup) {
                 CellAndSpan c = currentState.map.get(v);
                 c.x += deltaX;
                 c.y += deltaY;
@@ -1161,7 +1220,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
 
         // In either case, we set the occupied array as marked for the location of the views
-        for (View v: dup) {
+        for (View v : dup) {
             CellAndSpan c = currentState.map.get(v);
             markCellsForView(c.x, c.y, c.spanX, c.spanY, mTmpOccupied, true);
         }
@@ -1174,12 +1233,13 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      * desired location. This method computers distance based on unit grid distances,
      * not pixel distances.
      *
-     * @param cellX The X cell nearest to which you want to search for a vacant area.
-     * @param cellY The Y cell nearest which you want to search for a vacant area.
-     * @param spanX Horizontal span of the object.
-     * @param spanY Vertical span of the object.
-     * @param direction The favored direction in which the views should move from x, y
+     * @param cellX              The X cell nearest to which you want to search for a vacant area.
+     * @param cellY              The Y cell nearest which you want to search for a vacant area.
+     * @param spanX              Horizontal span of the object.
+     * @param spanY              Vertical span of the object.
+     * @param direction          The favored direction in which the views should move from x, y
      * @param exactDirectionOnly If this parameter is true, then only solutions where the direction
+<<<<<<< HEAD
      *        matches exactly. Otherwise we find the best matching direction.
      * @param occoupied The array which represents which cells in the CellLayout are occupied
      * @param blockOccupied The array which represents which cells in the specified block (cellX,
@@ -1188,6 +1248,16 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
      *        be allocated)
      * @return The X, Y cell of a vacant area that can contain this object,x
      *         nearest the requested location.
+=======
+     *                           matches exactly. Otherwise we find the best matching direction.
+     * @param occoupied          The array which represents which cells in the CellLayout are occupied
+     * @param blockOccupied      The array which represents which cells in the specified block (cellX,
+     *                           cellY, spanX, spanY) are occupied. This is used when try to move a group of views.
+     * @param result             Array in which to place the result, or null (in which case a new array will
+     *                           be allocated)
+     * @return The X, Y cell of a vacant area that can contain this object,
+     * nearest the requested location.
+>>>>>>> develop
      */
     private int[] findNearestArea(int cellX, int cellY, int spanX, int spanY, int[] direction,
                                   boolean[][] occupied, boolean blockOccupied[][], int[] result) {
@@ -1223,7 +1293,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 boolean directionMatches = direction[0] == curDirection[0] &&
                         direction[0] == curDirection[0];
                 if ((directionMatches || !exactDirectionOnly) &&
-                        Float.compare(distance,  bestDistance) < 0 || (Float.compare(distance,
+                        Float.compare(distance, bestDistance) < 0 || (Float.compare(distance,
                         bestDistance) == 0 && curDirectionScore > bestDirectionScore)) {
                     bestDistance = distance;
                     bestDirectionScore = curDirectionScore;
@@ -1240,6 +1310,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         return bestXY;
     }
+
     private void completeSetOfViewsToMove(ArrayList<View> views, Rect boundingRect, int[] direction,
                                           boolean[][] occupied, View dragView, ItemConfiguration currentState) {
         Rect r0 = new Rect(boundingRect);
@@ -1271,6 +1342,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         boundingRect.union(r0);
     }
+
     // This method looks in the specified direction to see if there are additional views adjacent
     // to the current set of views. If there are, then these views are added to the current
     // set of views. This is performed iteratively, giving a cascading push behaviour.
@@ -1348,7 +1420,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
     }
 
     private int[] findNearestAreaInDirection(int cellX, int cellY, int spanX, int spanY,
-                                             int[] direction,boolean[][] occupied,
+                                             int[] direction, boolean[][] occupied,
                                              boolean blockOccupied[][], int[] result) {
         // Keep track of best-scoring drop area
         final int[] bestXY = result != null ? result : new int[2];
@@ -1377,7 +1449,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             if (!fail) {
                 float distance = (float)
                         Math.sqrt((x - cellX) * (x - cellX) + (y - cellY) * (y - cellY));
-                if (Float.compare(distance,  bestDistance) < 0) {
+                if (Float.compare(distance, bestDistance) < 0) {
                     bestDistance = distance;
                     bestXY[0] = x;
                     bestXY[1] = y;
@@ -1388,6 +1460,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         return bestXY;
     }
+
     /* This seems like it should be obvious and straight-forward, but when the direction vector
        needs to match with the notion of the dragView pushing other views, we have to employ
        a slightly more subtle notion of the direction vector. The question is what two points is
@@ -1433,11 +1506,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             computeDirectionVector(deltaX, deltaY, resultDirection);
         }
     }
+
     /**
      * Given a cell coordinate and span fills out a corresponding pixel rect
      *
-     * @param cellX X coordinate of the cell
-     * @param cellY Y coordinate of the cell
+     * @param cellX  X coordinate of the cell
+     * @param cellY  Y coordinate of the cell
      * @param result Rect in which to write the result
      */
     void regionToRect(int cellX, int cellY, int spanX, int spanY, Rect result) {
@@ -1448,6 +1522,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         result.set(left, top, left + (spanX * mCellWidth + (spanX - 1) * mWidthGap),
                 top + (spanY * mCellHeight + (spanY - 1) * mHeightGap));
     }
+
     /*
      * Returns a pair (x, y), where x,y are in {-1, 0, 1} corresponding to vector between
      * the provided point and the provided cell
@@ -1474,6 +1549,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         this.mInterceptTouchListener = onInterceptTouchListener;
     }
 
+<<<<<<< HEAD
     private class ItemConfiguration {
         HashMap<View, CellAndSpan> map = new HashMap<View, CellAndSpan>();
         boolean isSolution = false;
@@ -1500,10 +1576,11 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         invalidate();
     }
+=======
+>>>>>>> develop
     public View getChildAt(int x, int y) {
         return mShortcutsAndWidgets.getChildAt(x, y);
     }
-
 
     void revertTempState() {
         if (!isItemPlacementDirty() || DESTRUCTIVE_REORDER) return;
@@ -1522,11 +1599,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         setItemPlacementDirty(false);
     }
 
-    void setItemPlacementDirty(boolean dirty) {
-        mItemPlacementDirty = dirty;
-    }
     boolean isItemPlacementDirty() {
         return mItemPlacementDirty;
+    }
+
+    void setItemPlacementDirty(boolean dirty) {
+        mItemPlacementDirty = dirty;
     }
 
     /**
@@ -1605,8 +1683,9 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
 
     /**
      * Given a point, return the cell that strictly encloses that point
-     * @param x X coordinate of the point
-     * @param y Y coordinate of the point
+     *
+     * @param x      X coordinate of the point
+     * @param y      Y coordinate of the point
      * @param result Array of 2 ints to hold the x and y coordinate of the cell
      */
     void pointToCellExact(int x, int y, int[] result) {
@@ -1635,7 +1714,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 final Rect r = mDragOutlines[i];
                 scaleRectAboutCenter(r, temp, getChildrenScale());
                 final Bitmap b = (Bitmap) mDragOutlineAnims[i].getTag();
-                paint.setAlpha((int)(alpha + .5f));
+                paint.setAlpha((int) (alpha + .5f));
                 canvas.drawBitmap(b, null, temp, paint);
             }
         }
@@ -1712,135 +1791,20 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
 
         super.onDraw(canvas);
     }
+
     public void markCellsAsOccupiedForView(View view, boolean[][] occupied) {
         if (view == null || view.getParent() != mShortcutsAndWidgets) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
-         markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, occupied, true);
-    }
-
-
-
-    // Class which represents the reorder hint animations. These animations show that an item is
-    // in a temporary state, and hint at where the item will return to.
-    class ReorderHintAnimation {
-        View child;
-        float finalDeltaX;
-        float finalDeltaY;
-        float initDeltaX;
-        float initDeltaY;
-        float finalScale;
-        float initScale;
-        private static final int DURATION = 300;
-        Animator a;
-
-        public ReorderHintAnimation(View child, int cellX0, int cellY0, int cellX1, int cellY1,
-                                    int spanX, int spanY) {
-            regionToCenterPoint(cellX0, cellY0, spanX, spanY, mTmpPoint);
-            final int x0 = mTmpPoint[0];
-            final int y0 = mTmpPoint[1];
-            regionToCenterPoint(cellX1, cellY1, spanX, spanY, mTmpPoint);
-            final int x1 = mTmpPoint[0];
-            final int y1 = mTmpPoint[1];
-            final int dX = x1 - x0;
-            final int dY = y1 - y0;
-            finalDeltaX = 0;
-            finalDeltaY = 0;
-            if (dX == dY && dX == 0) {
-            } else {
-                if (dY == 0) {
-                    finalDeltaX = - Math.signum(dX) * mReorderHintAnimationMagnitude;
-                } else if (dX == 0) {
-                    finalDeltaY = - Math.signum(dY) * mReorderHintAnimationMagnitude;
-                } else {
-                    double angle = Math.atan( (float) (dY) / dX);
-                    finalDeltaX = (int) (- Math.signum(dX) *
-                            Math.abs(Math.cos(angle) * mReorderHintAnimationMagnitude));
-                    finalDeltaY = (int) (- Math.signum(dY) *
-                            Math.abs(Math.sin(angle) * mReorderHintAnimationMagnitude));
-                }
-            }
-            initDeltaX = child.getTranslationX();
-            initDeltaY = child.getTranslationY();
-            finalScale = getChildrenScale() - 4.0f / child.getWidth();
-            initScale = child.getScaleX();
-            this.child = child;
-        }
-
-        void animate() {
-            if (mShakeAnimators.containsKey(child)) {
-                ReorderHintAnimation oldAnimation = mShakeAnimators.get(child);
-                oldAnimation.cancel();
-                mShakeAnimators.remove(child);
-                if (finalDeltaX == 0 && finalDeltaY == 0) {
-                    completeAnimationImmediately();
-                    return;
-                }
-            }
-            if (finalDeltaX == 0 && finalDeltaY == 0) {
-                return;
-            }
-            ValueAnimator va = LauncherAnimUtils.ofFloat(0f, 1f);
-            a = va;
-            va.setRepeatMode(ValueAnimator.REVERSE);
-            va.setRepeatCount(ValueAnimator.INFINITE);
-            va.setDuration(DURATION);
-            va.setStartDelay((int) (Math.random() * 60));
-            va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float r = ((Float) animation.getAnimatedValue()).floatValue();
-                    float x = r * finalDeltaX + (1 - r) * initDeltaX;
-                    float y = r * finalDeltaY + (1 - r) * initDeltaY;
-                    child.setTranslationX(x);
-                    child.setTranslationY(y);
-                    float s = r * finalScale + (1 - r) * initScale;
-                    child.setScaleX(s);
-                    child.setScaleY(s);
-                }
-            });
-            va.addListener(new AnimatorListenerAdapter() {
-                public void onAnimationRepeat(Animator animation) {
-                    // We make sure to end only after a full period
-                    initDeltaX = 0;
-                    initDeltaY = 0;
-                    initScale = getChildrenScale();
-                }
-            });
-            mShakeAnimators.put(child, this);
-            va.start();
-        }
-
-        private void cancel() {
-            if (a != null) {
-                a.cancel();
-            }
-        }
-
-        private void completeAnimationImmediately() {
-            if (a != null) {
-                a.cancel();
-            }
-
-            AnimatorSet s = LauncherAnimUtils.createAnimatorSet();
-            a = s;
-            s.playTogether(
-                    LauncherAnimUtils.ofFloat(child, "scaleX", getChildrenScale()),
-                    LauncherAnimUtils.ofFloat(child, "scaleY", getChildrenScale()),
-                    LauncherAnimUtils.ofFloat(child, "translationX", 0f),
-                    LauncherAnimUtils.ofFloat(child, "translationY", 0f)
-            );
-            s.setDuration(REORDER_ANIMATION_DURATION);
-            s.setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f));
-            s.start();
-        }
+        markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, occupied, true);
     }
 
     private void completeAndClearReorderHintAnimations() {
-        for (ReorderHintAnimation a: mShakeAnimators.values()) {
+        for (ReorderHintAnimation a : mShakeAnimators.values()) {
             a.completeAnimationImmediately();
         }
         mShakeAnimators.clear();
     }
+
     public float getChildrenScale() {
         return 1.0f;
     }
@@ -1854,7 +1818,6 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
     }
 
-    Rect temp = new Rect();
     void scaleRectAboutCenter(Rect in, Rect out, float scale) {
         int cx = in.centerX();
         int cy = in.centerY();
@@ -1863,6 +1826,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         scaleRect(out, scale);
         out.offset(cx, cy);
     }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
@@ -1916,12 +1880,12 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
         setMeasuredDimension(width, height);
     }
+
     /**
      * Given a cell coordinate, return the point that represents the upper left corner of that cell
      *
-     * @param cellX X coordinate of the cell
-     * @param cellY Y coordinate of the cell
-     *
+     * @param cellX  X coordinate of the cell
+     * @param cellY  Y coordinate of the cell
      * @param result Array of 2 ints to hold the x and y coordinate of the point
      */
     void cellToPoint(int cellX, int cellY, int[] result) {
@@ -1947,7 +1911,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             return;
         }
 
-       if (cellX != oldDragCellX || cellY != oldDragCellY) {
+        if (cellX != oldDragCellX || cellY != oldDragCellY) {
             mDragCell[0] = cellX;
             mDragCell[1] = cellY;
             // Find the top left corner of the rect the object will occupy
@@ -1976,7 +1940,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                     // Center the drag region *horizontally* in the cell and apply a drag
                     // outline offset
                     left -= dragOffset.x + ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap) -
-                             dragRegion.width()) / 2;
+                            dragRegion.width()) / 2;
                     top += dragOffset.y;
                 } else {
                     // Center the drag outline in the cell
@@ -2001,9 +1965,10 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
 
 
     }
+
     public float getDistanceFromCell(float x, float y, int[] cell) {
         cellToCenterPoint(cell[0], cell[1], mTmpPoint);
-        float distance = (float) Math.sqrt( Math.pow(x - mTmpPoint[0], 2) +
+        float distance = (float) Math.sqrt(Math.pow(x - mTmpPoint[0], 2) +
                 Math.pow(y - mTmpPoint[1], 2));
         return distance;
     }
@@ -2011,10 +1976,10 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
     /**
      * Computes a bounding rectangle for a range of cells
      *
-     * @param cellX X coordinate of upper left corner expressed as a cell position
-     * @param cellY Y coordinate of upper left corner expressed as a cell position
-     * @param cellHSpan Width in cells
-     * @param cellVSpan Height in cells
+     * @param cellX      X coordinate of upper left corner expressed as a cell position
+     * @param cellY      Y coordinate of upper left corner expressed as a cell position
+     * @param cellHSpan  Width in cells
+     * @param cellVSpan  Height in cells
      * @param resultRect Rect into which to put the results
      */
     public void cellToRect(int cellX, int cellY, int cellHSpan, int cellVSpan, Rect resultRect) {
@@ -2038,7 +2003,6 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         mDragCell[0] = mDragCell[1] = -1;
     }
 
-
     private void lazyInitTempRectStack() {
         if (mTempRectStack.isEmpty()) {
             for (int i = 0; i < mCountX * mCountY; i++) {
@@ -2047,17 +2011,16 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
     }
 
-
     /**
      * Find a starting cell position that will fit the given bounds nearest the requested
      * cell location. Uses Euclidean distance to score multiple vacant areas.
      *
-     * @param pixelX     The X location at which you want to search for a vacant area.
-     * @param pixelY     The Y location at which you want to search for a vacant area.
-     * @param spanX      Horizontal span of the object.
-     * @param spanY      Vertical span of the object.
-    // * @param ignoreView Considers space occupied by this view as unoccupied
-     * @param result     Previously returned value to possibly recycle.
+     * @param pixelX The X location at which you want to search for a vacant area.
+     * @param pixelY The Y location at which you want to search for a vacant area.
+     * @param spanX  Horizontal span of the object.
+     * @param spanY  Vertical span of the object.
+     *               // * @param ignoreView Considers space occupied by this view as unoccupied
+     * @param result Previously returned value to possibly recycle.
      * @return The X, Y cell of a vacant area that can contain this object,
      * nearest the requested location.
      */
@@ -2105,9 +2068,9 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
     int[] findNearestArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
                           View ignoreView, boolean ignoreOccupied, int[] result, int[] resultSpan,
                           boolean[][] occupied) {
-         lazyInitTempRectStack();
+        lazyInitTempRectStack();
         // mark space take by ignoreView as available (method checks if ignoreView is null)
-          markCellsAsUnoccupiedForView(ignoreView, occupied);
+        markCellsAsUnoccupiedForView(ignoreView, occupied);
 
         // For items with a spanX / spanY > 1, the passed in point (pixelX, pixelY) corresponds
         // to the center of the item, but we are searching based on the top-left cell, so
@@ -2215,7 +2178,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             }
         }
         // re-mark space taken by ignoreView as occupied
-         markCellsAsOccupiedForView(ignoreView, occupied);
+        markCellsAsOccupiedForView(ignoreView, occupied);
 
         // Return -1, -1 if no suitable location found
         if (bestDistance == Double.MAX_VALUE) {
@@ -2223,7 +2186,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             bestXY[1] = -1;
         }
         recycleTempRects(validRegions);
-        Timber.v("target cell find nearest   ::  " +  bestXY[0] + "  " + bestXY[1]);
+        Timber.v("target cell find nearest   ::  " + bestXY[0] + "  " + bestXY[1]);
         return bestXY;
     }
 
@@ -2253,10 +2216,9 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 (spanY * mCellHeight) / 2;
     }
 
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        Timber.v( "on touch x:: y " + event.getX() + "  " + event.getY());
+        Timber.v("on touch x:: y " + event.getX() + "  " + event.getY());
         // First we clear the tag to ensure that on every touch down we start with a fresh slate,
         // even in the case where we return early. Not clearing here was causing bugs whereby on
         // long-press we'd end up picking up an item from a previous drag operation.
@@ -2288,7 +2250,6 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         setTag(cellInfo);
     }
 
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event);
@@ -2307,6 +2268,7 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 mIntersectingViews);
         return !mIntersectingViews.isEmpty();
     }
+
     // For a given cell and span, fetch the set of views intersecting the region.
     private void getViewsIntersectingRegion(int cellX, int cellY, int spanX, int spanY,
                                             View dragView, Rect boundingRect, ArrayList<View> intersectingViews) {
@@ -2329,6 +2291,53 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
                 }
             }
         }
+    }
+
+    @Override
+    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new CellLayout.LayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof CellLayout.LayoutParams;
+    }
+
+    @Override
+    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        return new CellLayout.LayoutParams(p);
+    }
+
+    int getCellWidth() {
+        return mCellWidth;
+    }
+
+    int getCellHeight() {
+        return mCellHeight;
+    }
+
+
+    // This class stores info for two purposes:
+    // 1. When dragging items (mDragInfo in Workspace), we store the View, its cellX & cellY,
+    //    its spanX, spanY, and the screen it is on
+    // 2. When long clicking on an empty cell in a CellLayout, we save information about the
+    //    cellX and cellY coordinates and which page was clicked. We then set this as a tag on
+    //    the CellLayout that was long clicked
+
+    int getWidthGap() {
+        return mWidthGap;
+    }
+
+    int getHeightGap() {
+        return mHeightGap;
+    }
+
+    int getCountX() {
+        return mCountX;
+    }
+
+    int getCountY() {
+        return mCountY;
     }
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
@@ -2440,61 +2449,38 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             return "(" + this.cellX + ", " + this.cellY + ")";
         }
 
-        public void setWidth(int width) {
-            this.width = width;
-        }
-
         public int getWidth() {
             return width;
         }
 
-        public void setHeight(int height) {
-            this.height = height;
+        public void setWidth(int width) {
+            this.width = width;
         }
 
         public int getHeight() {
             return height;
         }
 
-        public void setX(int x) {
-            this.x = x;
+        public void setHeight(int height) {
+            this.height = height;
         }
 
         public int getX() {
             return x;
         }
 
-        public void setY(int y) {
-            this.y = y;
+        public void setX(int x) {
+            this.x = x;
         }
 
         public int getY() {
             return y;
         }
+
+        public void setY(int y) {
+            this.y = y;
+        }
     }
-
-    @Override
-    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new CellLayout.LayoutParams(getContext(), attrs);
-    }
-
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof CellLayout.LayoutParams;
-    }
-
-    @Override
-    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new CellLayout.LayoutParams(p);
-    }
-
-
-    // This class stores info for two purposes:
-    // 1. When dragging items (mDragInfo in Workspace), we store the View, its cellX & cellY,
-    //    its spanX, spanY, and the screen it is on
-    // 2. When long clicking on an empty cell in a CellLayout, we save information about the
-    //    cellX and cellY coordinates and which page was clicked. We then set this as a tag on
-    //    the CellLayout that was long clicked
 
     static final class CellInfo {
         View cell;
@@ -2512,84 +2498,141 @@ Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
         }
     }
 
-    public static int[] rectToCell(Resources resources, int width, int height, int[] result) {
-        // Always assume we're working with the smallest span to make sure we
-        // reserve enough space in both orientations.
-        int actualWidth = resources.getDimensionPixelSize(R.dimen.cell_width);
-        int actualHeight = resources.getDimensionPixelSize(R.dimen.cell_height);
-        //int smallerSize = Math.min(actualWidth, actualHeight);
+    private class ItemConfiguration {
+        HashMap<View, CellAndSpan> map = new HashMap<View, CellAndSpan>();
+        boolean isSolution = false;
+        int dragViewX, dragViewY, dragViewSpanX, dragViewSpanY;
 
-        // Always round up to next largest cell
-        int spanX = (int) Math.ceil(width / (float) actualWidth);
-        int spanY = (int) Math.ceil(height / (float) actualHeight);
-
-        if (result == null) {
-            return new int[] { spanX, spanY };
+        int area() {
+            return dragViewSpanX * dragViewSpanY;
         }
-        result[0] = spanX;
-        result[1] = spanY;
-        return result;
     }
 
-    int getCellWidth() {
-        return mCellWidth;
-    }
+    private class CellAndSpan {
+        int x, y;
+        int spanX, spanY;
 
-    int getCellHeight() {
-        return mCellHeight;
-    }
-
-    int getWidthGap() {
-        return mWidthGap;
-    }
-
-    int getHeightGap() {
-        return mHeightGap;
-    }
-
-    int getCountX() {
-        return mCountX;
-    }
-
-    int getCountY() {
-        return mCountY;
-    }
-
-    static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
-                           int orientation) {
-        int numWidthGaps = mCountX - 1;
-        int numHeightGaps = mCountY - 1;
-
-        int widthGap;
-        int heightGap;
-        int cellWidth;
-        int cellHeight;
-        int paddingLeft;
-        int paddingRight;
-        int paddingTop;
-        int paddingBottom;
-
-        int maxGap = res.getDimensionPixelSize(R.dimen.workspace_max_gap);
-
-            // PORTRAIT
-            cellWidth = res.getDimensionPixelSize(R.dimen.workspace_cell_width_port);
-            cellHeight = res.getDimensionPixelSize(R.dimen.workspace_cell_height_port);
-            widthGap = res.getDimensionPixelSize(R.dimen.workspace_width_gap_port);
-            heightGap = res.getDimensionPixelSize(R.dimen.workspace_height_gap_port);
-            paddingLeft = res.getDimensionPixelSize(R.dimen.cell_layout_left_padding_port);
-            paddingRight = res.getDimensionPixelSize(R.dimen.cell_layout_right_padding_port);
-            paddingTop = res.getDimensionPixelSize(R.dimen.cell_layout_top_padding_port);
-            paddingBottom = res.getDimensionPixelSize(R.dimen.cell_layout_bottom_padding_port);
-
-        if (widthGap < 0 || heightGap < 0) {
-            int hSpace = measureWidth - paddingLeft - paddingRight;
-            int vSpace = measureHeight - paddingTop - paddingBottom;
-            int hFreeSpace = hSpace - (mCountX * cellWidth);
-            int vFreeSpace = vSpace - (mCountY * cellHeight);
-            widthGap = Math.min(maxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
-            heightGap = Math.min(maxGap, numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
+        public CellAndSpan(int x, int y, int spanX, int spanY) {
+            this.x = x;
+            this.y = y;
+            this.spanX = spanX;
+            this.spanY = spanY;
         }
-        metrics.set(cellWidth, cellHeight, widthGap, heightGap);
+    }
+
+    // Class which represents the reorder hint animations. These animations show that an item is
+    // in a temporary state, and hint at where the item will return to.
+    class ReorderHintAnimation {
+        private static final int DURATION = 300;
+        View child;
+        float finalDeltaX;
+        float finalDeltaY;
+        float initDeltaX;
+        float initDeltaY;
+        float finalScale;
+        float initScale;
+        Animator a;
+
+        public ReorderHintAnimation(View child, int cellX0, int cellY0, int cellX1, int cellY1,
+                                    int spanX, int spanY) {
+            regionToCenterPoint(cellX0, cellY0, spanX, spanY, mTmpPoint);
+            final int x0 = mTmpPoint[0];
+            final int y0 = mTmpPoint[1];
+            regionToCenterPoint(cellX1, cellY1, spanX, spanY, mTmpPoint);
+            final int x1 = mTmpPoint[0];
+            final int y1 = mTmpPoint[1];
+            final int dX = x1 - x0;
+            final int dY = y1 - y0;
+            finalDeltaX = 0;
+            finalDeltaY = 0;
+            if (dX == dY && dX == 0) {
+            } else {
+                if (dY == 0) {
+                    finalDeltaX = -Math.signum(dX) * mReorderHintAnimationMagnitude;
+                } else if (dX == 0) {
+                    finalDeltaY = -Math.signum(dY) * mReorderHintAnimationMagnitude;
+                } else {
+                    double angle = Math.atan((float) (dY) / dX);
+                    finalDeltaX = (int) (-Math.signum(dX) *
+                            Math.abs(Math.cos(angle) * mReorderHintAnimationMagnitude));
+                    finalDeltaY = (int) (-Math.signum(dY) *
+                            Math.abs(Math.sin(angle) * mReorderHintAnimationMagnitude));
+                }
+            }
+            initDeltaX = child.getTranslationX();
+            initDeltaY = child.getTranslationY();
+            finalScale = getChildrenScale() - 4.0f / child.getWidth();
+            initScale = child.getScaleX();
+            this.child = child;
+        }
+
+        void animate() {
+            if (mShakeAnimators.containsKey(child)) {
+                ReorderHintAnimation oldAnimation = mShakeAnimators.get(child);
+                oldAnimation.cancel();
+                mShakeAnimators.remove(child);
+                if (finalDeltaX == 0 && finalDeltaY == 0) {
+                    completeAnimationImmediately();
+                    return;
+                }
+            }
+            if (finalDeltaX == 0 && finalDeltaY == 0) {
+                return;
+            }
+            ValueAnimator va = LauncherAnimUtils.ofFloat(0f, 1f);
+            a = va;
+            va.setRepeatMode(ValueAnimator.REVERSE);
+            va.setRepeatCount(ValueAnimator.INFINITE);
+            va.setDuration(DURATION);
+            va.setStartDelay((int) (Math.random() * 60));
+            va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float r = ((Float) animation.getAnimatedValue()).floatValue();
+                    float x = r * finalDeltaX + (1 - r) * initDeltaX;
+                    float y = r * finalDeltaY + (1 - r) * initDeltaY;
+                    child.setTranslationX(x);
+                    child.setTranslationY(y);
+                    float s = r * finalScale + (1 - r) * initScale;
+                    child.setScaleX(s);
+                    child.setScaleY(s);
+                }
+            });
+            va.addListener(new AnimatorListenerAdapter() {
+                public void onAnimationRepeat(Animator animation) {
+                    // We make sure to end only after a full period
+                    initDeltaX = 0;
+                    initDeltaY = 0;
+                    initScale = getChildrenScale();
+                }
+            });
+            mShakeAnimators.put(child, this);
+            va.start();
+        }
+
+        private void cancel() {
+            if (a != null) {
+                a.cancel();
+            }
+        }
+
+        private void completeAnimationImmediately() {
+            if (a != null) {
+                a.cancel();
+            }
+
+            AnimatorSet s = LauncherAnimUtils.createAnimatorSet();
+            a = s;
+            s.playTogether(
+                    LauncherAnimUtils.ofFloat(child, "scaleX", getChildrenScale()),
+                    LauncherAnimUtils.ofFloat(child, "scaleY", getChildrenScale()),
+                    LauncherAnimUtils.ofFloat(child, "translationX", 0f),
+                    LauncherAnimUtils.ofFloat(child, "translationY", 0f)
+            );
+            s.setDuration(REORDER_ANIMATION_DURATION);
+            s.setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f));
+            s.start();
+        }
     }
 }
 

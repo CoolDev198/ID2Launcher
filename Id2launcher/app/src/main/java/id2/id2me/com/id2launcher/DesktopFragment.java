@@ -145,6 +145,7 @@ public class DesktopFragment extends Fragment  {
                     launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
             child.setTag(i);
 
+<<<<<<< HEAD
             if (i == 0) {
               //  child.setBackgroundColor(Color.BLACK);
             } else if(i==1){
@@ -154,6 +155,17 @@ public class DesktopFragment extends Fragment  {
             } else if(i==3){
              //   child.setBackgroundColor(Color.GREEN);
             }
+=======
+//            if (i == 0) {
+//                child.setBackgroundColor(Color.BLACK);
+//            } else if(i==1){
+//                child.setBackgroundColor(Color.YELLOW);
+//            } else if(i==2){
+//                child.setBackgroundColor(Color.RED);
+//            } else if(i==3){
+//                child.setBackgroundColor(Color.GREEN);
+//            }
+>>>>>>> develop
 
             containerL.addView(child);
         }
