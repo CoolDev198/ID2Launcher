@@ -28,12 +28,10 @@ public class LauncherApplication extends Application {
     private static float density;
     public final int CELL_COUNT_X = 4;
     public final int CELL_COUNT_Y = 5;
-    public boolean isDrawerOpen = false;
     public ItemInfo dragInfo;
     public LauncherModel mModel;
-    public View desktopFragment;
     private Launcher launcher;
-    public HashMap<String, Bitmap> mHashMapBitmap;
+
     public int screenWidth;
 
     public static LauncherApplication getApp() {
@@ -115,5 +113,9 @@ public class LauncherApplication extends Application {
 
     public int getScreenWidth() {
         return screenWidth;
+    }
+
+    public IconCache getIconCache() {
+        return mIconCache;
     }
 }
