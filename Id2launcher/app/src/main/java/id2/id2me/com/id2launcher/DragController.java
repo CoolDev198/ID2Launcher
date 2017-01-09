@@ -607,7 +607,6 @@ public class DragController {
         mDragObject.x = (int) coordinates[0];
         mDragObject.y = (int) coordinates[1];
         boolean accepted = false;
-        dropTarget.onDrop(mDragObject);
         if (dropTarget != null) {
             mDragObject.dragComplete = true;
             dropTarget.onDragExit(mDragObject);
