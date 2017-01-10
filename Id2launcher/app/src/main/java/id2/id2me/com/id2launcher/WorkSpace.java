@@ -1,26 +1,17 @@
 package id2.id2me.com.id2launcher;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.appwidget.AppWidgetHostView;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
-import android.graphics.drawable.Drawable;
-import android.os.IBinder;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +21,7 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.itemviews.FolderIcon;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
@@ -89,8 +81,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      * The CellLayout that we will show as glowing
      */
     private CellLayout mDragOverlappingLayout = null;
-    private float[] mDragViewVisualCenter = new float[2];
+    /**
+     * The CellLayout which will be dropped to
+     */
+    private CellLayout mDropToLayout = null;
 
+    private float[] mDragViewVisualCenter = new float[2];
+    private int mCurrentPage;
     /**
      * Is the user is dragging an item near the edge of a page?
      */
@@ -118,11 +115,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
 
-    static private float squaredDistance(float[] point1, float[] point2) {
-        float distanceX = point1[0] - point2[0];
-        float distanceY = point2[1] - point2[1];
-        return distanceX * distanceX + distanceY * distanceY;
+    /**
+     * Sets the current page.
+     */
+    void setCurrentPage() {
+        View view = getFocusedChild();
+        mCurrentPage=indexOfChild(view);
     }
+
 
     static Rect getCellLayoutMetrics(Launcher launcher, int orientation) {
         Resources res = launcher.getResources();
@@ -215,7 +215,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
             dragRect = new Rect(left, top, right, bottom);
 
-        } else if (child instanceof FolderItemView) {
+        } else if (child instanceof Folder) {
         }
 
         launcher.getDragController().startDrag(b, dragLayerX, dragLayerY, dragSource, child.getTag(),
@@ -247,7 +247,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Bitmap b = null;
 
         if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.drawer_grid_image);
+            View icon = v.findViewById(R.id.app_image);
             b = Bitmap.createBitmap(
                     v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
         } else {
@@ -319,13 +319,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         v.getDrawingRect(clipRect);
         destCanvas.save();
         if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.drawer_grid_image);
+            View icon = v.findViewById(R.id.app_image);
             destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
             destCanvas.clipRect(clipRect, Region.Op.REPLACE);
             icon.draw(destCanvas);
         } else {
 
-            if (v instanceof FolderItemView) {
+            if (v instanceof Folder) {
 
             }
             destCanvas.translate(-v.getScrollX() + padding / 2, -v.getScrollY() + padding / 2);
@@ -472,13 +472,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public void onDrop(DragObject d) {
         mapToCellLayout(d, mDragTargetLayout);
-        if (mDragTargetLayout != null)
-            mDragTargetLayout.onDragExit();
 
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
 
-        CellLayout dropTargetLayout = mDragTargetLayout;
+        CellLayout dropTargetLayout = mDropToLayout;
 
 
         int snapScreen = -1;
@@ -750,13 +748,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             switch (info.getItemType()) {
                 case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                 case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                    if (info instanceof AppInfo) {
+                    if (info.container == NO_ID && info instanceof AppInfo) {
                         // Came from all apps -- make a copy
                         info = new ShortcutInfo((AppInfo) info);
                     }
 
                     view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
-                            (ShortcutInfo) info, this);
+                            (ShortcutInfo) info);
                     break;
                 default:
                     throw new IllegalStateException("Unknown item type: " + info.itemType);
@@ -770,6 +768,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
                         mDragViewVisualCenter[1], mTargetCell);
 
+                if (createUserFolderIfNecessary(view, container, cellLayout, mTargetCell, distance,
+                        true, d.dragView, d.postAnimationRunnable)) {
+                    return;
+                }
+                if (addToExistingFolderIfNecessary(view, cellLayout, mTargetCell, distance, d,
+                        true)) {
+                    return;
+                }
             }
 
             if (touchXY != null) {
@@ -855,7 +861,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
 
         int childId = LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
-        boolean markCellsAsOccupied = !(child instanceof FolderItemView);
+        boolean markCellsAsOccupied = !(child instanceof Folder);
         if (!layout.addViewToCellLayout(child, insert ? 0 : -1, childId, lp, markCellsAsOccupied)) {
             // TODO: This branch occurs when the workspace is adding views
             // outside of the defined grid
@@ -863,7 +869,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
-        if (!(child instanceof FolderItemView)) {
+        if (!(child instanceof Folder)) {
             child.setHapticFeedbackEnabled(false);
             child.setOnLongClickListener(launcher);
 
@@ -928,6 +934,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     boolean createUserFolderIfNecessary(View newView, long container, CellLayout target,
                                         int[] targetCell, float distance, boolean external, DragView dragView,
                                         Runnable postAnimationRunnable) {
+
+        Timber.v("create User Folder IfNecessary");
+
         if (distance > mMaxDistanceForFolderCreation) return false;
         View v = target.getChildAt(targetCell[0], targetCell[1]);
 
@@ -1120,15 +1129,21 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         mDragEnforcer.onDragEnter();
         mCreateUserFolderOnDrop = false;
         mAddToExistingFolderOnDrop = false;
+        mDropToLayout = null;
+        CellLayout layout = getCurrentDropLayout();
+        setCurrentDropLayout(layout);
+        setCurrentDragOverlappingLayout(layout);
     }
 
     /**
      * Return the current {@link CellLayout}, correctly picking the destination
      * screen while a scroll is in progress.
      */
-//    public CellLayout getCurrentDropLayout() {
-//        return (CellLayout) getChildAt(getNextPage());
-//    }
+    public CellLayout getCurrentDropLayout() {
+
+        View CellLayout = this.getFocusedChild();
+        return (CellLayout) CellLayout;
+    }
 
     void mapToCellLayout(DragObject dragObject, CellLayout layout) {
         if (layout != null)
@@ -1297,7 +1312,16 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     @Override
     public void onDragExit(DragObject dragObject) {
+        mDragEnforcer.onDragExit();
+        mDropToLayout = mDragTargetLayout;
+        if (mDragMode == DRAG_MODE_CREATE_FOLDER) {
+            mCreateUserFolderOnDrop = true;
+        } else if (mDragMode == DRAG_MODE_ADD_TO_FOLDER) {
+            mAddToExistingFolderOnDrop = true;
+        }
         setCurrentDropLayout(null);
+        setCurrentDragOverlappingLayout(null);
+
     }
 
     @Override
@@ -1313,7 +1337,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public boolean acceptDrop(DragObject d) {
         // If it's an external drop (e.g. from All Apps), check if it should be accepted
-        CellLayout dropTargetLayout = mDragTargetLayout;
+        CellLayout dropTargetLayout = mDropToLayout;
+
         if (d.dragSource != this) {
             // Don't accept the drop if we're not over a screen at time of drop
             if (dropTargetLayout == null) {
@@ -1443,7 +1468,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         if (mDragMode == DRAG_MODE_NONE && userFolderPending &&
                 !mFolderCreationAlarm.alarmPending()) {
-            Timber.v(" User Folder created ");
+          //  Timber.v(" User Folder created ");
             mFolderCreationAlarm.setOnAlarmListener(new
                     FolderCreationAlarmListener(targetLayout, targetCell[0], targetCell[1]));
             mFolderCreationAlarm.setAlarm(FOLDER_CREATION_TIMEOUT);
@@ -1532,6 +1557,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         LauncherApplication launcherApplication = LauncherApplication.getApp();
         launcherApplication.getLauncher().getDropTargetBar().setVisibility(GONE);
         launcherApplication.getLauncher().getDeleteDropTarget().resetHoverColor();
+    }
+
+    public int getCurrentPage() {
+        return mCurrentPage;
     }
 
 

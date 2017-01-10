@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +31,7 @@ import java.util.List;
 import id2.id2me.com.id2launcher.fragments.DesktopFragment;
 import id2.id2me.com.id2launcher.fragments.DrawerFragment;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.itemviews.FolderIcon;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
@@ -50,8 +50,9 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
     private static final int REQUEST_BIND_APPWIDGET = 11;
     private static final int REQUEST_PICK_APPLICATION = 6;
     private static final int REQUEST_PICK_SHORTCUT = 7;
+    private IconCache mIconCache;
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
-    public static ViewPager pager;
+    public  ViewPager pager;
     public AppWidgetManager mAppWidgetManager;
     HorizontalPagerAdapter pageAdapter;
     DatabaseHandler db;
@@ -78,6 +79,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
             = new ArrayList<PendingAddArguments>();
     private FrameLayout dropTargetBar;
     private DeleteDropTarget deleteDropTarget;
+    private static HashMap<Long, FolderInfo> sFolders = new HashMap<Long, FolderInfo>();
 
     public void setDropTargetBar(FrameLayout dropTargetBar) {
         this.dropTargetBar = dropTargetBar;
@@ -96,6 +98,21 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         return deleteDropTarget;
     }
 
+    public void removeFolder(FolderInfo mInfo) {
+
+    }
+
+    public void closeFolder() {
+    }
+
+    /**
+     * Returns the CellLayout of the specified container at the specified screen.
+     */
+    public CellLayout getCellLayout(long container, int screen) {
+
+        return (CellLayout) wokSpace.getChildAt(screen);
+    }
+
     private static class PendingAddArguments {
         int requestCode;
         Intent intent;
@@ -112,8 +129,9 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
             db = DatabaseHandler.getInstance(this);
             mInflater = getLayoutInflater();
-            LauncherApplication launcherApplication = LauncherApplication.getApp();
-            mModel = launcherApplication.setLauncher(this);
+            LauncherApplication app = LauncherApplication.getApp();
+            mModel = app.setLauncher(this);
+            mIconCache = app.getIconCache();
 
             mAppWidgetManager = AppWidgetManager.getInstance(this);
             mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
@@ -481,7 +499,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
                 wokSpace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
                         HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
             } else {
-                if (!(itemUnderLongClick instanceof FolderItemView)) {
+                if (!(itemUnderLongClick instanceof Folder)) {
                     // User long pressed on an item
                     dropTargetBar.setVisibility(View.VISIBLE);
                     wokSpace.startDrag(longClickCellInfo);
@@ -520,14 +538,13 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
      */
     View createShortcut(ShortcutInfo info) {
         return createShortcut(R.layout.app_item_view,
-                null, info, null);
+                null, info);
     }
 
 
 
-    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info, DragSource dragSource) {
+    public View createShortcut(int app_item_view, CellLayout cellLayout, ShortcutInfo info) {
         AppItemView favorite = (AppItemView) mInflater.inflate(app_item_view, cellLayout, false);
-      //  favorite.setOnLongClickListener(this);
         favorite.setOnClickListener(this);
         favorite.setShortCutModel(info);
         return favorite;
@@ -675,9 +692,22 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     }
 
-    public FolderIcon addFolder(CellLayout target, long container, int screen, int i, int i1) {
+    public FolderIcon addFolder(CellLayout layout, long container, int screen, int cellX, int cellY) {
+        final FolderInfo folderInfo = new FolderInfo();
+        folderInfo.title = getText(R.string.folder_name);
 
-        return null;
+        // Update the model
+      //  LauncherModel.addItemToDatabase(Launcher.this, folderInfo, container, screen, cellX, cellY,
+        //        false);
+
+        sFolders.put(folderInfo.id, folderInfo);
+
+        // Create the view
+        FolderIcon newFolder =
+                FolderIcon.fromXml(this, layout, folderInfo, mIconCache);
+        wokSpace.addInScreen(newFolder, container, screen, cellX, cellY, 1, 1,
+                isWorkspaceLocked());
+        return newFolder;
     }
 
     public void setScrollView(ObservableScrollView scrollView) {

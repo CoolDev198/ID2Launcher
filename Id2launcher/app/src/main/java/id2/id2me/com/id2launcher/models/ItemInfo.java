@@ -18,7 +18,7 @@ public class ItemInfo {
     /**
      * The id in the settings database for this item
      */
-    long id = NO_ID;
+   public long id = NO_ID;
 
     /**
      * One of {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
