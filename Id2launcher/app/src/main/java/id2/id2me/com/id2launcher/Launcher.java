@@ -1,5 +1,9 @@
 package id2.id2me.com.id2launcher;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.ActivityOptions;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
@@ -8,18 +12,24 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -80,6 +90,10 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
     private FrameLayout dropTargetBar;
     private DeleteDropTarget deleteDropTarget;
     private static HashMap<Long, FolderInfo> sFolders = new HashMap<Long, FolderInfo>();
+    private ImageView mFolderIconImageView;
+    private Bitmap mFolderIconBitmap;
+    private Canvas mFolderIconCanvas;
+    private Rect mRectForFolderAnimation = new Rect();
 
     public void setDropTargetBar(FrameLayout dropTargetBar) {
         this.dropTargetBar = dropTargetBar;
@@ -102,8 +116,6 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     }
 
-    public void closeFolder() {
-    }
 
     /**
      * Returns the CellLayout of the specified container at the specified screen.
@@ -720,11 +732,195 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     @Override
     public void onClick(View view) {
-        if(view instanceof AppItemView){
+        Object tag = view.getTag();
+        if(tag instanceof ShortcutInfo){
             final ShortcutInfo shortcutInfo = (ShortcutInfo) view.getTag();
             startActivitySafely(view,shortcutInfo.intent,shortcutInfo);
+        } else if (tag instanceof FolderInfo) {
+            if (view instanceof FolderIcon) {
+                FolderIcon fi = (FolderIcon) view;
+                handleFolderClick(fi);
+            }
         }
 
+    }
+    private void handleFolderClick(FolderIcon folderIcon) {
+        final FolderInfo info = folderIcon.getFolderInfo();
+        Folder openFolder = wokSpace.getFolderForTag(info);
+
+        // If the folder info reports that the associated folder is open, then verify that
+        // it is actually opened. There have been a few instances where this gets out of sync.
+        if (info.opened && openFolder == null) {
+            Timber.v( "Folder info marked as open, but associated folder is not open. Screen: "
+                    + info.screen + " (" + info.cellX + ", " + info.cellY + ")");
+            info.opened = false;
+        }
+
+        if (!info.opened && !folderIcon.getFolder().isDestroyed()) {
+            // Close any open folder
+            closeFolder();
+            // Open the requested folder
+            openFolder(folderIcon);
+        } else {
+            // Find the open folder...
+            int folderScreen;
+            if (openFolder != null) {
+                folderScreen = wokSpace.getPageForView(openFolder);
+                // .. and close it
+                closeFolder(openFolder);
+                if (folderScreen != wokSpace.getCurrentPage()) {
+                    // Close any folder open on the current screen
+                    closeFolder();
+                    // Pull the folder onto this screen
+                    openFolder(folderIcon);
+                }
+            }
+        }
+    }
+    /**
+     * Opens the user folder described by the specified tag. The opening of the folder
+     * is animated relative to the specified View. If the View is null, no animation
+     * is played.
+     *
+     * @param folderInfo The FolderInfo describing the folder to open.
+     */
+    public void openFolder(FolderIcon folderIcon) {
+        Folder folder = folderIcon.getFolder();
+        FolderInfo info = folder.mInfo;
+
+        info.opened = true;
+
+        // Just verify that the folder hasn't already been added to the DragLayer.
+        // There was a one-off crash where the folder had a parent already.
+        if (folder.getParent() == null) {
+            dragLayer.addView(folder);
+            dragController.addDropTarget((DropTarget) folder);
+        } else {
+            Timber.v("Opening folder (" + folder + ") which already has a parent (" +
+                    folder.getParent() + ").");
+        }
+        folder.animateOpen();
+        growAndFadeOutFolderIcon(folderIcon);
+    }
+    private void growAndFadeOutFolderIcon(FolderIcon fi) {
+        if (fi == null) return;
+        PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", 0);
+        PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.5f);
+        PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.5f);
+
+        FolderInfo info = (FolderInfo) fi.getTag();
+        if (info.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
+            CellLayout cl = (CellLayout) fi.getParent().getParent();
+            CellLayout.LayoutParams lp = (CellLayout.LayoutParams) fi.getLayoutParams();
+            cl.setFolderLeaveBehindCell(lp.cellX, lp.cellY);
+        }
+
+        // Push an ImageView copy of the FolderIcon into the DragLayer and hide the original
+        copyFolderIconToImage(fi);
+        fi.setVisibility(View.INVISIBLE);
+
+        ObjectAnimator oa = LauncherAnimUtils.ofPropertyValuesHolder(mFolderIconImageView, alpha,
+                scaleX, scaleY);
+        oa.setDuration(getResources().getInteger(R.integer.config_folderAnimDuration));
+        oa.start();
+    }
+    /**
+     * This method draws the FolderIcon to an ImageView and then adds and positions that ImageView
+     * in the DragLayer in the exact absolute location of the original FolderIcon.
+     */
+    private void copyFolderIconToImage(FolderIcon fi) {
+        final int width = fi.getMeasuredWidth();
+        final int height = fi.getMeasuredHeight();
+
+        // Lazy load ImageView, Bitmap and Canvas
+        if (mFolderIconImageView == null) {
+            mFolderIconImageView = new ImageView(this);
+        }
+        if (mFolderIconBitmap == null || mFolderIconBitmap.getWidth() != width ||
+                mFolderIconBitmap.getHeight() != height) {
+            mFolderIconBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            mFolderIconCanvas = new Canvas(mFolderIconBitmap);
+        }
+
+        DragLayer.LayoutParams lp;
+        if (mFolderIconImageView.getLayoutParams() instanceof DragLayer.LayoutParams) {
+            lp = (DragLayer.LayoutParams) mFolderIconImageView.getLayoutParams();
+        } else {
+            lp = new DragLayer.LayoutParams(width, height);
+        }
+
+        // The layout from which the folder is being opened may be scaled, adjust the starting
+        // view size by this scale factor.
+        float scale = dragLayer.getDescendantRectRelativeToSelf(fi, mRectForFolderAnimation);
+        lp.customPosition = true;
+        lp.x = mRectForFolderAnimation.left;
+        lp.y = mRectForFolderAnimation.top;
+        lp.width = (int) (scale * width);
+        lp.height = (int) (scale * height);
+
+        mFolderIconCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        fi.draw(mFolderIconCanvas);
+        mFolderIconImageView.setImageBitmap(mFolderIconBitmap);
+        if (fi.getFolder() != null) {
+            mFolderIconImageView.setPivotX(fi.getFolder().getPivotXForIconAnimation());
+            mFolderIconImageView.setPivotY(fi.getFolder().getPivotYForIconAnimation());
+        }
+        // Just in case this image view is still in the drag layer from a previous animation,
+        // we remove it and re-add it.
+        if (dragLayer.indexOfChild(mFolderIconImageView) != -1) {
+            dragLayer.removeView(mFolderIconImageView);
+        }
+        dragLayer.addView(mFolderIconImageView, lp);
+        if (fi.getFolder() != null) {
+            fi.getFolder().bringToFront();
+        }
+    }
+
+
+    public void closeFolder() {
+        Folder folder = wokSpace.getOpenFolder();
+        if (folder != null) {
+
+            closeFolder(folder);
+        }
+    }
+
+    void closeFolder(Folder folder) {
+        folder.getInfo().opened = false;
+
+        ViewGroup parent = (ViewGroup) folder.getParent().getParent();
+        if (parent != null) {
+            FolderIcon fi = (FolderIcon) wokSpace.getViewForTag(folder.mInfo);
+            shrinkAndFadeInFolderIcon(fi);
+        }
+        folder.animateClosed();
+    }
+    private void shrinkAndFadeInFolderIcon(final FolderIcon fi) {
+        if (fi == null) return;
+        PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", 1.0f);
+        PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.0f);
+        PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.0f);
+
+        final CellLayout cl = (CellLayout) fi.getParent().getParent();
+
+        // We remove and re-draw the FolderIcon in-case it has changed
+        dragLayer.removeView(mFolderIconImageView);
+        copyFolderIconToImage(fi);
+        ObjectAnimator oa = LauncherAnimUtils.ofPropertyValuesHolder(mFolderIconImageView, alpha,
+                scaleX, scaleY);
+        oa.setDuration(getResources().getInteger(R.integer.config_folderAnimDuration));
+        oa.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (cl != null) {
+                    cl.clearFolderLeaveBehind();
+                    // Remove the ImageView copy of the FolderIcon and make the original visible.
+                    dragLayer.removeView(mFolderIconImageView);
+                    fi.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        oa.start();
     }
     private void resetAddInfo() {
         mPendingAddInfo.container = ItemInfo.NO_ID;

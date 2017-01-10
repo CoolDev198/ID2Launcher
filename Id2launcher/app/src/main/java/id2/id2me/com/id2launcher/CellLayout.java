@@ -584,7 +584,17 @@ public class CellLayout extends ViewGroup {
         }
         return null;
     }
+    public void setFolderLeaveBehindCell(int x, int y) {
+        mFolderLeaveBehindCell[0] = x;
+        mFolderLeaveBehindCell[1] = y;
+        invalidate();
+    }
 
+    public void clearFolderLeaveBehind() {
+        mFolderLeaveBehindCell[0] = -1;
+        mFolderLeaveBehindCell[1] = -1;
+        invalidate();
+    }
     boolean createAreaForResize(int cellX, int cellY, int spanX, int spanY,
                                 View dragView, int[] direction, boolean commit) {
         int[] pixelXY = new int[2];

@@ -3,16 +3,13 @@ package id2.id2me.com.id2launcher.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.DatabaseHandler;
-import id2.id2me.com.id2launcher.FolderGridAdapter;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 
@@ -24,7 +21,7 @@ public class FolderFragment extends Fragment {
     final int NO_OF_APPS_IN_ROW = 3;
     View fragmentView;
     ArrayList<ItemInfo> itemInfoModels;
-    private FolderGridAdapter adapter;
+
     private DatabaseHandler db;
     public long folderId;
     public static final FolderFragment newInstance(long folderId) {

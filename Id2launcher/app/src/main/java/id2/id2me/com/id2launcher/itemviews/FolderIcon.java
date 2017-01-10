@@ -129,6 +129,13 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
 //            drawPreviewItem(canvas, mAnimParams);
 //        }
     }
+    public Folder getFolder() {
+        return mFolder;
+    }
+
+    public FolderInfo getFolderInfo() {
+        return mInfo;
+    }
 
     public void onItemsChanged() {
         invalidate();

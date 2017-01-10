@@ -16,6 +16,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -929,6 +930,83 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             }
         }
         return false;
+    }
+    /**
+     * We should only use this to search for specific children.  Do not use this method to modify
+     * ShortcutsAndWidgetsContainer directly. Includes ShortcutAndWidgetContainers from
+     * the hotseat and workspace pages
+     */
+    ArrayList<ShortcutAndWidgetContainer> getAllShortcutAndWidgetContainers() {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                new ArrayList<ShortcutAndWidgetContainer>();
+        int screenCount = getChildCount();
+        for (int screen = 0; screen < screenCount; screen++) {
+            childrenLayouts.add(((CellLayout) getChildAt(screen)).getShortcutsAndWidgets());
+        }
+
+        return childrenLayouts;
+    }
+    public View getViewForTag(Object tag) {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                getAllShortcutAndWidgetContainers();
+        for (ShortcutAndWidgetContainer layout: childrenLayouts) {
+            int count = layout.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = layout.getChildAt(i);
+                if (child.getTag() == tag) {
+                    return child;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return The open folder on the current screen, or null if there is none
+     */
+    Folder getOpenFolder() {
+        DragLayer dragLayer = launcher.getDragLayer();
+        int count = dragLayer.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = dragLayer.getChildAt(i);
+            if (child instanceof Folder) {
+                Folder folder = (Folder) child;
+                if (folder.getInfo().opened)
+                    return folder;
+            }
+        }
+        return null;
+    }
+    public int getPageForView(View v) {
+        int result = -1;
+        if (v != null) {
+            ViewParent vp = v.getParent();
+            int count = getChildCount();
+            for (int i = 0; i < count; i++) {
+                if (vp == getChildAt(i)) {
+                    return i;
+                }
+            }
+        }
+        return result;
+    }
+
+    public Folder getFolderForTag(Object tag) {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                getAllShortcutAndWidgetContainers();
+        for (ShortcutAndWidgetContainer layout: childrenLayouts) {
+            int count = layout.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = layout.getChildAt(i);
+                if (child instanceof Folder) {
+                    Folder f = (Folder) child;
+                    if (f.getInfo() == tag && f.getInfo().opened) {
+                        return f;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     boolean createUserFolderIfNecessary(View newView, long container, CellLayout target,
