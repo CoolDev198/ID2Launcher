@@ -910,7 +910,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         mDestroyed = true;
     }
 
-    boolean isDestroyed() {
+    public boolean isDestroyed() {
         return mDestroyed;
     }
 

@@ -166,7 +166,8 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
     }
 
     public boolean acceptDrop(Object dragInfo) {
-        return false;
+        final ItemInfo item = (ItemInfo) dragInfo;
+        return !mFolder.isDestroyed() && willAcceptItem(item);
     }
 
     public void performCreateAnimation(final ShortcutInfo destInfo, final View destView,
