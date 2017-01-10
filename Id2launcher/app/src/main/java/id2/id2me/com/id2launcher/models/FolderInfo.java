@@ -15,12 +15,12 @@ public class FolderInfo extends ItemInfo {
     /**
      * Whether this folder has been opened
      */
-    boolean opened;
+    public boolean opened;
 
     /**
      * The apps and shortcuts
      */
-    ArrayList<ShortcutInfo> contents = new ArrayList<ShortcutInfo>();
+    public ArrayList<ShortcutInfo> contents = new ArrayList<ShortcutInfo>();
 
     ArrayList<FolderListener> listeners = new ArrayList<FolderListener>();
 
@@ -54,13 +54,6 @@ public class FolderInfo extends ItemInfo {
         itemsChanged();
     }
 
-    public void setTitle(CharSequence title) {
-        this.title = title;
-        for (int i = 0; i < listeners.size(); i++) {
-            listeners.get(i).onTitleChanged(title);
-        }
-    }
-
 
     public void addListener(FolderListener listener) {
         listeners.add(listener);
@@ -88,8 +81,6 @@ public class FolderInfo extends ItemInfo {
         public void onAdd(ShortcutInfo item);
 
         public void onRemove(ShortcutInfo item);
-
-        public void onTitleChanged(CharSequence title);
 
         public void onItemsChanged();
 

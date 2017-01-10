@@ -58,6 +58,14 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         resizeFrame.snapToWidget(false);
     }
 
+    public void animateViewIntoPosition(DragView dragView, final View child) {
+        animateViewIntoPosition(dragView, child, null);
+    }
+    public void animateViewIntoPosition(DragView dragView, final View child,
+                                        final Runnable onFinishAnimationRunnable) {
+        animateViewIntoPosition(dragView, child, -1, onFinishAnimationRunnable, null);
+    }
+
     public void animateViewIntoPosition(DragView dragView, final View child, int duration,
                                         final Runnable onFinishAnimationRunnable, View anchorView) {
         ShortcutAndWidgetContainer parentChildren = (ShortcutAndWidgetContainer) child.getParent();
@@ -89,7 +97,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
             toY += Math.round(scale * tv.getPaddingTop());
             toY -= dragView.getMeasuredHeight() * (1 - scale) / 2;
             toX -= (dragView.getMeasuredWidth() - Math.round(scale * child.getMeasuredWidth())) / 2;
-        } else if (child instanceof FolderItemView) {
+        } else if (child instanceof Folder) {
             // Account for holographic blur padding on the drag view
             toY -= scale * WorkSpace.DRAG_BITMAP_PADDING / 2;
             toY -= (1 - scale) * dragView.getMeasuredHeight() / 2;

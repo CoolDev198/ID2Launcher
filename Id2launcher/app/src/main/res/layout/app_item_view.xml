@@ -7,7 +7,7 @@
 
 
     <ImageView
-        android:id="@+id/drawer_grid_image"
+        android:id="@+id/app_image"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/app_icon_size"
         />
@@ -15,7 +15,7 @@
     <TextView
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:id="@+id/drawer_grid_text"
+        android:id="@+id/app_title"
         android:textColor="@color/app_drawer_text_color"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

@@ -28,9 +28,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import id2.id2me.com.id2launcher.itemviews.FolderIcon;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import timber.log.Timber;
-import id2.id2me.com.id2launcher.FolderIcon.FolderRingAnimator;;
+import id2.id2me.com.id2launcher.itemviews.FolderIcon.FolderRingAnimator;;
 
 /**
  * Created by sunita on 10/17/16.
@@ -299,6 +300,52 @@ public class CellLayout extends ViewGroup {
                     r - l - getPaddingRight(), b - t - getPaddingBottom());
         }
     }
+    /**
+     * Find the first vacant cell, if there is one.
+     *
+     * @param vacant Holds the x and y coordinate of the vacant cell
+     * @param spanX Horizontal cell span.
+     * @param spanY Vertical cell span.
+     *
+     * @return True if a vacant cell was found
+     */
+    public boolean getVacantCell(int[] vacant, int spanX, int spanY) {
+
+        return findVacantCell(vacant, spanX, spanY, mCountX, mCountY, mOccupied);
+    }
+    static boolean findVacantCell(int[] vacant, int spanX, int spanY,
+                                  int xCount, int yCount, boolean[][] occupied) {
+
+        for (int y = 0; y < yCount; y++) {
+            for (int x = 0; x < xCount; x++) {
+                boolean available = !occupied[x][y];
+                out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
+                    for (int j = y; j < y + spanY - 1 && y < yCount; j++) {
+                        available = available && !occupied[i][j];
+                        if (!available) break out;
+                    }
+                }
+
+                if (available) {
+                    vacant[0] = x;
+                    vacant[1] = y;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    public int getDesiredWidth() {
+        return getPaddingLeft() + getPaddingRight() + (mCountX * mCellWidth) +
+                (Math.max((mCountX - 1), 0) * mWidthGap);
+    }
+
+    public int getDesiredHeight()  {
+        return getPaddingTop() + getPaddingBottom() + (mCountY * mCellHeight) +
+                (Math.max((mCountY - 1), 0) * mHeightGap);
+    }
+
 
     public boolean addViewToCellLayout(View child, int index, int childId, LayoutParams params,
                                        boolean markCells) {

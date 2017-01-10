@@ -16,15 +16,25 @@ import android.widget.ScrollView;
 
 public class ObservableScrollView extends ScrollView {
 
-    private HolographicOutlineHelper mOutlineHelper;
     private ScrollViewListener scrollViewListener = null;
-    String TAG = "ObservableScrollView";
-    Context context;
-    LauncherApplication launcherApplication;
+    Launcher mLauncher;
+
+
+    public ObservableScrollView(Context context) {
+        this(context,null);
+    }
+
+    public ObservableScrollView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        LauncherApplication app = LauncherApplication.getApp();
+        mLauncher=app.getLauncher();
+    }
+
 
     @Override
     protected void onScrollChanged(int x, int y, int oldx, int oldy) {
         super.onScrollChanged(x, y, oldx, oldy);
+        mLauncher.getWokSpace().setCurrentPage();
         if(scrollViewListener != null) {
             scrollViewListener.onScrollChanged(this, x, y, oldx, oldy);
         }
@@ -38,22 +48,11 @@ public class ObservableScrollView extends ScrollView {
         void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy);
     }
 
-    public ObservableScrollView(Context context) {
-        super(context);
 
-        mOutlineHelper = new HolographicOutlineHelper();
-    }
-
-    public ObservableScrollView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        this.context = context;
-        launcherApplication = (LauncherApplication) ((Activity) context).getApplication();
-    }
 
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-       // Log.v(TAG, "  touch " + ev.getX() + "  " + ev.getY());
         return super.onTouchEvent(ev);
     }
 }

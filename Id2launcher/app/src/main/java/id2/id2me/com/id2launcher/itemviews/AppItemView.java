@@ -1,17 +1,11 @@
 package id2.id2me.com.id2launcher.itemviews;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import id2.id2me.com.id2launcher.DragSource;
-import id2.id2me.com.id2launcher.IconCache;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
@@ -47,15 +41,15 @@ public class AppItemView extends LinearLayout  {
 
 
     public void setTextVisibility(int value){
-        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
+        TextView textView =(TextView)findViewById(R.id.app_title) ;
         if(textView!=null)
             textView.setVisibility(value);
     }
 
 
     public void setAppInfoModel(AppInfo appInfoModel) {
-        ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
-        TextView textView =(TextView)findViewById(R.id.drawer_grid_text) ;
+        ImageView imageView = (ImageView) findViewById(R.id.app_image);
+        TextView textView =(TextView)findViewById(R.id.app_title) ;
         if(textView!=null)
         textView.setText(appInfoModel.title);
         if(imageView!=null)
@@ -64,7 +58,7 @@ public class AppItemView extends LinearLayout  {
     }
     public void setShortCutModel(ShortcutInfo shortCutModel) {
         LauncherApplication launcherApplication=LauncherApplication.getApp();
-        ImageView imageView = (ImageView) findViewById(R.id.drawer_grid_image);
+        ImageView imageView = (ImageView) findViewById(R.id.app_image);
         setTextVisibility(GONE);
         if(imageView!=null)
             imageView.setImageBitmap(shortCutModel.getIcon(launcherApplication.mIconCache));
