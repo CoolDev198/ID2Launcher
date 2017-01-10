@@ -117,10 +117,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     /**
      * Sets the current page.
+     * @param matchingPageForDragOver
      */
-    void setCurrentPage() {
-        View view = getFocusedChild();
-        mCurrentPage=indexOfChild(view);
+    void setCurrentPage(CellLayout matchingPageForDragOver) {
+        mCurrentPage=indexOfChild(matchingPageForDragOver);
     }
 
 
@@ -440,7 +440,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         // hideScrollingIndicator(false);
     }
 
-    private CellLayout findMatchingPageForDragOver(int originX, int originY) {
+    public CellLayout findMatchingPageForDragOver(int originX, int originY) {
         // We loop through all the screens (ie CellLayouts) and see which ones overlap
         // with the item being dragged and then choose the one that's closest to the touch point
         final int screenCount = getChildCount();

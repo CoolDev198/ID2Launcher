@@ -494,6 +494,13 @@ public class DragController {
      */
     public boolean onTouchEvent(MotionEvent ev) {
         if (!mDragging) {
+            final int[] dragLayerPos = getClampedDragLayerPos(ev.getX(), ev.getY());
+
+            int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
+            int scrollY= mLauncher.getScrollView().getScrollY();
+            dragLayerPos[1] = dragLayerPos[1]- wallPaperHeight +scrollY;;
+
+            mLauncher.getWokSpace().setCurrentPage(mLauncher.getWokSpace().findMatchingPageForDragOver(dragLayerPos[0],dragLayerPos[1]));
             return false;
         }
         Log.v("onTouchEvent ", ev.getX() + "   " + ev.getY());
