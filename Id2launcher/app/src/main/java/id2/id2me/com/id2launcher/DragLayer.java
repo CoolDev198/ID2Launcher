@@ -54,10 +54,10 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     }
 
     public void addResizeFrame(ItemInfo itemInfo, LauncherAppWidgetHostView widget,
-                               CellLayout cellLayout, int screen) {
+                               CellLayout cellLayout, int screen, int leftMargin, int topMargin) {
         //this.screen = screen;
         AppWidgetResizeFrame resizeFrame = new AppWidgetResizeFrame(getContext(),
-                widget, cellLayout, this, screen);
+                widget, cellLayout, this, screen, leftMargin, topMargin, itemInfo);
 
         LayoutParams lp = new LayoutParams(-1, -1);
         lp.customPosition = true;
