@@ -14,6 +14,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -564,7 +565,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
     @Override
-    public void onDrop(DragObject d) {
+    public void onDrop(final DragObject d) {
         mapToCellLayout(d, mDragTargetLayout);
         if (mDragTargetLayout != null)
             mDragTargetLayout.onDragExit();
@@ -588,6 +589,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             final View cell = mDragInfo.cell;
 
             Runnable resizeRunnable = null;
+            //Handler handler = new Handler();
             if (dropTargetLayout != null) {
                 // Move internally
                 boolean hasMovedLayouts = (getParentCellLayoutForView(cell) != dropTargetLayout);
@@ -632,7 +634,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                         (int) mDragViewVisualCenter[1], minSpanX, minSpanY, spanX, spanY, cell,
                         mTargetCell, resultSpan, CellLayout.MODE_ON_DROP);
 
-                boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
+                final boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
 
                 // if the widget resizes on drop
                 if (foundCell && (cell instanceof AppWidgetHostView) &&
@@ -677,7 +679,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                             final Runnable addResizeFrame = new Runnable() {
                                 public void run() {
                                     DragLayer dragLayer = launcher.getDragLayer();
-                                    dragLayer.addResizeFrame(info, hostView, cellLayout, mDragInfo.screen);
+                                    int y = cellLayout.getCellHeight() * mTargetCell[1];
+                                    int x = cellLayout.getCellWidth() * mTargetCell[0];
+                                    Timber.v("Drag Visual 0 : " + mDragViewVisualCenter[0] + " 1 : " + mDragViewVisualCenter[1]);
+                                    //Timber.v("Y : " + d.y + " offset : " + d.yOffset + "y cal : " + y + " hostView : " + hostView.getY());
+                                    final int[] touchXY = new int[]{(int) mDragViewVisualCenter[0],
+                                            (int) mDragViewVisualCenter[1]};
+                                    Timber.v("Touch XY 0 : " + touchXY[0] + " 1 : " + touchXY[1]);
+                                    Timber.v("d.y : " + d.y);
+                                    dragLayer.addResizeFrame(info, hostView, cellLayout, mDragInfo.screen , x , y);
                                 }
                             };
                             resizeRunnable = (new Runnable() {
@@ -688,9 +698,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                                         mDelayedResizeRunnable = addResizeFrame;
                                     }*/
                                     addResizeFrame.run();
-                                    //mDelayedResizeRunnable = addResizeFrame;
+
                                 }
                             });
+
+                           // handler.postDelayed(resizeRunnable,100);
+
                         }
                     }
 
