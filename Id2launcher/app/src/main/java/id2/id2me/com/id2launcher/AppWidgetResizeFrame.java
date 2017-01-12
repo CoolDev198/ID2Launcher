@@ -82,6 +82,7 @@ public class AppWidgetResizeFrame extends FrameLayout {
     private WallpaperContainer mWallpaperContainer;
 
     private int screen;
+    private static int mPreviousScrollHeight;
 
     public AppWidgetResizeFrame(Context context,
                                 LauncherAppWidgetHostView widgetView, CellLayout cellLayout, DragLayer dragLayer, int screen,
@@ -444,9 +445,41 @@ public class AppWidgetResizeFrame extends FrameLayout {
             Timber.v("Scroll  y widget : " + scrollY);
         }*/
 
+
+        int scrollViewHeight = mLauncher.getScrollView().getScrollY();
+
+
+        int yOff = 0;
+        if(screen == 0){
+            if(scrollViewHeight <= wallPaperHeight){
+                yOff = wallPaperHeight - scrollViewHeight;
+                mPreviousScrollHeight = scrollViewHeight;
+            } else {
+                yOff = scrollViewHeight - wallPaperHeight;
+            }
+        } else {
+            int cellHeight = mCellLayout.getHeight();
+            screen = screen + 1;
+            int screenHeight = screen * cellHeight ;
+
+            //scrollViewHeight = scrollViewHeight - 480;
+            /*if(screenHeight >= cellHeight){
+                yOff = screenHeight - cellHeight;
+            } else {
+                yOff = screenHeight;
+            }*/
+                /*if(scrollViewHeight >= screenHeight ){
+                    //yOff = screenHeight - (scrollViewHeight - mPreviousScrollHeight);
+                    yOff =  screenHeight - mPreviousScrollHeight;
+                } else {
+                    yOff = scrollViewHeight - screenHeight;
+                }*/
+
+            yOff = screenHeight - scrollViewHeight - mPreviousScrollHeight ;
+        }
+
+        newY = yOff + mTopMargin;
         //newY = mTopMargin;
-
-
         // We need to make sure the frame's touchable regions lie fully within the bounds of the 
         // DragLayer. We allow the actual handles to be clipped, but we shift the touch regions
         // down accordingly to provide a proper touch target.
