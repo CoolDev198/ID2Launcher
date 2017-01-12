@@ -32,6 +32,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     private int mAnchorViewInitialScrollX = 0;
     private DragController dragController;
     private View mAnchorView = null;
+    private int[] mTmpXY = new int[2];
     // Variables relating to animation of views after drop
     private ValueAnimator mDropAnim = null;
     private ValueAnimator mFadeOutAnim = null;
@@ -406,8 +407,13 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     }
 
 
-    public float getDescendantRectRelativeToSelf(View v, Rect folderLocation) {
-        return 0;
+    public float getDescendantRectRelativeToSelf(View descendant, Rect r) {
+        mTmpXY[0] = 0;
+        mTmpXY[1] = 0;
+        float scale = getDescendantCoordRelativeToSelf(descendant, mTmpXY);
+        r.set(mTmpXY[0], mTmpXY[1],
+                mTmpXY[0] + descendant.getWidth(), mTmpXY[1] + descendant.getHeight());
+        return scale;
     }
 
     public View getAnimatedView() {

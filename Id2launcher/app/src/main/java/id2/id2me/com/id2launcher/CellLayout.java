@@ -363,7 +363,7 @@ public class CellLayout extends ViewGroup {
             if (lp.cellVSpan < 0) lp.cellVSpan = mCountY;
 
             child.setId(childId);
-            Timber.v("target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
+            Timber.v(" target cell after drop  ::  " + lp.cellX + "  " + lp.cellY);
             mShortcutsAndWidgets.addView(child, index, lp);
 
             if (markCells) markCellsAsOccupiedForView(child);
@@ -1796,14 +1796,14 @@ public class CellLayout extends ViewGroup {
             // Draw outer ring
             Drawable d = FolderRingAnimator.sSharedOuterRingDrawable;
             int width = (int) fra.getOuterRingSize();
-            int height = width;
+            int height = mCellHeight - 2*FolderRingAnimator.sPreviewPadding;
             cellToPoint(fra.mCellX, fra.mCellY, mTempLocation);
 
             int centerX = mTempLocation[0] + mCellWidth / 2;
             int centerY = mTempLocation[1] + previewOffset / 2;
 
             canvas.save();
-            canvas.translate(centerX - width / 2, centerY - height / 2);
+            canvas.translate(centerX - width / 2, centerY -height/2 + 40 );
             d.setBounds(0, 0, width, height);
             d.draw(canvas);
             canvas.restore();
@@ -1823,21 +1823,21 @@ public class CellLayout extends ViewGroup {
 //            canvas.restore();
         }
 
-        if (mFolderLeaveBehindCell[0] >= 0 && mFolderLeaveBehindCell[1] >= 0) {
-            Drawable d = FolderIcon.sSharedFolderLeaveBehind;
-            int width = d.getIntrinsicWidth();
-            int height = d.getIntrinsicHeight();
-
-            cellToPoint(mFolderLeaveBehindCell[0], mFolderLeaveBehindCell[1], mTempLocation);
-            int centerX = mTempLocation[0] + mCellWidth / 2;
-            int centerY = mTempLocation[1] + previewOffset / 2;
-
-            canvas.save();
-            canvas.translate(centerX - width / 2, centerY - width / 2);
-            d.setBounds(0, 0, width, height);
-            d.draw(canvas);
-            canvas.restore();
-        }
+//        if (mFolderLeaveBehindCell[0] >= 0 && mFolderLeaveBehindCell[1] >= 0) {
+//            Drawable d = FolderIcon.sSharedFolderLeaveBehind;
+//            int width = d.getIntrinsicWidth();
+//            int height = d.getIntrinsicHeight();
+//
+//            cellToPoint(mFolderLeaveBehindCell[0], mFolderLeaveBehindCell[1], mTempLocation);
+//            int centerX = mTempLocation[0] + mCellWidth / 2;
+//            int centerY = mTempLocation[1] + previewOffset / 2;
+//
+//            canvas.save();
+//            canvas.translate(centerX - width / 2, centerY - width / 2);
+//            d.setBounds(0, 0, width, height);
+//            d.draw(canvas);
+//            canvas.restore();
+//        }
 
         super.onDraw(canvas);
     }
@@ -1876,59 +1876,36 @@ public class CellLayout extends ViewGroup {
         scaleRect(out, scale);
         out.offset(cx, cy);
     }
+    int calculateCellWidth(int width, int countX) {
+        return width / countX;
+    }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
         int height = mCellHeight * mCountY;
-        int width = mCellWidth * mCountX;
-//        int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
-//        int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
-//
-//        int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
-//        int heightSpecSize =  MeasureSpec.getSize(heightMeasureSpec);
-//
-//        if (widthSpecMode == MeasureSpec.UNSPECIFIED || heightSpecMode == MeasureSpec.UNSPECIFIED) {
-//            throw new RuntimeException("CellLayout cannot have UNSPECIFIED dimensions");
-//        }
-//
-//        int numWidthGaps = mCountX - 1;
-//        int numHeightGaps = mCountY - 1;
-//
-//        if (mOriginalWidthGap < 0 || mOriginalHeightGap < 0) {
-//            int hSpace = widthSpecSize - getPaddingLeft() - getPaddingRight();
-//            int vSpace = heightSpecSize - getPaddingTop() - getPaddingBottom();
-//            int hFreeSpace = hSpace - (mCountX * mCellWidth);
-//            int vFreeSpace = vSpace - (mCountY * mCellHeight);
-//            mWidthGap = Math.min(mMaxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
-//            mHeightGap = Math.min(mMaxGap,numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
-//            mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
-//        } else {
-//            mWidthGap = mOriginalWidthGap;
-//            mHeightGap = mOriginalHeightGap;
-//        }
-//
-//        // Initial values correspond to widthSpecMode == MeasureSpec.EXACTLY
-//        int newWidth = widthSpecSize;
-//        int newHeight = heightSpecSize;
-//        if (widthSpecMode == MeasureSpec.AT_MOST) {
-//            newWidth = getPaddingLeft() + getPaddingRight() + (mCountX * mCellWidth) +
-//                    ((mCountX - 1) * mWidthGap);
-//            newHeight = getPaddingTop() + getPaddingBottom() + (mCountY * mCellHeight) +
-//                    ((mCountY - 1) * mHeightGap);
-//            setMeasuredDimension(newWidth, newHeight);
-//        }
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int childWidthSize = widthSize - (getPaddingLeft() + getPaddingRight());
+        mCellWidth = calculateCellWidth(childWidthSize, mCountX);
+        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap,
+                mHeightGap);
+
+        int maxWidth = 0;
+        int maxHeight = 0;
 
         int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
-            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width - getPaddingLeft() -
+            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(childWidthSize - getPaddingLeft() -
                     getPaddingRight(), MeasureSpec.EXACTLY);
             int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(height - getPaddingTop() -
                     getPaddingBottom(), MeasureSpec.EXACTLY);
             child.measure(childWidthMeasureSpec, childheightMeasureSpec);
+            maxWidth = Math.max(maxWidth, child.getMeasuredWidth());
+            maxHeight = Math.max(maxHeight, child.getMeasuredHeight());
         }
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(maxWidth, height);
     }
 
     /**
@@ -1943,7 +1920,7 @@ public class CellLayout extends ViewGroup {
         final int vStartPadding = getPaddingTop();
 
         result[0] = hStartPadding + cellX * (mCellWidth + mWidthGap);
-        result[1] = vStartPadding + cellY * (mCellHeight + mHeightGap);
+        result[1] = cellY * (mCellHeight + mHeightGap);
     }
 
     void visualizeDropLocation(View v, Bitmap dragOutline, int originX, int originY, int cellX,
@@ -1971,17 +1948,29 @@ public class CellLayout extends ViewGroup {
             int left = topLeft[0];
             int top = topLeft[1];
 
+
+            if(v != null){
+               if(v instanceof  FolderIcon){
+               }else{
+                   top +=  (mCellHeight - getResources().getDimensionPixelSize(R.dimen.app_icon_size))/2;
+               }
+            }else{
+                top +=  (mCellHeight - getResources().getDimensionPixelSize(R.dimen.app_icon_size))/2;
+
+            }
             if (v != null && dragOffset == null) {
                 // When drawing the drag outline, it did not account for margin offsets
                 // added by the view's parent.
                 MarginLayoutParams lp = (MarginLayoutParams) v.getLayoutParams();
                 left += lp.leftMargin;
-                top += lp.topMargin;
+
 
                 // Offsets due to the size difference between the View and the dragOutline.
                 // There is a size difference to account for the outer blur, which may lie
                 // outside the bounds of the view.
-                top += (v.getHeight() - dragOutline.getHeight()) / 2;
+                top += ((mCellHeight * spanY) + ((spanY - 1) * mHeightGap)
+                        - dragOutline.getHeight()) / 2 ;
+                //(v.getHeight() - dragOutline.getHeight()) / 2;
                 // We center about the x axis
                 left += ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap)
                         - dragOutline.getWidth()) / 2;
@@ -1989,15 +1978,19 @@ public class CellLayout extends ViewGroup {
                 if (dragOffset != null && dragRegion != null) {
                     // Center the drag region *horizontally* in the cell and apply a drag
                     // outline offset
-                    left -= dragOffset.x + ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap) -
-                            dragRegion.width()) / 2;
-                    top += dragOffset.y;
+                    float dragRegWidth =dragRegion.width();
+
+                    left += dragOffset.x +((mCellWidth * spanX) + ((spanX - 1) * mWidthGap)
+                            - dragRegWidth) / 2;
+
+                    top += dragOffset.y + ((mCellHeight * spanY) + ((spanY - 1) * mHeightGap)
+                            - dragOutline.getHeight()) / 2 ;
                 } else {
                     // Center the drag outline in the cell
                     left += ((mCellWidth * spanX) + ((spanX - 1) * mWidthGap)
                             - dragOutline.getWidth()) / 2;
                     top += ((mCellHeight * spanY) + ((spanY - 1) * mHeightGap)
-                            - dragOutline.getHeight()) / 2;
+                            - dragOutline.getHeight()) / 2 ;
                 }
             }
             final int oldIndex = mDragOutlineCurrent;
@@ -2488,7 +2481,7 @@ public class CellLayout extends ViewGroup {
         }
 
         public void setup(int cellWidth, int mCellHeight, int widthGap, int heightGap) {
-            if (isLockedToGrid) {
+           // if (isLockedToGrid) {
                 final int myCellHSpan = cellHSpan;
                 final int myCellVSpan = cellVSpan;
                 final int myCellX = useTmpCoords ? tmpCellX : cellX;
@@ -2500,7 +2493,9 @@ public class CellLayout extends ViewGroup {
                         topMargin - bottomMargin;
                 x = (int) (myCellX * (cellWidth + widthGap) + leftMargin);
                 y = (int) (myCellY * (mCellHeight + heightGap) + topMargin);
-            }
+
+            Timber.v(" leftmargin  :: x :: y " + x + " " + y + " " + leftMargin + " " +  rightMargin);
+            //}
         }
 
         public String toString() {

@@ -494,7 +494,7 @@ public class DragController {
      */
     public boolean onTouchEvent(MotionEvent ev) {
         if (!mDragging) {
-            final int[] dragLayerPos = getClampedDragLayerPos(ev.getX(), ev.getY());
+            final int[] dragLayerPos = new int[]{(int) ev.getX(),(int) ev.getY()};//getClampedDragLayerPos(ev.getX(), ev.getY());
 
             int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
             int scrollY= mLauncher.getScrollView().getScrollY();
@@ -503,14 +503,15 @@ public class DragController {
             mLauncher.getWokSpace().setCurrentPage(mLauncher.getWokSpace().findMatchingPageForDragOver(dragLayerPos[0],dragLayerPos[1]));
             return false;
         }
+
         Log.v("onTouchEvent ", ev.getX() + "   " + ev.getY());
         // Update the velocity tracker
         acquireVelocityTrackerAndAddMovement(ev);
 
         final int action = ev.getAction();
-        final int[] dragLayerPos = getClampedDragLayerPos(ev.getX(), ev.getY());
-        final int dragLayerX = dragLayerPos[0];
-        final int dragLayerY = dragLayerPos[1];
+        //final int[] dragLayerPos = getClampedDragLayerPos(ev.getX(), ev.getY());
+        final int dragLayerX = (int) ev.getX();//dragLayerPos[0];
+        final int dragLayerY = (int) ev.getY();//dragLayerPos[1];
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -649,7 +650,7 @@ public class DragController {
                 dropCoordinates[0] = x ;
                 int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
                 int scrollY= mLauncher.getScrollView().getScrollY();
-                dropCoordinates[1] = y- wallPaperHeight +scrollY;;
+                dropCoordinates[1] = y- wallPaperHeight +scrollY;
 //
                 return target;
             }

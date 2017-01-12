@@ -26,7 +26,7 @@ public class LauncherApplication extends Application {
     public  final int DEFAULT_SCREENS = 2;
     static LauncherApplication launcherApplication;
     private static float density;
-    public final int CELL_COUNT_X = 4;
+    public final int CELL_COUNT_X = 3;
     public final int CELL_COUNT_Y = 5;
     public ItemInfo dragInfo;
     public LauncherModel mModel;

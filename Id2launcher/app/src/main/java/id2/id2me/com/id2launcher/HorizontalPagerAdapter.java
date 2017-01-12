@@ -35,10 +35,6 @@ public class HorizontalPagerAdapter extends FragmentStatePagerAdapter {
             for (int i = 2; i < fragments.size(); i++) {
                 if (fragments.get(i) instanceof FolderFragment) {
                     FolderFragment folderFragment = (FolderFragment) fragments.get(i);
-                    if (folderFragment.folderId == folderId) {
-                    //    folderFragment.updateView();
-                        break;
-                    }
                 }
             }
         } catch (Exception e) {

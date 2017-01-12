@@ -32,7 +32,6 @@ import id2.id2me.com.id2launcher.Launcher;
 import id2.id2me.com.id2launcher.LauncherAnimUtils;
 import id2.id2me.com.id2launcher.LauncherSettings;
 import id2.id2me.com.id2launcher.R;
-import id2.id2me.com.id2launcher.WorkSpace;
 import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
@@ -48,43 +47,67 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
     private static final int NUM_ITEMS_IN_COlUMN = 3;
     private static final float PERSPECTIVE_SCALE_FACTOR = 1f;
     private static final float PERSPECTIVE_SHIFT_FACTOR = 1f;
-    private float mMaxPerspectiveShift;
-    private int mBaselineIconSize;
-    private Launcher mLauncher;
-    FolderRingAnimator mFolderRingAnimator = null;
-    private int mAvailableSpaceInPreview;
-    public static Drawable sSharedFolderLeaveBehind = null;
-    private float mBaselineIconScale;
-    private int mIntrinsicIconSize;
-    private int mTotalWidth = -1;
-    private Drawable drawable;
-    private int mPreviewOffsetX;
-    private int mPreviewOffsetY;
-    //private Folder mFolder;
-    private static boolean sStaticValuesDirty = true;
-    private ImageView mPreviewBackground;
     // The degree to which the outer ring is scaled in its natural state
     private static final float OUTER_RING_GROWTH_FACTOR = 0.3f;
-    private PreviewItemDrawingParams mParams = new PreviewItemDrawingParams(0, 0, 0, 0);
-    private Folder mFolder;
-    private FolderInfo mInfo;
     // The degree to which the inner ring grows when accepting drop
     private static final float INNER_RING_GROWTH_FACTOR = 0.15f;
-    boolean mAnimating = false;
-    private PreviewItemDrawingParams mAnimParams = new PreviewItemDrawingParams(0, 0, 0, 0);
-
     // The number of icons to display in the
     private static final int NUM_ITEMS_IN_PREVIEW = 3;
     private static final int CONSUMPTION_ANIMATION_DURATION = 100;
     private static final int DROP_IN_ANIMATION_DURATION = 400;
     private static final int INITIAL_ITEM_ANIMATION_DURATION = 350;
     private static final int FINAL_ITEM_ANIMATION_DURATION = 200;
+    public static Drawable sSharedFolderLeaveBehind = null;
+    //private Folder mFolder;
+    private static boolean sStaticValuesDirty = true;
+    FolderRingAnimator mFolderRingAnimator = null;
+    boolean mAnimating = false;
+    private float mMaxPerspectiveShift;
+    private int mBaselineIconSize;
+    private Launcher mLauncher;
+    private int mAvailableSpaceInPreview;
+    private float mBaselineIconScale;
+    private int mIntrinsicIconSize;
+    private int mTotalWidth = -1;
+    private Drawable drawable;
+    private int mPreviewOffsetX;
+    private int mPreviewOffsetY;
+    private ImageView mPreviewBackground;
+    private PreviewItemDrawingParams mParams = new PreviewItemDrawingParams(0, 0, 0, 0);
+    private Folder mFolder;
+    private FolderInfo mInfo;
+    private PreviewItemDrawingParams mAnimParams = new PreviewItemDrawingParams(0, 0, 0, 0);
     private ArrayList<ShortcutInfo> mHiddenItems = new ArrayList<ShortcutInfo>();
+
     public FolderIcon(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+
     public FolderIcon(Context context) {
-        this(context,null);
+        this(context, null);
+    }
+
+    public static FolderIcon fromXml(Launcher launcher, ViewGroup group,
+                                     FolderInfo folderInfo, IconCache iconCache) {
+
+        FolderIcon icon = (FolderIcon) LayoutInflater.from(launcher).inflate(R.layout.folder_icon, group, false);
+
+        icon.mPreviewBackground = (ImageView) icon.findViewById(R.id.preview_background);
+
+        icon.setTag(folderInfo);
+        icon.setOnClickListener(launcher);
+        icon.mInfo = folderInfo;
+        icon.mLauncher = launcher;
+        Folder folder = Folder.fromXml(launcher);
+        folder.setDragController(launcher.getDragController());
+        folder.setFolderIcon(icon);
+        folder.bind(folderInfo);
+        icon.mFolder = folder;
+
+        icon.mFolderRingAnimator = new FolderRingAnimator(launcher, icon);
+        folderInfo.addListener(icon);
+
+        return icon;
     }
 
     @Override
@@ -108,27 +131,28 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
 //            computePreviewDrawingParams(d);
 //        }
 
-      //  if (!mAnimating) {
-            for (int i = 0; i < NUM_ITEMS_IN_ROW; i++) {
-                for (int j = 0; j < NUM_ITEMS_IN_COlUMN; j++) {
-                    if (counter < items.size()) {
-                        v = (AppItemView) items.get(counter);
-                        ImageView appImg = ((ImageView) v.findViewById(R.id.app_image));
-                        d = appImg.getDrawable();
-                    } else {
-                        d = ContextCompat.getDrawable(getContext(), R.drawable.folder_empty_icon);
-                    }
-                    mParams = computePreviewItemDrawingParams(i, j, mParams);
-                    mParams.drawable = d;
-                    drawPreviewItem(canvas, mParams);
-                    counter++;
+        //  if (!mAnimating) {
+        for (int i = 0; i < NUM_ITEMS_IN_ROW; i++) {
+            for (int j = 0; j < NUM_ITEMS_IN_COlUMN; j++) {
+                if (counter < items.size()) {
+                    v = (AppItemView) items.get(counter);
+                    ImageView appImg = ((ImageView) v.findViewById(R.id.app_image));
+                    d = appImg.getDrawable();
+                } else {
+                    d = ContextCompat.getDrawable(getContext(), R.drawable.folder_empty_icon);
                 }
+                mParams = computePreviewItemDrawingParams(j, i, mParams);
+                mParams.drawable = d;
+                drawPreviewItem(canvas, mParams);
+                counter++;
             }
+        }
         //}
 //        else {
 //            drawPreviewItem(canvas, mAnimParams);
 //        }
     }
+
     public Folder getFolder() {
         return mFolder;
     }
@@ -181,7 +205,7 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
                                        final ShortcutInfo srcInfo, final DragView srcView, Rect dstRect,
                                        float scaleRelativeToDragLayer, Runnable postAnimationRunnable) {
         // These correspond two the drawable and view that the icon was dropped _onto_
-        Drawable animateDrawable  = ((ImageView)destView.findViewById(R.id.app_image)).getDrawable();
+        Drawable animateDrawable = ((ImageView) destView.findViewById(R.id.app_image)).getDrawable();
         computePreviewDrawingParams(animateDrawable.getIntrinsicWidth(),
                 destView.getMeasuredWidth());
 
@@ -193,7 +217,6 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         // This will animate the dragView (srcView) into the new folder
         onDrop(srcInfo, srcView, dstRect, scaleRelativeToDragLayer, 1, postAnimationRunnable, null);
     }
-
 
     private void onDrop(final ShortcutInfo item, DragView animateView, Rect finalRect,
                         float scaleRelativeToDragLayer, int index, Runnable postAnimationRunnable,
@@ -211,9 +234,9 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
             Rect to = finalRect;
             if (to == null) {
                 to = new Rect();
-                WorkSpace workspace = mLauncher.getWokSpace();
+                // WorkSpace workspace = mLauncher.getWokSpace();
                 // Set cellLayout and this to it's final state to compute final animation locations
-              //  workspace.setFinalTransitionTransform((CellLayout) getParent().getParent());
+                //  workspace.setFinalTransitionTransform((CellLayout) getParent().getParent());
                 float scaleX = getScaleX();
                 float scaleY = getScaleY();
                 setScaleX(1.0f);
@@ -226,14 +249,14 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
             }
 
             int[] center = new int[2];
-            float scale = getLocalCenterForIndex(1,0, center);
-            center[0] = (int) Math.round(scaleRelativeToDragLayer * center[0]);
-            center[1] = (int) Math.round(scaleRelativeToDragLayer * center[1]);
+            float scale = getLocalCenterForIndex(0, 0, center);
+            // center[0] = (int) Math.round(scaleRelativeToDragLayer * center[0]);
+            //center[1] = (int) Math.round(scaleRelativeToDragLayer * center[1]);
 
-            to.offset(center[0] - animateView.getMeasuredWidth() / 2,
-                    center[1] - animateView.getMeasuredHeight() / 2);
+//            to.offset(center[0] - animateView.getMeasuredWidth() / 2,
+//                    center[1] - animateView.getMeasuredHeight() / 2);
 
-            float finalAlpha = index <  TOTAL_NUM_ITEMS_IN_PREVIEW ? 0.5f : 0f;
+            float finalAlpha = index < TOTAL_NUM_ITEMS_IN_PREVIEW ? 0.5f : 0f;
 
             float finalScale = scale * scaleRelativeToDragLayer;
             dragLayer.animateView(animateView, from, to, finalAlpha,
@@ -252,8 +275,9 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
             addItem(item);
         }
     }
-    private float getLocalCenterForIndex(int x , int y, int[] center) {
-        mParams = computePreviewItemDrawingParams(x,y, mParams);
+
+    private float getLocalCenterForIndex(int x, int y, int[] center) {
+        mParams = computePreviewItemDrawingParams(x, y, mParams);
 
         mParams.transX += mPreviewOffsetX;
         mParams.transY += mPreviewOffsetY;
@@ -277,7 +301,6 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         onDrop(item, d.dragView, null, 1.0f, mInfo.contents.size(), d.postAnimationRunnable, d);
     }
 
-
     public void onDragEnter(ItemInfo info) {
         if (!willAcceptItem((ItemInfo) info)) return;//mFolder.isDestroyed() ||
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams) getLayoutParams();
@@ -290,22 +313,6 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
 
     public void performDestroyAnimation(View finalChild, Runnable onCompleteRunnable) {
 
-
-    }
-
-
-    class PreviewItemDrawingParams {
-        PreviewItemDrawingParams(float transX, float transY, float scale, int overlayAlpha) {
-            this.transX = transX;
-            this.transY = transY;
-            this.scale = scale;
-            this.overlayAlpha = overlayAlpha;
-        }
-        float transX;
-        float transY;
-        float scale;
-        int overlayAlpha;
-        Drawable drawable;
 
     }
 
@@ -331,18 +338,20 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
             mBaselineIconSize = (int) (mIntrinsicIconSize * mBaselineIconScale);
             mMaxPerspectiveShift = mBaselineIconSize * PERSPECTIVE_SHIFT_FACTOR;
 
-            //mPreviewOffsetX = (mTotalWidth - mAvailableSpaceInPreview) / 2;
-            mPreviewOffsetX = previewPadding;
-            mPreviewOffsetY = previewPadding;
+            //TODo hardcoded
+            mPreviewOffsetX = (mTotalWidth - mAvailableSpaceInPreview) / 2 - 20;
+            mPreviewOffsetY = previewPadding + 20 ;
         }
     }
 
-    private PreviewItemDrawingParams computePreviewItemDrawingParams(int xpos , int ypos,
+    private PreviewItemDrawingParams computePreviewItemDrawingParams(int xpos, int ypos,
                                                                      PreviewItemDrawingParams params) {
-        float transX = mBaselineIconSize * xpos;
-
-        float transY = mBaselineIconSize * ypos;
         float r = 0.75f;
+
+        float transX = mBaselineIconSize * xpos ;
+
+        float transY = mBaselineIconSize * ypos ;
+
         float scale = (1 - PERSPECTIVE_SCALE_FACTOR * (1 - r));
 
         float totalScale = mBaselineIconScale * scale;
@@ -377,6 +386,7 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         }
         canvas.restore();
     }
+
     private void animateFirstItem(final Drawable d, int duration, final boolean reverse,
                                   final Runnable onCompleteRunnable) {
         final PreviewItemDrawingParams finalParams = computePreviewItemDrawingParams(0, 0, null);
@@ -387,7 +397,7 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         mAnimParams.drawable = d;
 
         ValueAnimator va = LauncherAnimUtils.ofFloat(0f, 1.0f);
-        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float progress = (Float) animation.getAnimatedValue();
                 if (reverse) {
@@ -406,6 +416,7 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
             public void onAnimationStart(Animator animation) {
                 mAnimating = true;
             }
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 mAnimating = false;
@@ -417,42 +428,20 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         va.setDuration(duration);
         va.start();
     }
-    public static FolderIcon fromXml(Launcher launcher, ViewGroup group,
-                              FolderInfo folderInfo, IconCache iconCache) {
 
-        FolderIcon icon = (FolderIcon) LayoutInflater.from(launcher).inflate(R.layout.folder_icon, group, false);
-
-        icon.mPreviewBackground = (ImageView) icon.findViewById(R.id.preview_background);
-
-        icon.setTag(folderInfo);
-        icon.setOnClickListener(launcher);
-        icon.mInfo = folderInfo;
-        icon.mLauncher = launcher;
-        Folder folder = Folder.fromXml(launcher);
-        folder.setDragController(launcher.getDragController());
-        folder.setFolderIcon(icon);
-        folder.bind(folderInfo);
-        icon.mFolder = folder;
-
-        icon.mFolderRingAnimator = new FolderRingAnimator(launcher, icon);
-        folderInfo.addListener(icon);
-
-        return icon;
-    }
     public static class FolderRingAnimator {
+        public static Drawable sSharedOuterRingDrawable = null;
+        public static Drawable sSharedInnerRingDrawable = null;
+        public static int sPreviewSize = -1;
+        public static int sPreviewPadding = -1;
         public int mCellX;
         public int mCellY;
-        private CellLayout mCellLayout;
         public float mOuterRingSize;
         public float mInnerRingSize;
         public FolderIcon mFolderIcon = null;
         public Drawable mOuterRingDrawable = null;
         public Drawable mInnerRingDrawable = null;
-        public static Drawable sSharedOuterRingDrawable = null;
-        public static Drawable sSharedInnerRingDrawable = null;
-        public static int sPreviewSize = -1;
-        public static int sPreviewPadding = -1;
-
+        private CellLayout mCellLayout;
         private ValueAnimator mAcceptAnimator;
         private ValueAnimator mNeutralAnimator;
 
@@ -558,6 +547,21 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         public float getInnerRingSize() {
             return mInnerRingSize;
         }
+    }
+
+    class PreviewItemDrawingParams {
+        float transX;
+        float transY;
+        float scale;
+        int overlayAlpha;
+        Drawable drawable;
+        PreviewItemDrawingParams(float transX, float transY, float scale, int overlayAlpha) {
+            this.transX = transX;
+            this.transY = transY;
+            this.scale = scale;
+            this.overlayAlpha = overlayAlpha;
+        }
+
     }
 
 }

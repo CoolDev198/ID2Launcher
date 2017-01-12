@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <id2.id2me.com.id2launcher.itemviews.AppItemView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/red"
     >
 
 
     <ImageView
+        android:layout_gravity="center"
         android:id="@+id/app_image"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/app_icon_size"
+        android:layout_width="@dimen/app_icon_size"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_dialer"
         />
 
     <TextView
+        android:layout_gravity="center"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:id="@+id/app_title"

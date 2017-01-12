@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.itemviews.FolderIcon;
 import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 import id2.id2me.com.id2launcher.models.PendingAddShortcutInfo;
@@ -63,6 +67,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     private final int[] mTempXY = new int[2];
     private final Alarm mFolderCreationAlarm = new Alarm();
     private final Alarm mReorderAlarm = new Alarm();
+    private  IconCache mIconCache;
     boolean mAnimatingViewIntoPlace = false;
     /**
      * CellInfo for the cell that is currently being dragged
@@ -113,8 +118,40 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         display.getSize(mDisplaySize);
         mDragEnforcer = new DropTarget.DragEnforcer(context);
         mMaxDistanceForFolderCreation = (0.55f * getResources().getDimensionPixelSize(R.dimen.app_icon_size));
+        LauncherApplication app = LauncherApplication.getApp();
+        mIconCache = app.getIconCache();
+
+        setOnHierarchyChangeListener(this);
+        setHapticFeedbackEnabled(false);
+        // Disable multitouch across the workspace/all apps/customize tray
+        setMotionEventSplittingEnabled(true);
+        setWillNotDraw(false);
+        addDefaultScreens();
     }
 
+    private void addDefaultScreens() {
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+
+        CellLayout child;
+        int defaultScreens = launcherApplication.DEFAULT_SCREENS;
+        for (int i = 0; i < defaultScreens; i++) {
+            child = (CellLayout)
+                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
+            child.setTag(i);
+
+            if (i == 0) {
+                child.setBackgroundColor(Color.BLACK);
+            } else if(i==1){
+                child.setBackgroundColor(Color.YELLOW);
+            } else if(i==2){
+                child.setBackgroundColor(Color.RED);
+            } else if(i==3){
+                child.setBackgroundColor(Color.GREEN);
+            }
+
+            addView(child);
+        }
+    }
 
     /**
      * Sets the current page.
@@ -216,7 +253,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
             dragRect = new Rect(left, top, right, bottom);
 
-        } else if (child instanceof Folder) {
+        } else if (child instanceof FolderIcon) {
+            int previewSize = r.getDimensionPixelSize(R.dimen.folder_preview_size);
+            dragRect = new Rect(0, 0, child.getWidth(), previewSize);
         }
 
         launcher.getDragController().startDrag(b, dragLayerX, dragLayerY, dragSource, child.getTag(),
@@ -248,9 +287,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Bitmap b = null;
 
         if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.app_image);
-            b = Bitmap.createBitmap(
-                    v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
+            Drawable d = ((ImageView)v.findViewById(R.id.app_image)).getDrawable();
+            b = Bitmap.createBitmap(d.getIntrinsicWidth() + padding,
+                    d.getIntrinsicHeight() + padding, Bitmap.Config.ARGB_8888);
         } else {
             b = Bitmap.createBitmap(
                     v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
@@ -320,10 +359,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         v.getDrawingRect(clipRect);
         destCanvas.save();
         if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.app_image);
-            destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
-            destCanvas.clipRect(clipRect, Region.Op.REPLACE);
-            icon.draw(destCanvas);
+            Drawable d = ((ImageView)v.findViewById(R.id.app_image)).getDrawable();
+            clipRect.set(0, 0, d.getIntrinsicWidth() + padding, d.getIntrinsicHeight() + padding);
+            destCanvas.translate(padding / 2, padding / 2);
+            d.draw(destCanvas);
         } else {
 
             if (v instanceof Folder) {
@@ -472,6 +511,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     @Override
     public void onDrop(DragObject d) {
+
         mapToCellLayout(d, mDragTargetLayout);
 
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
@@ -757,6 +797,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
                             (ShortcutInfo) info);
                     break;
+                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
+                    view = FolderIcon.fromXml(launcher, cellLayout,
+                            (FolderInfo) info, mIconCache);
+                    break;
                 default:
                     throw new IllegalStateException("Unknown item type: " + info.itemType);
             }
@@ -867,7 +911,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             // TODO: This branch occurs when the workspace is adding views
             // outside of the defined grid
             // maybe we should be deleting these items from the LauncherModel?
-            Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
+            Timber.v("Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
         if (!(child instanceof Folder)) {
@@ -875,9 +919,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             child.setOnLongClickListener(launcher);
 
         }
-//        if (child instanceof DropTarget) {
-//            launcher.getDragController().addDropTarget((DropTarget) child);
-//        }
+        if (child instanceof DropTarget) {
+            launcher.getDragController().addDropTarget((DropTarget) child);
+        }
 
         removeExtraEmptyScreen();
     }
