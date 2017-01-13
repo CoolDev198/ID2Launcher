@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -52,8 +53,8 @@ public class CellLayout extends ViewGroup {
     private final static PorterDuffXfermode sAddBlendMode =
             new PorterDuffXfermode(PorterDuff.Mode.ADD);
     private final static Paint sPaint = new Paint();
-    private static int mCountX;
-    private static int mCountY;
+    private  int mCountX;
+    private  int mCountY;
     private final Rect mRect = new Rect();
     private final DecelerateInterpolator mEaseOutInterpolator;
     private final int[] mTmpXY = new int[2];
@@ -120,6 +121,9 @@ public class CellLayout extends ViewGroup {
     public CellLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        TypedArray a = context.obtainStyledAttributes(attrs,
+                R.styleable.CellLayout, defStyleAttr, 0);
+
         launcherApplication = LauncherApplication.getApp();
 
         mCellWidth = getResources().getDimensionPixelSize(R.dimen.cell_width);
@@ -127,8 +131,8 @@ public class CellLayout extends ViewGroup {
         mWidthGap = mOriginalWidthGap = getResources().getDimensionPixelSize(R.dimen.workspace_width_gap_port);
         mWidthGap = mOriginalHeightGap = getResources().getDimensionPixelSize(R.dimen.workspace_height_gap_port);
         mMaxGap = 0;
-        mCountX = launcherApplication.CELL_COUNT_X;
-        mCountY = launcherApplication.CELL_COUNT_Y;
+        mCountX =  a.getInt(R.styleable.CellLayout_cellCountX, 1);
+        mCountY = a.getInt(R.styleable.CellLayout_cellCountY, 1);
         mOccupied = new boolean[mCountX][mCountY];
         mTmpOccupied = new boolean[mCountX][mCountY];
         mPreviousReorderDirection[0] = INVALID_DIRECTION;
@@ -198,6 +202,9 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets = new ShortcutAndWidgetContainer(context);
         mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
         addView(mShortcutsAndWidgets);
+
+        a.recycle();
+
     }
 
     public static int[] rectToCell(Resources resources, int width, int height, int[] result) {
@@ -232,7 +239,7 @@ public class CellLayout extends ViewGroup {
     }
 
     static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
-                           int orientation) {
+                           int mCountX , int mCountY , int orientation) {
         int numWidthGaps = mCountX - 1;
         int numHeightGaps = mCountY - 1;
 
