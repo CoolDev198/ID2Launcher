@@ -432,7 +432,7 @@ public class AppWidgetResizeFrame extends FrameLayout {
 
         int scrollViewHeight = mLauncher.getScrollView().getScrollY();
         int cellHeight = mCellLayout.getHeight();
-        int screenOffset = cellHeight - wallPaperHeight;
+        int screenOffset = cellHeight - wallPaperHeight;//screen offset is diff bet cellHeght and WallPaperHeight
         int yOff = 0;
         //perform only in case of first screen is there
         if(screen == 0){
@@ -448,6 +448,7 @@ public class AppWidgetResizeFrame extends FrameLayout {
                         yOff = scrollViewHeight - wallPaperHeight;
                     }
                 } else {
+                    //for safer side
                     yOff = wallPaperHeight - scrollViewHeight;
                 }
             }
@@ -458,6 +459,7 @@ public class AppWidgetResizeFrame extends FrameLayout {
                 screen = screen + 1;
             }
             int screenHeight = screen * cellHeight ;
+            //int screenH = mWorkspace.getHeight();
             yOff = screenHeight - scrollViewHeight - screenOffset ;
         }
 
@@ -468,7 +470,6 @@ public class AppWidgetResizeFrame extends FrameLayout {
 
         }
 
-        //newY = mTopMargin;
         newY = yOff + mTopMargin - mBackgroundPadding + mWidgetPaddingTop;
         // We need to make sure the frame's touchable regions lie fully within the bounds of the 
         // DragLayer. We allow the actual handles to be clipped, but we shift the touch regions
