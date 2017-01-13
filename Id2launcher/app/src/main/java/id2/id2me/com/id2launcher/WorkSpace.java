@@ -595,7 +595,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 boolean hasMovedLayouts = (getParentCellLayoutForView(cell) != dropTargetLayout);
 
                 long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
-                int screen = (mTargetCell[0] < 0) ?
+                final int screen = (mTargetCell[0] < 0) ?
                         mDragInfo.screen : indexOfChild(dropTargetLayout);
                 int spanX = mDragInfo != null ? mDragInfo.spanX : 1;
                 int spanY = mDragInfo != null ? mDragInfo.spanY : 1;
@@ -681,13 +681,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                                     DragLayer dragLayer = launcher.getDragLayer();
                                     int y = cellLayout.getCellHeight() * mTargetCell[1];
                                     int x = cellLayout.getCellWidth() * mTargetCell[0];
+
                                     Timber.v("Drag Visual 0 : " + mDragViewVisualCenter[0] + " 1 : " + mDragViewVisualCenter[1]);
                                     //Timber.v("Y : " + d.y + " offset : " + d.yOffset + "y cal : " + y + " hostView : " + hostView.getY());
                                     final int[] touchXY = new int[]{(int) mDragViewVisualCenter[0],
                                             (int) mDragViewVisualCenter[1]};
                                     Timber.v("Touch XY 0 : " + touchXY[0] + " 1 : " + touchXY[1]);
                                     Timber.v("d.y : " + d.y);
-                                    dragLayer.addResizeFrame(info, hostView, cellLayout, mDragInfo.screen , x , y);
+                                    dragLayer.addResizeFrame(info, hostView, cellLayout, screen , x , y);
                                 }
                             };
                             resizeRunnable = (new Runnable() {
