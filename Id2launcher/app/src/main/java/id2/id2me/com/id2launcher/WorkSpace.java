@@ -1,35 +1,35 @@
 package id2.id2me.com.id2launcher;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
+
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
 import id2.id2me.com.id2launcher.itemviews.AppItemView;
+import id2.id2me.com.id2launcher.itemviews.FolderIcon;
 import id2.id2me.com.id2launcher.models.AppInfo;
+import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.PendingAddItemInfo;
 import id2.id2me.com.id2launcher.models.PendingAddShortcutInfo;
@@ -51,21 +51,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     public static final int ANIMATE_INTO_POSITION_AND_RESIZE = 2;
     public static final int COMPLETE_TWO_STAGE_WIDGET_DROP_ANIMATION = 3;
     public static final int CANCEL_TWO_STAGE_WIDGET_DROP_ANIMATION = 4;
-    final static float START_DAMPING_TOUCH_SLOP_ANGLE = (float) Math.PI / 6;
-    final static float MAX_SWIPE_ANGLE = (float) Math.PI / 3;
-    final static float TOUCH_SLOP_DAMPING_FACTOR = 4;
     // Y rotation to apply to the workspace screens
-    private static final float WORKSPACE_OVERSCROLL_ROTATION = 24f;
-    private static final int CHILDREN_OUTLINE_FADE_OUT_DELAY = 0;
-    private static final int CHILDREN_OUTLINE_FADE_OUT_DURATION = 375;
-    private static final int CHILDREN_OUTLINE_FADE_IN_DURATION = 100;
-    private static final int BACKGROUND_FADE_OUT_DURATION = 350;
-    private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
-    private static final int FLING_THRESHOLD_VELOCITY = 500;
+   private static final int ADJACENT_SCREEN_DROP_DURATION = 300;
     private static final Rect sTempRect = new Rect();
-    private static final float WALLPAPER_SCREENS_SPAN = 2f;
-    private static final int DEFAULT_CELL_COUNT_X = 4;
-    private static final int DEFAULT_CELL_COUNT_Y = 4;
+
     // Variables relating to the creation of user folders by hovering shortcuts over shortcuts
     private static final int FOLDER_CREATION_TIMEOUT = 0;
     private static final int REORDER_TIMEOUT = 250;
@@ -74,41 +63,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     private static final int DRAG_MODE_CREATE_FOLDER = 1;
     private static final int DRAG_MODE_ADD_TO_FOLDER = 2;
     private static final int DRAG_MODE_REORDER = 3;
-    static Rect mLandscapeCellLayoutMetrics = null;
     static Rect mPortraitCellLayoutMetrics = null;
     private final Launcher launcher;
     private final HolographicOutlineHelper mOutlineHelper = new HolographicOutlineHelper();
-    private final Rect mTempRect = new Rect();
     private final int[] mTempXY = new int[2];
     private final Alarm mFolderCreationAlarm = new Alarm();
     private final Alarm mReorderAlarm = new Alarm();
-    private final ArrayList<Integer> mRestoredPages = new ArrayList<Integer>();
-    boolean mDrawBackground = true;
+    private  IconCache mIconCache;
     boolean mAnimatingViewIntoPlace = false;
-    boolean mIsDragOccuring = false;
-    boolean mChildrenLayersEnabled = true;
-    int mWallpaperWidth;
-    int mWallpaperHeight;
-    boolean mUpdateWallpaperOffsetImmediately = false;
-    // These animators are used to fade the children's outlines
-    private ObjectAnimator mChildrenOutlineFadeInAnimation;
-    private ObjectAnimator mChildrenOutlineFadeOutAnimation;
-    private float mChildrenOutlineAlpha = 0;
-    // These properties refer to the background protection gradient used for AllApps and Customize
-    private ValueAnimator mBackgroundFadeInAnimation;
-    private ValueAnimator mBackgroundFadeOutAnimation;
-    private Drawable mBackground;
-    private float mBackgroundAlpha = 0;
-    private float mOverScrollMaxBackgroundAlpha = 0.0f;
-
-    // State variable that indicates whether the pages are small (ie when you're
-    // in all apps or customize mode)
-    private float mWallpaperScrollRatio = 1.0f;
-
-    ;
-    private int mOriginalPageSpacing;
-    private IBinder mWindowToken;
-    private int mDefaultPage;
     /**
      * CellInfo for the cell that is currently being dragged
      */
@@ -131,74 +93,24 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      * The CellLayout which will be dropped to
      */
     private CellLayout mDropToLayout = null;
-    private IconCache mIconCache;
-    private DragController mDragController;
-    // These are temporary variables to prevent having to allocate a new object just to
-    // return an (x, y) value from helper functions. Do NOT use them to maintain other state.
-    private int[] mTempCell = new int[2];
-    private int[] mTempEstimate = new int[2];
-    private float[] mDragViewVisualCenter = new float[2];
 
-    ;
-    private float[] mTempDragCoordinates = new float[2];
-    private float[] mTempCellLayoutCenterCoordinates = new float[2];
-    private float[] mTempDragBottomRightCoordinates = new float[2];
-    private Matrix mTempInverseMatrix = new Matrix();
-    private State mState = State.NORMAL;
-    private boolean mIsSwitchingState = false;
+    private float[] mDragViewVisualCenter = new float[2];
+    private int mCurrentPage;
     /**
      * Is the user is dragging an item near the edge of a page?
      */
-    private boolean mInScrollArea = false;
     private Bitmap mDragOutline = null;
-    private int[] mTempVisiblePagesRange = new int[2];
-    private float mOverscrollFade = 0;
-    private boolean mOverscrollTransformsSet;
-    private boolean mWorkspaceFadeInAdjacentScreens;
-    private Runnable mDelayedResizeRunnable;
-    private Runnable mDelayedSnapToPageRunnable;
     private Point mDisplaySize = new Point();
-    private boolean mIsStaticWallpaper;
-    private int mWallpaperTravelWidth;
-    private int mSpringLoadedPageSpacing;
-    private int mCameraDistance;
     private FolderIcon.FolderRingAnimator mDragFolderRingAnimator = null;
     private FolderIcon mDragOverFolderIcon = null;
     private boolean mCreateUserFolderOnDrop = false;
     private boolean mAddToExistingFolderOnDrop = false;
     private DropTarget.DragEnforcer mDragEnforcer;
     private float mMaxDistanceForFolderCreation;
-    // Variables relating to touch disambiguation (scrolling workspace vs. scrolling a widget)
-    private float mXDown;
-    private float mYDown;
     private int mDragMode = DRAG_MODE_NONE;
     private int mLastReorderX = -1;
     private int mLastReorderY = -1;
-    private SparseArray<Parcelable> mSavedStates;
-    // These variables are used for storing the initial and final values during workspace animations
-    private int mSavedScrollX;
-    private float mSavedRotationY;
-    private float mSavedTranslationX;
-    private float mCurrentScaleX;
-    private float mCurrentScaleY;
-    private float mCurrentRotationY;
-    private float mCurrentTranslationX;
-    private float mCurrentTranslationY;
-    private float[] mOldTranslationXs;
-    private float[] mOldTranslationYs;
-    private float[] mOldScaleXs;
-    private float[] mOldScaleYs;
-    private float[] mOldBackgroundAlphas;
-    private float[] mOldAlphas;
-    private float[] mNewTranslationXs;
-    private float[] mNewTranslationYs;
-    private float[] mNewScaleXs;
-    private float[] mNewScaleYs;
-    private float[] mNewBackgroundAlphas;
-    private float[] mNewAlphas;
-    private float[] mNewRotationYs;
-    private float mTransitionProgress;
-    private int currentPage = 0;
+
 
     public WorkSpace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -207,13 +119,50 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Display display = launcher.getWindowManager().getDefaultDisplay();
         display.getSize(mDisplaySize);
         mDragEnforcer = new DropTarget.DragEnforcer(context);
+        mMaxDistanceForFolderCreation = (0.55f * getResources().getDimensionPixelSize(R.dimen.app_icon_size));
+        LauncherApplication app = LauncherApplication.getApp();
+        mIconCache = app.getIconCache();
+
+        setOnHierarchyChangeListener(this);
+        setHapticFeedbackEnabled(false);
+        // Disable multitouch across the workspace/all apps/customize tray
+        setMotionEventSplittingEnabled(true);
+        setWillNotDraw(false);
+        addDefaultScreens();
     }
 
-    static private float squaredDistance(float[] point1, float[] point2) {
-        float distanceX = point1[0] - point2[0];
-        float distanceY = point2[1] - point2[1];
-        return distanceX * distanceX + distanceY * distanceY;
+    private void addDefaultScreens() {
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+
+        CellLayout child;
+        int defaultScreens = launcherApplication.DEFAULT_SCREENS;
+        for (int i = 0; i < defaultScreens; i++) {
+            child = (CellLayout)
+                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
+            child.setTag(i);
+
+            if (i == 0) {
+                child.setBackgroundColor(Color.BLACK);
+            } else if(i==1){
+                child.setBackgroundColor(Color.YELLOW);
+            } else if(i==2){
+                child.setBackgroundColor(Color.RED);
+            } else if(i==3){
+                child.setBackgroundColor(Color.GREEN);
+            }
+
+            addView(child);
+        }
     }
+
+    /**
+     * Sets the current page.
+     * @param matchingPageForDragOver
+     */
+    void setCurrentPage(CellLayout matchingPageForDragOver) {
+        mCurrentPage=indexOfChild(matchingPageForDragOver);
+    }
+
 
     static Rect getCellLayoutMetrics(Launcher launcher, int orientation) {
         Resources res = launcher.getResources();
@@ -266,6 +215,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         beginDragShared(child, this);
     }
 
+
     public void beginDragShared(View child, DragSource dragSource) {
         addExtraEmptyScreen();
 
@@ -305,7 +255,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             dragVisualizeOffset = new Point(-DRAG_BITMAP_PADDING / 2, DRAG_BITMAP_PADDING / 2);
             dragRect = new Rect(left, top, right, bottom);
 
-        } else if (child instanceof FolderItemView) {
+        } else if (child instanceof FolderIcon) {
+            int previewSize = r.getDimensionPixelSize(R.dimen.folder_preview_size);
+            dragRect = new Rect(0, 0, child.getWidth(), previewSize);
         }
 
         launcher.getDragController().startDrag(b, dragLayerX, dragLayerY, dragSource, child.getTag(),
@@ -337,9 +289,9 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         Bitmap b = null;
 
         if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.drawer_grid_image);
-            b = Bitmap.createBitmap(
-                    v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
+            Drawable d = ((ImageView)v.findViewById(R.id.app_image)).getDrawable();
+            b = Bitmap.createBitmap(d.getIntrinsicWidth() + padding,
+                    d.getIntrinsicHeight() + padding, Bitmap.Config.ARGB_8888);
         } else {
             b = Bitmap.createBitmap(
                     v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
@@ -409,13 +361,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         v.getDrawingRect(clipRect);
         destCanvas.save();
         if (v instanceof AppItemView) {
-            View icon = v.findViewById(R.id.drawer_grid_image);
-            destCanvas.translate(-icon.getScrollX() + padding / 2, -icon.getScrollY() + padding / 2);
-            destCanvas.clipRect(clipRect, Region.Op.REPLACE);
-            icon.draw(destCanvas);
+            Drawable d = ((ImageView)v.findViewById(R.id.app_image)).getDrawable();
+            clipRect.set(0, 0, d.getIntrinsicWidth() + padding, d.getIntrinsicHeight() + padding);
+            destCanvas.translate(padding / 2, padding / 2);
+            d.draw(destCanvas);
         } else {
 
-            if (v instanceof FolderItemView) {
+            if (v instanceof Folder) {
 
             }
             destCanvas.translate(-v.getScrollX() + padding / 2, -v.getScrollY() + padding / 2);
@@ -432,7 +384,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      */
     private Bitmap createDragOutline(Bitmap orig, Canvas canvas, int padding, int w, int h,
                                      boolean clipAlpha) {
-        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final int outlineColor = ContextCompat.getColor(getContext(),R.color.outline);
         final Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         canvas.setBitmap(b);
 
@@ -517,12 +469,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 }
             }
         } else if (mDragInfo != null) {
-            CellLayout cellLayout;
-//            if (launcher.isHotseatLayout(target)) {
-//                cellLayout = launcher.getHotseat().getLayout();
-//            } else {
-            cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
-            //}
+            CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
             cellLayout.onDropChild(mDragInfo.cell);
         }
         if (d.cancelled && mDragInfo.cell != null) {
@@ -535,7 +482,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         // hideScrollingIndicator(false);
     }
 
-    private CellLayout findMatchingPageForDragOver(int originX, int originY) {
+    public CellLayout findMatchingPageForDragOver(int originX, int originY) {
         // We loop through all the screens (ie CellLayouts) and see which ones overlap
         // with the item being dragged and then choose the one that's closest to the touch point
         final int screenCount = getChildCount();
@@ -547,7 +494,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             child.getHitRect(outR);
             if (outR.contains(originX, originY)) {
                 if (child instanceof CellLayout) {
-                    Timber.v("best machi :: " + i);
+                  //  Timber.v("best machi :: " + i);
                     //   Timber.v("touch point  x ::  old y :: new y :: scroll y  " + originX + " " + originY + "  " + "  " +newy  + "  " +launcher.getScrollView().getScrollY());
                     bestMatchingScreen = (CellLayout) child;
                 }
@@ -565,16 +512,23 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
     @Override
+
     public void onDrop(final DragObject d) {
         mapToCellLayout(d, mDragTargetLayout);
         if (mDragTargetLayout != null)
             mDragTargetLayout.onDragExit();
 
+
+
+
+        Timber.v( "ondrop :: " + d.y);
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
 
-        CellLayout dropTargetLayout = mDragTargetLayout;
+        CellLayout dropTargetLayout = mDropToLayout;
 
+
+        mapToCellLayout(d, dropTargetLayout);
 
         int snapScreen = -1;
         boolean resizeOnDrop = false;
@@ -751,10 +705,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             }
             parent.onDropChild(cell);
             removeExtraEmptyScreen();
+
         }
 
+        }
 
-    }
 
     /**
      * Adds the specified child in the specified screen. The position and dimension of
@@ -878,13 +833,17 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             switch (info.getItemType()) {
                 case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                 case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                    if (info instanceof AppInfo) {
+                    if (info.container == NO_ID && info instanceof AppInfo) {
                         // Came from all apps -- make a copy
                         info = new ShortcutInfo((AppInfo) info);
                     }
 
                     view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
-                            (ShortcutInfo) info, this);
+                            (ShortcutInfo) info);
+                    break;
+                case LauncherSettings.Favorites.ITEM_TYPE_FOLDER:
+                    view = FolderIcon.fromXml(launcher, cellLayout,
+                            (FolderInfo) info, mIconCache);
                     break;
                 default:
                     throw new IllegalStateException("Unknown item type: " + info.itemType);
@@ -894,10 +853,22 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             // dropped, without any consideration to whether there is an item there.
             if (touchXY != null) {
 
-                mTargetCell = cellLayout.findNearestArea(d.x, d.y, 1, 1, mTargetCell);
+                mTargetCell = cellLayout.findNearestArea(d.x, d.y , 1, 1, mTargetCell);
+
+                Timber.v("target cell ::  " + mTargetCell[0] + "  " + mTargetCell[1] + "  d.x :: d.y ::"  + d.x  + " " + d.y);
+
+
                 float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
                         mDragViewVisualCenter[1], mTargetCell);
 
+                if (createUserFolderIfNecessary(view, container, cellLayout, mTargetCell, distance,
+                        true, d.dragView, d.postAnimationRunnable)) {
+                    return;
+                }
+                if (addToExistingFolderIfNecessary(view, cellLayout, mTargetCell, distance, d,
+                        true)) {
+                    return;
+                }
             }
 
             if (touchXY != null) {
@@ -919,6 +890,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
 //            LauncherModel.addOrMoveItemInDatabase(mLauncher, info, container, screen,
 //                    lp.cellX, lp.cellY);
+
 
             if (d.dragView != null) {
                 // We wrap the animation call in the temporary set and reset of the current
@@ -946,7 +918,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      */
     void addInScreen(View child, long container, int screen, int x, int y, int spanX, int spanY,
                      boolean insert) {
-        if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+         if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
             if (screen < 0 || screen >= getChildCount()) {
                 Log.e(TAG, "The screen must be >= 0 and < " + getChildCount()
                         + " (was " + screen + "); skipping child");
@@ -956,9 +928,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         final CellLayout layout;
         // Show folder title if not in the hotseat
-        if (child instanceof FolderItemView) {
-            // ((FolderItemView) child).setTextVisible(true);
-        }
+        if (child instanceof FolderIcon) {}
 
         layout = (CellLayout) getChildAt(screen);
         // child.setOnKeyListener(new IconKeyEventListener());
@@ -981,22 +951,25 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         }
 
         // Get the canonical child id to uniquely represent this view in this screen
+
+
         int childId = LauncherModel.getCellLayoutChildId(container, screen, x, y, spanX, spanY);
-        boolean markCellsAsOccupied = !(child instanceof FolderItemView);
+        boolean markCellsAsOccupied = !(child instanceof Folder);
         if (!layout.addViewToCellLayout(child, insert ? 0 : -1, childId, lp, markCellsAsOccupied)) {
             // TODO: This branch occurs when the workspace is adding views
             // outside of the defined grid
             // maybe we should be deleting these items from the LauncherModel?
-            Log.w(TAG, "Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
+            Timber.v("Failed to add to item at (" + lp.cellX + "," + lp.cellY + ") to CellLayout");
         }
 
-        if (!(child instanceof FolderItemView)) {
+        if (!(child instanceof Folder)) {
             child.setHapticFeedbackEnabled(false);
             child.setOnLongClickListener(launcher);
+
         }
-//        if (child instanceof DropTarget) {
-//            launcher.getDragController().addDropTarget((DropTarget) child);
-//        }
+        if (child instanceof DropTarget) {
+            launcher.getDragController().addDropTarget((DropTarget) child);
+        }
 
         removeExtraEmptyScreen();
     }
@@ -1050,10 +1023,90 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         }
         return false;
     }
+    /**
+     * We should only use this to search for specific children.  Do not use this method to modify
+     * ShortcutsAndWidgetsContainer directly. Includes ShortcutAndWidgetContainers from
+     * the hotseat and workspace pages
+     */
+    ArrayList<ShortcutAndWidgetContainer> getAllShortcutAndWidgetContainers() {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                new ArrayList<ShortcutAndWidgetContainer>();
+        int screenCount = getChildCount();
+        for (int screen = 0; screen < screenCount; screen++) {
+            childrenLayouts.add(((CellLayout) getChildAt(screen)).getShortcutsAndWidgets());
+        }
+
+        return childrenLayouts;
+    }
+    public View getViewForTag(Object tag) {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                getAllShortcutAndWidgetContainers();
+        for (ShortcutAndWidgetContainer layout: childrenLayouts) {
+            int count = layout.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = layout.getChildAt(i);
+                if (child.getTag() == tag) {
+                    return child;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return The open folder on the current screen, or null if there is none
+     */
+    Folder getOpenFolder() {
+        DragLayer dragLayer = launcher.getDragLayer();
+        int count = dragLayer.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = dragLayer.getChildAt(i);
+            if (child instanceof Folder) {
+                Folder folder = (Folder) child;
+                if (folder.getInfo().opened)
+                    return folder;
+            }
+        }
+        return null;
+    }
+    public int getPageForView(View v) {
+        int result = -1;
+        if (v != null) {
+            ViewParent vp = v.getParent();
+            int count = getChildCount();
+            for (int i = 0; i < count; i++) {
+                if (vp == getChildAt(i)) {
+                    return i;
+                }
+            }
+        }
+        return result;
+    }
+
+    public Folder getFolderForTag(Object tag) {
+        ArrayList<ShortcutAndWidgetContainer> childrenLayouts =
+                getAllShortcutAndWidgetContainers();
+        for (ShortcutAndWidgetContainer layout: childrenLayouts) {
+            int count = layout.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = layout.getChildAt(i);
+                if (child instanceof Folder) {
+                    Folder f = (Folder) child;
+                    if (f.getInfo() == tag && f.getInfo().opened) {
+                        return f;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     boolean createUserFolderIfNecessary(View newView, long container, CellLayout target,
                                         int[] targetCell, float distance, boolean external, DragView dragView,
                                         Runnable postAnimationRunnable) {
+
+       // Timber.v("create User Folder IfNecessary");
+
         if (distance > mMaxDistanceForFolderCreation) return false;
         View v = target.getChildAt(targetCell[0], targetCell[1]);
 
@@ -1246,25 +1299,31 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         mDragEnforcer.onDragEnter();
         mCreateUserFolderOnDrop = false;
         mAddToExistingFolderOnDrop = false;
+        mDropToLayout = null;
+        CellLayout layout = getCurrentDropLayout();
+        setCurrentDropLayout(layout);
+        setCurrentDragOverlappingLayout(layout);
     }
 
     /**
      * Return the current {@link CellLayout}, correctly picking the destination
      * screen while a scroll is in progress.
      */
-//    public CellLayout getCurrentDropLayout() {
-//        return (CellLayout) getChildAt(getNextPage());
-//    }
+    public CellLayout getCurrentDropLayout() {
+
+        View CellLayout = this.getFocusedChild();
+        return (CellLayout) CellLayout;
+    }
 
     void mapToCellLayout(DragObject dragObject, CellLayout layout) {
-
-        if (layout != null)
+        if (layout != null) {
             dragObject.y = dragObject.y - layout.getTop();
+        }
     }
 
     @Override
     public void onDragOver(DragObject d) {
-        Timber.v("ondragover");
+      //  Timber.v("on drag over");
         CellLayout layout = null;
         ItemInfo item = (ItemInfo) d.dragInfo;
         // Ensure that we have proper spans for the item that we are dropping
@@ -1296,7 +1355,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
             mTargetCell = mDragTargetLayout.findNearestArea(d.x, d.y, 1, 1, mTargetCell);
 
-            Timber.v("targetcell :: " + mTargetCell[0] + "  " + mTargetCell[1] + " d.y " + d.y);
+          //  Timber.v("target cell :: " + mTargetCell[0] + "  " + mTargetCell[1] + " d.y " + d.y);
 
             setCurrentDropOverCell(mTargetCell[0], mTargetCell[1]);
 
@@ -1321,7 +1380,6 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     item.getSpanY(), child, mTargetCell);
 
             if (!nearestDropOccupied) {
-                Timber.v(" notoccupied ");
                 mDragTargetLayout.visualizeDropLocation(child, mDragOutline,
                         (int) mDragViewVisualCenter[0], (int) mDragViewVisualCenter[1],
                         mTargetCell[0], mTargetCell[1], item.getSpanX(), item.getSpanY(), false,
@@ -1332,7 +1390,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
                 // Otherwise, if we aren't adding to or creating a folder and there's no pending
                 // reorder, then we schedule a reorder
-                ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
+              ReorderAlarmListener listener = new ReorderAlarmListener(mDragViewVisualCenter,
                         minSpanX, minSpanY, item.spanX, item.spanY, d.dragView, child);
                 mReorderAlarm.setOnAlarmListener(listener);
                 mReorderAlarm.setAlarm(REORDER_TIMEOUT);
@@ -1425,7 +1483,18 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
     @Override
     public void onDragExit(DragObject dragObject) {
+        mDragEnforcer.onDragExit();
+
+        mDropToLayout = mDragTargetLayout;
+        if (mDragMode == DRAG_MODE_CREATE_FOLDER) {
+            mCreateUserFolderOnDrop = true;
+        } else if (mDragMode == DRAG_MODE_ADD_TO_FOLDER) {
+            mAddToExistingFolderOnDrop = true;
+        }
+
         setCurrentDropLayout(null);
+        setCurrentDragOverlappingLayout(null);
+
     }
 
     @Override
@@ -1441,13 +1510,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public boolean acceptDrop(DragObject d) {
         // If it's an external drop (e.g. from All Apps), check if it should be accepted
-        CellLayout dropTargetLayout = mDragTargetLayout;
+        CellLayout dropTargetLayout = mDropToLayout;
+
         if (d.dragSource != this) {
             // Don't accept the drop if we're not over a screen at time of drop
             if (dropTargetLayout == null) {
                 return false;
             }
-            mapToCellLayout(d, mDragTargetLayout);
+            mapToCellLayout(d, dropTargetLayout);
 
             mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset,
                     d.dragView, mDragViewVisualCenter);
@@ -1568,8 +1638,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         boolean userFolderPending = willCreateUserFolder(info, targetLayout, targetCell, distance,
                 false);
 
+
         if (mDragMode == DRAG_MODE_NONE && userFolderPending &&
                 !mFolderCreationAlarm.alarmPending()) {
+          //  Timber.v(" User Folder created ");
             mFolderCreationAlarm.setOnAlarmListener(new
                     FolderCreationAlarmListener(targetLayout, targetCell[0], targetCell[1]));
             mFolderCreationAlarm.setAlarm(FOLDER_CREATION_TIMEOUT);
@@ -1658,6 +1730,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         LauncherApplication launcherApplication = LauncherApplication.getApp();
         launcherApplication.getLauncher().getDropTargetBar().setVisibility(GONE);
         launcherApplication.getLauncher().getDeleteDropTarget().resetHoverColor();
+    }
+
+    public int getCurrentPage() {
+        return mCurrentPage;
     }
 
 

@@ -34,6 +34,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     private int mAnchorViewInitialScrollX = 0;
     private DragController dragController;
     private View mAnchorView = null;
+    private int[] mTmpXY = new int[2];
     // Variables relating to animation of views after drop
     private ValueAnimator mDropAnim = null;
     private ValueAnimator mFadeOutAnim = null;
@@ -68,6 +69,14 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         resizeFrame.snapToWidget(false);
     }
 
+    public void animateViewIntoPosition(DragView dragView, final View child) {
+        animateViewIntoPosition(dragView, child, null);
+    }
+    public void animateViewIntoPosition(DragView dragView, final View child,
+                                        final Runnable onFinishAnimationRunnable) {
+        animateViewIntoPosition(dragView, child, -1, onFinishAnimationRunnable, null);
+    }
+
     public void animateViewIntoPosition(DragView dragView, final View child, int duration,
                                         final Runnable onFinishAnimationRunnable, View anchorView) {
         ShortcutAndWidgetContainer parentChildren = (ShortcutAndWidgetContainer) child.getParent();
@@ -99,7 +108,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
             toY += Math.round(scale * tv.getPaddingTop());
             toY -= dragView.getMeasuredHeight() * (1 - scale) / 2;
             toX -= (dragView.getMeasuredWidth() - Math.round(scale * child.getMeasuredWidth())) / 2;
-        } else if (child instanceof FolderItemView) {
+        } else if (child instanceof Folder) {
             // Account for holographic blur padding on the drag view
             toY -= scale * WorkSpace.DRAG_BITMAP_PADDING / 2;
             toY -= (1 - scale) * dragView.getMeasuredHeight() / 2;
@@ -469,8 +478,13 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     }
 
 
-    public float getDescendantRectRelativeToSelf(View v, Rect folderLocation) {
-        return 0;
+    public float getDescendantRectRelativeToSelf(View descendant, Rect r) {
+        mTmpXY[0] = 0;
+        mTmpXY[1] = 0;
+        float scale = getDescendantCoordRelativeToSelf(descendant, mTmpXY);
+        r.set(mTmpXY[0], mTmpXY[1],
+                mTmpXY[0] + descendant.getWidth(), mTmpXY[1] + descendant.getHeight());
+        return scale;
     }
 
     public View getAnimatedView() {

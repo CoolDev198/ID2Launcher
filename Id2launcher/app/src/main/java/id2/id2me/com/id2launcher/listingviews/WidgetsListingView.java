@@ -30,7 +30,7 @@ public class WidgetsListingView extends ListingContainerView {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         recyclerView.setLayoutManager(manager);
         recyclerView.setHasFixedSize(true);
-        widgetRecycleViewAdapter=new WidgetRecycleViewListAdapter(this);
+        widgetRecycleViewAdapter=new WidgetRecycleViewListAdapter(this,mHashMapBitmap);
         recyclerView.setAdapter(widgetRecycleViewAdapter);
 
     }

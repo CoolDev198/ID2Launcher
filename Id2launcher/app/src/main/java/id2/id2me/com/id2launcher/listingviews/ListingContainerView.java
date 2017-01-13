@@ -19,6 +19,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+
 import id2.id2me.com.id2launcher.AppWidgetResizeFrame;
 import id2.id2me.com.id2launcher.DragLayer;
 import id2.id2me.com.id2launcher.DragSource;
@@ -51,6 +53,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
     private Rect mTmpRect = new Rect();
     private Runnable mInflateWidgetRunnable = null;
     private Runnable mBindWidgetRunnable = null;
+    public HashMap<String, Bitmap> mHashMapBitmap;
 
     public ListingContainerView(Context context) {
         this(context, null);
@@ -63,6 +66,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
     public ListingContainerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.mLauncher = LauncherApplication.getApp().getLauncher();
+        mHashMapBitmap = new HashMap<>();
     }
 
     @Override
@@ -123,7 +127,7 @@ public class ListingContainerView extends FrameLayout implements View.OnLongClic
             BitmapDrawable previewDrawable = (BitmapDrawable) image.getDrawable();
 
             String id = createWidgetInfo.componentName.getPackageName() + "" + createWidgetInfo.previewImage;
-            preview = launcherApplication.mHashMapBitmap.get(id);
+            preview = mHashMapBitmap.get(id);
 
             // Determine the image view drawable scale relative to the preview
             float[] mv = new float[9];

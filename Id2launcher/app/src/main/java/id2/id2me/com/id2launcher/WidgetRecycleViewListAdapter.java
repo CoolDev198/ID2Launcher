@@ -47,6 +47,7 @@ import timber.log.Timber;
 public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRecycleViewListAdapter.MyViewHolder>
         implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener, View.OnKeyListener {
 
+    private  HashMap<String, Bitmap> mHashMapBitmap;
     LauncherApplication launcherApplication;
     private ListingContainerView listeners;
     private ArrayList<Object> items;
@@ -74,7 +75,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
 
     private final Rect mOriginalImagePadding = new Rect();
 
-    public WidgetRecycleViewListAdapter(ListingContainerView listeners) {
+    public WidgetRecycleViewListAdapter(ListingContainerView listeners, HashMap<String, Bitmap> mHashMapBitmap) {
         this.listeners=listeners;
         launcherApplication = LauncherApplication.getApp();
         mPackageManager = launcherApplication.getPackageManager();
@@ -83,7 +84,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
         mIconCache = launcherApplication.mIconCache;
         mCellWidth = launcherApplication.getCellWidth();
         mCellHeight = launcherApplication.getCellHeight();
-        launcherApplication.mHashMapBitmap = new HashMap<>();
+        this.mHashMapBitmap = mHashMapBitmap;
         Timber.v("Widget List Size : " + items.size());
     }
 
@@ -158,7 +159,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
             key_id = resolveInfo.activityInfo.packageName;
         }
 
-        Bitmap b = launcherApplication.mHashMapBitmap.get(key_id);
+        Bitmap b = mHashMapBitmap.get(key_id);
         if(b != null){
             holder.widget_preview_img.setImageBitmap(b);
         } else {
@@ -175,13 +176,13 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
                         cellSpans[0], cellSpans[1], maxWidth, maxHeight);
                 holder.widget_preview_img.setImageBitmap(b);
                 String id = info.provider.getPackageName()+""+info.previewImage;
-                launcherApplication.mHashMapBitmap.put(id,b);
+                mHashMapBitmap.put(id,b);
             } else if (rawInfo instanceof ResolveInfo){
                 ResolveInfo info = (ResolveInfo) rawInfo;
                 maxPreviewWidth = launcherApplication.getScreenWidth()/3;
                 b = getShortcutPreview(info, maxPreviewWidth, maxPreviewHeight);
                 holder.widget_preview_img.setImageBitmap(b);
-                launcherApplication.mHashMapBitmap.put(info.activityInfo.packageName,b);
+                mHashMapBitmap.put(info.activityInfo.packageName,b);
             }
         }
 
@@ -475,5 +476,7 @@ public class WidgetRecycleViewListAdapter extends RecyclerView.Adapter<WidgetRec
             return new Rect();
         }
     }
+
+
 }
 

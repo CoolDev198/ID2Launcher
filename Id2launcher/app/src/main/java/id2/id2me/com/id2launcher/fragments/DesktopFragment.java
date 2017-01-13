@@ -137,32 +137,8 @@ public class DesktopFragment extends Fragment  {
             }
         });
 
-        addDefaultScreens();
     }
 
-    private void addDefaultScreens() {
-        LauncherApplication launcherApplication = LauncherApplication.getApp();
-        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
-        CellLayout child;
-        int defaultScreens = launcherApplication.DEFAULT_SCREENS;
-        for (int i = 0; i < defaultScreens; i++) {
-            child = (CellLayout)
-                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
-            child.setTag(i);
-
-            if (i == 0) {
-                child.setBackgroundColor(Color.BLACK);
-            } else if(i==1){
-                child.setBackgroundColor(Color.YELLOW);
-            } else if(i==2){
-                child.setBackgroundColor(Color.RED);
-            } else if(i==3){
-                child.setBackgroundColor(Color.GREEN);
-            }
-
-            containerL.addView(child);
-        }
-    }
 
     private void addWallpaperCropper() {
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
