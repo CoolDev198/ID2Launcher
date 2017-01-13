@@ -33,6 +33,7 @@ public class LauncherApplication extends Application {
     private Launcher launcher;
 
     public int screenWidth;
+    private int screenHeight;
 
     public static LauncherApplication getApp() {
         return launcherApplication;
@@ -62,6 +63,7 @@ public class LauncherApplication extends Application {
         addBroadCastReceiver();
         density = getResources().getDisplayMetrics().density;
         screenWidth = getResources().getDisplayMetrics().widthPixels;
+        screenHeight=getResources().getDisplayMetrics().heightPixels;
     }
 
     private void addBroadCastReceiver() {
@@ -117,5 +119,9 @@ public class LauncherApplication extends Application {
 
     public IconCache getIconCache() {
         return mIconCache;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
     }
 }
