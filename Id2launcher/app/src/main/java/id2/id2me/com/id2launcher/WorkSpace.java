@@ -1,6 +1,7 @@
 package id2.id2me.com.id2launcher;
 
 import android.appwidget.AppWidgetHostView;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -510,7 +512,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
     @Override
-    public void onDrop(DragObject d) {
+
+    public void onDrop(final DragObject d) {
+        mapToCellLayout(d, mDragTargetLayout);
+        if (mDragTargetLayout != null)
+            mDragTargetLayout.onDragExit();
+
 
 
 
@@ -536,12 +543,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             final View cell = mDragInfo.cell;
 
             Runnable resizeRunnable = null;
+            //Handler handler = new Handler();
             if (dropTargetLayout != null) {
                 // Move internally
                 boolean hasMovedLayouts = (getParentCellLayoutForView(cell) != dropTargetLayout);
 
                 long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
-                int screen = (mTargetCell[0] < 0) ?
+                final int screen = (mTargetCell[0] < 0) ?
                         mDragInfo.screen : indexOfChild(dropTargetLayout);
                 int spanX = mDragInfo != null ? mDragInfo.spanX : 1;
                 int spanY = mDragInfo != null ? mDragInfo.spanY : 1;
@@ -580,10 +588,10 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                         (int) mDragViewVisualCenter[1], minSpanX, minSpanY, spanX, spanY, cell,
                         mTargetCell, resultSpan, CellLayout.MODE_ON_DROP);
 
-                boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
+                final boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
 
                 // if the widget resizes on drop
-                /*if (foundCell && (cell instanceof AppWidgetHostView) &&
+                if (foundCell && (cell instanceof AppWidgetHostView) &&
                         (resultSpan[0] != item.spanX || resultSpan[1] != item.spanY)) {
                     resizeOnDrop = true;
                     item.spanX = resultSpan[0];
@@ -591,7 +599,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     AppWidgetHostView awhv = (AppWidgetHostView) cell;
                     AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, resultSpan[0],
                             resultSpan[1]);
-                }*/
+                }
 
                 if (foundCell) {
                     final ItemInfo info = (ItemInfo) cell.getTag();
@@ -619,6 +627,39 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                         // in its final location
 
                         final LauncherAppWidgetHostView hostView = (LauncherAppWidgetHostView) cell;
+                        AppWidgetProviderInfo pinfo = hostView.getAppWidgetInfo();
+                        if (pinfo != null &&
+                                pinfo.resizeMode != AppWidgetProviderInfo.RESIZE_NONE) {
+                            final Runnable addResizeFrame = new Runnable() {
+                                public void run() {
+                                    DragLayer dragLayer = launcher.getDragLayer();
+                                    int y = cellLayout.getCellHeight() * mTargetCell[1];
+                                    int x = cellLayout.getCellWidth() * mTargetCell[0];
+
+                                    Timber.v("Drag Visual 0 : " + mDragViewVisualCenter[0] + " 1 : " + mDragViewVisualCenter[1]);
+                                    //Timber.v("Y : " + d.y + " offset : " + d.yOffset + "y cal : " + y + " hostView : " + hostView.getY());
+                                    final int[] touchXY = new int[]{(int) mDragViewVisualCenter[0],
+                                            (int) mDragViewVisualCenter[1]};
+                                    Timber.v("Touch XY 0 : " + touchXY[0] + " 1 : " + touchXY[1]);
+                                    Timber.v("d.y : " + d.y);
+                                    dragLayer.addResizeFrame(info, hostView, cellLayout, screen , x , y);
+                                }
+                            };
+                            resizeRunnable = (new Runnable() {
+                                public void run() {
+                                    /*if (!isPageMoving()) {
+                                        addResizeFrame.run();
+                                    } else {
+                                        mDelayedResizeRunnable = addResizeFrame;
+                                    }*/
+                                    addResizeFrame.run();
+
+                                }
+                            });
+
+                           // handler.postDelayed(resizeRunnable,100);
+
+                        }
                     }
 
                 } else {
@@ -772,11 +813,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             View finalView = pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET
                     ? ((PendingAddWidgetInfo) pendingInfo).boundWidget : null;
 
-            /*if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
+            if (finalView instanceof AppWidgetHostView && updateWidgetSize) {
                 AppWidgetHostView awhv = (AppWidgetHostView) finalView;
                 AppWidgetResizeFrame.updateWidgetSizeRanges(awhv, launcher, item.spanX,
                         item.spanY);
-            }*/
+            }
 
             int animationStyle = ANIMATE_INTO_POSITION_AND_DISAPPEAR;
             if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET &&

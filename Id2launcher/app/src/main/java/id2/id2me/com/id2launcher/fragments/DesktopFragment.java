@@ -140,7 +140,6 @@ public class DesktopFragment extends Fragment  {
     }
 
 
-
     private void addWallpaperCropper() {
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);
        // LauncherApplication.wallpaperImg = (ImageView) fragmentView.findViewById(R.id.wallpaper_img);
