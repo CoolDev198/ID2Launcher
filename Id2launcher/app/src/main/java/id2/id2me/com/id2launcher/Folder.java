@@ -4,21 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.text.InputType;
-import android.text.Selection;
-import android.text.Spannable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ActionMode;
-import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,12 +19,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +38,7 @@ import id2.id2me.com.id2launcher.models.ShortcutInfo;
  */
 
 public class Folder extends LinearLayout implements DragSource, View.OnClickListener,
-        View.OnLongClickListener, DropTarget, FolderInfo.FolderListener{
+        View.OnLongClickListener, DropTarget, FolderInfo.FolderListener ,View.OnTouchListener{
     private static final String TAG = "Launcher.Folder";
 
     protected DragController mDragController;
@@ -94,7 +83,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     private ObjectAnimator mOpenCloseAnimator;
 
     private boolean mDestroyed;
-
+    private LinearLayout mRoot;
 
 
     public Folder(Context context, AttributeSet attrs) {
@@ -111,7 +100,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         setWillNotDraw(false);
         mInflater = LayoutInflater.from(context);
         mIconCache = ((LauncherApplication)context.getApplicationContext()).getIconCache();
-
         Resources res = getResources();
         mMaxCountX = res.getInteger(R.integer.folder_max_count_x);
         mMaxCountY = res.getInteger(R.integer.folder_max_count_y);
@@ -132,10 +120,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     protected void onFinishInflate() {
         super.onFinishInflate();
         mContent = (CellLayout) findViewById(R.id.folder_content);
+
         mContent.setGridSize(0, 0);
         mContent.getShortcutsAndWidgets().setMotionEventSplittingEnabled(false);
 
     }
+
+
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
@@ -154,6 +145,12 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         }
     };
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mLauncher.closeFolder();
+        return super.onTouchEvent(event);
+    }
+
     public void onClick(View v) {
         Object tag = v.getTag();
         if (tag instanceof ShortcutInfo) {
@@ -165,6 +162,8 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                     pos[0] + v.getWidth(), pos[1] + v.getHeight()));
 
             mLauncher.startActivitySafely(v, item.intent, item);
+        }else{
+            mLauncher.closeFolder();
         }
     }
 
@@ -201,13 +200,8 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         return mIconDrawable;
     }
 
-    /**
-     * We need to handle touch events to prevent them from falling through to the workspace below.
-     */
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return true;
-    }
+
+
 
     public void setDragController(DragController dragController) {
         mDragController = dragController;
@@ -228,6 +222,14 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
      */
     FolderInfo getInfo() {
         return mInfo;
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if(!(v instanceof AppItemView)){
+            mLauncher.closeFolder();
+        }
+        return true;
     }
 
     private class GridComparator implements Comparator<ShortcutInfo> {
@@ -310,7 +312,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
    public static Folder fromXml(Context context) {
        Folder folder=null;
        try {
+           LauncherApplication app=LauncherApplication.getApp();
             folder=(Folder) LayoutInflater.from(context).inflate(R.layout.user_folder, null);
+          // folder.setBackground(app.getLauncher().blurredWallpaper);
+
        } catch (Exception e) {
            e.printStackTrace();
        }
@@ -329,11 +334,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         mState = STATE_SMALL;
     }
 
+
+
     public void animateOpen() {
         positionAndSizeAsIcon();
 
         if (!(getParent() instanceof DragLayer)) return;
-        centerAboutIcon();
+      //  centerAboutIcon();
         PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", 1);
         PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.0f);
         PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.0f);
@@ -769,15 +776,15 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         int folderPivotY = height / 2 + (centeredTop - top);
         setPivotX(folderPivotX);
         setPivotY(folderPivotY);
-        mFolderIconPivotX = (int) (mFolderIcon.getMeasuredWidth() *
-                (1.0f * folderPivotX / width));
-        mFolderIconPivotY = (int) (mFolderIcon.getMeasuredHeight() *
-                (1.0f * folderPivotY / height));
+        mFolderIconPivotX = 0;//(int) (mFolderIcon.getMeasuredWidth() *
+              //  (1.0f * folderPivotX / width));
+        mFolderIconPivotY = 0;//(int) (mFolderIcon.getMeasuredHeight() *
+               // (1.0f * folderPivotY / height));
 
         lp.width = width;
         lp.height = height;
-        lp.x = left;
-        lp.y = top;
+        lp.x = 0;
+        lp.y = 0;
     }
 
     float getPivotXForIconAnimation() {
@@ -793,10 +800,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
         if (lp == null) {
             lp = new DragLayer.LayoutParams(0, 0);
-            lp.customPosition = true;
-            setLayoutParams(lp);
+          //  lp.customPosition = true;
+           // setLayoutParams(lp);
         }
-        centerAboutIcon();
+      //  centerAboutIcon();
     }
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -808,7 +815,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 MeasureSpec.EXACTLY);
         int contentHeightSpec = MeasureSpec.makeMeasureSpec(mContent.getDesiredHeight(),
                 MeasureSpec.EXACTLY);
-        mContent.measure(contentWidthSpec, contentHeightSpec);
+        mContent.measure(contentWidthSpec, height);
 
 
         setMeasuredDimension(width, height);
@@ -995,6 +1002,8 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
      //   updateTextViewFocus();
     }
 
+
+
     @Override
     public void addItem(ShortcutInfo destInfo) {
 
@@ -1035,4 +1044,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 //            startEditingFolderName();
 //        }
     }
+
+
 }
