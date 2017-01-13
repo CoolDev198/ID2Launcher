@@ -799,19 +799,20 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         centerAboutIcon();
     }
 
-//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        int width = getPaddingLeft() + getPaddingRight() + mContent.getDesiredWidth();
-//        int height = getPaddingTop() + getPaddingBottom() + mContent.getDesiredHeight();
-//
-//        int contentWidthSpec = MeasureSpec.makeMeasureSpec(mContent.getDesiredWidth(),
-//                MeasureSpec.EXACTLY);
-//        int contentHeightSpec = MeasureSpec.makeMeasureSpec(mContent.getDesiredHeight(),
-//                MeasureSpec.EXACTLY);
-//        mContent.measure(contentWidthSpec, contentHeightSpec);
-//
-//
-//        setMeasuredDimension(width, height);
-//    }
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        LauncherApplication app = LauncherApplication.getApp();
+        int width = app.getScreenWidth();
+        int height = app.getScreenHeight();
+
+        int contentWidthSpec = MeasureSpec.makeMeasureSpec(mContent.getDesiredWidth(),
+                MeasureSpec.EXACTLY);
+        int contentHeightSpec = MeasureSpec.makeMeasureSpec(mContent.getDesiredHeight(),
+                MeasureSpec.EXACTLY);
+        mContent.measure(contentWidthSpec, contentHeightSpec);
+
+
+        setMeasuredDimension(width, height);
+    }
 
     private void arrangeChildren(ArrayList<View> list) {
         int[] vacant = new int[2];
