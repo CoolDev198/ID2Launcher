@@ -492,7 +492,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             child.getHitRect(outR);
             if (outR.contains(originX, originY)) {
                 if (child instanceof CellLayout) {
-                    Timber.v("best machi :: " + i);
+                  //  Timber.v("best machi :: " + i);
                     //   Timber.v("touch point  x ::  old y :: new y :: scroll y  " + originX + " " + originY + "  " + "  " +newy  + "  " +launcher.getScrollView().getScrollY());
                     bestMatchingScreen = (CellLayout) child;
                 }
@@ -512,13 +512,16 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public void onDrop(DragObject d) {
 
-        mapToCellLayout(d, mDragTargetLayout);
 
+
+        Timber.v( "ondrop :: " + d.y);
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
 
         CellLayout dropTargetLayout = mDropToLayout;
 
+
+        mapToCellLayout(d, dropTargetLayout);
 
         int snapScreen = -1;
         boolean resizeOnDrop = false;
@@ -809,7 +812,11 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             // dropped, without any consideration to whether there is an item there.
             if (touchXY != null) {
 
-                mTargetCell = cellLayout.findNearestArea(d.x, d.y, 1, 1, mTargetCell);
+                mTargetCell = cellLayout.findNearestArea(d.x, d.y , 1, 1, mTargetCell);
+
+                Timber.v("target cell ::  " + mTargetCell[0] + "  " + mTargetCell[1] + "  d.x :: d.y ::"  + d.x  + " " + d.y);
+
+
                 float distance = cellLayout.getDistanceFromCell(mDragViewVisualCenter[0],
                         mDragViewVisualCenter[1], mTargetCell);
 
@@ -1057,7 +1064,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                                         int[] targetCell, float distance, boolean external, DragView dragView,
                                         Runnable postAnimationRunnable) {
 
-        Timber.v("create User Folder IfNecessary");
+       // Timber.v("create User Folder IfNecessary");
 
         if (distance > mMaxDistanceForFolderCreation) return false;
         View v = target.getChildAt(targetCell[0], targetCell[1]);
@@ -1268,13 +1275,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
     void mapToCellLayout(DragObject dragObject, CellLayout layout) {
-        if (layout != null)
+        if (layout != null) {
             dragObject.y = dragObject.y - layout.getTop();
+        }
     }
 
     @Override
     public void onDragOver(DragObject d) {
-        Timber.v("on drag over");
+      //  Timber.v("on drag over");
         CellLayout layout = null;
         ItemInfo item = (ItemInfo) d.dragInfo;
         // Ensure that we have proper spans for the item that we are dropping
@@ -1306,7 +1314,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
             mTargetCell = mDragTargetLayout.findNearestArea(d.x, d.y, 1, 1, mTargetCell);
 
-            Timber.v("target cell :: " + mTargetCell[0] + "  " + mTargetCell[1] + " d.y " + d.y);
+          //  Timber.v("target cell :: " + mTargetCell[0] + "  " + mTargetCell[1] + " d.y " + d.y);
 
             setCurrentDropOverCell(mTargetCell[0], mTargetCell[1]);
 
@@ -1435,12 +1443,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public void onDragExit(DragObject dragObject) {
         mDragEnforcer.onDragExit();
+
         mDropToLayout = mDragTargetLayout;
         if (mDragMode == DRAG_MODE_CREATE_FOLDER) {
             mCreateUserFolderOnDrop = true;
         } else if (mDragMode == DRAG_MODE_ADD_TO_FOLDER) {
             mAddToExistingFolderOnDrop = true;
         }
+
         setCurrentDropLayout(null);
         setCurrentDragOverlappingLayout(null);
 
@@ -1466,7 +1476,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             if (dropTargetLayout == null) {
                 return false;
             }
-            mapToCellLayout(d, mDragTargetLayout);
+            mapToCellLayout(d, dropTargetLayout);
 
             mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset,
                     d.dragView, mDragViewVisualCenter);
