@@ -20,9 +20,9 @@ import id2.id2me.com.id2launcher.models.ItemInfo;
 import timber.log.Timber;
 
 public class AppWidgetResizeFrame extends FrameLayout {
-    private final int mTopMargin;
-    private final int mLeftMargin;
-    private final ItemInfo mItemInfo;
+    private int mTopMargin;
+    private int mLeftMargin;
+    private ItemInfo mItemInfo;
     private LauncherAppWidgetHostView mWidgetView;
     private CellLayout mCellLayout;
     private DragLayer mDragLayer;
@@ -419,7 +419,6 @@ public class AppWidgetResizeFrame extends FrameLayout {
     public void snapToWidget(boolean animate) {
         DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
         int xOffset = mCellLayout.getLeft() + mCellLayout.getPaddingLeft() - mWorkspace.getScrollX();
-        int yOffset = mCellLayout.getTop() + mCellLayout.getPaddingTop();
 
         int newWidth = mWidgetView.getWidth() + 2 * mBackgroundPadding - mWidgetPaddingLeft -
                 mWidgetPaddingRight;
@@ -427,59 +426,50 @@ public class AppWidgetResizeFrame extends FrameLayout {
                 mWidgetPaddingBottom;
 
         int wallPaperHeight = mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
+        int newX = mLeftMargin - mBackgroundPadding + xOffset + mWidgetPaddingLeft;
 
-        int newX = mWidgetView.getLeft() - mBackgroundPadding + xOffset + mWidgetPaddingLeft;
-        int wTop = mTopMargin ;
-        int newY = wTop - mBackgroundPadding + yOffset + mWidgetPaddingTop;
-
-        int Topy = mWorkspace.getTop() - wallPaperHeight + mLauncher.getScrollView().getScrollY();
-        CellLayout cellLayout = (CellLayout)mWorkspace.getChildAt(screen);
-        int cellLayoutTop = cellLayout.getTop();
-        Timber.v("Widget Resize y : " + Topy + " CellLyout Top : " + cellLayoutTop);
-        /*if(screen == 0){
-            newY = wallPaperHeight + mTopMargin;
-            Timber.v("Widget Resize : " + wallPaperHeight + " Total Height : " + newY);
-        } else {
-            int scrollY = mLauncher.getScrollView().getScrollY();
-            newY = wallPaperHeight;
-            Timber.v("Scroll  y widget : " + scrollY);
-        }*/
-
+        int newY = 0;
 
         int scrollViewHeight = mLauncher.getScrollView().getScrollY();
-
-
+        int cellHeight = mCellLayout.getHeight();
+        int screenOffset = cellHeight - wallPaperHeight;
         int yOff = 0;
+        //perform only in case of first screen is there
         if(screen == 0){
             if(scrollViewHeight <= wallPaperHeight){
                 yOff = wallPaperHeight - scrollViewHeight;
-                mPreviousScrollHeight = scrollViewHeight;
+                mPreviousScrollHeight = 0;
             } else {
-                yOff = scrollViewHeight - wallPaperHeight;
+                //this is done when we move from last or any other screen to the top i.e. first screen
+                if(mPreviousScrollHeight!=0){
+                    if(scrollViewHeight >= wallPaperHeight){
+                        yOff = wallPaperHeight - scrollViewHeight;
+                    } else {
+                        yOff = scrollViewHeight - wallPaperHeight;
+                    }
+                } else {
+                    yOff = wallPaperHeight - scrollViewHeight;
+                }
             }
         } else {
-            int cellHeight = mCellLayout.getHeight();
-            screen = screen + 1;
+            mPreviousScrollHeight = screen;
+            if(!animate){
+                //only on drop we get screen else in other don't, +1 to get exact screen
+                screen = screen + 1;
+            }
             int screenHeight = screen * cellHeight ;
-
-            //scrollViewHeight = scrollViewHeight - 480;
-            /*if(screenHeight >= cellHeight){
-                yOff = screenHeight - cellHeight;
-            } else {
-                yOff = screenHeight;
-            }*/
-                /*if(scrollViewHeight >= screenHeight ){
-                    //yOff = screenHeight - (scrollViewHeight - mPreviousScrollHeight);
-                    yOff =  screenHeight - mPreviousScrollHeight;
-                } else {
-                    yOff = scrollViewHeight - screenHeight;
-                }*/
-
-            yOff = screenHeight - scrollViewHeight - mPreviousScrollHeight ;
+            yOff = screenHeight - scrollViewHeight - screenOffset ;
         }
 
-        newY = yOff + mTopMargin;
+        if(animate){
+            //on resize
+            newX = mWidgetView.getLeft() - mBackgroundPadding + xOffset + mWidgetPaddingLeft;
+            mTopMargin = mWidgetView.getTop();
+
+        }
+
         //newY = mTopMargin;
+        newY = yOff + mTopMargin - mBackgroundPadding + mWidgetPaddingTop;
         // We need to make sure the frame's touchable regions lie fully within the bounds of the 
         // DragLayer. We allow the actual handles to be clipped, but we shift the touch regions
         // down accordingly to provide a proper touch target.
