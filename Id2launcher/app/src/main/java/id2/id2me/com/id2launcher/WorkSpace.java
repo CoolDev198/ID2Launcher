@@ -512,23 +512,15 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     }
 
     @Override
-
     public void onDrop(final DragObject d) {
-        mapToCellLayout(d, mDragTargetLayout);
-        if (mDragTargetLayout != null)
-            mDragTargetLayout.onDragExit();
-
-
-
+        CellLayout dropTargetLayout = mDropToLayout;
+        mapToCellLayout(d, dropTargetLayout);
 
         Timber.v( "ondrop :: " + d.y);
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
 
-        CellLayout dropTargetLayout = mDropToLayout;
 
-
-        mapToCellLayout(d, dropTargetLayout);
 
         int snapScreen = -1;
         boolean resizeOnDrop = false;
@@ -588,7 +580,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                         (int) mDragViewVisualCenter[1], minSpanX, minSpanY, spanX, spanY, cell,
                         mTargetCell, resultSpan, CellLayout.MODE_ON_DROP);
 
-                final boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
+                boolean foundCell = mTargetCell[0] >= 0 && mTargetCell[1] >= 0;
 
                 // if the widget resizes on drop
                 if (foundCell && (cell instanceof AppWidgetHostView) &&
