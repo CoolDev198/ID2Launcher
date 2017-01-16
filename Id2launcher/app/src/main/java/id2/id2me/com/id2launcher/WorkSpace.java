@@ -141,7 +141,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
             child.setTag(i);
 
-            /*if (i == 0) {
+            if (i == 0) {
                 child.setBackgroundColor(Color.BLACK);
             } else if(i==1){
                 child.setBackgroundColor(Color.YELLOW);
@@ -149,7 +149,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 child.setBackgroundColor(Color.RED);
             } else if(i==3){
                 child.setBackgroundColor(Color.GREEN);
-            }*/
+            }
 
             addView(child);
         }
@@ -514,9 +514,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     @Override
     public void onDrop(final DragObject d) {
         CellLayout dropTargetLayout = mDropToLayout;
-        mapToCellLayout(d, dropTargetLayout);
 
         Timber.v( "ondrop :: " + d.y);
+
+      //  mapToCellLayout(d, dropTargetLayout);
+
+
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
 
@@ -1504,12 +1507,16 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         // If it's an external drop (e.g. from All Apps), check if it should be accepted
         CellLayout dropTargetLayout = mDropToLayout;
 
+        if (dropTargetLayout == null) {
+            return false;
+        }
+
+        mapToCellLayout(d, dropTargetLayout);
+
         if (d.dragSource != this) {
             // Don't accept the drop if we're not over a screen at time of drop
-            if (dropTargetLayout == null) {
-                return false;
-            }
-            mapToCellLayout(d, dropTargetLayout);
+
+            Timber.v(" accept drop :: " + d.x +  "  " + d.y );
 
             mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset,
                     d.dragView, mDragViewVisualCenter);
