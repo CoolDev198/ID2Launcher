@@ -5,6 +5,6 @@
         android:radius="0dp"
         />
     <solid
-        android:color="@color/widdget_list_outer_color"/>
+        android:color="@color/widget_list_outer_color"/>
 
 </shape>

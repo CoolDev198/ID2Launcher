@@ -3,7 +3,7 @@
 
     <color name="tab_background_color">#afa184</color>
     <color name="tab_text_color">#FFFFFF</color>
-    <color name="home_screen_color">#fdfaf5</color>
+    <color name="home_screen_color">#fcfaf5</color>
     <color name="app_drawer_text_color">#8C877E</color>
     <color name="app_drawer_background">#C2B497</color>
     <color name="light_grey">#fafafa</color>
@@ -28,7 +28,7 @@
     <color name="frame_color">#E0E0E0</color>
     <color name="statusbar_bg">#FF006080</color>
 
-    <color name="outline">@android:color/holo_blue_light</color>
+    <color name="outline">#afa184</color>
     <color name="red">#FF0000</color>
     <color name="blue">#1100ff</color>
     <color name="green">#00ff08</color>
@@ -49,5 +49,7 @@
     <!--widget listing color-->
     <color name="widget_list_inner_color">#d7cfbd</color>
     <color name="widget_list_outer_color">#ede8de</color>
+    <color name="widget_list_text_color">#817a6f</color>
+
 
 </resources>
