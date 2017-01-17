@@ -329,6 +329,12 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
             delayExitSpringLoadedMode = completeAdd(args);
         }
         dragLayer.clearAnimatedView();
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        if(launcherApplication.removeWidgetScreen){
+            Timber.v("Remove Extra screen addinScreen ");
+            launcherApplication.getLauncher().getWokSpace().removeExtraEmptyScreen();
+            launcherApplication.removeWidgetScreen = false;
+        }
         // Exit spring loaded mode if necessary after cancelling the configuration of a widget
         /*exitSpringLoadedDragModeDelayed((resultCode != RESULT_CANCELED), delayExitSpringLoadedMode,
                 null);*/
@@ -354,6 +360,8 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
                             mPendingAddInfo.screen, layout, null);
                     /*exitSpringLoadedDragModeDelayed((resultCode != RESULT_CANCELED), false,
                             null);*/
+                    callRemoveExtraScreen();
+
                 }
             };
         } else if (resultCode == RESULT_CANCELED) {
@@ -363,6 +371,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
                 public void run() {
                     /*exitSpringLoadedDragModeDelayed((resultCode != RESULT_CANCELED), false,
                             null);*/
+                    callRemoveExtraScreen();
                 }
             };
         }
@@ -370,9 +379,24 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
             wokSpace.animateWidgetDrop(mPendingAddInfo, cellLayout,
                     (DragView) dragLayer.getAnimatedView(), onCompleteRunnable,
                     animationType, boundWidget, true);
+
         } else {
             // The animated view may be null in the case of a rotation during widget configuration
             onCompleteRunnable.run();
+        }
+    }
+
+
+    private void callRemoveExtraScreen(){
+        try {
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
+            if(launcherApplication.removeWidgetScreen){
+                Timber.v("Remove Extra screen addinScreen ");
+                launcherApplication.getLauncher().getWokSpace().removeExtraEmptyScreen();
+                launcherApplication.removeWidgetScreen = false;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -674,7 +698,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
     }
 
     void showOutOfSpaceMessage() {
-        wokSpace.removeExtraEmptyScreen();
+        //wokSpace.removeExtraEmptyScreen();
         Toast.makeText(this, R.string.out_of_space, Toast.LENGTH_SHORT).show();
 
     }
@@ -904,6 +928,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         mPendingAddInfo.spanX = mPendingAddInfo.spanY = -1;
         mPendingAddInfo.minSpanX = mPendingAddInfo.minSpanY = -1;
         mPendingAddInfo.dropPos = null;
+
     }
 
     /**

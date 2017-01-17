@@ -31,6 +31,7 @@ public class LauncherApplication extends Application {
     public ItemInfo dragInfo;
     public LauncherModel mModel;
     private Launcher launcher;
+    public boolean removeWidgetScreen = false;
 
     public int screenWidth;
     private int screenHeight;

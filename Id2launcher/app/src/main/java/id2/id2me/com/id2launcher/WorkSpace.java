@@ -12,6 +12,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 
 import android.util.AttributeSet;
@@ -477,7 +478,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         }
         mDragOutline = null;
         mDragInfo = null;
-
+        //removeExtraEmptyScreen();
         // Hide the scrolling indicator after you pick up an item
         // hideScrollingIndicator(false);
     }
@@ -699,7 +700,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 cell.setVisibility(VISIBLE);
             }
             parent.onDropChild(cell);
-            removeExtraEmptyScreen();
+            //removeExtraEmptyScreen();
+
 
         }
 
@@ -747,6 +749,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         if (info instanceof PendingAddItemInfo) {
             final PendingAddItemInfo pendingInfo = (PendingAddItemInfo) dragInfo;
+            LauncherApplication launcherApplication = LauncherApplication.getApp();
+            launcherApplication.removeWidgetScreen = true;
 
             boolean findNearestVacantCell = true;
             if (pendingInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
@@ -966,7 +970,14 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             launcher.getDragController().addDropTarget((DropTarget) child);
         }
 
-        removeExtraEmptyScreen();
+        LauncherApplication launcherApplication = LauncherApplication.getApp();
+        if(launcherApplication.removeWidgetScreen){
+            Timber.v("Remove Extra screen addinScreen ");
+            removeExtraEmptyScreen();
+            launcherApplication.removeWidgetScreen = false;
+        }
+
+
     }
 
     boolean willCreateUserFolder(ItemInfo info, CellLayout target, int[] targetCell, float
@@ -1729,6 +1740,12 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         LauncherApplication launcherApplication = LauncherApplication.getApp();
         launcherApplication.getLauncher().getDropTargetBar().setVisibility(GONE);
         launcherApplication.getLauncher().getDeleteDropTarget().resetHoverColor();
+
+        if(!launcherApplication.removeWidgetScreen){
+            Timber.v("Remove Extra screen dragend ");
+            removeExtraEmptyScreen();
+        }
+
     }
 
     public int getCurrentPage() {
