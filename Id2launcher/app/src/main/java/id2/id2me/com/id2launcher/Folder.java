@@ -170,29 +170,29 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     public boolean onLongClick(View v) {
         // Return if global dragging is not enabled
        // if (!mLauncher.isDraggingEnabled()) return true;
-
-        Object tag = v.getTag();
-        if (tag instanceof ShortcutInfo) {
-            ShortcutInfo item = (ShortcutInfo) tag;
-            if (!v.isInTouchMode()) {
-                return false;
-            }
-
-
-           // mLauncher.getWokSpace().onDragStartedWithItem(v);
-            mLauncher.getWokSpace().beginDragShared(v, this);
-            mIconDrawable = ((ImageView) v).getDrawable();
-
-            mCurrentDragInfo = item;
-            mEmptyCell[0] = item.cellX;
-            mEmptyCell[1] = item.cellY;
-            mCurrentDragView = v;
-
-            mContent.removeView(mCurrentDragView);
-            mInfo.remove(mCurrentDragInfo);
-            mDragInProgress = true;
-            mItemAddedBackToSelfViaIcon = false;
-        }
+//
+//        Object tag = v.getTag();
+//        if (tag instanceof ShortcutInfo) {
+//            ShortcutInfo item = (ShortcutInfo) tag;
+//            if (!v.isInTouchMode()) {
+//                return false;
+//            }
+//
+//
+//           // mLauncher.getWokSpace().onDragStartedWithItem(v);
+//            mLauncher.getWokSpace().beginDragShared(v, this);
+//            mIconDrawable = ((ImageView) v).getDrawable();
+//
+//            mCurrentDragInfo = item;
+//            mEmptyCell[0] = item.cellX;
+//            mEmptyCell[1] = item.cellY;
+//            mCurrentDragView = v;
+//
+//            mContent.removeView(mCurrentDragView);
+//            mInfo.remove(mCurrentDragInfo);
+//            mDragInProgress = true;
+//            mItemAddedBackToSelfViaIcon = false;
+//        }
         return true;
     }
 

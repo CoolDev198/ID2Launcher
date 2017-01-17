@@ -1,15 +1,18 @@
 package id2.id2me.com.id2launcher.listingviews;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.widget.TextView;
 
 import id2.id2me.com.id2launcher.AllAppAdapter;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.RefreshAdapter;
+import id2.id2me.com.id2launcher.customscroll.HexagonDrawable;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 
 /**
@@ -49,6 +52,7 @@ public class AppsListingView extends ListingContainerView implements RefreshAdap
         fastScroller.setRecyclerView(recyclerView);
         fastScroller.setViewsToUse(R.layout.recycler_view_fast_scroller, R.id.fastscroller_bubble,
                 R.id.fastscroller_handle);
+
 
     }
 

@@ -10,11 +10,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|end"
-            android:background="@mipmap/ic_indicator"
             android:gravity="center"
-            android:textColor="#dec296"
+            android:textColor="@color/tab_text_color"
             android:textSize="48sp"
             android:visibility="visible"
+            android:background="@mipmap/ic_indicator"
             tools:text="A"/>
 
 

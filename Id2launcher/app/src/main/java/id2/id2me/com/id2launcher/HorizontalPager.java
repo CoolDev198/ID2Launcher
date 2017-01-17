@@ -1,6 +1,8 @@
 package id2.id2me.com.id2launcher;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -16,19 +18,27 @@ public class HorizontalPager extends ViewPager {
     String TAG ="HorizontalPager";
     public HorizontalPager(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+
+            // optional
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            // optional
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            // optional
+            @Override
+            public void onPageScrollStateChanged(int state) { }
+        });
     }
 
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent ev) {
-//        Log.i(TAG," on touch ");
-//        FrameLayout dragLayer = (FrameLayout) this.getParent();
-//        if(((DragView)dragLayer.findViewById(R.id.drag_view)).isLongClick){
-//            return false;
-//        }else {
-//            return super.onTouchEvent(ev);
-//        }
-//    }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {

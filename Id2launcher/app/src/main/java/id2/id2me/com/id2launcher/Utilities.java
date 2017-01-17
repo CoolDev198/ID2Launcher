@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
@@ -15,8 +16,12 @@ import android.graphics.drawable.PaintDrawable;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
 
@@ -38,6 +43,28 @@ public class Utilities {
     private static final Paint sDisabledPaint = new Paint();
     private static final Rect sOldBounds = new Rect();
     private static final Canvas sCanvas = new Canvas();
+
+
+    public static void setTranslucentStatus(boolean on) {
+        LauncherApplication app=LauncherApplication.getApp();
+        Window win = app.getLauncher().getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
+    }
+    public static void setStatusBarStyle(int color) {
+        LauncherApplication app=LauncherApplication.getApp();
+        SystemBarTintManager tintManager = new SystemBarTintManager(app.getLauncher());
+        tintManager.setStatusBarTintEnabled(true);
+        tintManager.setNavigationBarTintColor(color);
+        tintManager.setTintColor(color);
+        tintManager.setStatusBarTintColor(color);
+    }
 
     /**
      * Returns a bitmap suitable for the all apps view. Used to convert pre-ICS
