@@ -132,7 +132,6 @@ public class DeleteDropTarget extends ButtonDropTarget {
             } else {
                 isVisible = false;
             }
-            isVisible = false;
         }
 
         if (isUninstall) {
