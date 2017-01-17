@@ -4,8 +4,12 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowActionBar">false</item>
-
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">

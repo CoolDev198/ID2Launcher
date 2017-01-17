@@ -21,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -154,12 +155,13 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         mAppWidgetHost.startListening();
 
         mModel.startLoader(true, -1);
-        setTranslucentStatus(true);
+        Utilities.setTranslucentStatus(true);
+        Utilities.setStatusBarStyle(ContextCompat.getColor(this,R.color.tab_background_color));
+
         setContentView(R.layout.activity_launcher);
         init();
         //  openNotificationAccess();
         // loadDesktop();
-        setStatusBarStyle();
         //Bitmap bitmap = Bitmap.createBitmap(getDrawable(R.mipmap.wallpaper).getIntrinsicWidth(), getDrawable(R.mipmap.wallpaper).getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 
         //blurredWallpaper = new BitmapDrawable(getResources(), BlurBuilder.blur(this, bitmap));
@@ -170,25 +172,8 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         db.getItemsInfo();
     }
 
-    public void setStatusBarStyle() {
-        // create our manager instance after the content view is set
-        SystemBarTintManager tintManager = new SystemBarTintManager(this);
-        // enable status bar tint
-        tintManager.setStatusBarTintEnabled(true);
-        tintManager.setStatusBarTintResource(Color.TRANSPARENT);
-    }
 
-    private void setTranslucentStatus(boolean on) {
-        Window win = getWindow();
-        WindowManager.LayoutParams winParams = win.getAttributes();
-        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-        if (on) {
-            winParams.flags |= bits;
-        } else {
-            winParams.flags &= ~bits;
-        }
-        win.setAttributes(winParams);
-    }
+
 
     private void openNotificationAccess() {
         if (!NotificationService.isNotificationAccessEnabled)

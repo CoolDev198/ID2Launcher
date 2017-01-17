@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,7 @@ import id2.id2me.com.id2launcher.Launcher;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.ObservableScrollView;
 import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.Utilities;
 import id2.id2me.com.id2launcher.WallpaperContainer;
 import id2.id2me.com.id2launcher.WorkSpace;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
@@ -113,6 +115,11 @@ public class DesktopFragment extends Fragment  {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Utilities.setStatusBarStyle(ContextCompat.getColor(getContext(),android.R.color.transparent));
+    }
 
     private void initViews() {
 
