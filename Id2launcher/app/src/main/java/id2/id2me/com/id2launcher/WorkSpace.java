@@ -141,7 +141,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                     launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
             child.setTag(i);
 
-            if (i == 0) {
+       /*     if (i == 0) {
                 child.setBackgroundColor(Color.BLACK);
             } else if(i==1){
                 child.setBackgroundColor(Color.YELLOW);
@@ -149,7 +149,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 child.setBackgroundColor(Color.RED);
             } else if(i==3){
                 child.setBackgroundColor(Color.GREEN);
-            }
+            }*/
 
             addView(child);
         }

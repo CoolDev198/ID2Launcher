@@ -12,7 +12,6 @@ import id2.id2me.com.id2launcher.AllAppAdapter;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.R;
 import id2.id2me.com.id2launcher.RefreshAdapter;
-import id2.id2me.com.id2launcher.customscroll.HexagonDrawable;
 import id2.id2me.com.id2launcher.customscroll.RecyclerViewFastScroller;
 
 /**
