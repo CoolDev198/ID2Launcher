@@ -45,4 +45,10 @@
     <color name="transparent_alpha">#dcffffff</color>
 
     <color name="appwidget_error_color">#FCCC</color>
+
+
+    <!--widget listing color-->
+    <color name="widget_list_inner_color">#d7cfbd</color>
+    <color name="widget_list_outer_color">#ede8de</color>
+
 </resources>
