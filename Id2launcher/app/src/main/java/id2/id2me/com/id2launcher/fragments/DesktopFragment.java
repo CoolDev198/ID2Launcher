@@ -115,12 +115,6 @@ public class DesktopFragment extends Fragment  {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Utilities.setStatusBarStyle(ContextCompat.getColor(getContext(),android.R.color.transparent));
-    }
-
     private void initViews() {
 
         addNotifyWidget();
