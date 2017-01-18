@@ -18,6 +18,7 @@
             android:layout_width="0dp"
             android:textColor="@color/tab_text_color"
             android:background="@drawable/round_transperant_border"
+            android:elevation="2dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/drawerTitleApps" />
@@ -31,6 +32,11 @@
             android:layout_weight="1"
             android:text="@string/drawerTitleWidgets" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/divider_bar_1"/>
 
     <include layout="@layout/app_listing_view"
         android:id="@+id/app_listing_view"
