@@ -329,12 +329,6 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
             delayExitSpringLoadedMode = completeAdd(args);
         }
         dragLayer.clearAnimatedView();
-        LauncherApplication launcherApplication = LauncherApplication.getApp();
-        if(launcherApplication.removeWidgetScreen){
-            Timber.v("Remove Extra screen addinScreen ");
-            launcherApplication.getLauncher().getWokSpace().removeExtraEmptyScreen();
-            launcherApplication.removeWidgetScreen = false;
-        }
         // Exit spring loaded mode if necessary after cancelling the configuration of a widget
         /*exitSpringLoadedDragModeDelayed((resultCode != RESULT_CANCELED), delayExitSpringLoadedMode,
                 null);*/
