@@ -155,8 +155,9 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         mAppWidgetHost.startListening();
 
         mModel.startLoader(true, -1);
-        Utilities.setTranslucentStatus(true);
-        Utilities.setStatusBarStyle(ContextCompat.getColor(this,android.R.color.transparent));
+
+//        Utilities.setTranslucentStatus(true);
+//        Utilities.setStatusBarStyle(ContextCompat.getColor(this,android.R.color.transparent));
 
         setContentView(R.layout.activity_launcher);
         init();
