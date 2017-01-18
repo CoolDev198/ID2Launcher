@@ -69,6 +69,7 @@ public class DeleteDropTarget extends ButtonDropTarget {
     private boolean isAllAppsApplication(DragSource source, Object info) {
         return (source instanceof ListingContainerView) && (info instanceof ApplicationInfo);
     }
+
     private boolean isAllAppsWidget(DragSource source, Object info) {
         if (source instanceof ListingContainerView) {
             if (info instanceof PendingAddItemInfo) {
@@ -77,6 +78,12 @@ public class DeleteDropTarget extends ButtonDropTarget {
                     case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                     case LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET:
                         return true;
+                    case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
+                }
+            } else if(info instanceof ItemInfo){   // for time being this condition is kept as further it is going to change to unistall
+                ItemInfo addInfo = (ItemInfo) info;
+                if(addInfo.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION){
+                    return true;
                 }
             }
         }
