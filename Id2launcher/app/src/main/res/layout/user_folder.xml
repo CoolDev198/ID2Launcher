@@ -25,7 +25,7 @@
             android:id="@+id/folder_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/folder_background"
+            android:background="@drawable/folder_cell_background"
             android:cacheColorHint="#ff333333"
             android:hapticFeedbackEnabled="false" />
 </id2.id2me.com.id2launcher.Folder>
