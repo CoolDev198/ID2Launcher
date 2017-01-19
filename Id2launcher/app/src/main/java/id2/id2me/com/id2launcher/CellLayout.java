@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -148,13 +149,19 @@ public class CellLayout extends ViewGroup {
         mReorderHintAnimationMagnitude = (REORDER_HINT_MAGNITUDE *
                 getResources().getDimensionPixelSize(R.dimen.app_icon_size));
 
-        final int duration = 900;
-        final float fromAlphaValue = 0;
-        final float toAlphaValue = (float) 128;
+
         mEaseOutInterpolator = new DecelerateInterpolator(2.5f); // Quint ease out
+
         for (int i = 0; i < mDragOutlines.length; i++) {
             mDragOutlines[i] = new Rect(-1, -1, -1, -1);
         }
+
+        final int duration = 900;
+        final float fromAlphaValue = 0;
+        final float toAlphaValue = (float) 128;
+
+        Arrays.fill(mDragOutlineAlphas, fromAlphaValue);
+
         for (int i = 0; i < mDragOutlineAnims.length; i++) {
             final InterruptibleInOutAnimator anim =
                     new InterruptibleInOutAnimator(duration, fromAlphaValue, toAlphaValue);
