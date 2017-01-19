@@ -12,13 +12,16 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -32,12 +35,13 @@ import id2.id2me.com.id2launcher.models.AppInfo;
 import id2.id2me.com.id2launcher.models.FolderInfo;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 import id2.id2me.com.id2launcher.models.ShortcutInfo;
+import timber.log.Timber;
 
 /**
  * Created by CrazyInnoTech on 11-11-2016.
  */
 
-public class Folder extends LinearLayout implements DragSource, View.OnClickListener,
+public class Folder extends FrameLayout implements DragSource, View.OnClickListener,
         View.OnLongClickListener, DropTarget, FolderInfo.FolderListener ,View.OnTouchListener{
     private static final String TAG = "Launcher.Folder";
 
@@ -119,14 +123,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+
         mContent = (CellLayout) findViewById(R.id.folder_content);
 
         mContent.setGridSize(0, 0);
         mContent.getShortcutsAndWidgets().setMotionEventSplittingEnabled(false);
 
     }
-
-
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
@@ -815,9 +818,16 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 MeasureSpec.EXACTLY);
         int contentHeightSpec = MeasureSpec.makeMeasureSpec(mContent.getDesiredHeight(),
                 MeasureSpec.EXACTLY);
-        mContent.measure(contentWidthSpec, height);
+        mContent.measure(contentWidthSpec, contentHeightSpec);
 
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
 
+        int top = (height - mContent.getDesiredHeight())/2;
+        int left = (width - mContent.getDesiredWidth())/2;
+        Timber.v("Top : " + top + " h : " + mContent.getDesiredHeight());
+        params.setMargins(left, top,0,0);
+        mContent.setLayoutParams(params);
         setMeasuredDimension(width, height);
     }
 

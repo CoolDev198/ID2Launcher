@@ -17,17 +17,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:id="@+id/layout_root"
-    android:background="@drawable/quantum_panel">
+    android:background="@color/tab_background_color">
 
 
-
-        <id2.id2me.com.id2launcher.CellLayout
-            android:gravity="center"
+        <id2.id2me.com.id2launcher.FolderCellLayout
             android:id="@+id/folder_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/folder_cell_background"
             android:cacheColorHint="#ff333333"
             android:hapticFeedbackEnabled="false" />
 </id2.id2me.com.id2launcher.Folder>
