@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/layout_root"
-    android:background="@color/home_screen_color">
+    android:background="@color/tab_background_color">
 
 
         <id2.id2me.com.id2launcher.FolderCellLayout
