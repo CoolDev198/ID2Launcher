@@ -19,12 +19,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/layout_root"
+    android:gravity="center"
     android:background="@color/home_screen_color">
 
 
 
         <id2.id2me.com.id2launcher.CellLayout
-            android:gravity="center"
             android:id="@+id/folder_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
