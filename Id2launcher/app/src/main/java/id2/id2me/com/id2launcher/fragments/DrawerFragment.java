@@ -4,12 +4,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.Utilities;
 import id2.id2me.com.id2launcher.listingviews.AppsListingView;
 import id2.id2me.com.id2launcher.listingviews.WidgetsListingView;
 
@@ -28,7 +30,6 @@ public class DrawerFragment extends Fragment   {
         DrawerFragment f = new DrawerFragment();
         return f;
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,7 @@ import id2.id2me.com.id2launcher.Launcher;
 import id2.id2me.com.id2launcher.LauncherApplication;
 import id2.id2me.com.id2launcher.ObservableScrollView;
 import id2.id2me.com.id2launcher.R;
+import id2.id2me.com.id2launcher.Utilities;
 import id2.id2me.com.id2launcher.WallpaperContainer;
 import id2.id2me.com.id2launcher.WorkSpace;
 import id2.id2me.com.id2launcher.notificationWidget.NotificationWidgetAdapter;
@@ -86,8 +88,9 @@ public class DesktopFragment extends Fragment  {
             launcher = (Launcher) getActivity();
 
             dragController.addDropTarget(workSpace);
-            dragController.addDropTarget(wallpaperContainer);
+           // dragController.addDropTarget(wallpaperContainer);
             dragController.addDropTarget(deleteDropTarget);
+            dragController.addDragListener(deleteDropTarget);
 
             launcher.setWokSpace(workSpace);
             launcher.setDropTargetBar(dropTargetBar);
@@ -113,7 +116,6 @@ public class DesktopFragment extends Fragment  {
 
     }
 
-
     private void initViews() {
 
         addNotifyWidget();
@@ -137,32 +139,8 @@ public class DesktopFragment extends Fragment  {
             }
         });
 
-        addDefaultScreens();
     }
 
-    private void addDefaultScreens() {
-        LauncherApplication launcherApplication = LauncherApplication.getApp();
-        LinearLayout containerL = (LinearLayout) fragmentView.findViewById(R.id.container);
-        CellLayout child;
-        int defaultScreens = launcherApplication.DEFAULT_SCREENS;
-        for (int i = 0; i < defaultScreens; i++) {
-            child = (CellLayout)
-                    launcher.getLayoutInflater().inflate(R.layout.workspace_dragging_screen, null);
-            child.setTag(i);
-
-//            if (i == 0) {
-//                child.setBackgroundColor(Color.BLACK);
-//            } else if(i==1){
-//                child.setBackgroundColor(Color.YELLOW);
-//            } else if(i==2){
-//                child.setBackgroundColor(Color.RED);
-//            } else if(i==3){
-//                child.setBackgroundColor(Color.GREEN);
-//            }
-
-            containerL.addView(child);
-        }
-    }
 
     private void addWallpaperCropper() {
         wallpaperLayout = (RelativeLayout) fragmentView.findViewById(R.id.wallpaper_layout);

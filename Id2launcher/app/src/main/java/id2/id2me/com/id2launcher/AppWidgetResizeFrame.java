@@ -10,10 +10,19 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.graphics.Rect;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+
+import id2.id2me.com.id2launcher.models.ItemInfo;
+import timber.log.Timber;
 
 public class AppWidgetResizeFrame extends FrameLayout {
+    private int mTopMargin;
+    private int mLeftMargin;
+    private ItemInfo mItemInfo;
     private LauncherAppWidgetHostView mWidgetView;
     private CellLayout mCellLayout;
     private DragLayer mDragLayer;
@@ -70,9 +79,14 @@ public class AppWidgetResizeFrame extends FrameLayout {
     public static final int BOTTOM = 3;
 
     private Launcher mLauncher;
+    private WallpaperContainer mWallpaperContainer;
+
+    private int screen;
+    private static int mPreviousScrollHeight;
 
     public AppWidgetResizeFrame(Context context,
-                                LauncherAppWidgetHostView widgetView, CellLayout cellLayout, DragLayer dragLayer) {
+                                LauncherAppWidgetHostView widgetView, CellLayout cellLayout, DragLayer dragLayer, int screen,
+                                int leftMargin, int topMargin, ItemInfo itemInfo) {
 
         super(context);
         mLauncher = (Launcher) context;
@@ -80,7 +94,13 @@ public class AppWidgetResizeFrame extends FrameLayout {
         mWidgetView = widgetView;
         mResizeMode = widgetView.getAppWidgetInfo().resizeMode;
         mDragLayer = dragLayer;
+        mTopMargin = topMargin;
+        mLeftMargin = leftMargin;
+        mItemInfo = itemInfo;
         mWorkspace = (WorkSpace) dragLayer.findViewById(R.id.container);
+        mWallpaperContainer = (WallpaperContainer) dragLayer.findViewById(R.id.wallpaper_layout);
+
+        this.screen = screen;
 
         final AppWidgetProviderInfo info = widgetView.getAppWidgetInfo();
         int[] result = Launcher.getMinSpanForWidget(mLauncher, info);
@@ -154,6 +174,7 @@ public class AppWidgetResizeFrame extends FrameLayout {
                 || mTopBorderActive || mBottomBorderActive;
 
         mBaselineWidth = getMeasuredWidth();
+
         mBaselineHeight = getMeasuredHeight();
         mBaselineX = getLeft();
         mBaselineY = getTop();
@@ -396,18 +417,60 @@ public class AppWidgetResizeFrame extends FrameLayout {
     }
 
     public void snapToWidget(boolean animate) {
-        final DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
+        DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
         int xOffset = mCellLayout.getLeft() + mCellLayout.getPaddingLeft() - mWorkspace.getScrollX();
-        int yOffset = mCellLayout.getTop() + mCellLayout.getPaddingTop() - mWorkspace.getScrollY();
 
         int newWidth = mWidgetView.getWidth() + 2 * mBackgroundPadding - mWidgetPaddingLeft -
                 mWidgetPaddingRight;
         int newHeight = mWidgetView.getHeight() + 2 * mBackgroundPadding - mWidgetPaddingTop -
                 mWidgetPaddingBottom;
 
-        int newX = mWidgetView.getLeft() - mBackgroundPadding + xOffset + mWidgetPaddingLeft;
-        int newY = mWidgetView.getTop() - mBackgroundPadding + yOffset + mWidgetPaddingTop;
+        int wallPaperHeight = mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
+        int newX = mLeftMargin - mBackgroundPadding + xOffset + mWidgetPaddingLeft;
 
+        int newY = 0;
+
+        int scrollViewHeight = mLauncher.getScrollView().getScrollY();
+        int cellHeight = mCellLayout.getHeight();
+        int screenOffset = cellHeight - wallPaperHeight;//screen offset is diff bet cellHeght and WallPaperHeight
+        int yOff = 0;
+        //perform only in case of first screen is there
+        if(screen == 0){
+            if(scrollViewHeight <= wallPaperHeight){
+                yOff = wallPaperHeight - scrollViewHeight;
+                mPreviousScrollHeight = 0;
+            } else {
+                //this is done when we move from last or any other screen to the top i.e. first screen
+                if(mPreviousScrollHeight!=0){
+                    if(scrollViewHeight >= wallPaperHeight){
+                        yOff = wallPaperHeight - scrollViewHeight;
+                    } else {
+                        yOff = scrollViewHeight - wallPaperHeight;
+                    }
+                } else {
+                    //for safer side
+                    yOff = wallPaperHeight - scrollViewHeight;
+                }
+            }
+        } else {
+            mPreviousScrollHeight = screen;
+            if(!animate){
+                //only on drop we get screen else in other don't, +1 to get exact screen
+                screen = screen + 1;
+            }
+            int screenHeight = screen * cellHeight ;
+            //int screenH = mWorkspace.getHeight();
+            yOff = screenHeight - scrollViewHeight - screenOffset ;
+        }
+
+        if(animate){
+            //on resize
+            newX = mWidgetView.getLeft() - mBackgroundPadding + xOffset + mWidgetPaddingLeft;
+            mTopMargin = mWidgetView.getTop();
+
+        }
+
+        newY = yOff + mTopMargin - mBackgroundPadding + mWidgetPaddingTop;
         // We need to make sure the frame's touchable regions lie fully within the bounds of the 
         // DragLayer. We allow the actual handles to be clipped, but we shift the touch regions
         // down accordingly to provide a proper touch target.

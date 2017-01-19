@@ -24,7 +24,7 @@ public class ButtonDropTarget extends TextView implements DropTarget, DragContro
     private Launcher launcher;
     private Point rectPoint = new Point();
     /** Whether this drop target is active for the current drag */
-    protected boolean mActive = true;
+    protected boolean mActive;
 
     /** The paint applied to the drag view on hover */
     protected int mHoverColor = 0;

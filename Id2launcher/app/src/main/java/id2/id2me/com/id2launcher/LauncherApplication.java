@@ -26,15 +26,15 @@ public class LauncherApplication extends Application {
     public  final int DEFAULT_SCREENS = 2;
     static LauncherApplication launcherApplication;
     private static float density;
-    public final int CELL_COUNT_X = 4;
+    public final int CELL_COUNT_X = 3;
     public final int CELL_COUNT_Y = 5;
-    public boolean isDrawerOpen = false;
     public ItemInfo dragInfo;
     public LauncherModel mModel;
-    public View desktopFragment;
     private Launcher launcher;
-    public HashMap<String, Bitmap> mHashMapBitmap;
+    public boolean removeWidgetScreen = false;
+
     public int screenWidth;
+    private int screenHeight;
 
     public static LauncherApplication getApp() {
         return launcherApplication;
@@ -64,6 +64,7 @@ public class LauncherApplication extends Application {
         addBroadCastReceiver();
         density = getResources().getDisplayMetrics().density;
         screenWidth = getResources().getDisplayMetrics().widthPixels;
+        screenHeight=getResources().getDisplayMetrics().heightPixels;
     }
 
     private void addBroadCastReceiver() {
@@ -115,5 +116,13 @@ public class LauncherApplication extends Application {
 
     public int getScreenWidth() {
         return screenWidth;
+    }
+
+    public IconCache getIconCache() {
+        return mIconCache;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
     }
 }

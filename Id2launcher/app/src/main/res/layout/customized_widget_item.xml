@@ -4,7 +4,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="160dp"
-    android:background="@drawable/widget_container_holo"
+    android:background="@drawable/outer_widget_background"
+    android:layout_margin="4dp"
+    android:padding="2dp"
     android:layout_weight="1"
     >
 
@@ -16,7 +18,7 @@
         android:src="@mipmap/ic_launcher"
         android:scaleType="centerInside"
         android:layout_gravity="center"
-        android:background="@drawable/widget_container_holo" />
+        android:background="@drawable/inner_widget_backgroud" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +28,8 @@
         android:layout_marginRight="@dimen/app_widget_preview_label_margin_right"
         android:orientation="horizontal">
         <!-- The name of the widget. -->
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        <TextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/widget_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,8 +38,7 @@
             android:singleLine="true"
             android:ellipsize="marquee"
             android:fadingEdge="horizontal"
-
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/widget_list_text_color"
             android:textSize="13sp" />
 
         <!-- The original dimensions of the widget (can't be the same text as above due to different
@@ -49,8 +51,7 @@
             android:layout_marginLeft="5dp"
             android:layout_weight="0"
             android:gravity="left"
-
-            android:textColor="#FF555555"
+            android:textColor="@color/widget_list_text_color"
             android:textSize="12sp" />
     </LinearLayout>
 

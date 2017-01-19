@@ -32,7 +32,7 @@ public class FastBitmapDrawable extends Drawable {
     private int mHeight;
     private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
-    FastBitmapDrawable(Bitmap b) {
+    public FastBitmapDrawable(Bitmap b) {
 	mAlpha = 255;
         mPaint.setColor(Color.RED);
         mBitmap = b;

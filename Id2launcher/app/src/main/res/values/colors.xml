@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="tab_background_color">#282828</color>
-    <color name="tab_text_color">#dec296</color>
-    <color name="home_screen_color">#fbfaf5</color>
-    <color name="app_drawer_color">#f8f6f1</color>
-    <color name="app_drawer_text_color">#41403f</color>
+    <color name="tab_background_color">#afa184</color>
+    <color name="tab_text_color">#FFFFFF</color>
+    <color name="home_screen_color">#fcfaf5</color>
+    <color name="app_drawer_text_color">#8C877E</color>
+    <color name="app_drawer_background">#C2B497</color>
     <color name="light_grey">#fafafa</color>
-    <color name="drawer_header_color">#070a0c</color>
     <color name="list_bg_color">#800C0F12</color>
     <color name="white">#FFFFFF</color>
-    <color name="color_black">#000000</color>
+    <color name="color_alpha">#19000000</color>
     <color name="symbol_circle_color">#303030</color>
     <color name="status_bar_color">#7c000000</color>
     <color name="delete_target_hover_tint">#DAFF0000</color>
     <color name="colorPrimary">#DAFF0000</color>
-    <color name="colorPrimaryDark">#125688</color>
+    <color name="colorPrimaryDark">#000000</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#c8e8ff</color>
@@ -29,7 +28,7 @@
     <color name="frame_color">#E0E0E0</color>
     <color name="statusbar_bg">#FF006080</color>
 
-
+    <color name="outline">#afa184</color>
     <color name="red">#FF0000</color>
     <color name="blue">#1100ff</color>
     <color name="green">#00ff08</color>
@@ -45,4 +44,12 @@
     <color name="transparent_alpha">#dcffffff</color>
 
     <color name="appwidget_error_color">#FCCC</color>
+
+
+    <!--widget listing color-->
+    <color name="widget_list_inner_color">#d7cfbd</color>
+    <color name="widget_list_outer_color">#ede8de</color>
+    <color name="widget_list_text_color">#817a6f</color>
+
+
 </resources>

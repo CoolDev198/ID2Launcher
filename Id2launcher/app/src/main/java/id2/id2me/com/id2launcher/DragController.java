@@ -494,16 +494,24 @@ public class DragController {
      */
     public boolean onTouchEvent(MotionEvent ev) {
         if (!mDragging) {
+            final int[] dragLayerPos = new int[]{(int) ev.getX(),(int) ev.getY()};//getClampedDragLayerPos(ev.getX(), ev.getY());
+
+            int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
+            int scrollY= mLauncher.getScrollView().getScrollY();
+            dragLayerPos[1] = dragLayerPos[1]- wallPaperHeight +scrollY;;
+
+            mLauncher.getWokSpace().setCurrentPage(mLauncher.getWokSpace().findMatchingPageForDragOver(dragLayerPos[0],dragLayerPos[1]));
             return false;
         }
+
         Log.v("onTouchEvent ", ev.getX() + "   " + ev.getY());
         // Update the velocity tracker
         acquireVelocityTrackerAndAddMovement(ev);
 
         final int action = ev.getAction();
-        final int[] dragLayerPos = getClampedDragLayerPos(ev.getX(), ev.getY());
-        final int dragLayerX = dragLayerPos[0];
-        final int dragLayerY = dragLayerPos[1];
+        //final int[] dragLayerPos = getClampedDragLayerPos(ev.getX(), ev.getY());
+        final int dragLayerX = (int) ev.getX();//dragLayerPos[0];
+        final int dragLayerY = (int) ev.getY();//dragLayerPos[1];
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -607,7 +615,6 @@ public class DragController {
         mDragObject.x = (int) coordinates[0];
         mDragObject.y = (int) coordinates[1];
         boolean accepted = false;
-        dropTarget.onDrop(mDragObject);
         if (dropTarget != null) {
             mDragObject.dragComplete = true;
             dropTarget.onDragExit(mDragObject);
@@ -635,16 +642,24 @@ public class DragController {
                     " L : " + outR.left + " R : " + outR.right + " T : " + outR.top + " B :" + outR.bottom);
 
             if (outR.contains(x, y)) {
-                if(target instanceof  ButtonDropTarget){
-                    Timber.v(" target :  delete drop target" );
-                }
-            //    Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
-//                // Make dropCoordinates relative to the DropTarget
                 dropCoordinates[0] = x ;
                 int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
                 int scrollY= mLauncher.getScrollView().getScrollY();
-                dropCoordinates[1] = y- wallPaperHeight +scrollY;;
-//
+
+                if(target instanceof  ButtonDropTarget){
+                    Timber.v(" target :  delete drop target" );
+                }
+
+                if(target instanceof  WallpaperContainer){
+                    Timber.v(" target :  WallpaperContainer drop target" );
+                    dropCoordinates[1] = 60;
+                }
+
+                if(target instanceof  WorkSpace){
+                    Timber.v(" target :  WallpaperContainer drop target" );
+                    dropCoordinates[1] = y- wallPaperHeight +scrollY;
+                }
+
                 return target;
             }
         }

@@ -2,14 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:background="@color/app_drawer_text_color"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:background="@color/tab_background_color"
         android:weightSum="2">
 
         <Button
@@ -17,6 +19,7 @@
             android:layout_width="0dp"
             android:textColor="@color/tab_text_color"
             android:background="@drawable/round_transperant_border"
+            android:elevation="2dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/drawerTitleApps" />
@@ -30,6 +33,11 @@
             android:layout_weight="1"
             android:text="@string/drawerTitleWidgets" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/divider_bar_1"/>
 
     <include layout="@layout/app_listing_view"
         android:id="@+id/app_listing_view"

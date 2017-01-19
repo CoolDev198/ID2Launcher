@@ -17,6 +17,9 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 
 /**
@@ -32,9 +35,17 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     private int mAnchorViewInitialScrollX = 0;
     private DragController dragController;
     private View mAnchorView = null;
+    private int[] mTmpXY = new int[2];
     // Variables relating to animation of views after drop
     private ValueAnimator mDropAnim = null;
     private ValueAnimator mFadeOutAnim = null;
+
+    // Variables relating to resizing widgets
+    private final ArrayList<AppWidgetResizeFrame> mResizeFrames =
+            new ArrayList<AppWidgetResizeFrame>();
+    private AppWidgetResizeFrame mCurrentResizeFrame;
+    private int mXDown, mYDown;
+
 
     public DragLayer(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -45,17 +56,26 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     }
 
     public void addResizeFrame(ItemInfo itemInfo, LauncherAppWidgetHostView widget,
-                               CellLayout cellLayout) {
+                               CellLayout cellLayout, int screen, int leftMargin, int topMargin) {
+        //this.screen = screen;
         AppWidgetResizeFrame resizeFrame = new AppWidgetResizeFrame(getContext(),
-                widget, cellLayout, this);
+                widget, cellLayout, this, screen, leftMargin, topMargin, itemInfo);
 
         LayoutParams lp = new LayoutParams(-1, -1);
         lp.customPosition = true;
 
         addView(resizeFrame, lp);
-        //mResizeFrames.add(resizeFrame);
+        mResizeFrames.add(resizeFrame);
 
         resizeFrame.snapToWidget(false);
+    }
+
+    public void animateViewIntoPosition(DragView dragView, final View child) {
+        animateViewIntoPosition(dragView, child, null);
+    }
+    public void animateViewIntoPosition(DragView dragView, final View child,
+                                        final Runnable onFinishAnimationRunnable) {
+        animateViewIntoPosition(dragView, child, -1, onFinishAnimationRunnable, null);
     }
 
     public void animateViewIntoPosition(DragView dragView, final View child, int duration,
@@ -66,7 +86,6 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
         Rect r = new Rect();
         getViewRectRelativeToSelf(dragView, r);
-
         int coord[] = new int[2];
         float childScale = child.getScaleX();
         coord[0] = lp.x + (int) (child.getMeasuredWidth() * (1 - childScale) / 2);
@@ -80,8 +99,8 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         scale *= childScale;
         int toX = coord[0];
         int toY = coord[1];
-        if (child instanceof TextView) {
-            TextView tv = (TextView) child;
+        if (child instanceof AppItemView) {
+            AppItemView tv = (AppItemView) child;
 
             // The child may be scaled (always about the center of the view) so to account for it,
             // we have to offset the position by the scaled size.  Once we do that, we can center
@@ -89,7 +108,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
             toY += Math.round(scale * tv.getPaddingTop());
             toY -= dragView.getMeasuredHeight() * (1 - scale) / 2;
             toX -= (dragView.getMeasuredWidth() - Math.round(scale * child.getMeasuredWidth())) / 2;
-        } else if (child instanceof FolderItemView) {
+        } else if (child instanceof Folder) {
             // Account for holographic blur padding on the drag view
             toY -= scale * WorkSpace.DRAG_BITMAP_PADDING / 2;
             toY -= (1 - scale) * dragView.getMeasuredHeight() / 2;
@@ -333,14 +352,75 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (handleTouchDown(event, true)) {
+                return true;
+            }
+        }
+        clearAllResizeFrames();
         return dragController.onInterceptTouchEvent(event);
+    }
+
+    private boolean handleTouchDown(MotionEvent ev, boolean intercept) {
+        Rect hitRect = new Rect();
+        int x = (int) ev.getX();
+        int y = (int) ev.getY();
+
+        for (AppWidgetResizeFrame child: mResizeFrames) {
+            child.getHitRect(hitRect);
+            if (hitRect.contains(x, y)) {
+                if (child.beginResizeIfPointInRegion(x - child.getLeft(), y - child.getTop())) {
+                    mCurrentResizeFrame = child;
+                    mXDown = x;
+                    mYDown = y;
+                    requestDisallowInterceptTouchEvent(true);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    public void clearAllResizeFrames() {
+        if (mResizeFrames.size() > 0) {
+            for (AppWidgetResizeFrame frame: mResizeFrames) {
+                frame.commitResize();
+                removeView(frame);
+            }
+            mResizeFrames.clear();
+        }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-         int X = (int) event.getX();
-         int Y = (int) event.getY();
+        boolean handled = false;
+        int action = event.getAction();
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (handleTouchDown(event, false)) {
+                return true;
+            }
+        }
+
+        if (mCurrentResizeFrame != null) {
+            handled = true;
+            switch (action) {
+                case MotionEvent.ACTION_MOVE:
+                    mCurrentResizeFrame.visualizeResizeForDelta(x - mXDown, y - mYDown);
+                    break;
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_UP:
+                    mCurrentResizeFrame.visualizeResizeForDelta(x - mXDown, y - mYDown);
+                    mCurrentResizeFrame.onTouchUp();
+                    mCurrentResizeFrame = null;
+            }
+        }
+        if (handled) return true;
+
         return  dragController.onTouchEvent(event);
 
 
@@ -398,8 +478,13 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     }
 
 
-    public float getDescendantRectRelativeToSelf(View v, Rect folderLocation) {
-        return 0;
+    public float getDescendantRectRelativeToSelf(View descendant, Rect r) {
+        mTmpXY[0] = 0;
+        mTmpXY[1] = 0;
+        float scale = getDescendantCoordRelativeToSelf(descendant, mTmpXY);
+        r.set(mTmpXY[0], mTmpXY[1],
+                mTmpXY[0] + descendant.getWidth(), mTmpXY[1] + descendant.getHeight());
+        return scale;
     }
 
     public View getAnimatedView() {
@@ -447,6 +532,21 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
         public int getY() {
             return y;
+        }
+    }
+
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            final FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) child.getLayoutParams();
+            if (flp instanceof LayoutParams) {
+                final LayoutParams lp = (LayoutParams) flp;
+                if (lp.customPosition) {
+                    child.layout(lp.x, lp.y, lp.x + lp.width, lp.y + lp.height);
+                }
+            }
         }
     }
 }
