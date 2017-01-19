@@ -338,7 +338,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
      */
 
     private Bitmap createDragOutline(View v, Canvas canvas, int padding) {
-        final int outlineColor = getResources().getColor(android.R.color.holo_blue_light);
+        final int outlineColor = getResources().getColor(R.color.outline);
         final Bitmap b = Bitmap.createBitmap(v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
 
         canvas.setBitmap(b);
