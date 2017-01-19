@@ -52,8 +52,8 @@ public class CellLayout extends ViewGroup {
     private final static PorterDuffXfermode sAddBlendMode =
             new PorterDuffXfermode(PorterDuff.Mode.ADD);
     private final static Paint sPaint = new Paint();
-    private static int mCountX;
-    private static int mCountY;
+    public int mCountX;
+    public   int mCountY;
     private final Rect mRect = new Rect();
     private final DecelerateInterpolator mEaseOutInterpolator;
     private final int[] mTmpXY = new int[2];
@@ -232,9 +232,9 @@ public class CellLayout extends ViewGroup {
     }
 
     static void getMetrics(Rect metrics, Resources res, int measureWidth, int measureHeight,
-                           int orientation) {
-        int numWidthGaps = mCountX - 1;
-        int numHeightGaps = mCountY - 1;
+                          int countX,int countY, int orientation) {
+        int numWidthGaps = countX - 1;
+        int numHeightGaps = countY - 1;
 
         int widthGap;
         int heightGap;
@@ -260,8 +260,8 @@ public class CellLayout extends ViewGroup {
         if (widthGap < 0 || heightGap < 0) {
             int hSpace = measureWidth - paddingLeft - paddingRight;
             int vSpace = measureHeight - paddingTop - paddingBottom;
-            int hFreeSpace = hSpace - (mCountX * cellWidth);
-            int vFreeSpace = vSpace - (mCountY * cellHeight);
+            int hFreeSpace = hSpace - (countX * cellWidth);
+            int vFreeSpace = vSpace - (countY * cellHeight);
             widthGap = Math.min(maxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
             heightGap = Math.min(maxGap, numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
         }

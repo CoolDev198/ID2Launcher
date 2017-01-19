@@ -23,7 +23,7 @@
 
 
 
-        <id2.id2me.com.id2launcher.CellLayout
+        <id2.id2me.com.id2launcher.FolderCellLayout
             android:gravity="center"
             android:id="@+id/folder_content"
             android:layout_width="wrap_content"
