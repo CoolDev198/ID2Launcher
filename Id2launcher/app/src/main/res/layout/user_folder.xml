@@ -19,7 +19,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/layout_root"
-    android:background="@drawable/quantum_panel">
+    android:background="@color/home_screen_color">
 
 
 
