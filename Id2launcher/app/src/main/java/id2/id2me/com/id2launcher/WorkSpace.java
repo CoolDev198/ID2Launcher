@@ -165,6 +165,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
 
     static Rect getCellLayoutMetrics(Launcher launcher, int orientation) {
+        LauncherApplication app = LauncherApplication.getApp();
         Resources res = launcher.getResources();
         Display display = launcher.getWindowManager().getDefaultDisplay();
         Point smallestSize = new Point();
@@ -179,7 +180,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
             int height = largestSize.y - paddingTop - paddingBottom;
             mPortraitCellLayoutMetrics = new Rect();
             CellLayout.getMetrics(mPortraitCellLayoutMetrics, res,
-                    width, height, orientation);
+                    width, height, app.CELL_COUNT_X,app.CELL_COUNT_Y,orientation);
         }
         return mPortraitCellLayoutMetrics;
     }
