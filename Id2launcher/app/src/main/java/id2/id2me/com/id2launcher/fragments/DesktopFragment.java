@@ -90,6 +90,7 @@ public class DesktopFragment extends Fragment  {
             dragController.addDropTarget(workSpace);
            // dragController.addDropTarget(wallpaperContainer);
             dragController.addDropTarget(deleteDropTarget);
+            dragController.addDragListener(deleteDropTarget);
 
             launcher.setWokSpace(workSpace);
             launcher.setDropTargetBar(dropTargetBar);
