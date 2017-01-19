@@ -642,16 +642,24 @@ public class DragController {
                     " L : " + outR.left + " R : " + outR.right + " T : " + outR.top + " B :" + outR.bottom);
 
             if (outR.contains(x, y)) {
-                if(target instanceof  ButtonDropTarget){
-                    Timber.v(" target :  delete drop target" );
-                }
-            //    Timber.v(" droptarget rect : i : "  + i +"  " + x + "  " + y +   " L  R T B "  + outR.left + " " + outR.right + " " + outR.top  + " " + outR.bottom);
-//                // Make dropCoordinates relative to the DropTarget
                 dropCoordinates[0] = x ;
                 int wallPaperHeight=mLauncher.getResources().getDimensionPixelSize(R.dimen.wallpaper_height);
                 int scrollY= mLauncher.getScrollView().getScrollY();
-                dropCoordinates[1] = y- wallPaperHeight +scrollY;
-//
+
+                if(target instanceof  ButtonDropTarget){
+                    Timber.v(" target :  delete drop target" );
+                }
+
+                if(target instanceof  WallpaperContainer){
+                    Timber.v(" target :  WallpaperContainer drop target" );
+                    dropCoordinates[1] = 60;
+                }
+
+                if(target instanceof  WorkSpace){
+                    Timber.v(" target :  WallpaperContainer drop target" );
+                    dropCoordinates[1] = y- wallPaperHeight +scrollY;
+                }
+
                 return target;
             }
         }

@@ -88,7 +88,7 @@ public class DesktopFragment extends Fragment  {
             launcher = (Launcher) getActivity();
 
             dragController.addDropTarget(workSpace);
-            dragController.addDropTarget(wallpaperContainer);
+           // dragController.addDropTarget(wallpaperContainer);
             dragController.addDropTarget(deleteDropTarget);
 
             launcher.setWokSpace(workSpace);

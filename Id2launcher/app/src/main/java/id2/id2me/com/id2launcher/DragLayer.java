@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import id2.id2me.com.id2launcher.itemviews.AppItemView;
 import id2.id2me.com.id2launcher.models.ItemInfo;
 
 /**
@@ -85,7 +86,6 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
         Rect r = new Rect();
         getViewRectRelativeToSelf(dragView, r);
-
         int coord[] = new int[2];
         float childScale = child.getScaleX();
         coord[0] = lp.x + (int) (child.getMeasuredWidth() * (1 - childScale) / 2);
@@ -99,8 +99,8 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         scale *= childScale;
         int toX = coord[0];
         int toY = coord[1];
-        if (child instanceof TextView) {
-            TextView tv = (TextView) child;
+        if (child instanceof AppItemView) {
+            AppItemView tv = (AppItemView) child;
 
             // The child may be scaled (always about the center of the view) so to account for it,
             // we have to offset the position by the scaled size.  Once we do that, we can center
