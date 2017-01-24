@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.FrameLayout;
@@ -189,6 +190,7 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
             // mLauncher.getWokSpace().onDragStartedWithItem(v);
             mLauncher.getWokSpace().beginDragShared(v, this);
             //mIconDrawable = ((ImageView) v).getDrawable();
+            mLauncher.getDropTargetBar().setVisibility(VISIBLE);
 
             mCurrentDragInfo = item;
             mEmptyCell[0] = item.cellX;
@@ -604,6 +606,9 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         // Reordering may have occured, and we need to save the new item locations. We do this once
         // at the end to prevent unnecessary database operations.
         updateItemLocationsInDatabase();
+
+        mLauncher.getDropTargetBar().setVisibility(GONE);
+        mLauncher.getDeleteDropTarget().resetHoverColor();
     }
 
     @Override
@@ -784,9 +789,9 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         int left = (width - mContent.getDesiredWidth()) / 2;
         Timber.v("Top : " + top + " h : " + mContent.getDesiredHeight());
         params.setMargins(left, top, 0, 0);
-        this.setLayoutParams(params);
+        mContent.setLayoutParams(params);
         outR = new Rect(left, top, left + mContent.getDesiredWidth(), top + mContent.getDesiredHeight());
-        setMeasuredDimension(contentWidthSpec, contentHeightSpec);
+        setMeasuredDimension(width, height);
     }
 
     private void arrangeChildren(ArrayList<View> list) {
