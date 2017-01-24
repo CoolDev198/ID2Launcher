@@ -632,7 +632,6 @@ public class DragController {
         final ArrayList<DropTarget> dropTargets = mDropTargets;
         final int count = dropTargets.size();
         for (int i = count - 1; i >= 0; i--) {
-            //for (int i = 0; i < count; i++) {
             DropTarget target = dropTargets.get(i);
             if (!target.isDropEnabled())
                 continue;
