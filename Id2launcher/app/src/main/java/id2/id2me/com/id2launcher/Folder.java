@@ -784,9 +784,9 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         int left = (width - mContent.getDesiredWidth()) / 2;
         Timber.v("Top : " + top + " h : " + mContent.getDesiredHeight());
         params.setMargins(left, top, 0, 0);
-        this.setLayoutParams(params);
+        mContent.setLayoutParams(params);
         outR = new Rect(left, top, left + mContent.getDesiredWidth(), top + mContent.getDesiredHeight());
-        setMeasuredDimension(contentWidthSpec, contentHeightSpec);
+        setMeasuredDimension(width, height);
     }
 
     private void arrangeChildren(ArrayList<View> list) {
