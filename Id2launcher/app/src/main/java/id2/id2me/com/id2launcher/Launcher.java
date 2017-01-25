@@ -693,6 +693,14 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
         sFolders.put(folderInfo.id, folderInfo);
 
+        //Todo need to change while storing database
+        folderInfo.screen=screen;
+        folderInfo.container=container;
+        folderInfo.cellX=cellX;
+        folderInfo.cellY=cellY;
+        folderInfo.spanX=1;
+        folderInfo.spanY=1;
+
         // Create the view
         FolderIcon newFolder =
                 FolderIcon.fromXml(this, layout, folderInfo, mIconCache);

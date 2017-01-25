@@ -11,16 +11,12 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -513,17 +509,18 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         }
     }
 
-    private void mapToFolderCellLayout(DragObject d){
-        d.x = (d.x-mContent.getLeft());
-        d.y=(d.y-mContent.getTop());
+    private void mapToFolderCellLayout(DragObject d) {
+        d.x = (d.x - mContent.getLeft());
+        d.y = (d.y - mContent.getTop());
     }
+
     public void onDragOver(DragObject d) {
         mapToFolderCellLayout(d);
         float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView, null);
 
-        mTargetCell = mContent.findNearestArea((int)r[0],(int)r[1], 1, 1, mTargetCell);
+        mTargetCell = mContent.findNearestArea((int) r[0], (int) r[1], 1, 1, mTargetCell);
 
-        Timber.v(" r[0] :: r[1] :: left :: " + r[0] + " " + r[1] +  "  " + mContent.getLeft() +"  cell ::  previous cell  " + mTargetCell[0] + " " + mTargetCell[1] +"  " + mPreviousTargetCell[0] +"  "+mPreviousTargetCell[1]);
+        Timber.v(" r[0] :: r[1] :: left :: " + r[0] + " " + r[1] + "  " + mContent.getLeft() + "  cell ::  previous cell  " + mTargetCell[0] + " " + mTargetCell[1] + "  " + mPreviousTargetCell[0] + "  " + mPreviousTargetCell[1]);
 
         if (mTargetCell[0] != mPreviousTargetCell[0] || mTargetCell[1] != mPreviousTargetCell[1]) {
             mReorderAlarm.cancelAlarm();
@@ -711,14 +708,6 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
 
     private void setupContentForNumItems(int count) {
         setupContentDimensions(count);
-
-//        DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
-//        if (lp == null) {
-//            lp = new DragLayer.LayoutParams(0, 0);
-//          //  lp.customPosition = true;
-//           // setLayoutParams(lp);
-//        }
-        //  centerAboutIcon();
     }
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
