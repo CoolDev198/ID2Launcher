@@ -74,9 +74,18 @@ public class ShortcutInfo extends ItemInfo {
         }
         mIcon = info.mIcon; // TODO: should make a copy here.  maybe we don't need this ctor at all
         customIcon = info.customIcon;
+        screen = info.screen;
     }
 
     /** TODO: Remove this.  It's only called by ApplicationInfo.makeShortcut. */
+    public ShortcutInfo(AppInfo info, int screen) {
+        super(info);
+        title = info.title.toString();
+        intent = new Intent(info.intent);
+        customIcon = false;
+        this.screen = screen;
+    }
+
     public ShortcutInfo(AppInfo info) {
         super(info);
         title = info.title.toString();

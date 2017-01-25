@@ -87,15 +87,14 @@ public class ItemInfo {
     public int[] dropPos = null;
 
     public ItemInfo(AppInfo info) {
-
-
+        screen = info.screen;
     }
 
     public ItemInfo() {
     }
 
-    public ItemInfo(ShortcutInfo info) {
-
+    public ItemInfo(ItemInfo info) {
+        screen = info.screen;
     }
 
     static byte[] flattenBitmap(Bitmap bitmap) {
