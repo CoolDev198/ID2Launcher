@@ -111,6 +111,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
     private int mDragMode = DRAG_MODE_NONE;
     private int mLastReorderX = -1;
     private int mLastReorderY = -1;
+    private int mScreen = -1;
 
 
     public WorkSpace(Context context, AttributeSet attrs) {
@@ -499,6 +500,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                   //  Timber.v("best machi :: " + i);
                     //   Timber.v("touch point  x ::  old y :: new y :: scroll y  " + originX + " " + originY + "  " + "  " +newy  + "  " +launcher.getScrollView().getScrollY());
                     bestMatchingScreen = (CellLayout) child;
+                    mScreen = i;
                 }
             }
         }
@@ -747,6 +749,7 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
 
         final long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
         final int screen = indexOfChild(cellLayout);
+        //info.screen = screen;
 
         if (info instanceof PendingAddItemInfo) {
             final PendingAddItemInfo pendingInfo = (PendingAddItemInfo) dragInfo;
@@ -835,7 +838,8 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
                 case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
                     if (info.container == NO_ID && info instanceof AppInfo) {
                         // Came from all apps -- make a copy
-                        info = new ShortcutInfo((AppInfo) info);
+                        info = new ShortcutInfo((AppInfo) info, mScreen);
+                        //info.setScreen(mScreen);
                     }
 
                     view = launcher.createShortcut(R.layout.app_item_view, cellLayout,
@@ -930,7 +934,13 @@ public class WorkSpace extends LinearLayout implements ViewGroup.OnHierarchyChan
         // Show folder title if not in the hotseat
         if (child instanceof FolderIcon) {}
 
+        /*if(screen == -1){
+            layout = (CellLayout) getChildAt(0);
+        } else {
+            layout = (CellLayout) getChildAt(screen);
+        }*/
         layout = (CellLayout) getChildAt(screen);
+
         // child.setOnKeyListener(new IconKeyEventListener());
 
 
