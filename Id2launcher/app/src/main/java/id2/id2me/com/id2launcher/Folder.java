@@ -513,9 +513,13 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         }
     }
 
-    private void mapToFolderCElllayout
+    private void mapToFolderCellLayout(DragObject d){
+        d.x = (d.x-mContent.getLeft());
+        d.y=(d.y-mContent.getTop());
+    }
     public void onDragOver(DragObject d) {
-        float[] r = getDragViewVisualCenter((d.x-mContent.getLeft()), (d.y-mContent.getTop()), d.xOffset, d.yOffset, d.dragView, null);
+        mapToFolderCellLayout(d);
+        float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView, null);
 
         mTargetCell = mContent.findNearestArea((int)r[0],(int)r[1], 1, 1, mTargetCell);
 
