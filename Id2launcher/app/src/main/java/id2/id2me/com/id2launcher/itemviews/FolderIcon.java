@@ -19,6 +19,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -311,8 +312,18 @@ public class FolderIcon extends LinearLayout implements FolderInfo.FolderListene
         layout.showFolderAccept(mFolderRingAnimator);
     }
 
-    public void performDestroyAnimation(View finalChild, Runnable onCompleteRunnable) {
+    public void performDestroyAnimation(View finalView, Runnable onCompleteRunnable) {
+        //Drawable animateDrawable = ((TextView) finalView).getCompoundDrawables()[1];
 
+        Drawable animateDrawable = ((ImageView) finalView.findViewById(R.id.app_image)).getDrawable();
+
+        computePreviewDrawingParams(animateDrawable.getIntrinsicWidth(),
+                finalView.getMeasuredWidth());
+
+        // This will animate the first item from it's position as an icon into its
+        // position as the first item in the preview
+        animateFirstItem(animateDrawable, FINAL_ITEM_ANIMATION_DURATION, true,
+                onCompleteRunnable);
 
     }
 
