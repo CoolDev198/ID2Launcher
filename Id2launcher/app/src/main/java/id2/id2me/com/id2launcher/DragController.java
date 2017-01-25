@@ -435,8 +435,7 @@ public class DragController {
 
     private void handleMoveEvent(int x, int y) {
 
-        Timber.v("handleMoveEvent "+ x + "   " + y);
-
+        Timber.v("handleMoveEvent   "+   x  + "   " +   y);
         if (y > mLauncher.getScrollView().getHeight() - 150) {
             mLauncher.getScrollView().smoothScrollBy(0, 15);
         } else if (y < 400) {
@@ -450,6 +449,9 @@ public class DragController {
         DropTarget dropTarget = findDropTarget(x, y, coordinates);
         mDragObject.x = coordinates[0];
         mDragObject.y = coordinates[1];
+
+        Timber.v("handleMoveEvent  dragobject "+   mDragObject.x  + "   " +   mDragObject.y);
+
         checkTouchMove(dropTarget);
 
         // Check if we are hovering over the scroll areas
@@ -646,17 +648,13 @@ public class DragController {
                 int scrollY= mLauncher.getScrollView().getScrollY();
 
                 if(target instanceof  ButtonDropTarget){
-                    Timber.v(" target :  delete drop target" );
-                }
-
-                if(target instanceof  WallpaperContainer){
-                    Timber.v(" target :  WallpaperContainer drop target" );
-                    dropCoordinates[1] = 60;
-                }
-
-                if(target instanceof  WorkSpace){
-                    Timber.v(" target :  WallpaperContainer drop target" );
+                    Timber.v(" droptarget :  delete drop target" );
+                }else if(target instanceof  WorkSpace){
+                    Timber.v(" droptarget :  Workspace  drop target" );
                     dropCoordinates[1] = y- wallPaperHeight +scrollY;
+                }else if(target instanceof Folder){
+                    dropCoordinates[1]=y;
+                    Timber.v("droptarget : FOlder");
                 }
 
                 return target;

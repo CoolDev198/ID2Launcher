@@ -513,9 +513,13 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         }
     }
 
+    private void mapToFolderCElllayout
     public void onDragOver(DragObject d) {
-        float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView, null);
-        mTargetCell = mContent.findNearestArea((int) r[0], (int) r[1], 1, 1, mTargetCell);
+        float[] r = getDragViewVisualCenter((d.x-mContent.getLeft()), (d.y-mContent.getTop()), d.xOffset, d.yOffset, d.dragView, null);
+
+        mTargetCell = mContent.findNearestArea((int)r[0],(int)r[1], 1, 1, mTargetCell);
+
+        Timber.v(" r[0] :: r[1] :: left :: " + r[0] + " " + r[1] +  "  " + mContent.getLeft() +"  cell ::  previous cell  " + mTargetCell[0] + " " + mTargetCell[1] +"  " + mPreviousTargetCell[0] +"  "+mPreviousTargetCell[1]);
 
         if (mTargetCell[0] != mPreviousTargetCell[0] || mTargetCell[1] != mPreviousTargetCell[1]) {
             mReorderAlarm.cancelAlarm();
@@ -692,59 +696,6 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         return getItemCount() >= mMaxNumItems;
     }
 
-    private void centerAboutIcon() {
-        DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
-
-        int width = getPaddingLeft() + getPaddingRight() + mContent.getDesiredWidth();
-        int height = getPaddingTop() + getPaddingBottom() + mContent.getDesiredHeight();
-        DragLayer parent = (DragLayer) mLauncher.findViewById(R.id.drag_layer);
-
-        float scale = parent.getDescendantRectRelativeToSelf(mFolderIcon, mTempRect);
-
-        int centerX = (int) (mTempRect.left + mTempRect.width() * scale / 2);
-        int centerY = (int) (mTempRect.top + mTempRect.height() * scale / 2);
-        int centeredLeft = centerX - width / 2;
-        int centeredTop = centerY - height / 2;
-
-        int currentPage = mLauncher.getWokSpace().getCurrentPage();
-        // In case the workspace is scrolling, we need to use the final scroll to compute
-        // the folders bounds.
-        //   mLauncher.getWokSpace().setFinalScrollForPageChange(currentPage);
-        // We first fetch the currently visible CellLayoutChildren
-        CellLayout currentLayout = (CellLayout) mLauncher.getWokSpace().getChildAt(currentPage);
-        ShortcutAndWidgetContainer boundingLayout = currentLayout.getShortcutsAndWidgets();
-        Rect bounds = new Rect();
-        parent.getDescendantRectRelativeToSelf(boundingLayout, bounds);
-        // We reset the workspaces scroll
-        //   mLauncher.getWokSpace().resetFinalScrollForPageChange(currentPage);
-
-        // We need to bound the folder to the currently visible CellLayoutChildren
-        int left = Math.min(Math.max(bounds.left, centeredLeft),
-                bounds.left + bounds.width() - width);
-        int top = Math.min(Math.max(bounds.top, centeredTop),
-                bounds.top + bounds.height() - height);
-        // If the folder doesn't fit within the bounds, center it about the desired bounds
-        if (width >= bounds.width()) {
-            left = bounds.left + (bounds.width() - width) / 2;
-        }
-        if (height >= bounds.height()) {
-            top = bounds.top + (bounds.height() - height) / 2;
-        }
-
-        int folderPivotX = width / 2 + (centeredLeft - left);
-        int folderPivotY = height / 2 + (centeredTop - top);
-        setPivotX(folderPivotX);
-        setPivotY(folderPivotY);
-        mFolderIconPivotX = 0;//(int) (mFolderIcon.getMeasuredWidth() *
-        //  (1.0f * folderPivotX / width));
-        mFolderIconPivotY = 0;//(int) (mFolderIcon.getMeasuredHeight() *
-        // (1.0f * folderPivotY / height));
-
-        lp.width = width;
-        lp.height = height;
-        lp.x = 0;
-        lp.y = 0;
-    }
 
     float getPivotXForIconAnimation() {
         return mFolderIconPivotX;
@@ -782,7 +733,7 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
 
         int top = (height - mContent.getDesiredHeight()) / 2;
         int left = (width - mContent.getDesiredWidth()) / 2;
-        Timber.v("Top : " + top + " h : " + mContent.getDesiredHeight());
+        Timber.v("Top :  left :: " + top + "  " + left);
         params.setMargins(left, top, 0, 0);
         mContent.setLayoutParams(params);
         outR = new Rect(left, top, left + mContent.getDesiredWidth(), top + mContent.getDesiredHeight());
