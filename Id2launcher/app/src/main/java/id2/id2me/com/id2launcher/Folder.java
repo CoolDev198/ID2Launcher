@@ -574,6 +574,8 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
             mOnExitAlarm.setAlarm(ON_EXIT_CLOSE_DELAY);
         }
         mReorderAlarm.cancelAlarm();
+        mLauncher.getDropTargetBar().setVisibility(VISIBLE);
+
     }
 
     public void onDropCompleted(View target, DragObject d, boolean isFlingToDelete,
@@ -609,6 +611,7 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         // Reordering may have occured, and we need to save the new item locations. We do this once
         // at the end to prevent unnecessary database operations.
         updateItemLocationsInDatabase();
+        mLauncher.getDropTargetBar().setVisibility(GONE);
     }
 
     @Override
