@@ -568,12 +568,15 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
     public void onDragExit(DragObject d) {
         // We only close the folder if this is a true drag exit, ie. not because a drop
         // has occurred above the folder.
+        mLauncher.getDropTargetBar().setVisibility(VISIBLE);
         Timber.v(" folder ondragexit");
         if (!d.dragComplete) {
             mOnExitAlarm.setOnAlarmListener(mOnExitAlarmListener);
             mOnExitAlarm.setAlarm(ON_EXIT_CLOSE_DELAY);
         }
         mReorderAlarm.cancelAlarm();
+
+
     }
 
     public void onDropCompleted(View target, DragObject d, boolean isFlingToDelete,
@@ -609,6 +612,7 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
         // Reordering may have occured, and we need to save the new item locations. We do this once
         // at the end to prevent unnecessary database operations.
         updateItemLocationsInDatabase();
+        mLauncher.getDropTargetBar().setVisibility(GONE);
     }
 
     @Override
