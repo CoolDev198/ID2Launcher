@@ -568,13 +568,14 @@ public class Folder extends FrameLayout implements DragSource, View.OnClickListe
     public void onDragExit(DragObject d) {
         // We only close the folder if this is a true drag exit, ie. not because a drop
         // has occurred above the folder.
+        mLauncher.getDropTargetBar().setVisibility(VISIBLE);
         Timber.v(" folder ondragexit");
         if (!d.dragComplete) {
             mOnExitAlarm.setOnAlarmListener(mOnExitAlarmListener);
             mOnExitAlarm.setAlarm(ON_EXIT_CLOSE_DELAY);
         }
         mReorderAlarm.cancelAlarm();
-        mLauncher.getDropTargetBar().setVisibility(VISIBLE);
+
 
     }
 
