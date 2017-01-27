@@ -15,10 +15,11 @@
 -->
 <id2.id2me.com.id2launcher.Folder
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:id="@+id/layout_root"
-    android:background="@color/tab_background_color">
+    android:background="@color/tab_background_color"
+    >
 
 
         <id2.id2me.com.id2launcher.FolderCellLayout

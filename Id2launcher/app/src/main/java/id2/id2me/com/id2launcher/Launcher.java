@@ -693,6 +693,14 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
         sFolders.put(folderInfo.id, folderInfo);
 
+        //Todo need to change while storing database
+        folderInfo.screen=screen;
+        folderInfo.container=container;
+        folderInfo.cellX=cellX;
+        folderInfo.cellY=cellY;
+        folderInfo.spanX=1;
+        folderInfo.spanY=1;
+
         // Create the view
         FolderIcon newFolder =
                 FolderIcon.fromXml(this, layout, folderInfo, mIconCache);
@@ -774,6 +782,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         // Just verify that the folder hasn't already been added to the DragLayer.
         // There was a one-off crash where the folder had a parent already.
         if (folder.getParent() == null) {
+
             dragLayer.addView(folder);
             dragController.addDropTarget((DropTarget) folder);
         } else {
@@ -796,6 +805,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
         copyFolderIconToImage(fi);
         fi.setVisibility(View.INVISIBLE);
 
+        dragLayer.setBackgroundColor(ContextCompat.getColor(this,R.color.tab_background_color));
         ObjectAnimator oa = LauncherAnimUtils.ofPropertyValuesHolder(mFolderIconImageView, alpha,
                 scaleX, scaleY);
         oa.setDuration(getResources().getInteger(R.integer.config_folderAnimDuration));
@@ -875,6 +885,7 @@ public class Launcher extends FragmentActivity implements LauncherModel.Callback
 
     private void shrinkAndFadeInFolderIcon(final FolderIcon fi) {
         if (fi == null) return;
+        dragLayer.setBackgroundColor(Color.TRANSPARENT);
         PropertyValuesHolder alpha = PropertyValuesHolder.ofFloat("alpha", 1.0f);
         PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.0f);
         PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.0f);
